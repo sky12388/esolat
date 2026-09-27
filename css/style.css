@@ -1,0 +1,154 @@
+/* ==============================================================================
+   Skywalker e-Solat Kiosk — Product Landing Page Stylesheet
+   Theme: Emerald Green (#064E3B), Warm Gold (#D97706 / #F59E0B), Slate Dark
+   ============================================================================== */
+
+:root {
+  --primary-emerald: #064e3b;
+  --primary-light: #059669;
+  --accent-gold: #d97706;
+  --accent-amber: #f59e0b;
+  --bg-dark: #0a0f1d;
+  --bg-card: rgba(15, 23, 42, 0.75);
+  --border-emerald: rgba(16, 185, 129, 0.25);
+  --border-gold: rgba(245, 158, 11, 0.3);
+}
+
+html {
+  scroll-behavior: smooth;
+  font-family: 'Outfit', sans-serif;
+}
+
+/* Islamic Geometric Pattern Background Overlay */
+.bg-islamic-pattern {
+  background-color: var(--bg-dark);
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(5, 150, 105, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 100% 50%, rgba(217, 119, 6, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 0% 100%, rgba(5, 150, 105, 0.12) 0%, transparent 40%);
+}
+
+.arabic-font {
+  font-family: 'Amiri', serif;
+}
+
+.mono-font {
+  font-family: 'Space Grotesk', monospace;
+}
+
+/* Glassmorphism Cards */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-panel-emerald {
+  background: linear-gradient(135deg, rgba(6, 78, 59, 0.5), rgba(15, 23, 42, 0.75));
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.glass-panel-gold {
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.15), rgba(15, 23, 42, 0.8));
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+/* TV Bezel / Frame Mockup */
+.tv-chassis {
+  position: relative;
+  background: #020617;
+  border: 12px solid #1e293b;
+  border-radius: 20px;
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.7),
+    0 0 40px rgba(5, 150, 105, 0.25);
+  overflow: hidden;
+}
+
+.tv-stand {
+  width: 140px;
+  height: 18px;
+  background: linear-gradient(180deg, #334155, #1e293b);
+  margin: 0 auto;
+  border-radius: 0 0 6px 6px;
+}
+
+.tv-base {
+  width: 260px;
+  height: 8px;
+  background: linear-gradient(90deg, #1e293b, #475569, #1e293b);
+  margin: 0 auto;
+  border-radius: 4px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+}
+
+/* Pulsing Glow Animation */
+@keyframes pulse-emerald {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(16, 185, 129, 0.6);
+  }
+}
+
+.pulse-glow {
+  animation: pulse-emerald 3s infinite ease-in-out;
+}
+
+/* Custom Marquee for Ticker */
+@keyframes marquee-sim {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+.ticker-text-anim {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee-sim 25s linear infinite;
+}
+
+/* Feature Badge Glow */
+.badge-emerald {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #34d399;
+}
+
+.badge-gold {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #fbbf24;
+}
+
+/* Accordion transition */
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease-out, opacity 0.3s ease;
+  opacity: 0;
+}
+
+.faq-item.active .faq-answer {
+  max-height: 500px;
+  opacity: 1;
+}
+
+.faq-item.active .faq-chevron {
+  transform: rotate(180deg);
+}
+
+/* Simulator TV Viewports */
+.sim-overlay {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.sim-overlay.active {
+  display: flex;
+  opacity: 1;
+}

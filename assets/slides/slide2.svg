@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="50%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#022c22"/>
+    </linearGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#bg2)"/>
+  
+  <!-- Border -->
+  <rect x="60" y="60" width="1800" height="960" rx="24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-opacity="0.5"/>
+  
+  <text x="960" y="220" font-family="serif, sans-serif" font-size="48" fill="#38bdf8" text-anchor="middle" font-weight="bold">سَوُّوا صُفُوفَكُمْ فَإِنَّ تَسْوِيَةَ الصُّفُوفِ مِنْ إِقَامَةِ الصَّلَاةِ</text>
+  <text x="960" y="310" font-family="system-ui, sans-serif" font-size="36" fill="#f8fafc" text-anchor="middle" font-weight="bold">RAPATKAN &amp; LURUSKAN SAF</text>
+  
+  <rect x="300" y="380" width="1320" height="340" rx="20" fill="#1e293b" fill-opacity="0.6" stroke="#60a5fa" stroke-width="1" stroke-opacity="0.3"/>
+  <text x="960" y="470" font-family="system-ui, sans-serif" font-size="34" fill="#f1f5f9" text-anchor="middle">
+    "Luruskan saf-saf kalian, kerana meluruskan saf
+  </text>
+  <text x="960" y="530" font-family="system-ui, sans-serif" font-size="34" fill="#f1f5f9" text-anchor="middle">
+    merupakan sebahagian daripada kesempurnaan solat."
+  </text>
+  <text x="960" y="620" font-family="system-ui, sans-serif" font-size="26" fill="#fbbf24" text-anchor="middle">
+    — (Hadis Riwayat Al-Bukhari &amp; Muslim)
+  </text>
+  
+  <text x="960" y="820" font-family="system-ui, sans-serif" font-size="28" fill="#a7f3d0" text-anchor="middle">
+    Bahu bertemu bahu, tumit sejajar dengan garisan saf masjid.
+  </text>
+</svg>

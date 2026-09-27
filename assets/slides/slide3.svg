@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#14532d"/>
+      <stop offset="60%" stop-color="#064e3b"/>
+      <stop offset="100%" stop-color="#022c22"/>
+    </linearGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#bg3)"/>
+  
+  <rect x="60" y="60" width="1800" height="960" rx="24" fill="none" stroke="#f59e0b" stroke-width="3" stroke-opacity="0.7"/>
+  
+  <text x="960" y="200" font-family="system-ui, sans-serif" font-size="44" fill="#fbbf24" text-anchor="middle" font-weight="bold">TABUNG INFAQ &amp; WAKAF MASJID</text>
+  <text x="960" y="260" font-family="system-ui, sans-serif" font-size="26" fill="#a7f3d0" text-anchor="middle">Imarahkan Rumah Allah Dengan Sedekah &amp; Amal Jariah Anda</text>
+  
+  <!-- Info Box -->
+  <rect x="360" y="320" width="1200" height="520" rx="20" fill="#022c22" fill-opacity="0.8" stroke="#f59e0b" stroke-width="2" stroke-opacity="0.5"/>
+  
+  <!-- QR placeholder representation -->
+  <rect x="440" y="380" width="400" height="400" rx="16" fill="#ffffff"/>
+  <rect x="480" y="420" width="100" height="100" fill="#022c22"/>
+  <rect x="500" y="440" width="60" height="60" fill="#ffffff"/>
+  <rect x="700" y="420" width="100" height="100" fill="#022c22"/>
+  <rect x="720" y="440" width="60" height="60" fill="#ffffff"/>
+  <rect x="480" y="640" width="100" height="100" fill="#022c22"/>
+  <rect x="500" y="660" width="60" height="60" fill="#ffffff"/>
+  <circle cx="640" cy="580" r="30" fill="#d97706"/>
+  <text x="640" y="760" font-family="system-ui, sans-serif" font-size="20" fill="#022c22" text-anchor="middle" font-weight="bold">DUITNOW QR</text>
+  
+  <!-- Bank Details -->
+  <text x="920" y="440" font-family="system-ui, sans-serif" font-size="30" fill="#fbbf24" font-weight="bold">NAMA AKAUN:</text>
+  <text x="920" y="485" font-family="system-ui, sans-serif" font-size="34" fill="#ffffff" font-weight="bold">TABUNG PEMBANGUNAN SURAU</text>
+  
+  <text x="920" y="560" font-family="system-ui, sans-serif" font-size="30" fill="#fbbf24" font-weight="bold">BANK / NO. AKAUN:</text>
+  <text x="920" y="610" font-family="monospace" font-size="38" fill="#38bdf8" font-weight="bold">BANK ISLAM: 1202-9010-0456-78</text>
+  <text x="920" y="660" font-family="monospace" font-size="38" fill="#38bdf8" font-weight="bold">MAYBANK: 5621-0678-9012</text>
+  
+  <text x="920" y="740" font-family="system-ui, sans-serif" font-size="24" fill="#a7f3d0">
+    "Harta tidak akan berkurang kerana sedekah." — (HR Muslim)
+  </text>
+</svg>

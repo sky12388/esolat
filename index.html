@@ -678,7 +678,7 @@
               💾
             </div>
             <div>
-              <h4 class="font-bold text-white text-base">128GB NVMe/SATA SSD &amp; 8GB RAM</h4>
+              <h4 class="font-bold text-white text-base">Storan Pantas NVMe/SATA SSD &amp; Memori RAM Berkecekapan Tinggi</h4>
               <p class="text-xs text-slate-300 mt-1 leading-relaxed">
                 Kelajuan boot Debian Linux sepantas 8 saat. Storan tahan gegaran dan bebas kerosakan fail sekiranya bekalan elektrik terputus secara tiba-tiba.
               </p>
@@ -763,6 +763,10 @@
         <p class="mt-4 text-slate-400 text-sm sm:text-base">
           Sifar yuran bulanan. Tiada sebarang bayaran tersembunyi. Sebut harga rasmi (Official Quotation) disediakan untuk mesyuarat AJK masjid.
         </p>
+        <div class="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-slate-300">
+          <span class="text-amber-400 font-bold">ℹ️ Maklumat OS:</span>
+          <span>Perisian e-Solat dibina khusus untuk sistem operasi berasaskan <b>Linux Debian</b> (Debian 12 / 13 / Ubuntu).</span>
+        </div>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
@@ -770,42 +774,55 @@
         <!-- Tier 1: Software Only DIY -->
         <div class="glass-panel p-8 rounded-3xl flex flex-col justify-between border hover:border-slate-600 transition">
           <div>
-            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">PAKEJ DIY / PERISIAN SAHAJA</div>
+            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">PAKEJ DIY / LESEN SAHAJA</div>
             <h3 class="text-2xl font-black text-white">Lesen Perisian e-Solat</h3>
-            <p class="text-xs text-slate-400 mt-1">Sesuai jika surau sudah mempunyai komputer PC/Mini PC sendiri.</p>
+            <p class="text-xs text-slate-400 mt-1 leading-relaxed">Sesuai jika surau sudah mempunyai perkakasan komputer PC sendiri.</p>
 
             <div class="my-6">
-              <span class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Harga bermula dari</span>
+              <span class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Harga Lesen</span>
               <span class="text-3xl font-black text-white">RM 499.00</span>
-              <span class="text-xs text-slate-400 font-medium"> / Sekali Bayar</span>
+              <span class="text-xs text-slate-400 font-medium"> (Sekali Bayar / Lifetime)</span>
+            </div>
+
+            <!-- Badge / Note Khusus Linux -->
+            <div class="mb-5 p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs">
+              <div class="font-bold text-amber-400 mb-1 flex items-center gap-1.5">
+                <span>🖥️ Keperluan Sistem Operasi:</span>
+              </div>
+              <p class="text-slate-200 text-[11px] leading-relaxed">
+                Khusus Sistem <b>Linux (Debian / Ubuntu Sahaja — Tidak Menyokong Windows)</b>.
+              </p>
+              <p class="text-[10px] text-amber-300/90 mt-1 font-medium">
+                ⚠️ Tidak serasi dengan Windows atau Android TV Box.
+              </p>
             </div>
 
             <ul class="space-y-3 text-xs text-slate-300">
-              <li class="flex items-center gap-2">
-                <span class="text-emerald-400 font-bold">&#10003;</span>
-                <span>Pakej Pemasang Debian (<code>.deb</code> 1.8 MB)</span>
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-400 font-bold shrink-0 mt-0.5">&#10003;</span>
+                <span>Pakej Pemasang Rasmi Debian (<code>.deb</code>)</span>
               </li>
-              <li class="flex items-center gap-2">
-                <span class="text-emerald-400 font-bold">&#10003;</span>
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-400 font-bold shrink-0 mt-0.5">&#10003;</span>
                 <span>Lesen Kekal Seumur Hidup (Machine ID)</span>
               </li>
-              <li class="flex items-center gap-2">
-                <span class="text-emerald-400 font-bold">&#10003;</span>
-                <span>Enjin Takwim JAKIM &amp; Audio Azan MP3</span>
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-400 font-bold shrink-0 mt-0.5">&#10003;</span>
+                <span>Enjin Takwim Automatik JAKIM &amp; Audio Azan MP3</span>
               </li>
-              <li class="flex items-center gap-2">
-                <span class="text-emerald-400 font-bold">&#10003;</span>
-                <span>Panel Pentadbir Telefon Pintar</span>
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-400 font-bold shrink-0 mt-0.5">&#10003;</span>
+                <span>Panel Pentadbir Tanpa Wayar (Kemas kini melalui telefon pintar)</span>
               </li>
-              <li class="flex items-center gap-2">
-                <span class="text-emerald-400 font-bold">&#10003;</span>
-                <span>Panduan Lengkap Pemasangan (PDF)</span>
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-400 font-bold shrink-0 mt-0.5">&#10003;</span>
+                <span>Panduan Lengkap Pemasangan &amp; Konfigurasi Linux (PDF)</span>
               </li>
             </ul>
           </div>
 
           <div class="mt-8">
-            <button onclick="requestQuotation('Pakej Perisian Sahaja (RM 499.00)')" class="w-full py-3 rounded-xl font-bold text-xs bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 transition">
+            <button onclick="requestQuotation('Pakej 1: Lesen Perisian e-Solat (Debian Linux DIY - RM 499.00)')" class="w-full py-3 rounded-xl font-bold text-xs bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 transition">
               Tempah Pakej Perisian &rarr;
             </button>
           </div>
@@ -818,46 +835,60 @@
           </div>
 
           <div>
-            <div class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">PAKEJ LENGKAP TURNKEY</div>
-            <h3 class="text-2xl font-black text-white">Mini PC e-Solat Plug &amp; Play</h3>
-            <p class="text-xs text-slate-300 mt-1">Siap dipasang Debian Linux &amp; ditala mengikut zon kariah anda.</p>
+            <div class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">PAKEJ MINI KIOSK PLUG &amp; PLAY</div>
+            <h3 class="text-2xl font-black text-white">Mini Kiosk e-Solat Plug &amp; Play</h3>
+            <p class="text-xs text-slate-300 mt-1">Sistem lengkap sedia guna untuk paparan TV surau &amp; masjid.</p>
 
             <div class="my-6">
               <span class="block text-[10px] font-bold uppercase tracking-widest text-slate-300 mb-1">Harga bermula dari</span>
-              <span class="text-4xl font-black text-amber-400">RM 1499.00</span>
+              <span class="text-4xl font-black text-amber-400">RM 1,499.00</span>
               <span class="text-xs text-slate-300 font-medium"> / Unit Lengkap</span>
             </div>
 
+            <!-- Hardware Profile Note -->
+            <div class="mb-5 p-3 rounded-2xl bg-emerald-950/80 border border-emerald-500/40 text-xs">
+              <div class="font-bold text-amber-400 mb-0.5 flex items-center gap-1.5">
+                <span>⚡ Profil Perkakasan:</span>
+              </div>
+              <p class="text-emerald-100 text-[11px]">
+                Ultra-Compact Thin Client PC (Sistem Rendah Kuasa)
+              </p>
+            </div>
+
             <ul class="space-y-3 text-xs text-slate-200">
-              <li class="flex items-center gap-2 font-bold text-white">
-                <span class="text-amber-400">&#10003;</span>
-                <span>Mini PC Intel N100 / 8GB RAM / 128GB SSD</span>
+              <li class="flex items-start gap-2 font-bold text-white">
+                <span class="text-amber-400 shrink-0 mt-0.5">&#10003;</span>
+                <span>Perkakasan Kiosk Kompak &amp; Jimat Tenaga (Operasi senyap 24/7)</span>
               </li>
-              <li class="flex items-center gap-2">
-                <span class="text-amber-400">&#10003;</span>
-                <span>Sistem Operasi Debian 12 + e-Solat Siap Dipasang</span>
+              <li class="flex items-start gap-2">
+                <span class="text-amber-400 shrink-0 mt-0.5">&#10003;</span>
+                <span>Storan Pantas SSD Bersama Penyejukan Pasif Optimum</span>
               </li>
-              <li class="flex items-center gap-2">
-                <span class="text-amber-400">&#10003;</span>
+              <li class="flex items-start gap-2">
+                <span class="text-amber-400 shrink-0 mt-0.5">&#10003;</span>
+                <span>Sistem Operasi Debian Linux Kiosk Edition Siap Dipasang (Kalis Virus)</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-amber-400 shrink-0 mt-0.5">&#10003;</span>
                 <span>Konfigurasi BIOS Auto Power-On (Kalis Blackout)</span>
               </li>
-              <li class="flex items-center gap-2">
-                <span class="text-amber-400">&#10003;</span>
-                <span>Lesen Kekal Seumur Hidup (Diaktifkan)</span>
+              <li class="flex items-start gap-2">
+                <span class="text-amber-400 shrink-0 mt-0.5">&#10003;</span>
+                <span>Lesen Kekal Seumur Hidup Diaktifkan</span>
               </li>
-              <li class="flex items-center gap-2">
-                <span class="text-amber-400">&#10003;</span>
-                <span>Kabel HDMI 4K + Kabel Audio 3.5mm PA System</span>
+              <li class="flex items-start gap-2">
+                <span class="text-amber-400 shrink-0 mt-0.5">&#10003;</span>
+                <span>Pakej Kabel Lengkap: Kabel HDMI Paparan Digital + Kabel Audio Sistem PA</span>
               </li>
-              <li class="flex items-center gap-2">
-                <span class="text-amber-400">&#10003;</span>
-                <span>Jaminan Perkakasan 1 Tahun (1-to-1 Exchange)</span>
+              <li class="flex items-start gap-2">
+                <span class="text-amber-400 shrink-0 mt-0.5">&#10003;</span>
+                <span>Jaminan Perkakasan 1 Tahun (Gantian 1-to-1)</span>
               </li>
             </ul>
           </div>
 
           <div class="mt-8">
-            <button onclick="requestQuotation('Pakej Lengkap Turnkey Mini PC (RM 1499.00)')" class="w-full py-3.5 rounded-xl font-extrabold text-sm bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-lg shadow-amber-950/50 transition">
+            <button onclick="requestQuotation('Pakej 2: Mini Kiosk e-Solat Plug & Play (RM 1,499.00)')" class="w-full py-3.5 rounded-xl font-extrabold text-sm bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-lg shadow-amber-950/50 transition">
               Dapatkan Sebut Harga Ini (WhatsApp) &rarr;
             </button>
           </div>
@@ -866,42 +897,60 @@
         <!-- Tier 3: Mosque Grand Tier -->
         <div class="glass-panel p-8 rounded-3xl flex flex-col justify-between border hover:border-slate-600 transition">
           <div>
-            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">PAKEJ MASJID PERDANA</div>
-            <h3 class="text-2xl font-black text-white">Pakej Siaran Kuliah &amp; TV</h3>
-            <p class="text-xs text-slate-400 mt-1">Lengkap bersama suis penstriman kamera kuliah &amp; pemasangan di lokasi.</p>
+            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">PAKEJ MASJID PERDANA &amp; WORKSTATION</div>
+            <h3 class="text-2xl font-black text-white">Workstation Kiosk &amp; Pasang Siap</h3>
+            <p class="text-xs text-slate-400 mt-1">Penyelesaian komprehensif bersama perkakasan berprestasi tinggi &amp; pemasangan di lokasi.</p>
 
             <div class="my-6">
               <span class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Harga bermula dari</span>
-              <span class="text-3xl font-black text-white">RM 2499.00</span>
+              <span class="text-3xl font-black text-white">RM 2,499.00</span>
               <span class="text-xs text-slate-400 font-medium"> / Lengkap Pasang</span>
             </div>
 
+            <!-- Hardware Profile Note -->
+            <div class="mb-5 p-3 rounded-2xl bg-slate-800/90 border border-slate-700 text-xs">
+              <div class="font-bold text-amber-400 mb-0.5 flex items-center gap-1.5">
+                <span>⚡ Profil Perkakasan:</span>
+              </div>
+              <p class="text-slate-200 text-[11px]">
+                Dedicated Desktop PC (mATX Architecture / Prestasi Tinggi)
+              </p>
+            </div>
+
             <ul class="space-y-3 text-xs text-slate-300">
-              <li class="flex items-center gap-2">
-                <span class="text-emerald-400 font-bold">&#10003;</span>
-                <span>Semua ciri Pakej Lengkap Turnkey</span>
+              <li class="flex items-start gap-2 font-bold text-white">
+                <span class="text-emerald-400 shrink-0 mt-0.5">&#10003;</span>
+                <span>Perkakasan Desktop mATX Berprestasi Tinggi (Ketahanan Maksimum &amp; Boleh Naik Taraf)</span>
               </li>
-              <li class="flex items-center gap-2">
-                <span class="text-emerald-400 font-bold">&#10003;</span>
-                <span>Sistem Suis HDMI &amp; Kad Rakaman Kuliah USB (MP4)</span>
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-400 shrink-0 mt-0.5">&#10003;</span>
+                <span>Dilengkapi Storan Pantas SSD &amp; Memori Berkecekapan Tinggi</span>
               </li>
-              <li class="flex items-center gap-2">
-                <span class="text-emerald-400 font-bold">&#10003;</span>
-                <span>Pemasangan Fizikal di Lokasi Surau (Lembah Klang)</span>
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-400 shrink-0 mt-0.5">&#10003;</span>
+                <span>Sokongan Pelbagai Port Paparan untuk Dewan Solat Utama</span>
               </li>
-              <li class="flex items-center gap-2">
-                <span class="text-emerald-400 font-bold">&#10003;</span>
-                <span>Sesi Latihan Pengendalian Panel Bersama AJK</span>
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-400 shrink-0 mt-0.5">&#10003;</span>
+                <span>Sistem Operasi Debian Linux Kiosk Edition Ditala Siap</span>
               </li>
-              <li class="flex items-center gap-2">
-                <span class="text-emerald-400 font-bold">&#10003;</span>
-                <span>Sokongan Teknikal VIP Keutamaan</span>
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-400 shrink-0 mt-0.5">&#10003;</span>
+                <span>Penghantaran &amp; Pemasangan Fizikal di Dewan Solat (Lembah Klang)</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-400 shrink-0 mt-0.5">&#10003;</span>
+                <span>Sesi Latihan Pengendalian Panel Pentadbir Bersama Barisan AJK</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-400 shrink-0 mt-0.5">&#10003;</span>
+                <span>Sokongan Teknikal di Lokasi &amp; Keutamaan VIP</span>
               </li>
             </ul>
           </div>
 
           <div class="mt-8">
-            <button onclick="requestQuotation('Pakej Masjid Perdana Siaran Kuliah (RM 2499.00)')" class="w-full py-3 rounded-xl font-bold text-xs bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 transition">
+            <button onclick="requestQuotation('Pakej 3: Workstation Kiosk & Pasang Siap (RM 2,499.00)')" class="w-full py-3 rounded-xl font-bold text-xs bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 transition">
               Minta Sebut Harga Masjid &rarr;
             </button>
           </div>
@@ -975,6 +1024,17 @@
           </button>
           <div class="faq-answer px-5 pb-5 text-xs sm:text-sm text-slate-300 leading-relaxed border-t border-slate-800/60 pt-3">
             Tiada sebarang yuran bulanan (RM0). Pakej kami adalah <b>Lesen Kekal (Lifetime License)</b> yang dikunci kepada perkakasan Mini PC surau anda.
+          </div>
+        </div>
+
+        <!-- FAQ 6 -->
+        <div class="faq-item glass-panel rounded-2xl overflow-hidden border border-slate-800 transition">
+          <button class="faq-question w-full p-5 text-left font-bold text-white text-sm sm:text-base flex items-center justify-between gap-4">
+            <span>6. Jika kami hanya membeli Pakej Perisian Sahaja (RM 499), adakah wajib guna Linux Debian?</span>
+            <span class="faq-chevron text-slate-400 text-sm transition-transform">&#9660;</span>
+          </button>
+          <div class="faq-answer px-5 pb-5 text-xs sm:text-sm text-slate-300 leading-relaxed border-t border-slate-800/60 pt-3">
+            <b>Ya, wajib.</b> Perisian Skywalker e-Solat dibina khusus dalam format pakej <code>.deb</code> untuk dijalankan di atas <b>Sistem Operasi berasaskan Linux Debian</b> (seperti Debian 12 Bookworm, Debian 13 Trixie, atau Ubuntu LTS). Sistem ini <b>tidak menyokong Windows mahupun Android TV Box</b>. Jika pihak surau tidak mempunyai komputer dengan Linux Debian terpasang, kami amat mengesyorkan mengambil <b>Mini Kiosk e-Solat Plug &amp; Play (RM 1,499)</b> yang sudah siap dipasang, ditala, dan diuji sepenuhnya (Plug &amp; Play).
           </div>
         </div>
 

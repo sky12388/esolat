@@ -157,8 +157,8 @@
                 📋 Tampal
               </button>
             </div>
-            <input type="text" id="inputHwid" placeholder="SURAU-XXXX-XXXX-XXXX" required uppercase autocomplete="off" class="w-full font-mono text-base tracking-wider uppercase font-bold py-3 px-4 rounded-xl bg-slate-950 border border-slate-700 text-amber-300 focus:outline-none focus:border-amber-400 placeholder-slate-600 transition">
-            <p class="text-[10px] text-slate-500 mt-1">Diberikan oleh pelanggan daripada menu 'Lesen' di skrin admin mereka.</p>
+            <input type="text" id="inputHwid" placeholder="ESOLAT-XXXX-XXXX-XXXX" required uppercase autocomplete="off" class="w-full font-mono text-base tracking-wider uppercase font-bold py-3 px-4 rounded-xl bg-slate-950 border border-slate-700 text-amber-300 focus:outline-none focus:border-amber-400 placeholder-slate-600 transition">
+            <p class="text-[10px] text-slate-500 mt-1">Diberikan oleh pelanggan daripada menu 'Lesen' di skrin admin mereka (cth: ESOLAT-XXXX-XXXX-XXXX).</p>
           </div>
 
           <!-- License Type Selection -->
@@ -184,8 +184,8 @@
 
           <!-- Mosque / Customer Name (Optional) -->
           <div>
-            <label class="text-xs font-bold text-slate-300 block mb-1.5">Nama Surau / Masjid (Pilihan)</label>
-            <input type="text" id="inputLicensee" placeholder="Cth: Surau Al-Ikhlas, Seksyen 7" class="w-full text-xs font-medium py-2.5 px-3.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-200 focus:outline-none focus:border-amber-400 placeholder-slate-600">
+            <label class="text-xs font-bold text-slate-300 block mb-1.5">Nama Masjid / Surau (Pilihan)</label>
+            <input type="text" id="inputLicensee" placeholder="Cth: Masjid Al-Falah / Surau Al-Ikhlas" class="w-full text-xs font-medium py-2.5 px-3.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-200 focus:outline-none focus:border-amber-400 placeholder-slate-600">
           </div>
 
           <!-- Customer WhatsApp Phone Number (Optional) -->
@@ -452,9 +452,17 @@
     const inputHwid = document.getElementById('inputHwid');
     inputHwid.addEventListener('input', (e) => {
       let val = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-      if (val.startsWith('SURAU')) {
-        let parts = ['SURAU'];
-        let rest = val.slice(5);
+      const knownPrefixes = ['ESOLAT', 'MASJID', 'SURAU', 'SKY'];
+      let foundPrefix = null;
+      for (const p of knownPrefixes) {
+        if (val.startsWith(p)) {
+          foundPrefix = p;
+          break;
+        }
+      }
+      if (foundPrefix) {
+        let parts = [foundPrefix];
+        let rest = val.slice(foundPrefix.length);
         for (let i = 0; i < rest.length && i < 12; i += 4) {
           parts.push(rest.slice(i, i + 4));
         }
@@ -485,8 +493,8 @@
 
     // Sample Quick Fill
     document.getElementById('btnQuickSample').addEventListener('click', () => {
-      inputHwid.value = 'SURAU-9B8A-7C6D-5E4F';
-      document.getElementById('inputLicensee').value = 'Surau Al-Ikhlas (Seksyen 7)';
+      inputHwid.value = 'ESOLAT-9B8A-7C6D-5E4F';
+      document.getElementById('inputLicensee').value = 'Masjid Al-Falah / Surau Al-Ikhlas';
       document.getElementById('inputPhone').value = '601118712388';
       showToast('Data contoh dimasukkan');
     });
@@ -496,12 +504,12 @@
       e.preventDefault();
       const hwid = inputHwid.value.trim().toUpperCase();
       if (!hwid || hwid.length < 8) {
-        alert('Sila masukkan Machine ID yang sah (cth: SURAU-XXXX-XXXX-XXXX)');
+        alert('Sila masukkan Machine ID yang sah (cth: ESOLAT-XXXX-XXXX-XXXX)');
         return;
       }
 
       const licType = document.querySelector('input[name="licenseType"]:checked').value;
-      const licensee = document.getElementById('inputLicensee').value.trim() || 'Surau Kariah';
+      const licensee = document.getElementById('inputLicensee').value.trim() || 'Masjid / Surau Kariah';
       const phone = document.getElementById('inputPhone').value.trim().replace(/[^0-9]/g, '');
 
       // Generate PIN and Lic Data
@@ -559,7 +567,7 @@
 Terima kasih atas bayaran dan langganan Sistem e-Solat Digital Kiosk.
 
 Berikut adalah maklumat Pengaktifan Lesen Rasmi anda:
-🕌 *Kariah / Surau:* ${d.licensee}
+🕌 *Masjid / Surau:* ${d.licensee}
 🆔 *Machine ID:* ${d.hwid}
 🔑 *Kod PIN Pengaktifan:* *${d.pin}*
 📦 *Jenis Lesen:* ${typeText}

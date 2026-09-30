@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Skywalker e-Solat Admin — Panel Kawalan Masjid</title>
+  <meta name="description" content="Aplikasi PWA Pengimbas IP dan Panel Kawalan Mudah Alih untuk Sistem e-Solat Masjid Pintar.">
+  
+  <!-- PWA & Mobile Web App Meta -->
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#064e3b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="eSolat Admin">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="./icons/favicon.png">
+
+  <!-- Tailwind CSS & Google Fonts -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            emerald: {
+              850: '#064e3b',
+              900: '#022c22',
+              950: '#011c15',
+            },
+            amber: {
+              450: '#f59e0b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+
+  <style>
+    * { -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: radial-gradient(circle at 50% 0%, #064e3b 0%, #022c22 45%, #011c15 100%);
+      min-height: 100vh;
+      color: #f1f5f9;
+    }
+    .font-mono-code {
+      font-family: 'Space Grotesk', monospace;
+    }
+    /* Radar animation */
+    @keyframes radarWave {
+      0% { transform: scale(0.6); opacity: 0.9; }
+      100% { transform: scale(2.2); opacity: 0; }
+    }
+    .radar-pulse {
+      animation: radarWave 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+    }
+    .radar-pulse-delayed {
+      animation: radarWave 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.75s infinite;
+    }
+    .glass-card {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(52, 211, 153, 0.2);
+    }
+  </style>
+</head>
+<body class="p-4 sm:p-6 flex flex-col justify-between max-w-md mx-auto min-h-screen">
+
+  <!-- ==================== TOP BAR & APP HEADER ==================== -->
+  <header class="mb-5">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-800 p-2.5 border border-emerald-400/40 flex items-center justify-center shadow-lg shadow-emerald-950/80">
+          <svg viewBox="0 0 100 100" class="w-full h-full">
+            <path d="M50 10 C50 10 32 30 32 50 C32 55 35 60 40 60 L60 60 C65 60 68 55 68 50 C68 30 50 10 50 10 Z" fill="#fbbf24"/>
+            <path d="M25 60 L75 60 L75 88 L25 88 Z" fill="#34d399"/>
+            <path d="M42 88 L42 70 C42 66 58 66 58 70 L58 88 Z" fill="#022c22"/>
+            <circle cx="50" cy="8" r="3" fill="#fbbf24"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-lg font-black tracking-tight text-white leading-tight">Skywalker <span class="text-amber-400">e-Solat</span></h1>
+          <p class="text-xs text-emerald-400 font-semibold tracking-wide">Panel Kawalan AJK &bull; PWA</p>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="flex items-center gap-2">
+        <button id="btnManualToggle" onclick="toggleManualInput()" class="p-2 rounded-xl bg-slate-800/80 border border-slate-700 text-slate-300 hover:text-emerald-400 transition" title="Input IP Manual">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== PWA INSTALL BANNER ==================== -->
+  <div id="pwaInstallBanner" class="hidden mb-4 p-3.5 rounded-2xl bg-gradient-to-r from-emerald-900/90 to-slate-900/90 border border-emerald-500/40 shadow-lg">
+    <div class="flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5">
+        <span class="text-2xl">📱</span>
+        <div>
+          <div class="text-xs font-bold text-white">Pasang Aplikasi e-Solat</div>
+          <div class="text-[11px] text-emerald-300">Akses pantas ke TV Surau terus dari skrin utama.</div>
+        </div>
+      </div>
+      <button id="btnInstallPwa" onclick="installPWA()" class="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-md transition">
+        Pasang
+      </button>
+    </div>
+  </div>
+
+  <!-- iOS PWA INSTRUCTIONS BANNER -->
+  <div id="iosInstallBanner" class="hidden mb-4 p-3.5 rounded-2xl bg-slate-900/95 border border-amber-500/40 text-xs text-slate-300">
+    <div class="flex items-start gap-2.5">
+      <span class="text-xl text-amber-400">📲</span>
+      <div>
+        <div class="font-bold text-amber-400 mb-1">Pasang di iPhone / iPad:</div>
+        <p class="text-[11px] leading-relaxed">Tekan butang <b>Kongsi (Share)</b> <svg class="inline w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg> di Safari, kemudian pilih <b>"Tambah ke Skrin Utama" (Add to Home Screen)</b>.</p>
+      </div>
+      <button onclick="document.getElementById('iosInstallBanner').style.display='none'" class="text-slate-400 hover:text-white">&times;</button>
+    </div>
+  </div>
+
+  <!-- ==================== MAIN CONTENT CONTAINER ==================== -->
+  <main class="flex-1 flex flex-col justify-center">
+
+    <!-- RECENTLY SAVED MOSQUE CARD (If exists in localStorage) -->
+    <div id="savedDeviceCard" class="hidden mb-4 p-4 rounded-2xl glass-card border border-emerald-500/40">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-[11px] font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          Peranti Terakhir Disambung
+        </span>
+        <button onclick="forgetSavedDevice()" class="text-[11px] text-slate-400 hover:text-rose-400 transition">Lupakan</button>
+      </div>
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="text-base font-bold text-white" id="savedMosqueName">Surau Al-Ikhlas</div>
+          <div class="text-xs font-mono-code text-slate-300" id="savedMosqueIp">192.168.0.2:8080</div>
+        </div>
+        <button onclick="connectToSaved()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-950/60 transition">
+          ⚡ Sambung
+        </button>
+      </div>
+    </div>
+
+    <!-- RADAR SCANNER ANIMATION & CONTROLLER -->
+    <div id="scannerSection" class="glass-card rounded-3xl p-6 text-center relative overflow-hidden shadow-2xl">
+      
+      <!-- Animated Waves -->
+      <div id="radarVisual" class="relative w-36 h-36 mx-auto my-4 flex items-center justify-center">
+        <div class="absolute inset-0 rounded-full border-2 border-emerald-500/30 radar-pulse pointer-events-none"></div>
+        <div class="absolute inset-0 rounded-full border-2 border-emerald-400/20 radar-pulse-delayed pointer-events-none"></div>
+        <div class="w-24 h-24 rounded-full bg-gradient-to-br from-emerald-600 to-slate-900 border-2 border-emerald-400 flex items-center justify-center text-4xl shadow-xl shadow-emerald-950 z-10">
+          🕌
+        </div>
+      </div>
+
+      <!-- Scanner Status Text -->
+      <h2 class="text-xl font-black text-white mb-1" id="scanTitle">Mengimbas Rangkaian Surau</h2>
+      <p class="text-xs text-slate-300 mb-4 px-2" id="scanSub">Sila pastikan telefon anda disambungkan ke Wi-Fi yang sama dengan TV e-Solat.</p>
+
+      <!-- Progress Bar -->
+      <div class="w-full bg-slate-800 rounded-full h-2.5 mb-2 overflow-hidden border border-slate-700/60">
+        <div id="scanProgressBar" class="bg-gradient-to-r from-emerald-500 to-amber-400 h-2.5 rounded-full transition-all duration-300 w-0"></div>
+      </div>
+      <div class="flex justify-between text-[11px] font-mono-code text-slate-400 mb-5">
+        <span id="scanStatusIp">Memulakan imbasan...</span>
+        <span id="scanProgressPercent">0%</span>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex gap-2 justify-center">
+        <button id="btnScanAction" onclick="startScanner()" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-bold text-sm shadow-lg shadow-emerald-950/80 border border-emerald-400/40 transition">
+          🔄 Imbas Semula Wi-Fi
+        </button>
+      </div>
+    </div>
+
+    <!-- DISCOVERED DEVICES LIST -->
+    <div id="discoveredSection" class="mt-4 hidden">
+      <div class="text-xs font-bold text-emerald-400 mb-2 uppercase tracking-wider flex items-center gap-1.5">
+        <span>📡</span> TV e-Solat Dijumpai (<span id="foundCount">0</span>)
+      </div>
+      <div id="discoveredList" class="space-y-2.5">
+        <!-- Injected via JS -->
+      </div>
+    </div>
+
+    <!-- MANUAL IP INPUT FORM (Collapsible) -->
+    <div id="manualIpSection" class="hidden mt-4 glass-card rounded-2xl p-4 border border-slate-700">
+      <div class="text-xs font-bold text-slate-200 mb-2 flex items-center justify-between">
+        <span>⚙️ Sambung Melalui IP Manual</span>
+        <button onclick="toggleManualInput()" class="text-slate-400 hover:text-white">&times;</button>
+      </div>
+      <form id="manualIpForm" onsubmit="handleManualConnect(event)" class="space-y-3">
+        <div>
+          <label class="block text-[11px] text-slate-400 mb-1">Alamat IP / Hostname TV:</label>
+          <div class="flex gap-2">
+            <input type="text" id="manualIpInput" placeholder="cth: 192.168.0.2" required class="flex-1 px-3 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700 text-white text-sm font-mono-code focus:outline-none focus:border-emerald-500">
+            <input type="text" id="manualPortInput" value="8080" required class="w-20 px-2 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700 text-white text-sm font-mono-code text-center focus:outline-none focus:border-emerald-500">
+          </div>
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold text-xs border border-emerald-500/40 transition">
+          Uji &amp; Sambung
+        </button>
+      </form>
+    </div>
+
+  </main>
+
+  <!-- ==================== LOGIN MODAL POPUP ==================== -->
+  <div id="loginModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-sm glass-card rounded-3xl p-6 border border-emerald-400/50 shadow-2xl relative">
+      
+      <!-- Close Button -->
+      <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+
+      <!-- Modal Header -->
+      <div class="text-center mb-5">
+        <div class="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-3xl mx-auto mb-3">
+          🔐
+        </div>
+        <h3 class="text-lg font-black text-white" id="modalMosqueTitle">Surau Al-Ikhlas</h3>
+        <p class="text-xs font-mono-code text-emerald-400" id="modalTargetIp">http://192.168.0.2:8080</p>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" onsubmit="handleModalLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">ID Pengguna:</label>
+          <input type="text" id="loginUser" value="admin" required autocomplete="username" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Kata Laluan (Password):</label>
+          <input type="password" id="loginPass" placeholder="Kosongkan jika kali pertama" autocomplete="current-password" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-emerald-500">
+          <p class="text-[10px] text-slate-400 mt-1">*Jika belum pernah tukar, kata laluan asal adalah kosong (blank).</p>
+        </div>
+
+        <div id="loginErrorMsg" class="hidden p-2.5 rounded-xl bg-rose-950/80 border border-rose-500/50 text-rose-300 text-xs text-center font-medium"></div>
+
+        <button type="submit" id="btnLoginSubmit" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-slate-950 font-black text-sm shadow-lg shadow-emerald-950/80 transition">
+          🔓 Log Masuk Panel Kawalan
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="mt-6 text-center text-xs text-slate-400/80 pt-3 border-t border-slate-800/80" style="opacity: 0.5;">
+    <div>Powered by <b>Skywalker Consortium</b> (SSM: AS0463209-A)</div>
+    <div class="text-[11px] text-slate-500 mt-0.5">Sistem Automasi &amp; Signage Waktu Solat Masjid Pintar</div>
+  </footer>
+
+  <!-- ==================== SCANNER & PWA JAVASCRIPT ==================== -->
+  <script>
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW registration error:', err));
+      });
+    }
+
+    // PWA Install Prompt Handler
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const banner = document.getElementById('pwaInstallBanner');
+      if (banner) banner.classList.remove('hidden');
+    });
+
+    // Detect iOS
+    const isIos = () => {
+      const userAgent = window.navigator.userAgent.toLowerCase();
+      return /iphone|ipad|ipod/.test(userAgent);
+    };
+    const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+
+    if (isIos() && !isInStandaloneMode()) {
+      const iosBanner = document.getElementById('iosInstallBanner');
+      if (iosBanner) iosBanner.classList.remove('hidden');
+    }
+
+    function installPWA() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            document.getElementById('pwaInstallBanner').classList.add('hidden');
+          }
+          deferredPrompt = null;
+        });
+      }
+    }
+
+    // STATE & APP VARIABLES
+    let currentScanning = false;
+    let discoveredDevices = [];
+    let selectedTarget = null;
+
+    // Load saved device on boot
+    window.addEventListener('DOMContentLoaded', () => {
+      checkSavedDevice();
+      startScanner();
+    });
+
+    function checkSavedDevice() {
+      const savedIp = localStorage.getItem('esolat_last_ip');
+      const savedName = localStorage.getItem('esolat_last_name') || 'Surau Al-Ikhlas';
+      if (savedIp) {
+        document.getElementById('savedDeviceCard').classList.remove('hidden');
+        document.getElementById('savedMosqueName').textContent = savedName;
+        document.getElementById('savedMosqueIp').textContent = savedIp;
+      }
+    }
+
+    function forgetSavedDevice() {
+      localStorage.removeItem('esolat_last_ip');
+      localStorage.removeItem('esolat_last_name');
+      localStorage.removeItem('esolat_token');
+      document.getElementById('savedDeviceCard').classList.add('hidden');
+    }
+
+    function connectToSaved() {
+      const savedIp = localStorage.getItem('esolat_last_ip');
+      if (savedIp) {
+        const parts = savedIp.split(':');
+        openLoginModal(parts[0], parts[1] || '8080', localStorage.getItem('esolat_last_name') || 'Surau / Masjid');
+      }
+    }
+
+    function toggleManualInput() {
+      const el = document.getElementById('manualIpSection');
+      el.classList.toggle('hidden');
+    }
+
+    // ==================== LOCAL NETWORK SCANNER ENGINE ====================
+    async function startScanner() {
+      if (currentScanning) return;
+      currentScanning = true;
+      discoveredDevices = [];
+      document.getElementById('discoveredList').innerHTML = '';
+      document.getElementById('discoveredSection').classList.add('hidden');
+
+      const radar = document.getElementById('radarVisual');
+      if (radar) radar.style.opacity = '1';
+
+      document.getElementById('scanTitle').textContent = 'Mengimbas Rangkaian Wi-Fi...';
+      document.getElementById('btnScanAction').disabled = true;
+      document.getElementById('btnScanAction').textContent = '⏳ Sedang Mengimbas...';
+
+      // Candidate IP targets to probe
+      const candidates = [];
+
+      // 1. High priority standard gateways / targets
+      candidates.push('192.168.0.2', '192.168.0.100', '192.168.0.1', '192.168.1.2', '192.168.1.100', '192.168.1.1', 'localhost', 'esolat.local');
+
+      // 2. Subnet 192.168.0.1 - 192.168.0.254
+      for (let i = 1; i <= 254; i++) {
+        const ip = `192.168.0.${i}`;
+        if (!candidates.includes(ip)) candidates.push(ip);
+      }
+
+      // 3. Subnet 192.168.1.1 - 192.168.1.254
+      for (let i = 1; i <= 254; i++) {
+        const ip = `192.168.1.${i}`;
+        if (!candidates.includes(ip)) candidates.push(ip);
+      }
+
+      // 4. Subnet 192.168.4.x & 10.0.0.x
+      for (let i = 1; i <= 30; i++) {
+        candidates.push(`192.168.4.${i}`);
+        candidates.push(`10.0.0.${i}`);
+      }
+
+      const total = candidates.length;
+      let completed = 0;
+      const batchSize = 25; // High concurrency for fast scanning
+
+      for (let i = 0; i < candidates.length; i += batchSize) {
+        const batch = candidates.slice(i, i + batchSize);
+        await Promise.all(batch.map(ip => probeDevice(ip, 8080)));
+        completed += batch.length;
+        const pct = Math.min(100, Math.round((completed / total) * 100));
+        document.getElementById('scanProgressBar').style.width = pct + '%';
+        document.getElementById('scanProgressPercent').textContent = pct + '%';
+        document.getElementById('scanStatusIp').textContent = `Menguji ${batch[0]}:8080...`;
+      }
+
+      // Done scanning
+      currentScanning = false;
+      document.getElementById('btnScanAction').disabled = false;
+      document.getElementById('btnScanAction').textContent = '🔄 Imbas Semula Wi-Fi';
+      document.getElementById('scanProgressPercent').textContent = '100%';
+
+      if (discoveredDevices.length === 0) {
+        document.getElementById('scanTitle').textContent = 'Tiada TV e-Solat Dijumpai';
+        document.getElementById('scanSub').innerHTML = 'Pastikan telefon bersambung ke Wi-Fi yang sama, atau <button onclick="toggleManualInput()" class="text-emerald-400 font-bold underline">masukkan IP secara manual</button>.';
+      } else {
+        document.getElementById('scanTitle').textContent = `Imbasan Selesai (${discoveredDevices.length} Dijumpai)`;
+        document.getElementById('scanSub').textContent = 'Pilih peranti untuk menyambung & membuka panel kawalan.';
+      }
+    }
+
+    async function probeDevice(ip, port = 8080) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 750);
+      const url = `http://${ip}:${port}/api/state`;
+
+      try {
+        const res = await fetch(url, { method: 'GET', signal: controller.signal, mode: 'cors' });
+        clearTimeout(timeoutId);
+        if (res.ok) {
+          const data = await res.json();
+          const mosqueName = data.mosque_name || (data.settings && data.settings.mosque_name) || 'Surau / Masjid';
+          const zone = data.zone || (data.settings && data.settings.zone) || 'MALAYSIA';
+          addDiscoveredDevice({ ip, port, mosqueName, zone });
+        }
+      } catch (err) {
+        clearTimeout(timeoutId);
+      }
+    }
+
+    function addDiscoveredDevice(device) {
+      const key = `${device.ip}:${device.port}`;
+      if (discoveredDevices.some(d => `${d.ip}:${d.port}` === key)) return;
+      discoveredDevices.push(device);
+
+      document.getElementById('foundCount').textContent = discoveredDevices.length;
+      document.getElementById('discoveredSection').classList.remove('hidden');
+
+      const card = document.createElement('div');
+      card.className = 'p-3.5 rounded-2xl glass-card border border-emerald-400/50 hover:border-emerald-300 transition flex items-center justify-between shadow-lg cursor-pointer';
+      card.onclick = () => openLoginModal(device.ip, device.port, device.mosqueName);
+      card.innerHTML = `
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-xl">
+            🕌
+          </div>
+          <div>
+            <div class="text-sm font-bold text-white">${escapeHtml(device.mosqueName)}</div>
+            <div class="text-[11px] font-mono-code text-emerald-400">${device.ip}:${device.port} &bull; <span class="text-slate-400">${escapeHtml(device.zone)}</span></div>
+          </div>
+        </div>
+        <div class="px-3 py-1.5 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs shadow-md">
+          Sambung &rarr;
+        </div>
+      `;
+      document.getElementById('discoveredList').appendChild(card);
+
+      // Auto-open modal if this is the first device found
+      if (discoveredDevices.length === 1 && !selectedTarget) {
+        openLoginModal(device.ip, device.port, device.mosqueName);
+      }
+    }
+
+    // ==================== MANUAL CONNECT ====================
+    async function handleManualConnect(e) {
+      e.preventDefault();
+      const ip = document.getElementById('manualIpInput').value.trim();
+      const port = document.getElementById('manualPortInput').value.trim() || '8080';
+      if (!ip) return;
+
+      const btn = e.target.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      btn.textContent = '⏳ Menguji sambungan...';
+
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 2000);
+        const res = await fetch(`http://${ip}:${port}/api/state`, { signal: controller.signal, mode: 'cors' });
+        clearTimeout(timeoutId);
+        if (res.ok) {
+          const data = await res.json();
+          const mosqueName = data.mosque_name || 'Surau / Masjid';
+          btn.disabled = false;
+          btn.textContent = 'Uji & Sambung';
+          toggleManualInput();
+          openLoginModal(ip, port, mosqueName);
+        } else {
+          throw new Error('Respons tidak sah daripada server');
+        }
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = 'Uji & Sambung';
+        alert(`Gagal menyambung ke ${ip}:${port}. Sila pastikan e-Solat sedang berjalan dan telefon anda di dalam Wi-Fi yang sama.`);
+      }
+    }
+
+    // ==================== LOGIN MODAL & AUTHENTICATION ====================
+    function openLoginModal(ip, port, mosqueName) {
+      selectedTarget = { ip, port, mosqueName };
+      document.getElementById('modalMosqueTitle').textContent = mosqueName;
+      document.getElementById('modalTargetIp').textContent = `http://${ip}:${port}`;
+      document.getElementById('loginErrorMsg').classList.add('hidden');
+      document.getElementById('loginPass').value = '';
+      document.getElementById('loginModal').classList.remove('hidden');
+    }
+
+    function closeLoginModal() {
+      document.getElementById('loginModal').classList.add('hidden');
+    }
+
+    async function handleModalLogin(e) {
+      e.preventDefault();
+      if (!selectedTarget) return;
+
+      const username = document.getElementById('loginUser').value.trim();
+      const password = document.getElementById('loginPass').value.trim();
+      const errorEl = document.getElementById('loginErrorMsg');
+      const btn = document.getElementById('btnLoginSubmit');
+
+      errorEl.classList.add('hidden');
+      btn.disabled = true;
+      btn.textContent = '⏳ Memproses Pengesahan...';
+
+      const targetUrl = `http://${selectedTarget.ip}:${selectedTarget.port}`;
+
+      try {
+        const res = await fetch(`${targetUrl}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.token) {
+          // Save session
+          localStorage.setItem('esolat_last_ip', `${selectedTarget.ip}:${selectedTarget.port}`);
+          localStorage.setItem('esolat_last_name', selectedTarget.mosqueName);
+          localStorage.setItem('esolat_token', data.token);
+
+          // Redirect directly to the full Mosque Admin Control Panel
+          btn.textContent = '✓ Berjaya! Membuka Panel Kawalan...';
+          setTimeout(() => {
+            window.location.href = `${targetUrl}/admin/?token=${encodeURIComponent(data.token)}`;
+          }, 400);
+        } else {
+          errorEl.textContent = data.error || 'Kata laluan atau ID salah. Sila cuba lagi.';
+          errorEl.classList.remove('hidden');
+          btn.disabled = false;
+          btn.textContent = '🔓 Log Masuk Panel Kawalan';
+        }
+      } catch (err) {
+        // If CORS or direct API blocked, redirect directly to admin page to let browser handle login
+        localStorage.setItem('esolat_last_ip', `${selectedTarget.ip}:${selectedTarget.port}`);
+        localStorage.setItem('esolat_last_name', selectedTarget.mosqueName);
+        window.location.href = `${targetUrl}/admin/`;
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>"']/g, (m) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      })[m]);
+    }
+  </script>
+</body>
+</html>

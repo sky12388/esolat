@@ -2,572 +2,1750 @@
 <html lang="ms">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Skywalker e-Solat Admin — Panel Kawalan Masjid</title>
-  <meta name="description" content="Aplikasi PWA Pengimbas IP dan Panel Kawalan Mudah Alih untuk Sistem e-Solat Masjid Pintar.">
-  
-  <!-- PWA & Mobile Web App Meta -->
-  <link rel="manifest" href="./manifest.json">
-  <meta name="theme-color" content="#064e3b">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Admin e-Solat — Panel Pengurusan Surau</title>
+  <link rel="manifest" href="/admin/manifest.json">
+  <meta name="theme-color" content="#059669">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="eSolat Admin">
-  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
-  <link rel="icon" type="image/png" href="./icons/favicon.png">
-
-  <!-- Tailwind CSS & Google Fonts -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            emerald: {
-              850: '#064e3b',
-              900: '#022c22',
-              950: '#011c15',
-            },
-            amber: {
-              450: '#f59e0b',
-            }
-          }
-        }
-      }
-    }
-  </script>
+  <meta name="apple-mobile-web-app-title" content="e-Solat Admin">
+  <link rel="apple-touch-icon" href="/admin/icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/admin/icons/icon-192.png">
+  <link rel="icon" type="image/png" sizes="64x64" href="/admin/icons/favicon.png">
+  <link rel="stylesheet" href="/admin/css/admin.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-
-  <style>
-    * { -webkit-tap-highlight-color: transparent; }
-    body {
-      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: radial-gradient(circle at 50% 0%, #064e3b 0%, #022c22 45%, #011c15 100%);
-      min-height: 100vh;
-      color: #f1f5f9;
-    }
-    .font-mono-code {
-      font-family: 'Space Grotesk', monospace;
-    }
-    /* Radar animation */
-    @keyframes radarWave {
-      0% { transform: scale(0.6); opacity: 0.9; }
-      100% { transform: scale(2.2); opacity: 0; }
-    }
-    .radar-pulse {
-      animation: radarWave 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
-    }
-    .radar-pulse-delayed {
-      animation: radarWave 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.75s infinite;
-    }
-    .glass-card {
-      background: rgba(15, 23, 42, 0.75);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(52, 211, 153, 0.2);
-    }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&family=Reem+Kufi:wght@500;600;700&family=Scheherazade+New:wght@400;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 </head>
-<body class="p-4 sm:p-6 flex flex-col justify-between max-w-md mx-auto min-h-screen">
+<body>
 
-  <!-- ==================== TOP BAR & APP HEADER ==================== -->
-  <header class="mb-5">
-    <div class="flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-800 p-2.5 border border-emerald-400/40 flex items-center justify-center shadow-lg shadow-emerald-950/80">
-          <svg viewBox="0 0 100 100" class="w-full h-full">
-            <path d="M50 10 C50 10 32 30 32 50 C32 55 35 60 40 60 L60 60 C65 60 68 55 68 50 C68 30 50 10 50 10 Z" fill="#fbbf24"/>
-            <path d="M25 60 L75 60 L75 88 L25 88 Z" fill="#34d399"/>
-            <path d="M42 88 L42 70 C42 66 58 66 58 70 L58 88 Z" fill="#022c22"/>
-            <circle cx="50" cy="8" r="3" fill="#fbbf24"/>
-          </svg>
+  <!-- ==================== LOGIN MODAL ==================== -->
+  <div id="loginModal" class="auth-modal">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="auth-logo">🕌</div>
+        <h2>Panel Pentadbir e-Solat</h2>
+        <p>Log masuk untuk mengurus paparan surau (Lalai: Kosongkan kata laluan)</p>
+      </div>
+      <form id="loginForm">
+        <div class="form-group">
+          <label>Nama Pengguna</label>
+          <input type="text" id="loginUser" value="admin" required autocomplete="username">
         </div>
-        <div>
-          <h1 class="text-lg font-black tracking-tight text-white leading-tight">Skywalker <span class="text-amber-400">e-Solat</span></h1>
-          <p class="text-xs text-emerald-400 font-semibold tracking-wide">Panel Kawalan AJK &bull; PWA</p>
+        <div class="form-group">
+          <label>Kata Laluan</label>
+          <input type="password" id="loginPass" placeholder="Kata laluan (Kosongkan jika kali pertama)" autocomplete="current-password">
         </div>
-      </div>
-
-      <!-- Quick Actions -->
-      <div class="flex items-center gap-2">
-        <button id="btnManualToggle" onclick="toggleManualInput()" class="p-2 rounded-xl bg-slate-800/80 border border-slate-700 text-slate-300 hover:text-emerald-400 transition" title="Input IP Manual">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- ==================== PWA INSTALL BANNER ==================== -->
-  <div id="pwaInstallBanner" class="hidden mb-4 p-3.5 rounded-2xl bg-gradient-to-r from-emerald-900/90 to-slate-900/90 border border-emerald-500/40 shadow-lg">
-    <div class="flex items-center justify-between gap-3">
-      <div class="flex items-center gap-2.5">
-        <span class="text-2xl">📱</span>
-        <div>
-          <div class="text-xs font-bold text-white">Pasang Aplikasi e-Solat</div>
-          <div class="text-[11px] text-emerald-300">Akses pantas ke TV Surau terus dari skrin utama.</div>
+        <button type="submit" class="btn btn-primary btn-block">Log Masuk</button>
+        <div style="text-align:center; margin-top:1.25rem; font-size:0.85rem; display:flex; justify-content:center; gap:1rem; flex-wrap:wrap;">
+          <a href="/admin/manual" target="_blank" style="color:#34d399; text-decoration:none; font-weight:600;">
+            📖 Panduan Pengguna
+          </a>
+          <span style="color:#64748b;">&bull;</span>
+          <a href="/pricing" target="_blank" style="color:#fbbf24; text-decoration:none; font-weight:600;">
+            💎 Pakej &amp; Harga
+          </a>
         </div>
-      </div>
-      <button id="btnInstallPwa" onclick="installPWA()" class="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-md transition">
-        Pasang
-      </button>
-    </div>
-  </div>
-
-  <!-- iOS PWA INSTRUCTIONS BANNER -->
-  <div id="iosInstallBanner" class="hidden mb-4 p-3.5 rounded-2xl bg-slate-900/95 border border-amber-500/40 text-xs text-slate-300">
-    <div class="flex items-start gap-2.5">
-      <span class="text-xl text-amber-400">📲</span>
-      <div>
-        <div class="font-bold text-amber-400 mb-1">Pasang di iPhone / iPad:</div>
-        <p class="text-[11px] leading-relaxed">Tekan butang <b>Kongsi (Share)</b> <svg class="inline w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg> di Safari, kemudian pilih <b>"Tambah ke Skrin Utama" (Add to Home Screen)</b>.</p>
-      </div>
-      <button onclick="document.getElementById('iosInstallBanner').style.display='none'" class="text-slate-400 hover:text-white">&times;</button>
-    </div>
-  </div>
-
-  <!-- ==================== MAIN CONTENT CONTAINER ==================== -->
-  <main class="flex-1 flex flex-col justify-center">
-
-    <!-- RECENTLY SAVED MOSQUE CARD (If exists in localStorage) -->
-    <div id="savedDeviceCard" class="hidden mb-4 p-4 rounded-2xl glass-card border border-emerald-500/40">
-      <div class="flex items-center justify-between mb-2">
-        <span class="text-[11px] font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-          Peranti Terakhir Disambung
-        </span>
-        <button onclick="forgetSavedDevice()" class="text-[11px] text-slate-400 hover:text-rose-400 transition">Lupakan</button>
-      </div>
-      <div class="flex items-center justify-between">
-        <div>
-          <div class="text-base font-bold text-white" id="savedMosqueName">Surau Al-Ikhlas</div>
-          <div class="text-xs font-mono-code text-slate-300" id="savedMosqueIp">192.168.0.2:8080</div>
+        <!-- Login Network Broadcast Info -->
+        <div id="loginNetBroadcast" style="margin-top:1.25rem; padding:0.6rem 0.8rem; background:rgba(15,23,42,0.8); border:1px solid rgba(59,130,246,0.3); border-radius:8px; font-size:0.75rem; color:#94a3b8; text-align:center;">
+          <div>📡 <strong>Akses Telefon Pintar (Wi-Fi Surau):</strong></div>
+          <div style="color:#38bdf8; font-family:monospace; margin-top:0.2rem; font-weight:bold; font-size:0.8rem;" id="loginNetUrl">http://192.168.x.x:8080/admin</div>
+          <div style="font-size:0.7rem; color:#64748b; margin-top:0.15rem;" id="loginNetHostname">Hostname: esolat.local</div>
         </div>
-        <button onclick="connectToSaved()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-950/60 transition">
-          ⚡ Sambung
-        </button>
-      </div>
-    </div>
-
-    <!-- RADAR SCANNER ANIMATION & CONTROLLER -->
-    <div id="scannerSection" class="glass-card rounded-3xl p-6 text-center relative overflow-hidden shadow-2xl">
-      
-      <!-- Animated Waves -->
-      <div id="radarVisual" class="relative w-36 h-36 mx-auto my-4 flex items-center justify-center">
-        <div class="absolute inset-0 rounded-full border-2 border-emerald-500/30 radar-pulse pointer-events-none"></div>
-        <div class="absolute inset-0 rounded-full border-2 border-emerald-400/20 radar-pulse-delayed pointer-events-none"></div>
-        <div class="w-24 h-24 rounded-full bg-gradient-to-br from-emerald-600 to-slate-900 border-2 border-emerald-400 flex items-center justify-center text-4xl shadow-xl shadow-emerald-950 z-10">
-          🕌
-        </div>
-      </div>
-
-      <!-- Scanner Status Text -->
-      <h2 class="text-xl font-black text-white mb-1" id="scanTitle">Mengimbas Rangkaian Surau</h2>
-      <p class="text-xs text-slate-300 mb-4 px-2" id="scanSub">Sila pastikan telefon anda disambungkan ke Wi-Fi yang sama dengan TV e-Solat.</p>
-
-      <!-- Progress Bar -->
-      <div class="w-full bg-slate-800 rounded-full h-2.5 mb-2 overflow-hidden border border-slate-700/60">
-        <div id="scanProgressBar" class="bg-gradient-to-r from-emerald-500 to-amber-400 h-2.5 rounded-full transition-all duration-300 w-0"></div>
-      </div>
-      <div class="flex justify-between text-[11px] font-mono-code text-slate-400 mb-5">
-        <span id="scanStatusIp">Memulakan imbasan...</span>
-        <span id="scanProgressPercent">0%</span>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="flex gap-2 justify-center">
-        <button id="btnScanAction" onclick="startScanner()" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-bold text-sm shadow-lg shadow-emerald-950/80 border border-emerald-400/40 transition">
-          🔄 Imbas Semula Wi-Fi
-        </button>
-      </div>
-    </div>
-
-    <!-- DISCOVERED DEVICES LIST -->
-    <div id="discoveredSection" class="mt-4 hidden">
-      <div class="text-xs font-bold text-emerald-400 mb-2 uppercase tracking-wider flex items-center gap-1.5">
-        <span>📡</span> TV e-Solat Dijumpai (<span id="foundCount">0</span>)
-      </div>
-      <div id="discoveredList" class="space-y-2.5">
-        <!-- Injected via JS -->
-      </div>
-    </div>
-
-    <!-- MANUAL IP INPUT FORM (Collapsible) -->
-    <div id="manualIpSection" class="hidden mt-4 glass-card rounded-2xl p-4 border border-slate-700">
-      <div class="text-xs font-bold text-slate-200 mb-2 flex items-center justify-between">
-        <span>⚙️ Sambung Melalui IP Manual</span>
-        <button onclick="toggleManualInput()" class="text-slate-400 hover:text-white">&times;</button>
-      </div>
-      <form id="manualIpForm" onsubmit="handleManualConnect(event)" class="space-y-3">
-        <div>
-          <label class="block text-[11px] text-slate-400 mb-1">Alamat IP / Hostname TV:</label>
-          <div class="flex gap-2">
-            <input type="text" id="manualIpInput" placeholder="cth: 192.168.0.2" required class="flex-1 px-3 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700 text-white text-sm font-mono-code focus:outline-none focus:border-emerald-500">
-            <input type="text" id="manualPortInput" value="8080" required class="w-20 px-2 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700 text-white text-sm font-mono-code text-center focus:outline-none focus:border-emerald-500">
-          </div>
-        </div>
-        <button type="submit" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold text-xs border border-emerald-500/40 transition">
-          Uji &amp; Sambung
-        </button>
-      </form>
-    </div>
-
-  </main>
-
-  <!-- ==================== LOGIN MODAL POPUP ==================== -->
-  <div id="loginModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-    <div class="w-full max-w-sm glass-card rounded-3xl p-6 border border-emerald-400/50 shadow-2xl relative">
-      
-      <!-- Close Button -->
-      <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-      </button>
-
-      <!-- Modal Header -->
-      <div class="text-center mb-5">
-        <div class="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-3xl mx-auto mb-3">
-          🔐
-        </div>
-        <h3 class="text-lg font-black text-white" id="modalMosqueTitle">Surau Al-Ikhlas</h3>
-        <p class="text-xs font-mono-code text-emerald-400" id="modalTargetIp">http://192.168.0.2:8080</p>
-      </div>
-
-      <!-- Login Form -->
-      <form id="loginForm" onsubmit="handleModalLogin(event)" class="space-y-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">ID Pengguna:</label>
-          <input type="text" id="loginUser" value="admin" required autocomplete="username" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-emerald-500">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Kata Laluan (Password):</label>
-          <input type="password" id="loginPass" placeholder="Kosongkan jika kali pertama" autocomplete="current-password" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-emerald-500">
-          <p class="text-[10px] text-slate-400 mt-1">*Jika belum pernah tukar, kata laluan asal adalah kosong (blank).</p>
-        </div>
-
-        <div id="loginErrorMsg" class="hidden p-2.5 rounded-xl bg-rose-950/80 border border-rose-500/50 text-rose-300 text-xs text-center font-medium"></div>
-
-        <button type="submit" id="btnLoginSubmit" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-slate-950 font-black text-sm shadow-lg shadow-emerald-950/80 transition">
-          🔓 Log Masuk Panel Kawalan
-        </button>
       </form>
     </div>
   </div>
 
-  <!-- ==================== FOOTER ==================== -->
-  <footer class="mt-6 text-center text-xs text-slate-400/80 pt-3 border-t border-slate-800/80" style="opacity: 0.5;">
-    <div>Powered by <b>Skywalker Consortium</b> (SSM: AS0463209-A)</div>
-    <div class="text-[11px] text-slate-500 mt-0.5">Sistem Automasi &amp; Signage Waktu Solat Masjid Pintar</div>
-  </footer>
+  <!-- ==================== FORCE PASSWORD CHANGE MODAL ==================== -->
+  <div id="changePasswordModal" class="auth-modal" style="display: none;">
+    <div class="auth-card">
+      <div class="auth-header warning-header">
+        <div class="auth-logo">⚠️</div>
+        <h2>Tukar Kata Laluan Lalai</h2>
+        <p>Demi keselamatan sistem, anda wajib menukar kata laluan lalai pada kali pertama persediaan.</p>
+      </div>
+      <form id="forcePasswordForm">
+        <div class="form-group">
+          <label>Kata Laluan Baharu</label>
+          <input type="password" id="newPassword" placeholder="Minimum 6 aksara" required autocomplete="new-password">
+        </div>
+        <div class="form-group">
+          <label>Sahkan Kata Laluan Baharu</label>
+          <input type="password" id="confirmPassword" placeholder="Taip semula kata laluan" required autocomplete="new-password">
+        </div>
+        <button type="submit" class="btn btn-warning btn-block">Simpan Kata Laluan Baharu</button>
+      </form>
+    </div>
+  </div>
 
-  <!-- ==================== SCANNER & PWA JAVASCRIPT ==================== -->
-  <script>
-    // Register Service Worker
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW registration error:', err));
-      });
-    }
+  <!-- ==================== MAIN MOBILE ADMIN APP ==================== -->
+  <div id="appContainer" class="app-layout" style="display: none;">
 
-    // PWA Install Prompt Handler
-    let deferredPrompt = null;
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      const banner = document.getElementById('pwaInstallBanner');
-      if (banner) banner.classList.remove('hidden');
-    });
+    <!-- Top App Bar -->
+    <header class="top-nav">
+      <div class="top-brand">
+        <span class="logo-emoji">🕌</span>
+        <div>
+          <h1 id="appHeaderTitle">Skywalker E-Solat Manager</h1>
+          <span class="app-subtitle" id="appZoneSubtitle">Surau Al-Ikhlas &bull; Zon: SGR01</span>
+          <span id="appMosqueTitle" style="display:none;">Surau Al-Ikhlas</span>
+        </div>
+      </div>
+      <div class="top-actions">
+        <!-- Live IP / Network badge in top nav -->
+        <button class="icon-btn" id="btnTopNetInfo" title="Maklumat IP & Sambungan Rangkaian" style="background:rgba(59,130,246,0.15); border:1px solid rgba(59,130,246,0.4); color:#60a5fa; font-size:0.75rem; font-family:monospace; padding:0.3rem 0.6rem; border-radius:8px; display:inline-flex; align-items:center; gap:0.3rem;">
+          <span>📡</span> <span id="topNavIpText">192.168.x.x</span>
+        </button>
+        <button class="icon-btn" id="btnInstallPwa" title="Pasang Aplikasi di Telefon (PWA)" style="display:none; background:rgba(16,185,129,0.25); border:1px solid #34d399; color:#34d399; font-weight:bold;">📲</button>
+        <button class="icon-btn" id="btnTopPassword" title="Keselamatan &amp; Tukar Kata Laluan" style="color:#34d399; font-size:1.05rem;">🔒</button>
+        <a href="/pricing" class="icon-btn" title="Pakej &amp; Harga" style="text-decoration:none; display:flex; align-items:center; justify-content:center; color:#fbbf24;">💎</a>
+        <a href="/admin/manual" class="icon-btn" title="Panduan Pengguna (User Manual)" style="text-decoration:none; display:flex; align-items:center; justify-content:center;">📖</a>
+        <button class="icon-btn" id="btnReloadKiosk" title="Muat Semula TV Kiosk">🔄</button>
+        <button class="icon-btn" id="btnLogout" title="Log Keluar">🚪</button>
+      </div>
+    </header>
 
-    // Detect iOS
-    const isIos = () => {
-      const userAgent = window.navigator.userAgent.toLowerCase();
-      return /iphone|ipad|ipod/.test(userAgent);
-    };
-    const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+    <!-- Trial Banner (if active) -->
+    <div id="topTrialBanner" class="trial-banner" style="display: none;">
+      <span class="banner-badge">PERCUBAAN 7 HARI</span>
+      <span id="bannerTrialText">Baki 7 hari lagi</span>
+      <button class="btn-banner-action" id="btnGoToLicense">Aktifkan Sekarang</button>
+    </div>
 
-    if (isIos() && !isInStandaloneMode()) {
-      const iosBanner = document.getElementById('iosInstallBanner');
-      if (iosBanner) iosBanner.classList.remove('hidden');
-    }
-
-    function installPWA() {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {
-          if (choiceResult.outcome === 'accepted') {
-            document.getElementById('pwaInstallBanner').classList.add('hidden');
-          }
-          deferredPrompt = null;
-        });
-      }
-    }
-
-    // STATE & APP VARIABLES
-    let currentScanning = false;
-    let discoveredDevices = [];
-    let selectedTarget = null;
-
-    // Load saved device on boot
-    window.addEventListener('DOMContentLoaded', () => {
-      checkSavedDevice();
-      startScanner();
-    });
-
-    function checkSavedDevice() {
-      const savedIp = localStorage.getItem('esolat_last_ip');
-      const savedName = localStorage.getItem('esolat_last_name') || 'Surau Al-Ikhlas';
-      if (savedIp) {
-        document.getElementById('savedDeviceCard').classList.remove('hidden');
-        document.getElementById('savedMosqueName').textContent = savedName;
-        document.getElementById('savedMosqueIp').textContent = savedIp;
-      }
-    }
-
-    function forgetSavedDevice() {
-      localStorage.removeItem('esolat_last_ip');
-      localStorage.removeItem('esolat_last_name');
-      localStorage.removeItem('esolat_token');
-      document.getElementById('savedDeviceCard').classList.add('hidden');
-    }
-
-    function connectToSaved() {
-      const savedIp = localStorage.getItem('esolat_last_ip');
-      if (savedIp) {
-        const parts = savedIp.split(':');
-        openLoginModal(parts[0], parts[1] || '8080', localStorage.getItem('esolat_last_name') || 'Surau / Masjid');
-      }
-    }
-
-    function toggleManualInput() {
-      const el = document.getElementById('manualIpSection');
-      el.classList.toggle('hidden');
-    }
-
-    // ==================== LOCAL NETWORK SCANNER ENGINE ====================
-    async function startScanner() {
-      if (currentScanning) return;
-      currentScanning = true;
-      discoveredDevices = [];
-      document.getElementById('discoveredList').innerHTML = '';
-      document.getElementById('discoveredSection').classList.add('hidden');
-
-      const radar = document.getElementById('radarVisual');
-      if (radar) radar.style.opacity = '1';
-
-      document.getElementById('scanTitle').textContent = 'Mengimbas Rangkaian Wi-Fi...';
-      document.getElementById('btnScanAction').disabled = true;
-      document.getElementById('btnScanAction').textContent = '⏳ Sedang Mengimbas...';
-
-      // Candidate IP targets to probe
-      const candidates = [];
-
-      // 1. High priority standard gateways / targets
-      candidates.push('192.168.0.2', '192.168.0.100', '192.168.0.1', '192.168.1.2', '192.168.1.100', '192.168.1.1', 'localhost', 'esolat.local');
-
-      // 2. Subnet 192.168.0.1 - 192.168.0.254
-      for (let i = 1; i <= 254; i++) {
-        const ip = `192.168.0.${i}`;
-        if (!candidates.includes(ip)) candidates.push(ip);
-      }
-
-      // 3. Subnet 192.168.1.1 - 192.168.1.254
-      for (let i = 1; i <= 254; i++) {
-        const ip = `192.168.1.${i}`;
-        if (!candidates.includes(ip)) candidates.push(ip);
-      }
-
-      // 4. Subnet 192.168.4.x & 10.0.0.x
-      for (let i = 1; i <= 30; i++) {
-        candidates.push(`192.168.4.${i}`);
-        candidates.push(`10.0.0.${i}`);
-      }
-
-      const total = candidates.length;
-      let completed = 0;
-      const batchSize = 25; // High concurrency for fast scanning
-
-      for (let i = 0; i < candidates.length; i += batchSize) {
-        const batch = candidates.slice(i, i + batchSize);
-        await Promise.all(batch.map(ip => probeDevice(ip, 8080)));
-        completed += batch.length;
-        const pct = Math.min(100, Math.round((completed / total) * 100));
-        document.getElementById('scanProgressBar').style.width = pct + '%';
-        document.getElementById('scanProgressPercent').textContent = pct + '%';
-        document.getElementById('scanStatusIp').textContent = `Menguji ${batch[0]}:8080...`;
-      }
-
-      // Done scanning
-      currentScanning = false;
-      document.getElementById('btnScanAction').disabled = false;
-      document.getElementById('btnScanAction').textContent = '🔄 Imbas Semula Wi-Fi';
-      document.getElementById('scanProgressPercent').textContent = '100%';
-
-      if (discoveredDevices.length === 0) {
-        document.getElementById('scanTitle').textContent = 'Tiada TV e-Solat Dijumpai';
-        document.getElementById('scanSub').innerHTML = 'Pastikan telefon bersambung ke Wi-Fi yang sama, atau <button onclick="toggleManualInput()" class="text-emerald-400 font-bold underline">masukkan IP secara manual</button>.';
-      } else {
-        document.getElementById('scanTitle').textContent = `Imbasan Selesai (${discoveredDevices.length} Dijumpai)`;
-        document.getElementById('scanSub').textContent = 'Pilih peranti untuk menyambung & membuka panel kawalan.';
-      }
-    }
-
-    async function probeDevice(ip, port = 8080) {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 750);
-      const url = `http://${ip}:${port}/api/state`;
-
-      try {
-        const res = await fetch(url, { method: 'GET', signal: controller.signal, mode: 'cors' });
-        clearTimeout(timeoutId);
-        if (res.ok) {
-          const data = await res.json();
-          const mosqueName = data.mosque_name || (data.settings && data.settings.mosque_name) || 'Surau / Masjid';
-          const zone = data.zone || (data.settings && data.settings.zone) || 'MALAYSIA';
-          addDiscoveredDevice({ ip, port, mosqueName, zone });
-        }
-      } catch (err) {
-        clearTimeout(timeoutId);
-      }
-    }
-
-    function addDiscoveredDevice(device) {
-      const key = `${device.ip}:${device.port}`;
-      if (discoveredDevices.some(d => `${d.ip}:${d.port}` === key)) return;
-      discoveredDevices.push(device);
-
-      document.getElementById('foundCount').textContent = discoveredDevices.length;
-      document.getElementById('discoveredSection').classList.remove('hidden');
-
-      const card = document.createElement('div');
-      card.className = 'p-3.5 rounded-2xl glass-card border border-emerald-400/50 hover:border-emerald-300 transition flex items-center justify-between shadow-lg cursor-pointer';
-      card.onclick = () => openLoginModal(device.ip, device.port, device.mosqueName);
-      card.innerHTML = `
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-xl">
-            🕌
-          </div>
+    <!-- PWA WebAPK Install Banner for Mobile Admins -->
+    <div id="pwaInstallBanner" class="section-card" style="display:none; margin: 0.75rem 1rem 0; background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(15,23,42,0.9)); border: 1px solid rgba(52,211,153,0.5); border-radius: 14px; padding: 0.85rem 1rem;">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap;">
+        <div style="display:flex; align-items:center; gap:0.75rem;">
+          <img src="/admin/icons/icon-192.png" alt="App Icon" style="width:40px; height:40px; border-radius:10px; border:1px solid rgba(52,211,153,0.4);">
           <div>
-            <div class="text-sm font-bold text-white">${escapeHtml(device.mosqueName)}</div>
-            <div class="text-[11px] font-mono-code text-emerald-400">${device.ip}:${device.port} &bull; <span class="text-slate-400">${escapeHtml(device.zone)}</span></div>
+            <div style="font-weight:700; color:#34d399; font-size:0.9rem;">Pasang Aplikasi Admin di Telefon</div>
+            <div style="font-size:0.75rem; color:#94a3b8;">Buka terus seperti Aplikasi Android tanpa bar URL pelayar</div>
           </div>
         </div>
-        <div class="px-3 py-1.5 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs shadow-md">
-          Sambung &rarr;
+        <div style="display:flex; gap:0.4rem; align-items:center;">
+          <button type="button" class="btn btn-sm btn-primary" id="btnTriggerInstallPwa" style="font-weight:700; font-size:0.8rem; padding:0.4rem 0.85rem;">
+            📲 Pasang WebAPK
+          </button>
+          <button type="button" class="btn btn-sm btn-outline" id="btnDismissPwaBanner" style="font-size:0.8rem; padding:0.4rem 0.6rem; color:#94a3b8;" title="Tutup">✕</button>
         </div>
-      `;
-      document.getElementById('discoveredList').appendChild(card);
+      </div>
+    </div>
 
-      // Auto-open modal if this is the first device found
-      if (discoveredDevices.length === 1 && !selectedTarget) {
-        openLoginModal(device.ip, device.port, device.mosqueName);
-      }
-    }
+    <!-- Scrollable Content View -->
+    <main class="content-body">
 
-    // ==================== MANUAL CONNECT ====================
-    async function handleManualConnect(e) {
-      e.preventDefault();
-      const ip = document.getElementById('manualIpInput').value.trim();
-      const port = document.getElementById('manualPortInput').value.trim() || '8080';
-      if (!ip) return;
+      <!-- ==================== TAB 1: DASHBOARD & QUICK ACTIONS ==================== -->
+      <section id="tabDashboard" class="tab-pane active">
+        <div class="admin-desktop-grid">
 
-      const btn = e.target.querySelector('button[type="submit"]');
-      btn.disabled = true;
-      btn.textContent = '⏳ Menguji sambungan...';
+          <!-- Left Column: Live Kiosk Preview & Real-Time Status -->
+          <div class="desktop-col-left">
 
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 2000);
-        const res = await fetch(`http://${ip}:${port}/api/state`, { signal: controller.signal, mode: 'cors' });
-        clearTimeout(timeoutId);
-        if (res.ok) {
-          const data = await res.json();
-          const mosqueName = data.mosque_name || 'Surau / Masjid';
-          btn.disabled = false;
-          btn.textContent = 'Uji & Sambung';
-          toggleManualInput();
-          openLoginModal(ip, port, mosqueName);
-        } else {
-          throw new Error('Respons tidak sah daripada server');
-        }
-      } catch (err) {
-        btn.disabled = false;
-        btn.textContent = 'Uji & Sambung';
-        alert(`Gagal menyambung ke ${ip}:${port}. Sila pastikan e-Solat sedang berjalan dan telefon anda di dalam Wi-Fi yang sama.`);
-      }
-    }
+            <!-- Live Kiosk TV Preview Card -->
+            <div class="section-card live-preview-card">
+              <div class="card-title">
+                <span>📺 Pratonton Langsung Kiosk TV</span>
+                <span class="preview-badge-live">LIVE 16:9</span>
+              </div>
+              <p class="card-desc">Paparan masa nyata skrin dewan solat (16:9 TV Signage).</p>
+              <div class="kiosk-preview-wrapper">
+                <iframe id="adminKioskPreviewFrame" src="/kiosk" class="kiosk-preview-frame" title="Pratonton Langsung Kiosk TV"></iframe>
+              </div>
+              <div class="preview-actions-bar mt-2">
+                <button type="button" class="btn btn-sm btn-outline" id="btnRefreshAdminPreview">🔄 Segarkan Pratonton</button>
+                <a href="/kiosk" target="_blank" class="btn btn-sm btn-outline" style="text-decoration:none;">🖥️ Buka Skrin Penuh ↗</a>
+              </div>
+            </div>
 
-    // ==================== LOGIN MODAL & AUTHENTICATION ====================
-    function openLoginModal(ip, port, mosqueName) {
-      selectedTarget = { ip, port, mosqueName };
-      document.getElementById('modalMosqueTitle').textContent = mosqueName;
-      document.getElementById('modalTargetIp').textContent = `http://${ip}:${port}`;
-      document.getElementById('loginErrorMsg').classList.add('hidden');
-      document.getElementById('loginPass').value = '';
-      document.getElementById('loginModal').classList.remove('hidden');
-    }
+            <!-- Real-Time Status Card -->
+            <div class="section-card">
+              <h2 class="card-title">Status Masa Nyata</h2>
+              <div class="status-grid">
+                <div class="stat-item">
+                  <span class="stat-label">Waktu Semasa</span>
+                  <span class="stat-val" id="statClock">--:--:--</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">Solat Seterusnya</span>
+                  <span class="stat-val highlight" id="statNextPrayer">--</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">Status Lesen</span>
+                  <span class="stat-val badge-status" id="statLicense">Memuatkan...</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">Zon JAKIM</span>
+                  <span class="stat-val" id="statZone">--</span>
+                </div>
+              </div>
+            </div>
 
-    function closeLoginModal() {
-      document.getElementById('loginModal').classList.add('hidden');
-    }
+            <!-- Network & Phone Connection Card (AJK Wireless Access) -->
+            <div class="section-card network-access-card" style="border: 1px solid rgba(59, 130, 246, 0.4); background: linear-gradient(135deg, rgba(30, 58, 138, 0.25), rgba(15, 23, 42, 0.85)); border-radius: 12px; padding: 1.1rem;">
+              <div class="card-title" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+                <span style="color:#60a5fa; font-weight:700;">📡 Sambungan Rangkaian &amp; Akses Telefon</span>
+                <span class="preview-badge-live" style="background:#2563eb; color:#ffffff; font-size:0.7rem;" id="netStatusBadge">AKTIF</span>
+              </div>
+              <p class="card-desc" style="font-size:0.8rem; color:#94a3b8; margin-top:0.3rem;">Gunakan IP atau Hostname ini pada telefon/tablet AJK untuk mengawal e-Solat tanpa wayar (Wi-Fi Surau).</p>
 
-    async function handleModalLogin(e) {
-      e.preventDefault();
-      if (!selectedTarget) return;
+              <div class="status-grid" style="margin-top:0.75rem;">
+                <div class="stat-item" style="background:rgba(15,23,42,0.8); border:1px solid rgba(59,130,246,0.3); padding:0.6rem;">
+                  <span class="stat-label" style="font-size:0.75rem;">Nama Host (mDNS)</span>
+                  <span class="stat-val highlight" style="color:#93c5fd; font-size:0.95rem;" id="netHostname">esolat.local</span>
+                </div>
+                <div class="stat-item" style="background:rgba(15,23,42,0.8); border:1px solid rgba(59,130,246,0.3); padding:0.6rem;">
+                  <span class="stat-label" style="font-size:0.75rem;">Alamat IP Utama (LAN)</span>
+                  <span class="stat-val highlight" style="color:#34d399; font-size:1rem; font-family:monospace;" id="netPrimaryIp">192.168.x.x</span>
+                </div>
+              </div>
 
-      const username = document.getElementById('loginUser').value.trim();
-      const password = document.getElementById('loginPass').value.trim();
-      const errorEl = document.getElementById('loginErrorMsg');
-      const btn = document.getElementById('btnLoginSubmit');
+              <div style="margin-top:0.85rem; background:rgba(15,23,42,0.9); border-radius:10px; padding:0.75rem; border:1px solid rgba(255,255,255,0.1);">
+                <div style="font-size:0.78rem; color:#94a3b8; margin-bottom:0.4rem; font-weight:600;">Pautan Akses Telefon Pintar (AJK / Admin):</div>
+                <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                  <input type="text" id="netAdminUrlInput" readonly style="flex:1; min-width:200px; background:#0f172a; border:1px solid #334155; color:#38bdf8; font-family:monospace; padding:0.45rem 0.65rem; border-radius:6px; font-size:0.85rem;" value="http://192.168.1.xxx:8080/admin">
+                  <button type="button" class="btn btn-sm btn-primary" id="btnCopyAdminUrl" style="padding:0.45rem 0.85rem; font-size:0.8rem; white-space:nowrap;">📋 Salin Pautan</button>
+                  <button type="button" class="btn btn-sm btn-outline" id="btnShowNetQr" style="padding:0.45rem 0.75rem; font-size:0.8rem; white-space:nowrap;">📱 Kod QR</button>
+                </div>
+              </div>
 
-      errorEl.classList.add('hidden');
-      btn.disabled = true;
-      btn.textContent = '⏳ Memproses Pengesahan...';
+              <!-- Collapsible QR Code Box -->
+              <div id="netQrContainer" style="display:none; margin-top:0.85rem; text-align:center; padding:1rem; background:#ffffff; border-radius:12px; border:2px solid #3b82f6;">
+                <div style="color:#0f172a; font-weight:700; font-size:0.9rem; margin-bottom:0.5rem;">📱 Imbas dengan Kamera Telefon untuk Log Masuk</div>
+                <div id="netQrImageWrapper" style="display:flex; justify-content:center; align-items:center; min-height:180px;">
+                  <img id="netQrImg" alt="QR Kod Sambungan" style="width:210px; height:210px; border-radius:10px; border:1px solid #e2e8f0;">
+                </div>
+                <div style="color:#475569; font-size:0.75rem; margin-top:0.5rem; font-family:monospace; font-weight:bold;" id="netQrUrlLabel">http://192.168.x.x:8080/admin</div>
+                <button type="button" class="btn btn-sm btn-outline" id="btnCloseNetQr" style="margin-top:0.6rem; color:#0f172a; border-color:#cbd5e1; font-size:0.75rem; padding:0.25rem 0.75rem;">Tutup Kod QR</button>
+              </div>
+            </div>
 
-      const targetUrl = `http://${selectedTarget.ip}:${selectedTarget.port}`;
+            <!-- Camera & MP4 Recording Card -->
+            <div class="section-card">
+              <h2 class="card-title">Kamera &amp; Rakaman Kuliah (Live Broadcast)</h2>
+              <p class="card-desc">Papar video penceramah secara langsung ke TV dan rakam fail MP4 serentak.</p>
 
-      try {
-        const res = await fetch(`${targetUrl}/api/auth/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
-        });
+              <div style="background:rgba(15,23,42,0.6); padding:0.6rem; border-radius:8px; display:flex; align-items:center; gap:0.5rem; font-size:0.85rem;" id="camStatusBox">
+                <span id="camStatusDot">⚪</span>
+                <span id="camStatusText">Mengimbas peranti kamera HDMI...</span>
+              </div>
 
-        const data = await res.json();
+              <div class="btn-grid mt-2">
+                <button class="btn btn-outline" id="btnToggleLiveCam">📺 Papar Kamera di TV</button>
+                <button class="btn btn-danger" id="btnToggleRecord">🔴 Mula Rakam MP4</button>
+              </div>
+              <div id="recordingTimerBadge" style="display:none; margin-top:0.75rem; text-align:center; color:#ef4444; font-weight:700;">
+                SEDANG MERAKAM: <span id="recTimerText">00:00</span>
+              </div>
 
-        if (res.ok && data.token) {
-          // Save session
-          localStorage.setItem('esolat_last_ip', `${selectedTarget.ip}:${selectedTarget.port}`);
-          localStorage.setItem('esolat_last_name', selectedTarget.mosqueName);
-          localStorage.setItem('esolat_token', data.token);
+              <!-- Storage Destination Selector -->
+              <div style="margin-top:0.85rem; background:rgba(15,23,42,0.85); border:1px solid rgba(52,211,153,0.3); border-radius:10px; padding:0.75rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+                  <span style="font-size:0.8rem; font-weight:700; color:#34d399;">💾 Lokasi Simpanan Rakaman:</span>
+                  <button type="button" class="btn btn-sm btn-outline" id="btnRescanStorage" style="font-size:0.7rem; padding:0.2rem 0.5rem;" title="Imbas semula pemacu USB/SSD yang disambungkan">🔄 Imbas Pemacu</button>
+                </div>
+                <select id="recStorageSelect" class="form-control" style="width:100%; font-size:0.82rem; background:#0f172a; border:1px solid #334155; color:#f8fafc; padding:0.4rem 0.6rem; border-radius:6px; margin-bottom:0.4rem;">
+                  <option value="">Penyimpanan Dalaman (Lalai)</option>
+                </select>
+                <div id="customStorageGroup" style="display:none; margin-top:0.35rem;">
+                  <input type="text" id="customStorageInput" placeholder="/media/user/USB/rekod atau D:\Rekod" style="width:100%; font-size:0.8rem; background:#0f172a; border:1px solid #334155; color:#38bdf8; padding:0.35rem 0.5rem; border-radius:6px; font-family:monospace; margin-bottom:0.4rem;">
+                  <button type="button" class="btn btn-sm btn-primary" id="btnApplyCustomStorage" style="font-size:0.75rem; padding:0.3rem 0.7rem;">Simpan Laluan Pilihan</button>
+                </div>
+                <div id="storageSpaceInfo" style="font-size:0.75rem; color:#94a3b8; margin-top:0.35rem; display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.25rem;">
+                  <span id="storagePathDisplay" style="word-break:break-all;">📁 /var/lib/esolat/media/recordings</span>
+                  <span id="storageFreeDisplay" style="color:#38bdf8; font-weight:600;">-- GB bebas</span>
+                </div>
+              </div>
 
-          // Redirect directly to the full Mosque Admin Control Panel
-          btn.textContent = '✓ Berjaya! Membuka Panel Kawalan...';
-          setTimeout(() => {
-            window.location.href = `${targetUrl}/admin/?token=${encodeURIComponent(data.token)}`;
-          }, 400);
-        } else {
-          errorEl.textContent = data.error || 'Kata laluan atau ID salah. Sila cuba lagi.';
-          errorEl.classList.remove('hidden');
-          btn.disabled = false;
-          btn.textContent = '🔓 Log Masuk Panel Kawalan';
-        }
-      } catch (err) {
-        // If CORS or direct API blocked, redirect directly to admin page to let browser handle login
-        localStorage.setItem('esolat_last_ip', `${selectedTarget.ip}:${selectedTarget.port}`);
-        localStorage.setItem('esolat_last_name', selectedTarget.mosqueName);
-        window.location.href = `${targetUrl}/admin/`;
-      }
-    }
+              <div class="simulator-box mt-3">
+                <span class="sub-label">Senarai Rakaman Kuliah (MP4):</span>
+                <div id="recordingsList" style="margin-top:0.5rem; display:flex; flex-direction:column; gap:0.5rem;">
+                  <div style="font-size:0.8rem; color:#94a3b8; text-align:center;">Tiada fail rakaman.</div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str).replace(/[&<>"']/g, (m) => ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#39;'
-      })[m]);
-    }
-  </script>
+          <!-- Right Column: Layout Mode Selectors & Action Controls -->
+          <div class="desktop-col-right">
+
+            <!-- Kiosk Screen Layout Selector Card -->
+            <div class="section-card">
+              <div class="card-title">
+                <span>🎥 Susun Atur Skrin Kiosk TV</span>
+                <a href="#tabTicker" onclick="document.querySelector('.nav-item[data-tab=\'tabTicker\']').click();" style="font-size:0.75rem; color:#34d399; text-decoration:none;">Tetapan Lanjut ➔</a>
+              </div>
+              <p class="card-desc">Pilih mod susunan paparan skrin TV dewan solat:</p>
+
+              <!-- One-Tap Quick Switch -->
+              <div class="btn-grid">
+                <button type="button" class="btn btn-outline" id="btnQuickSignageDash">
+                  <span>📺</span> 100% Takwim
+                </button>
+                <button type="button" class="btn btn-accent" id="btnQuickVideoDash">
+                  <span>🎥</span> 100% Video
+                </button>
+              </div>
+
+              <!-- Visual Layout Mode Selector Grid -->
+              <div class="layout-selector-grid mt-3" id="dashLayoutSelectorGrid">
+
+                <!-- Mode 1: Fullscreen Signage (100% Takwim) -->
+                <label class="layout-option active" data-layout-mode="fullscreen_signage">
+                  <input type="radio" name="dash_active_layout_mode" value="fullscreen_signage" checked>
+                  <div class="layout-card-inner">
+                    <div class="layout-wireframe wireframe-full">
+                      <div class="wf-box wf-slide-full">100% Takwim</div>
+                    </div>
+                    <div class="layout-info">
+                      <div class="layout-title">Takwim Penuh (100% Signage)</div>
+                      <div class="layout-subtitle">Paparan takwim solat dan poster standard</div>
+                    </div>
+                  </div>
+                </label>
+
+                <!-- Mode 2: Split Equal (50/50) -->
+                <label class="layout-option" data-layout-mode="split_equal">
+                  <input type="radio" name="dash_active_layout_mode" value="split_equal">
+                  <div class="layout-card-inner">
+                    <div class="layout-wireframe wireframe-split-equal">
+                      <div class="wf-box wf-half-signage">50% Takwim</div>
+                      <div class="wf-box wf-half-video">50% Video</div>
+                    </div>
+                    <div class="layout-info">
+                      <div class="layout-title">Belah Sama (50% / 50%)</div>
+                      <div class="layout-subtitle">50% Takwim Solat &amp; 50% Video Siaran</div>
+                    </div>
+                  </div>
+                </label>
+
+                <!-- Mode 3: Split Signage Focus (65/35) -->
+                <label class="layout-option" data-layout-mode="split_signage_focus">
+                  <input type="radio" name="dash_active_layout_mode" value="split_signage_focus">
+                  <div class="layout-card-inner">
+                    <div class="layout-wireframe wireframe-split-signage-focus">
+                      <div class="wf-box wf-two-third-signage">65% Takwim</div>
+                      <div class="wf-box wf-third-video">35% Video</div>
+                    </div>
+                    <div class="layout-info">
+                      <div class="layout-title">Fokus Takwim (65% Takwim / 35% Video)</div>
+                      <div class="layout-subtitle">Takwim besar dengan siaran video sisi</div>
+                    </div>
+                  </div>
+                </label>
+
+                <!-- Mode 4: Split Video Focus (35/65) -->
+                <label class="layout-option" data-layout-mode="split_video_focus">
+                  <input type="radio" name="dash_active_layout_mode" value="split_video_focus">
+                  <div class="layout-card-inner">
+                    <div class="layout-wireframe wireframe-split-video-focus">
+                      <div class="wf-box wf-third-signage">35% Takwim</div>
+                      <div class="wf-box wf-two-third-video">65% Video</div>
+                    </div>
+                    <div class="layout-info">
+                      <div class="layout-title">Fokus Video (35% Takwim / 65% Video)</div>
+                      <div class="layout-subtitle">Video besar untuk tontonan kuliah utama</div>
+                    </div>
+                  </div>
+                </label>
+
+                <!-- Mode 5: Fullscreen Video (100% Video) -->
+                <label class="layout-option" data-layout-mode="fullscreen_video">
+                  <input type="radio" name="dash_active_layout_mode" value="fullscreen_video">
+                  <div class="layout-card-inner">
+                    <div class="layout-wireframe wireframe-full-video">
+                      <div class="wf-box wf-video-full">100% Video</div>
+                    </div>
+                    <div class="layout-info">
+                      <div class="layout-title">Video Sahaja (100% Fullscreen Video)</div>
+                      <div class="layout-subtitle">Tayangan video atau strim langsung sepenuh skrin</div>
+                    </div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- TV Kiosk Quick Tests & Simulation Actions -->
+            <div class="section-card">
+              <h2 class="card-title">Ujian Pantas Pembesar Suara TV Kiosk</h2>
+              <p class="card-desc">Uji output audio fizikal ke pembesar suara TV dewan solat (HDMI / 3.5mm Jack) &amp; simulasi skrin.</p>
+              
+              <div class="btn-grid">
+                <button class="btn btn-outline" id="btnTestAdhan">📢 Uji Azan di TV</button>
+                <button class="btn btn-outline" id="btnTestSubuh">📢 Uji Azan Subuh di TV</button>
+                <button class="btn btn-outline" id="btnTestBeep">🔔 Uji Nada Bilal di TV</button>
+                <button class="btn btn-outline" id="btnTestPreAdhan">🎐 Uji Chime di TV</button>
+              </div>
+              <button class="btn btn-sm btn-outline btn-block mt-2" id="btnStopKioskAudio" style="color:#fca5a5; border-color:rgba(239,68,68,0.4);">⏹️ Hentikan Bunyi TV Kiosk</button>
+
+              <div class="simulator-box">
+                <span class="sub-label">Simulasi Paparan Skrin TV (30 Saat):</span>
+                <div class="btn-grid-compact">
+                  <button class="btn btn-sm btn-secondary" onclick="simulateState('ADHAN')">Paparan Azan</button>
+                  <button class="btn btn-sm btn-secondary" onclick="simulateState('IQAMAH')">Kiraan Iqamah</button>
+                  <button class="btn btn-sm btn-secondary" onclick="simulateState('SOLAT')">Mod Solat / Saf</button>
+                  <button class="btn btn-sm btn-danger" onclick="simulateState('LOCKED')">Skrin Kunci</button>
+                </div>
+                <button class="btn btn-sm btn-block btn-outline mt-2" onclick="clearSimulation()">Hentikan Simulasi</button>
+              </div>
+            </div>
+
+            <!-- ==================== ADMIN PASSWORD & SECURITY PANEL ==================== -->
+            <div class="section-card security-card" id="adminPasswordPanel" style="border: 1px solid rgba(52, 211, 153, 0.4); background: linear-gradient(135deg, rgba(6, 78, 59, 0.25), rgba(15, 23, 42, 0.9));">
+              <div class="card-title" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+                <span style="color:#34d399; font-weight:700; display:flex; align-items:center; gap:0.4rem;">
+                  <span>🔒</span> Keselamatan &amp; Kata Laluan Pentadbir
+                </span>
+                <span class="preview-badge-live" style="background:#059669; color:#ffffff; font-size:0.7rem;">PENTADBIR</span>
+              </div>
+              <p class="card-desc" style="font-size:0.8rem; color:#cbd5e1; margin-top:0.3rem;">
+                Tukar kata laluan masuk panel pengurusan admin atau kosongkan kata laluan untuk log masuk tanpa kata laluan.
+              </p>
+
+              <form id="adminChangePasswordForm" style="margin-top:0.85rem;">
+                <div class="form-group">
+                  <label style="font-size:0.85rem; font-weight:600; color:#f1f5f9;">Kata Laluan Baharu</label>
+                  <input type="password" id="adminNewPassInput" placeholder="Masukkan kata laluan baharu (cth: rahsia123)" autocomplete="new-password">
+                </div>
+                <div class="form-group mt-2">
+                  <label style="font-size:0.85rem; font-weight:600; color:#f1f5f9;">Sahkan Kata Laluan Baharu</label>
+                  <input type="password" id="adminConfirmPassInput" placeholder="Taip semula kata laluan baharu" autocomplete="new-password">
+                </div>
+
+                <div style="display:flex; gap:0.6rem; margin-top:1rem; flex-wrap:wrap;">
+                  <button type="submit" class="btn btn-primary" id="btnSaveAdminPass" style="flex:1; min-width:140px;">
+                    💾 Simpan Kata Laluan
+                  </button>
+                  <button type="button" class="btn btn-outline" id="btnResetBlankPass" style="color:#fbbf24; border-color:rgba(251,191,36,0.4); white-space:nowrap;">
+                    🔄 Kosongkan Kata Laluan
+                  </button>
+                </div>
+                <div style="font-size:0.75rem; color:#94a3b8; margin-top:0.6rem; line-height:1.4;">
+                  💡 <b>Panduan:</b> Jika anda klik <i>"Kosongkan Kata Laluan"</i>, anda boleh log masuk ke panel admin terus tanpa perlu menaip kata laluan.
+                </div>
+              </form>
+
+              <!-- 4-Digit Screen PIN Quick Setting -->
+              <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid rgba(255,255,255,0.1);">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+                  <div>
+                    <div style="font-size:0.85rem; font-weight:700; color:#fbbf24;">🔑 PIN Keselamatan Skrin TV (4-Digit)</div>
+                    <div style="font-size:0.75rem; color:#94a3b8;">Digunakan untuk membuka menu penyelenggaraan di TV Kiosk.</div>
+                  </div>
+                  <button type="button" class="btn btn-sm btn-outline" id="btnOpenPinModal" style="color:#fbbf24; border-color:rgba(251,191,36,0.5);">
+                    Ubah PIN
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 2: JAKIM & GPS ZONE SYNC ==================== -->
+      <section id="tabPrayer" class="tab-pane">
+        <div class="section-card">
+          <h2 class="card-title">Zon JAKIM &amp; Lokasi GPS</h2>
+          <p class="card-desc">Sistem ini memuat turun takwim rasmi e-solat JAKIM dan menyimpannya di pangkalan data luar talian.</p>
+
+          <!-- Detect via GPS -->
+          <div class="gps-box">
+            <button class="btn btn-gps btn-block" id="btnDetectGps">
+              <span>📍</span> Kesan Zon Melalui GPS Telefon
+            </button>
+            <div id="gpsStatus" class="gps-feedback"></div>
+          </div>
+
+          <!-- Manual Zone Selection -->
+          <div class="form-group mt-3">
+            <label>Pilih Zon JAKIM Secara Manual</label>
+            <select id="selectJakimZone">
+              <!-- Dynamically populated from JAKIM database -->
+            </select>
+          </div>
+
+          <button class="btn btn-primary btn-block" id="btnSyncJakim">
+            <span>🔄</span> Segerakkan Takwim JAKIM Sekarang
+          </button>
+          <div id="syncFeedback" class="sync-feedback"></div>
+        </div>
+
+        <!-- Prayer Offset Settings -->
+        <div class="section-card">
+          <h2 class="card-title">Pelarasan Minit Waktu Solat (Offset)</h2>
+          <p class="card-desc">Tambah atau tolak minit bagi setiap waktu solat sekiranya perlu (+/- minit).</p>
+
+          <div class="offset-grid">
+            <div class="offset-item">
+              <label>Subuh</label>
+              <input type="number" id="offset_subuh" value="0" min="-15" max="15">
+            </div>
+            <div class="offset-item">
+              <label>Syuruk</label>
+              <input type="number" id="offset_syuruk" value="0" min="-15" max="15">
+            </div>
+            <div class="offset-item">
+              <label>Zohor</label>
+              <input type="number" id="offset_zohor" value="0" min="-15" max="15">
+            </div>
+            <div class="offset-item">
+              <label>Asar</label>
+              <input type="number" id="offset_asar" value="0" min="-15" max="15">
+            </div>
+            <div class="offset-item">
+              <label>Maghrib</label>
+              <input type="number" id="offset_maghrib" value="0" min="-15" max="15">
+            </div>
+            <div class="offset-item">
+              <label>Isyak</label>
+              <input type="number" id="offset_isyak" value="0" min="-15" max="15">
+            </div>
+          </div>
+          <button class="btn btn-primary btn-block mt-3" id="btnSaveOffsets">Simpan Pelarasan Waktu</button>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 3: AUDIO & AZAN CONFIG ==================== -->
+      <section id="tabAdhan" class="tab-pane">
+
+        <!-- 1. Azan Track Selection & Volume -->
+        <div class="section-card">
+          <div class="card-header-flex">
+            <div>
+              <h2 class="card-title">Pilihan Audio Azan MP3</h2>
+              <p class="card-desc">Tetapkan fail audio Azan untuk waktu Subuh dan waktu-waktu lazim.</p>
+            </div>
+            <button class="btn btn-sm btn-outline" id="btnRefreshAudioList" title="Muat Semula Senarai">🔄 Muat Semula</button>
+          </div>
+
+          <!-- Azan Subuh Selector -->
+          <div class="form-group mt-3">
+            <label class="label-with-hint">
+              <span>Azan Waktu Subuh</span>
+              <span class="hint-badge">Ada lafaz As-Salatu Khairum Minan Naum</span>
+            </label>
+            <div class="audio-select-row">
+              <select id="selectAzanSubuh" class="audio-dropdown">
+                <!-- Populated via /api/audio/list -->
+                <option value="azan_subuh_special.mp3">Azan Subuh Khas (As-Salatu Khairum Minan Naum)</option>
+              </select>
+            </div>
+            <div class="audio-action-buttons-row mt-2">
+              <button type="button" class="btn btn-sm btn-outline btn-preview-audio" id="btnPreviewSubuh" data-target="selectAzanSubuh" title="Mainkan audio pratonton di peranti / telefon ini">
+                🎧 Pratonton (Peranti Ini)
+              </button>
+              <button type="button" class="btn btn-sm btn-accent btn-test-tv-audio" id="btnTestKioskSubuh" data-target="selectAzanSubuh" title="Uji output pembesar suara TV fizikal (Kiosk e-Solat)">
+                📢 Uji Pembesar Suara TV
+              </button>
+            </div>
+          </div>
+
+          <!-- Regular Azan Selector -->
+          <div class="form-group mt-3">
+            <label class="label-with-hint">
+              <span>Azan Waktu Lazim (Zohor, Asar, Maghrib, Isyak)</span>
+              <span class="hint-badge">Waktu Standard</span>
+            </label>
+            <div class="audio-select-row">
+              <select id="selectAzanStandard" class="audio-dropdown">
+                <!-- Populated via /api/audio/list -->
+                <option value="azan_mekah.mp3">Azan Makkah Al-Mukarramah</option>
+              </select>
+            </div>
+            <div class="audio-action-buttons-row mt-2">
+              <button type="button" class="btn btn-sm btn-outline btn-preview-audio" id="btnPreviewStandard" data-target="selectAzanStandard" title="Mainkan audio pratonton di peranti / telefon ini">
+                🎧 Pratonton (Peranti Ini)
+              </button>
+              <button type="button" class="btn btn-sm btn-accent btn-test-tv-audio" id="btnTestKioskStandard" data-target="selectAzanStandard" title="Uji output pembesar suara TV fizikal (Kiosk e-Solat)">
+                📢 Uji Pembesar Suara TV
+              </button>
+            </div>
+          </div>
+
+          <!-- Kiosk Azan Output Volume Slider -->
+          <div class="form-group mt-3">
+            <div class="slider-header">
+              <label>Kelantangan Audio Azan TV Kiosk</label>
+              <span class="volume-val-badge" id="valAzanVolume">85%</span>
+            </div>
+            <input type="range" id="inputAzanVolume" min="0" max="100" value="85" class="volume-slider">
+            <div class="slider-ticks">
+              <span>0% (Senyap)</span>
+              <span>50%</span>
+              <span>100% (Maksimum)</span>
+            </div>
+          </div>
+
+          <button class="btn btn-primary btn-block mt-3" id="btnSaveAzanAudio">
+            💾 Simpan Pilihan Audio Azan
+          </button>
+        </div>
+
+        <!-- 2. Custom MP3/WAV/OGG Audio File Upload Zone -->
+        <div class="section-card">
+          <h2 class="card-title">Muat Naik Fail Audio Azan (.mp3 / .wav / .ogg)</h2>
+          <p class="card-desc">Muat naik rakaman Azan tempatan (Ustaz/Bilal kariah) dalam format MP3, WAV atau OGG.</p>
+
+          <form id="uploadAzanAudioForm">
+            <div class="form-group">
+              <label>Nama / Label Rakaman (Pilihan)</label>
+              <input type="text" id="audioUploadTitle" placeholder="cth: Azan Merdu Ustaz Fauzi (Masjid Shah Alam)">
+            </div>
+            <div class="form-group">
+              <label>Pilih Fail Audio (.mp3, .wav, atau .ogg)</label>
+              <div class="file-dropzone" id="audioDropzone">
+                <input type="file" id="audioUploadInput" accept=".mp3,.wav,.ogg,audio/mpeg,audio/wav,audio/ogg" required>
+                <div class="dropzone-hint">
+                  <span class="dropzone-icon">🎵</span>
+                  <span class="dropzone-text" id="audioDropzoneText">Ketik atau seret fail MP3/WAV/OGG ke sini</span>
+                </div>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-accent btn-block" id="btnUploadAzanAudio">
+              📤 Muat Naik Fail Audio
+            </button>
+            <div id="audioUploadFeedback" class="upload-feedback mt-2"></div>
+          </form>
+        </div>
+
+        <!-- Hidden input for inline file replacement -->
+        <input type="file" id="replaceAudioInput" accept=".mp3,.wav,.ogg,audio/mpeg,audio/wav,audio/ogg" style="display: none;">
+
+        <!-- 3. Audio Track Library -->
+        <div class="section-card">
+          <h2 class="card-title">Senarai Audio Tersimpan</h2>
+          <p class="card-desc">Senarai fail audio Azan sedia ada dan yang telah dimuat naik. Anda boleh menguji dengar, menggantikan fail rakaman atau memadamkan fail.</p>
+          <div id="audioTracksContainer" class="audio-tracks-list">
+            <!-- Populated via /api/audio/list -->
+          </div>
+        </div>
+
+        <!-- ==================== 4. BACAAN AL-QURAN & TARHIM SEBELUM AZAN ==================== -->
+        <div class="section-card" style="border: 1px solid rgba(16,185,129,0.4); background: linear-gradient(135deg, rgba(15,23,42,0.95), rgba(6,78,59,0.25));">
+          <div class="card-header-flex">
+            <div>
+              <h2 class="card-title" style="color:#34d399; display:flex; align-items:center; gap:0.5rem;">
+                <span>📖</span> Bacaan Al-Quran &amp; Tarhim Sebelum Azan
+              </h2>
+              <p class="card-desc">Mainkan tilawah Al-Quran atau zikir munajat secara automatik 5–30 minit sebelum masuk waktu solat melalui sistem PA surau.</p>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline" id="btnRefreshQuranList" title="Imbas &amp; Muat Semula Pustaka Quran" style="border-color:#34d399; color:#34d399;">
+              🔄 Imbas Semula
+            </button>
+          </div>
+
+          <!-- Master Toggle & Time Lead -->
+          <div class="form-group mt-3" style="background:rgba(2,44,34,0.4); padding:1rem; border-radius:12px; border:1px solid rgba(52,211,153,0.2);">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+              <label for="switchQuranPreAzan" style="font-weight:700; color:#f8fafc; font-size:0.95rem; margin-bottom:0; cursor:pointer; display:flex; align-items:center; gap:0.5rem;">
+                <span>🔊 Aktifkan Bacaan Quran / Tarhim Automatik</span>
+              </label>
+              <input type="checkbox" id="switchQuranPreAzan" style="width:22px; height:22px; accent-color:#10b981; cursor:pointer;" checked>
+            </div>
+
+            <div class="form-row-2 mt-3">
+              <div class="form-group mb-0">
+                <label style="font-size:0.85rem; color:#cbd5e1;">Bermula Berapa Minit Sebelum Azan?</label>
+                <select id="selectQuranLeadMin" class="audio-dropdown">
+                  <option value="5">5 Minit Sebelum Azan</option>
+                  <option value="10" selected>10 Minit Sebelum Azan</option>
+                  <option value="15">15 Minit Sebelum Azan</option>
+                  <option value="20">20 Minit Sebelum Azan</option>
+                  <option value="30">30 Minit Sebelum Azan</option>
+                </select>
+              </div>
+
+              <div class="form-group mb-0">
+                <label style="font-size:0.85rem; color:#cbd5e1;">Mod Pilihan Surah / Audio</label>
+                <select id="selectQuranMode" class="audio-dropdown">
+                  <option value="random" selected>🔀 Rawak / Shuffle (Pilih Mana-mana Surah)</option>
+                  <option value="sequence">🔁 Ikut Giliran / Rotation (Pusingan Fail)</option>
+                  <option value="specific">🎯 Surah Khusus (Tetapkan Fail Tertentu)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Specific Surah Selector (shown if specific mode selected) -->
+            <div id="wrapperSpecificQuranFile" class="form-group mt-3" style="display:none;">
+              <label style="font-size:0.85rem; color:#fbbf24;">Pilih Fail MP3 Khusus:</label>
+              <select id="selectSpecificQuranFile" class="audio-dropdown">
+                <option value="">-- Sila Pilih Fail MP3 dari Pustaka --</option>
+              </select>
+            </div>
+
+            <!-- Prayer Checkboxes -->
+            <div class="form-group mt-3">
+              <label style="font-size:0.85rem; color:#cbd5e1; display:block; margin-bottom:0.5rem;">Waktu Solat Yang Diaktifkan:</label>
+              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(105px, 1fr)); gap:0.5rem;">
+                <label style="display:flex; align-items:center; gap:0.4rem; background:rgba(15,23,42,0.8); padding:0.4rem 0.6rem; border-radius:8px; font-size:0.85rem; cursor:pointer; border:1px solid #334155;">
+                  <input type="checkbox" id="chkQuranSubuh" value="subuh" checked style="accent-color:#10b981;"> Subuh
+                </label>
+                <label style="display:flex; align-items:center; gap:0.4rem; background:rgba(15,23,42,0.8); padding:0.4rem 0.6rem; border-radius:8px; font-size:0.85rem; cursor:pointer; border:1px solid #334155;">
+                  <input type="checkbox" id="chkQuranZohor" value="zohor" checked style="accent-color:#10b981;"> Zohor
+                </label>
+                <label style="display:flex; align-items:center; gap:0.4rem; background:rgba(15,23,42,0.8); padding:0.4rem 0.6rem; border-radius:8px; font-size:0.85rem; cursor:pointer; border:1px solid #334155;">
+                  <input type="checkbox" id="chkQuranAsar" value="asar" checked style="accent-color:#10b981;"> Asar
+                </label>
+                <label style="display:flex; align-items:center; gap:0.4rem; background:rgba(15,23,42,0.8); padding:0.4rem 0.6rem; border-radius:8px; font-size:0.85rem; cursor:pointer; border:1px solid #334155;">
+                  <input type="checkbox" id="chkQuranMaghrib" value="maghrib" checked style="accent-color:#10b981;"> Maghrib
+                </label>
+                <label style="display:flex; align-items:center; gap:0.4rem; background:rgba(15,23,42,0.8); padding:0.4rem 0.6rem; border-radius:8px; font-size:0.85rem; cursor:pointer; border:1px solid #334155;">
+                  <input type="checkbox" id="chkQuranIsyak" value="isyak" checked style="accent-color:#10b981;"> Isyak
+                </label>
+                <label style="display:flex; align-items:center; gap:0.4rem; background:rgba(15,23,42,0.8); padding:0.4rem 0.6rem; border-radius:8px; font-size:0.85rem; cursor:pointer; border:1px solid #334155;">
+                  <input type="checkbox" id="chkQuranJumaat" value="jumaat" checked style="accent-color:#10b981;"> Jumaat
+                </label>
+              </div>
+            </div>
+
+            <!-- Volume Slider -->
+            <div class="form-group mt-3">
+              <div class="slider-header">
+                <label style="font-size:0.85rem;">Kelantangan Audio Al-Quran (PA / TV):</label>
+                <span class="volume-val-badge" id="valQuranVolume" style="color:#34d399; background:rgba(16,185,129,0.2);">70%</span>
+              </div>
+              <input type="range" id="inputQuranVolume" min="0" max="100" value="70" class="volume-slider" style="accent-color:#10b981;">
+            </div>
+
+            <button type="button" class="btn btn-primary btn-block mt-3" id="btnSaveQuranConfig" style="font-weight:700;">
+              💾 Simpan Tetapan Al-Quran Sebelum Azan
+            </button>
+          </div>
+
+          <!-- Dual Option: Web Upload vs USB Folder Copy -->
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1rem; margin-top:1.25rem;">
+
+            <!-- Option 1: Web Upload from Phone / PC -->
+            <div style="background:rgba(15,23,42,0.9); padding:1rem; border-radius:12px; border:1px solid #334155;">
+              <h3 style="font-size:0.95rem; font-weight:700; color:#38bdf8; margin-bottom:0.4rem; display:flex; align-items:center; gap:0.4rem;">
+                <span>📲 Pilihan 1: Muat Naik Dari Telefon / Laptop</span>
+              </h3>
+              <p style="font-size:0.75rem; color:#94a3b8; margin-bottom:0.75rem;">Pilih fail MP3 dari memori telefon atau komputer untuk disimpan ke surau.</p>
+              
+              <form id="formUploadQuranMp3">
+                <div class="file-dropzone" id="quranDropzone" style="padding:1rem 0.5rem; min-height:80px;">
+                  <input type="file" id="quranUploadInput" accept=".mp3,.wav,.ogg,.m4a,.aac,audio/*" required>
+                  <div class="dropzone-hint">
+                    <span class="dropzone-icon" style="font-size:1.4rem;">🎵</span>
+                    <span class="dropzone-text" id="quranDropzoneText" style="font-size:0.8rem;">Pilih atau seret fail MP3 Quran</span>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-sm btn-accent btn-block mt-2" id="btnSubmitUploadQuran">
+                  📤 Muat Naik ke Pustaka
+                </button>
+                <div id="quranUploadFeedback" class="upload-feedback mt-1" style="font-size:0.8rem;"></div>
+              </form>
+            </div>
+
+            <!-- Option 2: Direct USB Thumb Drive Copy -->
+            <div style="background:rgba(15,23,42,0.9); padding:1rem; border-radius:12px; border:1px solid #334155;">
+              <h3 style="font-size:0.95rem; font-weight:700; color:#fbbf24; margin-bottom:0.4rem; display:flex; align-items:center; gap:0.4rem;">
+                <span>💾 Pilihan 2: Salin Terus Melalui Pendrive USB</span>
+              </h3>
+              <p style="font-size:0.75rem; color:#cbd5e1; line-height:1.4; margin-bottom:0.6rem;">
+                AJK/Teknikal boleh mencucuk Pendrive USB ke komputer dan salin/tampal terus fail MP3 ke folder:
+              </p>
+              <div style="background:#020617; padding:0.5rem 0.75rem; border-radius:8px; font-family:monospace; font-size:0.8rem; color:#34d399; border:1px solid #1e293b; word-break:break-all; user-select:all;" id="quranFolderLocalPath">
+                /var/lib/esolat/media/quran/
+              </div>
+              <p style="font-size:0.72rem; color:#94a3b8; margin-top:0.6rem; margin-bottom:0.75rem;">
+                Selepas menyalin fail, tekan butang di bawah untuk mengesan fail baru secara automatik.
+              </p>
+              <button type="button" class="btn btn-sm btn-outline btn-block" id="btnScanUsbQuranFolder" style="border-color:#fbbf24; color:#fbbf24;">
+                🔄 Imbas Fail dari Pendrive / Folder
+              </button>
+            </div>
+          </div>
+
+          <!-- Quran Library List -->
+          <div class="mt-4">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+              <h3 style="font-size:0.95rem; font-weight:700; color:#f8fafc;">
+                Pustaka Fail Al-Quran Tersimpan (<span id="countQuranTracks">0</span>)
+              </h3>
+              <div id="quranLivePlayingBadge" style="display:none; background:rgba(16,185,129,0.2); border:1px solid #34d399; color:#34d399; font-size:0.75rem; padding:0.2rem 0.5rem; border-radius:20px; animation:pulse 1.5s infinite;">
+                🔊 Sedang Dimainkan
+              </div>
+            </div>
+
+            <div id="quranTracksContainer" class="audio-tracks-list">
+              <div style="text-align:center; padding:1.5rem; color:#64748b; font-size:0.85rem;">
+                Memuatkan pustaka audio Al-Quran...
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h2 class="card-title">Tetapan Mod Azan Setiap Waktu</h2>
+          <p class="card-desc">Pilih sama ada main MP3 Azan automatik atau nada 'beep' panggilan untuk Bilal bertugas.</p>
+
+          <div class="adhan-table">
+            <!-- Subuh -->
+            <div class="adhan-row">
+              <span class="prayer-label">Subuh</span>
+              <select id="adhan_mode_subuh">
+                <option value="auto">Auto MP3 (Azan Penuh Subuh)</option>
+                <option value="beep">Beep Notifikasi (Untuk Bilal)</option>
+                <option value="silent">Senyap (Paparan Sahaja)</option>
+              </select>
+            </div>
+            <!-- Zohor -->
+            <div class="adhan-row">
+              <span class="prayer-label">Zohor</span>
+              <select id="adhan_mode_zohor">
+                <option value="auto">Auto MP3 (Azan Penuh)</option>
+                <option value="beep">Beep Notifikasi (Untuk Bilal)</option>
+                <option value="silent">Senyap (Paparan Sahaja)</option>
+              </select>
+            </div>
+            <!-- Asar -->
+            <div class="adhan-row">
+              <span class="prayer-label">Asar</span>
+              <select id="adhan_mode_asar">
+                <option value="auto">Auto MP3 (Azan Penuh)</option>
+                <option value="beep">Beep Notifikasi (Untuk Bilal)</option>
+                <option value="silent">Senyap (Paparan Sahaja)</option>
+              </select>
+            </div>
+            <!-- Maghrib -->
+            <div class="adhan-row">
+              <span class="prayer-label">Maghrib</span>
+              <select id="adhan_mode_maghrib">
+                <option value="auto">Auto MP3 (Azan Penuh)</option>
+                <option value="beep">Beep Notifikasi (Untuk Bilal)</option>
+                <option value="silent">Senyap (Paparan Sahaja)</option>
+              </select>
+            </div>
+            <!-- Isyak -->
+            <div class="adhan-row">
+              <span class="prayer-label">Isyak</span>
+              <select id="adhan_mode_isyak">
+                <option value="auto">Auto MP3 (Azan Penuh)</option>
+                <option value="beep">Beep Notifikasi (Untuk Bilal)</option>
+                <option value="silent">Senyap (Paparan Sahaja)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h2 class="card-title">Tempoh Kiraan Iqamah (Minit)</h2>
+          <p class="card-desc">Tempoh masa kiraan undur Iqamah sebelum solat berjemaah dimulakan.</p>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Subuh (Minit)</label>
+              <input type="number" id="iqamah_subuh" value="15" min="1" max="60">
+            </div>
+            <div class="form-group">
+              <label>Zohor (Minit)</label>
+              <input type="number" id="iqamah_zohor" value="10" min="1" max="60">
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Asar (Minit)</label>
+              <input type="number" id="iqamah_asar" value="10" min="1" max="60">
+            </div>
+            <div class="form-group">
+              <label>Maghrib (Minit)</label>
+              <input type="number" id="iqamah_maghrib" value="10" min="1" max="60">
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Isyak (Minit)</label>
+              <input type="number" id="iqamah_isyak" value="10" min="1" max="60">
+            </div>
+            <div class="form-group">
+              <label>Mod Solat Senyap (Minit)</label>
+              <input type="number" id="solat_duration" value="12" min="5" max="30">
+            </div>
+          </div>
+          <button class="btn btn-primary btn-block mt-3" id="btnSaveAdhanConfig">Simpan Tetapan Azan &amp; Iqamah</button>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 4: MEDIA & SLIDESHOW ==================== -->
+      <section id="tabMedia" class="tab-pane">
+        <div class="section-card">
+          <h2 class="card-title">Muat Naik Poster / Slaid</h2>
+          <p class="card-desc">Sokongan gambar (JPG, PNG) dan video (MP4) untuk putaran slaid kiosk.</p>
+
+          <form id="uploadSlideForm">
+            <div class="form-group">
+              <label>Tajuk / Penerangan Slaid</label>
+              <input type="text" id="slideTitle" placeholder="cth: Kuliah Subuh Ahad" required>
+            </div>
+            <div class="form-group">
+              <label>Pilih Fail (Gambar / Video)</label>
+              <input type="file" id="slideFileInput" accept="image/*,video/mp4" required>
+            </div>
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Tempoh Paparan (Saat)</label>
+                <input type="number" id="slideDuration" value="12" min="5" max="120">
+              </div>
+              <div class="form-group">
+                <label>Susunan (No. Turutan)</label>
+                <input type="number" id="slideOrder" value="1" min="1" max="99">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-accent btn-block" id="btnUploadSlide">
+              <span>📤</span> Muat Naik Slaid
+            </button>
+          </form>
+        </div>
+
+        <div class="section-card">
+          <h2 class="card-title">Senarai Slaid Semasa</h2>
+          <div id="slidesListContainer" class="slides-list">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 5: TICKER & MOSQUE INFO ==================== -->
+      <section id="tabTicker" class="tab-pane">
+        <!-- ==================== MULTI-SOURCE VIDEO & PiP CONTROLLER ==================== -->
+        <div class="section-card">
+          <h2 class="card-title">🎥 Media &amp; Siaran Langsung (PiP / Split)</h2>
+          <p class="card-desc">Kawal tayangan video kuliah, strim langsung HLS, dan mod Picture-in-Picture di skrin TV.</p>
+
+          <!-- Quick Toggle: Mod Skrin Penuh Media (Full Width) -->
+          <div class="media-fullscreen-banner mb-3" style="background: linear-gradient(135deg, rgba(6, 78, 59, 0.6), rgba(4, 120, 87, 0.3)); border: 2px solid rgba(52, 211, 153, 0.5); border-radius: 12px; padding: 0.9rem 1.1rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div style="padding-right: 0.8rem;">
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                  <span style="font-size:1.15rem;">🖥️</span>
+                  <span style="font-size:0.95rem; font-weight:700; color:#34d399;">Mod Skrin Penuh Media (Full Width)</span>
+                </div>
+                <div style="font-size:0.75rem; color:#cbd5e1; margin-top:0.25rem; line-height:1.3;">
+                  Sembunyikan widget sisi dan luaskan slaid/video ke 100% lebar pentas (reben solat &amp; ticker bawah kekal aktif).
+                </div>
+              </div>
+              <label class="toggle-switch" style="flex-shrink:0;">
+                <input type="checkbox" id="checkMediaFullscreen">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 1. One-Tap Quick Switch -->
+          <div class="quick-switch-container mt-2">
+            <span class="sub-label">Pintasan Pantas Sekali Tekan:</span>
+            <div class="btn-grid mt-1">
+              <button type="button" class="btn btn-outline" id="btnQuickSignage">
+                <span>📺</span> Maksimumkan Takwim (100%)
+              </button>
+              <button type="button" class="btn btn-accent" id="btnQuickVideo">
+                <span>🎥</span> Maksimumkan Video (100%)
+              </button>
+            </div>
+          </div>
+
+          <!-- 2. Visual Layout Mode Selector -->
+          <div class="mt-3">
+            <span class="sub-label">Pilih Mod Susun Atur Skrin TV:</span>
+            <div class="layout-selector-grid mt-2" id="multiLayoutSelectorGrid">
+
+              <!-- Mode 1: Fullscreen Signage -->
+              <label class="layout-option active" data-layout-mode="fullscreen_signage">
+                <input type="radio" name="active_layout_mode" value="fullscreen_signage" checked>
+                <div class="layout-card-inner">
+                  <div class="layout-wireframe wireframe-full">
+                    <div class="wf-box wf-slide-full">100% Takwim</div>
+                  </div>
+                  <div class="layout-info">
+                    <div class="layout-title">Takwim Penuh (100% Signage)</div>
+                    <div class="layout-subtitle">Paparan takwim solat dan poster standard</div>
+                  </div>
+                </div>
+              </label>
+
+              <!-- Mode 2: Split Equal (50/50) -->
+              <label class="layout-option" data-layout-mode="split_equal">
+                <input type="radio" name="active_layout_mode" value="split_equal">
+                <div class="layout-card-inner">
+                  <div class="layout-wireframe wireframe-split-equal">
+                    <div class="wf-box wf-half-signage">50% Takwim</div>
+                    <div class="wf-box wf-half-video">50% Video</div>
+                  </div>
+                  <div class="layout-info">
+                    <div class="layout-title">Belah Sama (50% / 50%)</div>
+                    <div class="layout-subtitle">50% Takwim Solat &amp; 50% Video Siaran</div>
+                  </div>
+                </div>
+              </label>
+
+              <!-- Mode 3: Split Video Focus (35/65) -->
+              <label class="layout-option" data-layout-mode="split_video_focus">
+                <input type="radio" name="active_layout_mode" value="split_video_focus">
+                <div class="layout-card-inner">
+                  <div class="layout-wireframe wireframe-split-video-focus">
+                    <div class="wf-box wf-third-signage">35% Takwim</div>
+                    <div class="wf-box wf-two-third-video">65% Video</div>
+                  </div>
+                  <div class="layout-info">
+                    <div class="layout-title">Fokus Video (35% Takwim / 65% Video)</div>
+                    <div class="layout-subtitle">Video besar untuk tontonan kuliah utama</div>
+                  </div>
+                </div>
+              </label>
+
+              <!-- Mode 4: Split Signage Focus (65/35) -->
+              <label class="layout-option" data-layout-mode="split_signage_focus">
+                <input type="radio" name="active_layout_mode" value="split_signage_focus">
+                <div class="layout-card-inner">
+                  <div class="layout-wireframe wireframe-split-signage-focus">
+                    <div class="wf-box wf-two-third-signage">65% Takwim</div>
+                    <div class="wf-box wf-third-video">35% Video</div>
+                  </div>
+                  <div class="layout-info">
+                    <div class="layout-title">Fokus Takwim (65% Takwim / 35% Video)</div>
+                    <div class="layout-subtitle">Takwim besar dengan siaran video sisi</div>
+                  </div>
+                </div>
+              </label>
+
+              <!-- Mode 5: PiP Video -->
+              <label class="layout-option" data-layout-mode="pip_video">
+                <input type="radio" name="active_layout_mode" value="pip_video">
+                <div class="layout-card-inner">
+                  <div class="layout-wireframe wireframe-pip-video">
+                    <div class="wf-box wf-full-base">Takwim Penuh</div>
+                    <div class="wf-box wf-pip-corner">Video PiP</div>
+                  </div>
+                  <div class="layout-info">
+                    <div class="layout-title">PiP Video (Picture-in-Picture)</div>
+                    <div class="layout-subtitle">Takwim penuh dengan tetingkap video terapung di sudut</div>
+                  </div>
+                </div>
+              </label>
+
+              <!-- Mode 6: PiP Signage -->
+              <label class="layout-option" data-layout-mode="pip_signage">
+                <input type="radio" name="active_layout_mode" value="pip_signage">
+                <div class="layout-card-inner">
+                  <div class="layout-wireframe wireframe-pip-signage">
+                    <div class="wf-box wf-full-video-base">Video Penuh</div>
+                    <div class="wf-box wf-pip-clock">Jam Solat</div>
+                  </div>
+                  <div class="layout-info">
+                    <div class="layout-title">PiP Takwim (Video Penuh + Jam Solat)</div>
+                    <div class="layout-subtitle">Video penuh dengan jam &amp; undur solat terapung di sudut</div>
+                  </div>
+                </div>
+              </label>
+
+              <!-- Mode 7: Fullscreen Video -->
+              <label class="layout-option" data-layout-mode="fullscreen_video">
+                <input type="radio" name="active_layout_mode" value="fullscreen_video">
+                <div class="layout-card-inner">
+                  <div class="layout-wireframe wireframe-full-video">
+                    <div class="wf-box wf-video-full">100% Video</div>
+                  </div>
+                  <div class="layout-info">
+                    <div class="layout-title">Video Sahaja (100% Fullscreen Video)</div>
+                    <div class="layout-subtitle">Tayangan video atau strim langsung sepenuh skrin</div>
+                  </div>
+                </div>
+              </label>
+
+            </div>
+          </div>
+
+          <!-- 3. Media Source & Live Stream Configuration -->
+          <div class="side-info-config-box mt-3">
+            <span class="sub-label">Punca &amp; Pautan Media Utama:</span>
+
+            <div class="form-group mt-2">
+              <label>Punca Media Pentas (Media Source)</label>
+              <select id="selectMediaSourceType">
+                <option value="slides">Slaid Poster &amp; Pengumuman (Slideshow)</option>
+                <option value="video">Fail Video MP4 Tempatan / Looping</option>
+                <option value="stream">Strim Langsung HLS / RTSP (.m3u8) / YouTube</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Format / Jenis Media Video</label>
+              <select id="selectVideoType">
+                <option value="mp4">Fail Video Tempatan / URL MP4</option>
+                <option value="hls">Strim Langsung HLS / RTSP (.m3u8)</option>
+                <option value="youtube">Pautan YouTube Live / Video</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Pautan URL Strim / Fail Video</label>
+              <input type="url" id="inputVideoUrl" placeholder="cth: https://domain/live/stream.m3u8 atau /media/kuliah.mp4">
+            </div>
+
+            <!-- Quick Preset URLs -->
+            <div class="preset-links-box">
+              <span style="font-size:0.75rem; color:#94a3b8;">Praset Pautan Pantas:</span>
+              <div class="btn-grid-compact mt-1" style="display:flex; flex-wrap:wrap; gap:0.4rem;">
+                <button type="button" class="btn btn-sm btn-secondary" id="btnPresetPhoneCam">📱 Kamera Telefon (IP Webcam)</button>
+                <button type="button" class="btn btn-sm btn-secondary" id="btnPresetYouTube">🔴 YouTube Live</button>
+                <button type="button" class="btn btn-sm btn-secondary" id="btnPresetAlhijrah">TV Al-Hijrah</button>
+                <button type="button" class="btn btn-sm btn-secondary" id="btnPresetSampleHls">Strim HLS Contoh</button>
+                <button type="button" class="btn btn-sm btn-secondary" id="btnPresetClear">Kosongkan</button>
+              </div>
+            </div>
+
+            <!-- Helpful Guide Box for Mobile Phone Camera & Audio Quality -->
+            <div class="side-info-config-box mt-3" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 0.9rem;">
+              <div style="display:flex; align-items:center; gap:0.5rem; color:#38bdf8; font-weight:700; font-size:0.85rem;">
+                <span>💡</span>
+                <span>Panduan Kamera Telefon &amp; Audio Jelas (Zero Echo)</span>
+              </div>
+              <div style="font-size:0.75rem; color:#cbd5e1; margin-top:0.4rem; line-height:1.5;">
+                <p><b>1. Sambungan Video Telefon:</b> Pasang aplikasi percuma <i>IP Webcam</i> (Android) atau <i>Larix Broadcaster</i> (iPhone), tekan <i>Start Server</i> &amp; masukkan URL telefon (cth: <code>http://192.168.1.50:8080/video</code>).</p>
+                <p style="margin-top:0.3rem;"><b>2. Jamin Audio Jelas Tanpa Gema:</b> Gunakan <i>Wireless Lavalier Mic</i> (mic klip USB-C / Lightning) pada jubah ustaz, atau sambung audio output <i>AUX OUT Mixer Surau</i> untuk audio bertaraf studio bebas gema dewan.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Mod Paparan & PiP Configuration -->
+          <div class="side-info-config-box mt-3">
+            <span class="sub-label">Tetapan Mod Paparan &amp; PiP:</span>
+
+            <div class="form-group mt-2">
+              <label>Mod Paparan Kiosk (Layout Mode)</label>
+              <select id="selectKioskLayoutMode">
+                <option value="split">2 Kolum (Pentas Media 68% + Widget Kanan 32%)</option>
+                <option value="fullscreen">Skrin Penuh (100% Lebar Media / Slaid)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Mod Picture-in-Picture (PiP Jam &amp; Undur Solat)</label>
+              <select id="selectPipMode">
+                <option value="none">Tiada (None)</option>
+                <option value="bottom_right">Sudut Kanan Bawah (Bottom Right)</option>
+                <option value="bottom_left">Sudut Kiri Bawah (Bottom Left)</option>
+                <option value="top_right">Sudut Kanan Atas (Top Right)</option>
+                <option value="top_left">Sudut Kiri Atas (Top Left)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 4.1. Interactive Drag & Resize Canvas Layout Section -->
+          <div class="side-info-config-box mt-3" style="border: 2px solid rgba(52, 211, 153, 0.4); background: rgba(2, 44, 34, 0.45); border-radius: 12px; padding: 1rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div style="font-weight:700; color:#34d399; font-size:0.95rem; display:flex; align-items:center; gap:0.4rem;">
+                  <span>📐</span>
+                  <span>Mod Susun Layout Bebas (Drag &amp; Resize)</span>
+                </div>
+                <div style="font-size:0.75rem; color:#cbd5e1; margin-top:0.25rem; line-height:1.4;">
+                  Buka kunci zon paparan (Zon 1: Media Stage, Zon 2: Takwim Sidebar, Zon 3: PiP Overlay) untuk diseret dan diubah saiz secara interaktif di skrin TV.
+                </div>
+              </div>
+              <label class="toggle-switch" style="flex-shrink:0;">
+                <input type="checkbox" id="checkLayoutEditMode">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="mt-3" style="display:flex; flex-wrap:wrap; gap:0.6rem; align-items:center;">
+              <a href="/kiosk" target="_blank" class="btn btn-sm btn-outline" style="text-decoration:none;">
+                <span>🖥️</span> Buka Paparan Kiosk
+              </a>
+              <button type="button" class="btn btn-sm btn-secondary" id="btnResetCustomLayout">
+                <span>🔄</span> Reset ke Layout Asal
+              </button>
+              <span id="layoutEditModeIndicator" style="font-size:0.75rem; color:#94a3b8; margin-left:auto;">
+                Status: Mod Kunci (Read-Only)
+              </span>
+            </div>
+          </div>
+
+          <!-- 5. Video Audio & Volume Controls -->
+          <div class="side-info-config-box mt-3">
+            <span class="sub-label">Kawalan Audio Video:</span>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.5rem;">
+              <span style="font-size:0.9rem; font-weight:600;">Suara Video di TV</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="checkVideoAudio">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="form-group mt-3">
+              <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:0.25rem;">
+                <label>Kelantangan Suara Video</label>
+                <span id="videoVolLabel" style="color:var(--accent-gold); font-weight:700;">80%</span>
+              </div>
+              <input type="range" id="rangeVideoVolume" min="0" max="100" value="80" style="width:100%;">
+            </div>
+
+            <div style="background:rgba(217,119,6,0.15); border:1px solid rgba(217,119,6,0.3); border-radius:8px; padding:0.5rem 0.75rem; font-size:0.75rem; color:#fde68a; margin-top:0.5rem;">
+              ℹ️ <b>Auto-Override:</b> Suara video akan disenyapkan secara automatik apabila sistem masuk fasa Peringatan Pra-Azan, Azan, Iqamah, dan Solat.
+            </div>
+          </div>
+
+          <!-- 6. Slide Sub-Layout & Kuliah Info (for Signage Viewport) -->
+          <div class="side-info-config-box mt-3">
+            <span class="sub-label">Susunan Slaid Dalam Takwim:</span>
+            <div class="form-group mt-2">
+              <select id="selectKioskSubLayout">
+                <option value="full">Slaid Penuh (16:9)</option>
+                <option value="split_right">Belah Kanan (Slaid + Info/QR Kanan)</option>
+                <option value="split_left">Belah Kiri (Info/QR Kiri + Slaid)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Tajuk Kuliah</label>
+              <input type="text" id="inputKuliahTitle" placeholder="cth: Kuliah Maghrib Perdana: Menghayati Al-Quran">
+            </div>
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Penceramah / Ustaz</label>
+                <input type="text" id="inputKuliahUstaz" placeholder="cth: Ustaz Hj. Ahmad Fauzi">
+              </div>
+              <div class="form-group">
+                <label>Hari / Masa</label>
+                <input type="text" id="inputKuliahDate" placeholder="cth: Setiap Hari Rabu (Lepas Maghrib)">
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn-primary btn-block mt-3" id="btnSaveDisplaySettings">
+            <span>💾</span> Simpan Tetapan Paparan
+          </button>
+          <button class="btn btn-primary btn-block mt-2" id="btnSaveVideoLayout" style="display:none;">
+            <span>💾</span> Simpan &amp; Kemas Kini Skrin TV Serta-merta
+          </button>
+        </div>
+
+        <!-- ==================== FONT TYPOGRAPHY SELECTION CARD ==================== -->
+        <div class="section-card">
+          <h2 class="card-title">🎨 Gaya Fon Paparan Skrin TV (Typography)</h2>
+          <p class="card-desc">Pilih gaya fon (font type) untuk paparan teks, jam, nama surau, dan takwim di skrin TV dewan solat:</p>
+
+          <div class="form-group mt-2">
+            <div class="font-selector-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:0.75rem; margin-top:0.5rem;">
+              
+              <!-- Option 1: Outfit (Default) -->
+              <label class="font-option-card" style="border:1px solid rgba(52,211,153,0.3); border-radius:10px; padding:0.85rem; background:rgba(15,23,42,0.7); cursor:pointer; display:flex; gap:0.6rem; align-items:flex-start;">
+                <input type="radio" name="kiosk_font_family" value="outfit" checked style="margin-top:0.25rem;">
+                <div>
+                  <div style="font-family:'Outfit', sans-serif; font-size:1.05rem; font-weight:700; color:#34d399;">Outfit (Moden &amp; Jelas)</div>
+                  <div style="font-size:0.75rem; color:#94a3b8; margin-top:0.2rem;">Lalai &bull; Sangat jelas dibaca dari jarak jauh.</div>
+                </div>
+              </label>
+
+              <!-- Option 2: Amiri (Classic Islamic) -->
+              <label class="font-option-card" style="border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:0.85rem; background:rgba(15,23,42,0.7); cursor:pointer; display:flex; gap:0.6rem; align-items:flex-start;">
+                <input type="radio" name="kiosk_font_family" value="amiri" style="margin-top:0.25rem;">
+                <div>
+                  <div style="font-family:'Amiri', serif; font-size:1.15rem; font-weight:700; color:#fbbf24;">Amiri (Klasik Masjid)</div>
+                  <div style="font-size:0.75rem; color:#94a3b8; margin-top:0.2rem;">Gaya tradisi Islam berunsurkan seni khat Naskh.</div>
+                </div>
+              </label>
+
+              <!-- Option 3: Inter (Clean Minimalist) -->
+              <label class="font-option-card" style="border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:0.85rem; background:rgba(15,23,42,0.7); cursor:pointer; display:flex; gap:0.6rem; align-items:flex-start;">
+                <input type="radio" name="kiosk_font_family" value="inter" style="margin-top:0.25rem;">
+                <div>
+                  <div style="font-family:'Inter', sans-serif; font-size:1rem; font-weight:700; color:#38bdf8;">Inter (Minimalis)</div>
+                  <div style="font-size:0.75rem; color:#94a3b8; margin-top:0.2rem;">Kemas, moden dan berketepatan piksel tinggi.</div>
+                </div>
+              </label>
+
+              <!-- Option 4: Montserrat (Bold Signage) -->
+              <label class="font-option-card" style="border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:0.85rem; background:rgba(15,23,42,0.7); cursor:pointer; display:flex; gap:0.6rem; align-items:flex-start;">
+                <input type="radio" name="kiosk_font_family" value="montserrat" style="margin-top:0.25rem;">
+                <div>
+                  <div style="font-family:'Montserrat', sans-serif; font-size:1.05rem; font-weight:800; color:#f472b6;">Montserrat (Tebal &amp; Kontras)</div>
+                  <div style="font-size:0.75rem; color:#94a3b8; margin-top:0.2rem;">Huruf tebal dan menonjol untuk skrin TV besar.</div>
+                </div>
+              </label>
+
+              <!-- Option 5: Reem Kufi (Contemporary Kufic) -->
+              <label class="font-option-card" style="border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:0.85rem; background:rgba(15,23,42,0.7); cursor:pointer; display:flex; gap:0.6rem; align-items:flex-start;">
+                <input type="radio" name="kiosk_font_family" value="reem_kufi" style="margin-top:0.25rem;">
+                <div>
+                  <div style="font-family:'Reem Kufi', sans-serif; font-size:1.05rem; font-weight:700; color:#a78bfa;">Reem Kufi (Kufi Moden)</div>
+                  <div style="font-size:0.75rem; color:#94a3b8; margin-top:0.2rem;">Elegan dan artistik berinspirasikan khat Kufi.</div>
+                </div>
+              </label>
+
+              <!-- Option 6: Scheherazade (Uthmani / Naskh) -->
+              <label class="font-option-card" style="border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:0.85rem; background:rgba(15,23,42,0.7); cursor:pointer; display:flex; gap:0.6rem; align-items:flex-start;">
+                <input type="radio" name="kiosk_font_family" value="scheherazade" style="margin-top:0.25rem;">
+                <div>
+                  <div style="font-family:'Scheherazade New', serif; font-size:1.15rem; font-weight:700; color:#34d399;">Scheherazade (Resam Uthmani)</div>
+                  <div style="font-size:0.75rem; color:#94a3b8; margin-top:0.2rem;">Gaya tulisan ayat al-Quran klasik dan anggun.</div>
+                </div>
+              </label>
+
+            </div>
+          </div>
+
+          <button type="button" class="btn btn-primary btn-block mt-3" id="btnSaveFontFamily">
+            💾 Simpan Gaya Fon TV Kiosk
+          </button>
+        </div>
+
+        <div class="section-card">
+          <h2 class="card-title">Maklumat Surau &amp; Masjid</h2>
+          <div class="form-group">
+            <label>Nama Masjid / Surau</label>
+            <input type="text" id="inputMosqueName" value="Surau Al-Ikhlas">
+          </div>
+          <div class="form-group">
+            <label>Lokasi / Alamat Ringkas</label>
+            <input type="text" id="inputMosqueLocation" value="Seksyen 7, Shah Alam, Selangor">
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h2 class="card-title">Teks Marquee Pengumuman (Ticker Bawah)</h2>
+          <p class="card-desc">Teks bergerak di bahagian bawah skrin kiosk untuk makluman jemaah.</p>
+          <div class="form-group">
+            <textarea id="inputTickerText" rows="4" placeholder="Tulis pengumuman di sini..."></textarea>
+          </div>
+          <button class="btn btn-primary btn-block" id="btnSaveBranding">Simpan Maklumat &amp; Pengumuman</button>
+        </div>
+
+        <div class="section-card">
+          <h2 class="card-title">Akaun Tabung / Infaq Masjid &amp; DuitNow QR</h2>
+          <p class="card-desc">Tetapkan maklumat akaun bank dan muat naik imej QR Kod DuitNow untuk paparan di skrin TV.</p>
+          
+          <div class="form-group">
+            <label>Nama Bank</label>
+            <input type="text" id="inputBankName" value="Bank Islam Malaysia Berhad">
+          </div>
+          <div class="form-group">
+            <label>Nombor Akaun</label>
+            <input type="text" id="inputBankAcc" value="1202-9010-0456-78">
+          </div>
+          <div class="form-group">
+            <label>Penama Akaun</label>
+            <input type="text" id="inputBankHolder" value="Tabung Pembangunan Surau Al-Ikhlas">
+          </div>
+
+          <!-- Bank DuitNow QR Image Upload Section -->
+          <div class="form-group mt-3">
+            <label>Muat Naik Gambar QR Code Bank (DuitNow QR)</label>
+            <div style="display:flex; align-items:center; gap:1rem; margin-top:0.4rem;">
+              <div id="bankQrPreviewContainer" style="width:110px; height:110px; border-radius:10px; border:2px dashed rgba(52,211,153,0.4); display:flex; align-items:center; justify-content:center; background:rgba(2,44,34,0.6); overflow:hidden; flex-shrink:0;">
+                <img id="bankQrPreviewImg" src="" alt="QR Preview" style="width:100%; height:100%; max-width:100%; max-height:100%; object-fit:contain; object-position:center; aspect-ratio:1/1; display:none;">
+                <span id="bankQrPlaceholder" style="font-size:0.75rem; color:#94a3b8; text-align:center; padding:0.3rem;">Tiada QR</span>
+              </div>
+              <div style="flex:1;">
+                <input type="file" id="inputBankQrFile" accept="image/png,image/jpeg,image/webp" style="font-size:0.8rem;">
+                <div style="font-size:0.75rem; color:#94a3b8; margin-top:0.35rem;">Format: PNG, JPG, JPEG atau WEBP.</div>
+                <button type="button" class="btn btn-sm btn-danger mt-2" id="btnRemoveBankQr" style="display:none;">Padam QR Code</button>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn-primary btn-block mt-3" id="btnSaveBank">Simpan Maklumat Tabung &amp; QR</button>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 6: LICENSE ACTIVATION ==================== -->
+      <section id="tabLicense" class="tab-pane">
+        <div class="section-card">
+          <h2 class="card-title">Pengenalan Perkakasan (Machine ID)</h2>
+          <p class="card-desc">Machine ID ini dikunci secara kriptografi kepada motherboard dan perkakasan sistem ini.</p>
+
+          <div class="hwid-display-box">
+            <span class="hwid-code" id="adminHwidDisplay">ESOLAT-XXXX-XXXX-XXXX</span>
+            <button class="btn btn-sm btn-outline mt-2" id="btnCopyHwid">📋 Salin Machine ID</button>
+          </div>
+
+          <div id="licenseInfoBadge" class="lic-status-badge mt-3">
+            Status: Memuatkan...
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h2 class="card-title">Pengaktifan Melalui Activation PIN</h2>
+          <p class="card-desc">Masukkan kod PIN 16-aksara yang diperoleh daripada pembekal.</p>
+          <form id="pinActivationForm">
+            <div class="form-group">
+              <label>Activation PIN</label>
+              <input type="text" id="inputPin" placeholder="cth: PIN-609B-F671-9E26" required autocomplete="off" spellcheck="false">
+            </div>
+            <button type="submit" class="btn btn-accent btn-block">⚡ Sahkan &amp; Aktifkan Lesen</button>
+          </form>
+        </div>
+
+        <div class="section-card">
+          <h2 class="card-title">Atau Muat Naik Fail Lesen (.lic)</h2>
+          <p class="card-desc">Muat naik fail <code>esolat.lic</code> jika dibekalkan dalam bentuk fail lesen.</p>
+          <div class="form-group">
+            <input type="file" id="licFileInput" accept=".lic,application/json">
+          </div>
+          <button class="btn btn-outline btn-block" id="btnUploadLicFile">📂 Muat Naik Fail Lesen</button>
+        </div>
+
+        <div class="section-card" style="background: linear-gradient(135deg, rgba(217, 119, 6, 0.2), rgba(15, 23, 42, 0.7)); border: 1px solid rgba(251, 191, 36, 0.4);">
+          <div style="display:flex; align-items:center; gap:0.75rem;">
+            <div style="font-size:2rem;">💎</div>
+            <div style="flex:1;">
+              <h2 class="card-title" style="margin-bottom:0.2rem; color:#fbbf24;">Pakej &amp; Harga Lesen Sistem</h2>
+              <p class="card-desc" style="margin-bottom:0; color:#cbd5e1;">Pakej DIY (Lesen Perisian Sahaja), Set Mini PC Siap Pasang, dan Pakej Lengkap Masjid Perdana.</p>
+            </div>
+          </div>
+          <a href="/pricing" target="_blank" class="btn btn-warning btn-block mt-3" style="text-decoration:none; text-align:center; display:flex; align-items:center; justify-content:center; gap:0.5rem;">
+            <span>💎</span> Lihat Senarai Pakej &amp; Harga Rasmi
+          </a>
+        </div>
+
+        <div class="section-card">
+          <h2 class="card-title">Bantuan Pengaktifan Lesen</h2>
+          <p class="card-desc" style="color:#fbbf24; font-weight:600;">
+            Sila hubungi sokongan teknikal Skywalker Consortium (+6011-1871 2388) untuk pengaktifan lesen.
+          </p>
+          <div style="font-size:0.85rem; color:#cbd5e1; margin-top:0.5rem; line-height:1.5;">
+            Emel: <a href="mailto:skywalker.co@proton.me" style="color:#38bdf8;">skywalker.co@proton.me</a> &bull; SSM: AS0463209-A
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 7: SUPPORT & VENDOR INFO ==================== -->
+      <section id="tabSupport" class="tab-pane">
+        <div class="section-card">
+          <div class="support-hero" style="text-align:center; padding:0.5rem 0 1rem;">
+            <div style="font-size:2.5rem; margin-bottom:0.25rem;">🏢</div>
+            <h2 class="card-title" style="font-size:1.35rem; color:#f8fafc;">Skywalker Consortium</h2>
+            <div style="font-size:0.85rem; color:#34d399; font-weight:600; margin-top:0.25rem;">
+              No. Pendaftaran SSM: AS0463209-A (202303102311)
+            </div>
+            <p class="card-desc" style="margin-top:0.5rem;">
+              Penyedia rasmi sistem e-Solat Digital Signage &amp; Automasi Surau/Masjid.
+            </p>
+          </div>
+
+          <div class="contact-details-list" style="display:flex; flex-direction:column; gap:0.75rem; margin-top:0.5rem;">
+            <div style="background:rgba(15,23,42,0.6); padding:0.85rem; border-radius:10px; border:1px solid rgba(255,255,255,0.08);">
+              <div style="font-size:0.75rem; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">📍 Alamat Perniagaan (Business Address)</div>
+              <div style="font-size:0.9rem; color:#f1f5f9; margin-top:0.25rem; line-height:1.4;">
+                Block A8-3A, Jalan Selaman, 68000 Ampang, Selangor
+              </div>
+            </div>
+
+            <div style="background:rgba(15,23,42,0.6); padding:0.85rem; border-radius:10px; border:1px solid rgba(255,255,255,0.08);">
+              <div style="font-size:0.75rem; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">📞 Talian Sokongan Teknikal</div>
+              <div style="font-size:1.05rem; font-weight:700; color:#38bdf8; margin-top:0.25rem;">
+                <a href="tel:+601118712388" style="color:inherit; text-decoration:none;">+6011-1871 2388</a>
+              </div>
+              <div style="margin-top:0.6rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
+                <a href="https://wa.me/601118712388" target="_blank" class="btn btn-sm btn-accent" style="display:inline-flex; align-items:center; gap:0.3rem;">
+                  💬 WhatsApp Bantuan Teknikal
+                </a>
+                <a href="tel:+601118712388" class="btn btn-sm btn-outline">
+                  📞 Panggilan
+                </a>
+              </div>
+            </div>
+
+            <div style="background:rgba(15,23,42,0.6); padding:0.85rem; border-radius:10px; border:1px solid rgba(255,255,255,0.08);">
+              <div style="font-size:0.75rem; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">✉️ Emel Rasmi</div>
+              <div style="font-size:0.95rem; color:#f1f5f9; margin-top:0.25rem;">
+                <a href="mailto:skywalker.co@proton.me" style="color:#34d399; font-weight:600; text-decoration:none;">skywalker.co@proton.me</a>
+              </div>
+            </div>
+
+            <div style="background:rgba(15,23,42,0.6); padding:0.85rem; border-radius:10px; border:1px solid rgba(255,255,255,0.08);">
+              <div style="font-size:0.75rem; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">🌐 Laman Web Rasmi</div>
+              <div style="font-size:0.95rem; color:#f1f5f9; margin-top:0.25rem;">
+                <a href="https://sky12388.github.io/esolat/" target="_blank" style="color:#38bdf8; font-weight:600; text-decoration:none;">https://sky12388.github.io/esolat/</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card" style="background: linear-gradient(135deg, rgba(217, 119, 6, 0.2), rgba(15, 23, 42, 0.7)); border: 1px solid rgba(251, 191, 36, 0.4);">
+          <div style="display:flex; align-items:center; gap:0.75rem;">
+            <div style="font-size:2rem;">💎</div>
+            <div style="flex:1;">
+              <h2 class="card-title" style="margin-bottom:0.2rem; color:#fbbf24;">Pakej &amp; Harga Sistem</h2>
+              <p class="card-desc" style="margin-bottom:0; color:#cbd5e1;">Ketahui pakej perkakasan Mini PC, lesen perisian, dan pakej turnkey masjid.</p>
+            </div>
+          </div>
+          <a href="/pricing" target="_blank" class="btn btn-warning btn-block mt-3" style="text-decoration:none; text-align:center; display:flex; align-items:center; justify-content:center; gap:0.5rem;">
+            <span>💎</span> Buka Halaman Pakej &amp; Harga
+          </a>
+        </div>
+
+        <div class="section-card">
+          <h2 class="card-title">Pengaktifan Lesen Sistem</h2>
+          <p class="card-desc">Sila hubungi sokongan teknikal Skywalker Consortium (+6011-1871 2388) untuk pengaktifan lesen.</p>
+          <div class="hwid-display-box">
+            <span class="hwid-code" id="supportHwidCode">ESOLAT-XXXX-XXXX-XXXX</span>
+            <button class="btn btn-sm btn-outline mt-2" onclick="navigator.clipboard.writeText(document.getElementById('supportHwidCode').textContent); showToast('Machine ID disalin!');">📋 Salin Machine ID</button>
+          </div>
+        </div>
+
+        <div class="section-card" style="background: linear-gradient(135deg, rgba(6, 78, 59, 0.45), rgba(15, 23, 42, 0.7)); border: 1px solid rgba(52, 211, 153, 0.4);">
+          <div style="display:flex; align-items:center; gap:0.75rem;">
+            <div style="font-size:2rem;">📖</div>
+            <div style="flex:1;">
+              <h2 class="card-title" style="margin-bottom:0.2rem; color:#34d399;">Panduan Pengguna (User Manual)</h2>
+              <p class="card-desc" style="margin-bottom:0; color:#cbd5e1;">Lengkap dengan panduan langkah-demi-langkah, soalan lazim (FAQ), dan tutorial tetapan surau.</p>
+            </div>
+          </div>
+          <a href="/admin/manual" class="btn btn-accent btn-block mt-3" style="text-decoration:none; text-align:center; display:flex; align-items:center; justify-content:center; gap:0.5rem;">
+            <span>📖</span> Buka Panduan Pengguna Lengkap
+          </a>
+        </div>
+
+        <div class="section-card" style="text-align:center; padding:1.25rem;">
+          <div style="font-size:0.85rem; color:#94a3b8; line-height:1.5;">
+            Hak Cipta Terpelihara &copy; 2026 <b>Skywalker Consortium</b>.<br>
+            No. Pendaftaran SSM: AS0463209-A (202303102311).<br>
+            Sistem e-Solat Digital Signage &amp; Automasi Surau.
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 8: HARDWARE & NETWORK DIAGNOSTICS ==================== -->
+      <section id="tabDiagnostics" class="tab-pane">
+        <div class="section-card" style="background: linear-gradient(135deg, rgba(15,23,42,0.95), rgba(30,58,138,0.3)); border: 1px solid rgba(59,130,246,0.4);">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+            <div>
+              <h2 class="card-title" style="color:#60a5fa; margin-bottom:0.25rem;">🛠️ Diagnostik &amp; Imbasan Perkakasan</h2>
+              <p class="card-desc" style="margin-bottom:0;">Imbas peranti HDMI capture, kamera PTZ / RTSP, paparan monitor, audio, dan port sistem.</p>
+            </div>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              <button type="button" class="btn btn-primary" id="btnRunFullDiag" style="display:flex; align-items:center; gap:0.4rem;">
+                <span id="diagScanSpinner" style="display:none;">⏳</span>
+                <span>🔍 Imbas Semua (Full Scan)</span>
+              </button>
+              <button type="button" class="btn btn-outline" id="btnScanNetOnly" style="border-color:#3b82f6; color:#60a5fa;">
+                <span>📡 Imbas IP Sahaja</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Diagnostic Summary Stats Bar -->
+        <div class="status-grid" style="margin-bottom: 1.25rem;">
+          <div class="stat-item" style="border-left: 3px solid #3b82f6;">
+            <span class="stat-label">Kamera / HDMI Capture</span>
+            <span class="stat-val highlight" style="color:#60a5fa;" id="diagStatCams">--</span>
+          </div>
+          <div class="stat-item" style="border-left: 3px solid #10b981;">
+            <span class="stat-label">Paparan HDMI Aktif</span>
+            <span class="stat-val highlight" style="color:#34d399;" id="diagStatDisplays">--</span>
+          </div>
+          <div class="stat-item" style="border-left: 3px solid #f59e0b;">
+            <span class="stat-label">Peranti Rangkaian (IP)</span>
+            <span class="stat-val highlight" style="color:#fbbf24;" id="diagStatNetDevices">--</span>
+          </div>
+          <div class="stat-item" style="border-left: 3px solid #ec4899;">
+            <span class="stat-label">Output Audio (ALSA)</span>
+            <span class="stat-val highlight" style="color:#f472b6;" id="diagStatAudio">--</span>
+          </div>
+        </div>
+
+        <!-- 1. Network IP & RTSP Camera Scanner Card -->
+        <div class="section-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+            <h3 style="font-size:1rem; font-weight:700; color:#38bdf8; display:flex; align-items:center; gap:0.5rem;">
+              <span>📡</span> Imbasan Rangkaian &amp; Pengesanan Kamera PTZ (LAN/Wi-Fi)
+            </h3>
+            <span id="diagNetScanningBadge" style="display:none; font-size:0.75rem; color:#fbbf24; animation:pulse 1.5s infinite;">
+              ⚡ Sedang mengimbas subnet surau...
+            </span>
+          </div>
+          <p class="card-desc">Mengimbas seluruh subnet tempatan untuk mencari peranti IP dan mengesan kamera dengan port RTSP 554 terbuka.</p>
+
+          <div id="diagNetTableWrapper" style="overflow-x:auto; margin-top:0.75rem;">
+            <table style="width:100%; border-collapse:collapse; font-size:0.82rem; text-align:left;">
+              <thead>
+                <tr style="background:rgba(15,23,42,0.9); border-bottom:2px solid #334155; color:#94a3b8;">
+                  <th style="padding:0.6rem 0.75rem;">Alamat IP</th>
+                  <th style="padding:0.6rem 0.75rem;">Jenis Peranti</th>
+                  <th style="padding:0.6rem 0.75rem;">Port Terbuka</th>
+                  <th style="padding:0.6rem 0.75rem;">Alamat MAC</th>
+                  <th style="padding:0.6rem 0.75rem; text-align:right;">Tindakan</th>
+                </tr>
+              </thead>
+              <tbody id="diagNetTableBody">
+                <tr>
+                  <td colspan="5" style="text-align:center; padding:1.5rem; color:#64748b;">
+                    Klik butang <b>"Imbas Semua"</b> atau <b>"Imbas IP Sahaja"</b> untuk memulakan imbasan subnet surau.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 2. USB Media & HDMI Capture Cards -->
+        <div class="section-card">
+          <h3 style="font-size:1rem; font-weight:700; color:#34d399; margin-bottom:0.5rem; display:flex; align-items:center; gap:0.5rem;">
+            <span>🎥</span> Peranti Video &amp; HDMI Capture Card (V4L2)
+          </h3>
+          <p class="card-desc">Mengesan peranti capture kad USB HDMI (/dev/video*) dan perkakasan USB luaran.</p>
+
+          <div id="diagVideoDevicesList" style="display:flex; flex-direction:column; gap:0.6rem; margin-top:0.75rem;">
+            <div style="font-size:0.8rem; color:#64748b; text-align:center; padding:1rem;">Memuatkan status peranti video...</div>
+          </div>
+
+          <div style="margin-top:1rem; padding:0.75rem; background:rgba(15,23,42,0.7); border-radius:8px; border:1px solid rgba(255,255,255,0.05);">
+            <div style="font-size:0.75rem; font-weight:700; color:#94a3b8; margin-bottom:0.4rem;">Perkakasan USB Dikesan (lsusb):</div>
+            <pre id="diagUsbHardwareList" style="font-size:0.75rem; color:#cbd5e1; margin:0; white-space:pre-wrap; max-height:120px; overflow-y:auto; font-family:monospace;">Memuatkan...</pre>
+          </div>
+        </div>
+
+        <!-- 3. HDMI Displays & Screens -->
+        <div class="section-card">
+          <h3 style="font-size:1rem; font-weight:700; color:#fbbf24; margin-bottom:0.5rem; display:flex; align-items:center; gap:0.5rem;">
+            <span>🖥️</span> Status Port Paparan HDMI &amp; Monitor
+          </h3>
+          <p class="card-desc">Mengesan status sambungan kabel HDMI ke TV dewan solat dan resolusi paparan aktif.</p>
+
+          <div id="diagDisplaysList" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:0.75rem; margin-top:0.75rem;">
+            <div style="font-size:0.8rem; color:#64748b; text-align:center; padding:1rem;">Memuatkan paparan HDMI...</div>
+          </div>
+        </div>
+
+        <!-- 4. Audio Hardware & ALSA Soundcards -->
+        <div class="section-card">
+          <h3 style="font-size:1rem; font-weight:700; color:#f472b6; margin-bottom:0.5rem; display:flex; align-items:center; gap:0.5rem;">
+            <span>🔊</span> Peranti Audio &amp; Mikrofon (ALSA)
+          </h3>
+          <p class="card-desc">Senarai kad bunyi output untuk azan/takwim dan input rakaman kuliah.</p>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-top:0.75rem;" class="diag-audio-grid">
+            <div style="background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:0.75rem;">
+              <div style="font-size:0.8rem; font-weight:700; color:#34d399; margin-bottom:0.4rem;">Kad Output (Playback / Pembesar Suara):</div>
+              <ul id="diagAudioPlaybackList" style="margin:0; padding-left:1.2rem; font-size:0.75rem; color:#cbd5e1;">
+                <li>Memuatkan...</li>
+              </ul>
+            </div>
+            <div style="background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:0.75rem;">
+              <div style="font-size:0.8rem; font-weight:700; color:#f59e0b; margin-bottom:0.4rem;">Kad Input (Capture / Mikrofon / Mixer):</div>
+              <ul id="diagAudioCaptureList" style="margin:0; padding-left:1.2rem; font-size:0.75rem; color:#cbd5e1;">
+                <li>Memuatkan...</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. System Ports & Services -->
+        <div class="section-card">
+          <h3 style="font-size:1rem; font-weight:700; color:#a78bfa; margin-bottom:0.5rem; display:flex; align-items:center; gap:0.5rem;">
+            <span>🌐</span> Port &amp; Servis Rangkaian Tempatan
+          </h3>
+          <p class="card-desc">Port aktif yang sedang mendengar sambungan pada PC e-Solat ini.</p>
+
+          <div id="diagPortsWrapper" style="margin-top:0.75rem; max-height:160px; overflow-y:auto; background:rgba(15,23,42,0.8); border-radius:8px; border:1px solid rgba(255,255,255,0.1); padding:0.6rem;">
+            <table style="width:100%; border-collapse:collapse; font-size:0.75rem; font-family:monospace; color:#cbd5e1;">
+              <thead>
+                <tr style="border-bottom:1px solid #334155; color:#94a3b8; text-align:left;">
+                  <th style="padding:0.3rem 0.5rem;">Protokol</th>
+                  <th style="padding:0.3rem 0.5rem;">Alamat &amp; Port</th>
+                  <th style="padding:0.3rem 0.5rem;">Proses / Servis</th>
+                </tr>
+              </thead>
+              <tbody id="diagPortsTableBody">
+                <tr><td colspan="3" style="padding:0.5rem; text-align:center; color:#64748b;">Memuatkan port sistem...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer Copyright Notice -->
+      <footer class="admin-app-footer" style="padding:1.5rem 1rem 3rem; text-align:center; font-size:0.75rem; color:#64748b; line-height:1.5;">
+        <div>Powered by <b>Skywalker Consortium</b> (SSM: AS0463209-A)</div>
+        <div style="margin-top:0.35rem;">
+          <a href="/admin/manual" style="color:#34d399; text-decoration:none; font-weight:600;">📖 Buka Panduan Pengguna</a> &bull; 
+          Sokongan: <a href="tel:+601118712388" style="color:#94a3b8; text-decoration:none;">+6011-1871 2388</a> &bull; 
+          <a href="mailto:skywalker.co@proton.me" style="color:#94a3b8; text-decoration:none;">skywalker.co@proton.me</a>
+        </div>
+      </footer>
+    </main>
+
+    <!-- Bottom Navigation Bar (Mobile Native Touch Feel) -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" data-tab="tabDashboard">
+        <span class="nav-icon">📊</span>
+        <span class="nav-text">Utama</span>
+      </button>
+      <button class="nav-item" data-tab="tabPrayer">
+        <span class="nav-icon">📍</span>
+        <span class="nav-text">Takwim</span>
+      </button>
+      <button class="nav-item" data-tab="tabAdhan">
+        <span class="nav-icon">🕌</span>
+        <span class="nav-text">Audio</span>
+      </button>
+      <button class="nav-item" data-tab="tabMedia">
+        <span class="nav-icon">🖼️</span>
+        <span class="nav-text">Poster</span>
+      </button>
+      <button class="nav-item" data-tab="tabTicker">
+        <span class="nav-icon">📺</span>
+        <span class="nav-text">Paparan</span>
+      </button>
+      <button class="nav-item" data-tab="tabDiagnostics">
+        <span class="nav-icon">🛠️</span>
+        <span class="nav-text">Diagnostik</span>
+      </button>
+      <button class="nav-item" data-tab="tabLicense">
+        <span class="nav-icon">🔑</span>
+        <span class="nav-text">Lesen</span>
+      </button>
+      <button class="nav-item" data-tab="tabSupport">
+        <span class="nav-icon">📞</span>
+        <span class="nav-text">Sokongan</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <!-- 4-Digit Security PIN Setup Modal (After Screen Layout Setting) -->
+  <div id="pinPromptModal" class="admin-modal-backdrop" style="display: none;">
+    <div class="admin-modal-card">
+      <div style="text-align:center; margin-bottom:0.75rem;">
+        <div style="font-size:2.4rem; line-height:1;">🔒</div>
+        <h3 style="font-size:1.2rem; font-weight:800; color:#34d399; margin-top:0.4rem;">Tetapkan PIN Keselamatan 4-Digit</h3>
+        <p style="font-size:0.82rem; color:#cbd5e1; margin-top:0.35rem; line-height:1.4;">
+          Tetapan susun atur skrin berjaya disimpan. Sila tetapkan 4-digit PIN keselamatan untuk mengunci skrin kiosk dan mengelakkan sebarang perubahan tanpa kebenaran.
+        </p>
+      </div>
+
+      <div class="form-group" style="margin-top:1rem;">
+        <label style="font-size:0.85rem; font-weight:600; color:#fbbf24; text-align:center; display:block;">
+          PIN Keselamatan 4-Digit
+        </label>
+        <div style="display:flex; justify-content:center; margin-top:0.5rem;">
+          <input type="password" id="inputKioskPinCode" maxlength="4" pattern="[0-9]{4}" inputmode="numeric" placeholder="••••" style="font-family:'Space Grotesk', monospace; font-size:2rem; letter-spacing:0.7rem; text-align:center; width:180px; padding:0.4rem 0.5rem; border-radius:12px; border:2px solid #34d399; background:rgba(2,44,34,0.8); color:#fbbf24;">
+        </div>
+        <div style="font-size:0.72rem; color:#94a3b8; text-align:center; margin-top:0.4rem;">
+          Hanya nombor (0-9). Contoh: 1234
+        </div>
+      </div>
+
+      <div style="display:flex; gap:0.6rem; margin-top:1.2rem;">
+        <button type="button" class="btn btn-secondary btn-block" id="btnSkipPinPrompt">
+          Langkau / Kekalkan
+        </button>
+        <button type="button" class="btn btn-primary btn-block" id="btnSavePinPrompt">
+          💾 Simpan PIN
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="/admin/js/admin.js?v=1.2.0"></script>
 </body>
 </html>

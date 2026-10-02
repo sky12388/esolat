@@ -15,7 +15,7 @@ Modern, responsive product landing and showcase website for the **e-Solat Kiosk*
 ### Features Included:
 - **Interactive Live TV Kiosk Simulator**: Switchable between Normal, Pra-Azan, Azan Skrin Penuh, Iqamah Countdown, Solat Rapat Saf, and Mod Pentas Kuliah.
 - **Problem & Solution Comparison**: Android TV Box vs Debian Linux Mini PC.
-- **Hardware Specifications**: Intel Core i3 Thin Client (Dedicated Kiosk 24/7), Intel Core i5 Desktop (Hybrid Workstation), NVMe SSD, Gigabit LAN/Wi-Fi, and Surge Protector.
+- **Hardware Specifications**: Mini PC / Thin Client (Dedicated Kiosk 24/7), Desktop (Hybrid Workstation), Fast SSD, Gigabit LAN/Wi-Fi, and Surge Protector.
 - **Interactive WhatsApp Quotation Generator**: Request official quotations (PDF) directly via WhatsApp (+6011-1871 2388).
 - **FAQ Accordion**: Common questions asked by mosque committees and bendahari.
 - **Islamic Emerald & Gold UI**: Clean Islamic aesthetic with Amiri typography.

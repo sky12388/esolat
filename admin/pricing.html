@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pakej &amp; Harga Sistem e-Solat Digital Signage — Surau &amp; Masjid</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #059669;
+      --primary-dark: #064e3b;
+      --primary-light: #10b981;
+      --accent: #d97706;
+      --accent-light: #fbbf24;
+      --bg: #0b1120;
+      --bg-card: rgba(15, 23, 42, 0.85);
+      --card-border: rgba(52, 211, 153, 0.25);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.6;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(5, 150, 105, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(217, 119, 6, 0.12) 0%, transparent 45%);
+    }
+
+    /* Top Navigation */
+    .site-nav {
+      height: 72px;
+      background: rgba(6, 78, 59, 0.9);
+      backdrop-filter: blur(14px);
+      border-bottom: 2px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: #ffffff;
+    }
+
+    .brand-emoji {
+      font-size: 2rem;
+      line-height: 1;
+    }
+
+    .brand-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-subtitle {
+      font-size: 0.75rem;
+      color: #a7f3d0;
+      font-weight: 500;
+      display: block;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .nav-link-btn {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 0.5rem 0.9rem;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+
+    .nav-link-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-btn-cta {
+      background: linear-gradient(135deg, var(--accent), #b45309);
+      color: #ffffff !important;
+      font-weight: 700;
+      box-shadow: 0 4px 14px rgba(217, 119, 6, 0.4);
+    }
+
+    .nav-btn-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(217, 119, 6, 0.5);
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem;
+      width: 100%;
+    }
+
+    /* Hero Section */
+    .hero-section {
+      text-align: center;
+      margin-bottom: 3.5rem;
+      padding: 2rem 0;
+    }
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 1rem;
+      background: rgba(5, 150, 105, 0.25);
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      border-radius: 30px;
+      color: #34d399;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 1.25rem;
+      text-transform: uppercase;
+    }
+
+    .hero-title {
+      font-size: 2.8rem;
+      font-weight: 900;
+      color: #ffffff;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .hero-title span {
+      background: linear-gradient(135deg, #34d399, #fbbf24);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 1.15rem;
+      color: #cbd5e1;
+      max-width: 780px;
+      margin: 0 auto 1.75rem auto;
+      line-height: 1.6;
+    }
+
+    .trust-badges {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .trust-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.85rem;
+      color: #94a3b8;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 0.35rem 0.85rem;
+      border-radius: 20px;
+    }
+
+    /* Pricing Cards Grid */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.75rem;
+      margin-bottom: 4rem;
+      align-items: stretch;
+    }
+
+    .pricing-card {
+      background: var(--bg-card);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 2.25rem 1.75rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      backdrop-filter: blur(10px);
+    }
+
+    .pricing-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(52, 211, 153, 0.6);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(5, 150, 105, 0.2);
+    }
+
+    .pricing-card.featured {
+      background: linear-gradient(165deg, rgba(6, 78, 59, 0.8) 0%, rgba(15, 23, 42, 0.95) 100%);
+      border: 2px solid var(--accent-light);
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6), 0 0 35px rgba(251, 191, 36, 0.2);
+      transform: scale(1.03);
+    }
+
+    .pricing-card.featured:hover {
+      transform: scale(1.03) translateY(-6px);
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(251, 191, 36, 0.3);
+    }
+
+    .card-ribbon {
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, var(--accent), #b45309);
+      color: #ffffff;
+      padding: 0.3rem 1.1rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      box-shadow: 0 4px 12px rgba(217, 119, 6, 0.5);
+      white-space: nowrap;
+    }
+
+    .package-tag {
+      font-size: 0.75rem;
+      color: #34d399;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.4rem;
+    }
+
+    .pricing-card.featured .package-tag {
+      color: var(--accent-light);
+    }
+
+    .package-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 0.5rem;
+      line-height: 1.2;
+    }
+
+    .package-ideal-for {
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      margin-bottom: 1.5rem;
+      min-height: 52px;
+      line-height: 1.4;
+    }
+
+    .package-highlight-box {
+      background: rgba(2, 44, 34, 0.7);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      border-radius: 12px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.82rem;
+      color: #a7f3d0;
+      line-height: 1.4;
+    }
+
+    .package-highlight-box b {
+      color: #ffffff;
+    }
+
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+      flex: 1;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.65rem;
+      font-size: 0.88rem;
+      color: #f1f5f9;
+      line-height: 1.4;
+    }
+
+    .feature-icon {
+      color: #34d399;
+      font-size: 1rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .pricing-card.featured .feature-icon {
+      color: var(--accent-light);
+    }
+
+    .btn-card-action {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      padding: 0.95rem 1.25rem;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      text-align: center;
+    }
+
+    .btn-card-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(5, 150, 105, 0.4);
+    }
+
+    .btn-card-primary:hover {
+      background: linear-gradient(135deg, var(--primary-light), var(--primary));
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(5, 150, 105, 0.5);
+    }
+
+    .btn-card-accent {
+      background: linear-gradient(135deg, var(--accent), #b45309);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(217, 119, 6, 0.4);
+    }
+
+    .btn-card-accent:hover {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(217, 119, 6, 0.6);
+    }
+
+    .btn-card-outline {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+    }
+
+    .btn-card-outline:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: #ffffff;
+      transform: translateY(-2px);
+    }
+
+    /* Comparison Table Section */
+    .section-title-wrap {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .section-title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-desc {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .table-container {
+      background: var(--bg-card);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      overflow: hidden;
+      margin-bottom: 4rem;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    }
+
+    .comp-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .comp-table th, .comp-table td {
+      padding: 1.1rem 1.4rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.9rem;
+    }
+
+    .comp-table th {
+      background: rgba(6, 78, 59, 0.85);
+      color: #ffffff;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.5px;
+    }
+
+    .comp-table tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .comp-table td.col-center {
+      text-align: center;
+    }
+
+    .check-yes {
+      color: #34d399;
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+
+    .check-no {
+      color: #64748b;
+      font-size: 1rem;
+    }
+
+    /* FAQ Accordion */
+    .faq-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 4rem;
+    }
+
+    .faq-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 1.5rem;
+    }
+
+    .faq-q {
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: #ffffff;
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .faq-q span {
+      color: var(--accent-light);
+    }
+
+    .faq-a {
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      line-height: 1.5;
+    }
+
+    /* Vendor & Support Info Box */
+    .vendor-card {
+      background: linear-gradient(135deg, rgba(6, 78, 59, 0.7), rgba(2, 44, 34, 0.9));
+      border: 2px solid var(--accent);
+      border-radius: 20px;
+      padding: 2.5rem;
+      margin-bottom: 3.5rem;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .vendor-info h3 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 0.35rem;
+    }
+
+    .ssm-badge {
+      display: inline-block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #34d399;
+      background: rgba(5, 150, 105, 0.3);
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      margin-bottom: 0.75rem;
+    }
+
+    .vendor-info p {
+      font-size: 0.9rem;
+      color: #cbd5e1;
+      line-height: 1.5;
+    }
+
+    .vendor-cta-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      flex-shrink: 0;
+      min-width: 240px;
+    }
+
+    /* Footer */
+    .site-footer {
+      background: #061a13;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      font-size: 0.82rem;
+      color: #64748b;
+      line-height: 1.6;
+    }
+
+    .site-footer a {
+      color: #34d399;
+      text-decoration: none;
+    }
+
+    /* Responsive Queries */
+    @media (max-width: 1024px) {
+      .pricing-grid {
+        grid-template-columns: 1fr;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .pricing-card.featured {
+        transform: none;
+      }
+      .pricing-card.featured:hover {
+        transform: translateY(-6px);
+      }
+      .faq-grid {
+        grid-template-columns: 1fr;
+      }
+      .vendor-card {
+        flex-direction: column;
+        text-align: center;
+      }
+      .vendor-cta-buttons {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .site-nav {
+        padding: 0 1rem;
+      }
+      .brand-title {
+        font-size: 1rem;
+      }
+      .hero-title {
+        font-size: 2rem;
+      }
+      .container {
+        padding: 1.5rem 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top App Navigation -->
+  <header class="site-nav">
+    <a href="/pricing" class="brand-logo">
+      <span class="brand-emoji">🕌</span>
+      <div>
+        <span class="brand-title">Skywalker e-Solat Signage</span>
+        <span class="brand-subtitle">Penyedia Sistem Automasi Surau &amp; Masjid</span>
+      </div>
+    </a>
+    <div class="nav-actions">
+      <a href="/manual" class="nav-link-btn">📖 Panduan Pengguna</a>
+      <a href="/admin" class="nav-link-btn">⚙️ Log Masuk Admin</a>
+      <a href="https://wa.me/601118712388?text=Assalamualaikum%20Skywalker%2C%20saya%20ingin%20bertanya%20mengenai%20Pakej%20e-Solat%20Digital%20Signage." target="_blank" class="nav-link-btn nav-btn-cta">
+        💬 Dapatkan Sebut Harga
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Content Body -->
+  <main class="container">
+
+    <!-- Hero Header -->
+    <section class="hero-section">
+      <div class="badge-pill">
+        <span>✨</span>
+        <span>Lesen Seumur Hidup &bull; Tiada Yuran Bulanan</span>
+      </div>
+      <h1 class="hero-title">
+        Pakej &amp; Harga Sistem <span>e-Solat Digital Signage</span>
+      </h1>
+      <p class="hero-subtitle">
+        Sistem paparan digital dewan solat paling lengkap di Malaysia. Automasi takwim solat JAKIM luar talian, azan MP3 automatik, siaran langsung kuliah, dan kawalan telefon pintar.
+      </p>
+
+      <div class="trust-badges">
+        <div class="trust-item"><span>✅</span> Rasmi e-Solat JAKIM</div>
+        <div class="trust-item"><span>🔒</span> Machine-Locked Kriptografi</div>
+        <div class="trust-item"><span>📶</span> 100% Berfungsi Luar Talian (Offline)</div>
+        <div class="trust-item"><span>🏢</span> Syarikat Berdaftar SSM: AS0463209-A</div>
+      </div>
+    </section>
+
+    <!-- 3 Pricing Packages Grid -->
+    <section class="pricing-grid">
+
+      <!-- ==================== PAKEJ 1: DIY / PERISIAN SAHAJA ==================== -->
+      <div class="pricing-card">
+        <div class="package-tag">PILIHAN JIMAT KOS / DIY</div>
+        <h2 class="package-title">Pakej Lesen Perisian Sahaja (DIY)</h2>
+        <p class="package-ideal-for">
+          <b>Sesuai jika surau sudah mempunyai komputer PC/Mini PC sendiri</b>. Anda hanya memerlukan fail pemasangan dan kunci lesen komersial kekal.
+        </p>
+
+        <div class="package-highlight-box">
+          <b>🖥️ Keperluan Sistem Komputer:</b><br>
+          Operating System mestilah berasaskan <b>Linux Debian</b> (Debian 12 / Debian 13 / Ubuntu).
+        </div>
+
+        <ul class="feature-list">
+          <li class="feature-item">
+            <span class="feature-icon">✓</span>
+            <span><b>1x Lesen Perisian Kekal (Lifetime)</b> dikunci pada Machine ID perkakasan surau.</span>
+          </li>
+          <li class="feature-item">
+            <span class="feature-icon">✓</span>
+            <span><b>Fail Pemasangan Debian Penuh (.deb)</b> — <code>esolat-kiosk_1.0.0_amd64.deb</code>.</span>
+          </li>
+          <li class="feature-item">
+            <span class="feature-icon">✓</span>
+            <span><b>Automasi Takwim JAKIM</b> &amp; pangkalan data luar talian (SQLite offline database).</span>
+          </li>
+          <li class="feature-item">
+            <span class="feature-icon">✓</span>
+            <span><b>Mainan Azan MP3 Automatik</b> (Subuh &amp; Waktu Lazim) &amp; Nada Notifikasi Bilal.</span>
+          </li>
+          <li class="feature-item">
+            <span class="feature-icon">✓</span>
+            <span><b>Panel Admin Telefon Pintar</b> dengan pengesanan zon melalui GPS telefon.</span>
+          </li>
+          <li class="feature-item">
+            <span class="feature-icon">✓</span>
+            <span><b>Poster Kuliah, Tabung DuitNow QR</b>, &amp; Ticker Marquee Pengumuman Jemaah.</span>
+          </li>
+          <li class="feature-item">
+            <span class="feature-icon">✓</span>
+            <span><b>Live Broadcast Kamera HDMI</b> &amp; Rakaman Kuliah MP4 terbina dalam.</span>
+          </li>
+          <li class="feature-item">
+            <span class="feature-icon">✓</span>
+            <span><b>Panduan Pemasangan Lengkap</b> (Step-by-Step Manual &amp; Command CLI).</span>
+          </li>
+          <li class="feature-item">
+            <span class="feature-icon">✓</span>
+            <span><b>Tiada Yuran Bulanan / Tahunan</b> — Bayar sekali sahaja.</span>
+          </li>
+        </ul>
+
+        <a href="https://wa.me/601118712388?text=Assalamualaikum%20Skywalker%2C%20saya%20berminat%20dengan%20Pakej%20Lesen%20Perisian%20Sahaja%20(DIY)%20untuk%20surau%2Fmasjid%20kami." target="_blank" class="btn-card-action btn-card-primary">
+          <span>💬</span> Dapatkan Lesen Perisian
+        </a>
+      </div>
+
+      <!-- ==================== PAKEJ 2: MINI PC PLUG & PLAY ==================== -->
+      <div class="pricing-card featured">
+        <div class="card-ribbon">⭐ PALING DISYORKAN (BEST VALUE)</div>
+        <div class="package-tag">SIAP PASANG &amp; PLUG &amp; PLAY</div>
+        <h2 class="package-title">Pakej Mini PC Siap Pasang</h2>
+        <p class="package-ideal-for">
+          <b>Sedia digunakan terus ke TV HDMI dewan solat</b>. Komputer Mini PC kompak, jimat elektrik, dan siap dikonfigurasikan sepenuhnya oleh juruteknik kami.
+        </p>
+
+        <div class="package-highlight-box" style="background:rgba(217, 119, 6, 0.15); border-color:rgba(251, 191, 36, 0.4); color:#fef08a;">
+          <b>⚡ Ciri Pintar Auto Power Recovery:</b><br>
+          Komputer menyala dan melancarkan paparan secara automatik sebaik sahaja bekalan elektrik pulih selepas blackout.
+        </div>
+
+        <ul class="feature-list">
+          <li class="feature-item">
+            <span class="feature-icon">✓</span>
+            <span><b>1x Unit Mini PC Quad-Core</b> padat (8GB RAM, Pantas SSD, HDMI Output).</span>
+          </li>
+          <li class="feature-item">
+            <span class="feature-icon">✓</span>
+            <span><b>Sistem Operasi Debian Linux &amp; e-Solat</b> siap dipasang &amp; diuji sebelum dihantar.</span>
+          </li>
+          <li class="feature-item">
+            <span class="feature-icon">✓</span>
+            <span><b>1x Lesen Komersial Kekal</b> telah diaktifkan siap sedia (Lifetime Activated).</span>
+          </li>
+          <li class="feature-item">
+            <span class="feature-icon">✓</span>
+            <span><b>Auto-Start Kiosk Chromium</b> — Buka suis TV, paparan solat terus muncul di skrin.</span>
+          </li>
+          <li class="feature-item">
+            <span class="feature-icon">✓</span>
+            <span><b>1x Kabel HDMI Berkualiti Tinggi</b> &amp; 1x Power Adapter 12V.</span>
+          </li>
+          <li class="feature-item">
+            <span class="feature-icon">✓</span>
+            <span><b>Sokongan Jarak Jauh (Remote Support)</b> melalui AnyDesk / SSH sekiranya perlukan bantuan.</span>
+          </li>
+          <li class="feature-item">
+            <span class="feature-icon">✓</span>
+            <span><b>Jaminan Perkakasan 1 Tahun (1-Year Hardware Warranty)</b> &amp; Gantian 1-to-1.</span>
+          </li>
+          <li class="feature-item">
+            <span class="feature-icon">✓</span>
+            <span><b>Penghantaran Pantas ke Seluruh Malaysia</b> dengan pembungkusan selamat.</span>
+          </li>
+        </ul>
+
+        <a href="https://wa.me/601118712388?text=Assalamualaikum%20Skywalker%2C%20saya%20berminat%20untuk%20menempah%20Pakej%20Mini%20PC%20Siap%20Pasang%20e-Solat." target="_blank" class="btn-card-action btn-card-accent">
+          <span>⚡</span> Tempah Set Mini PC Siap Pasang
+        </a>
+      </div>
+
+      <!-- ==================== PAKEJ 3: LENGKAP MASJID PERDANA ==================== -->
+      <div class="pricing-card">
+        <div class="package-tag">TURNKEY / MASJID UTAMA</div>
+        <h2 class="package-title">Pakej Lengkap Masjid Perdana</h2>
+        <p class="package-ideal-for">
+          <b>Penyelesaian menyeluruh untuk Masjid Besar &amp; Kompleks Islam</b>. Termasuk televisyen komersial bersaiz besar, perkakasan, pendakap dinding, dan pemasangan on-site.
+        </p>
+
+        <div class="package-highlight-box">
+          <b>📋 Dokumen Sebut Harga &amp; Invois Rasmi:</b><br>
+          Disediakan dokumen rasmi SSM untuk pembentangan mesyuarat jawatankuasa dan tuntutan kewangan surau.
+        </div>
+
+        <ul class="feature-list">
+          <li class="feature-item">
+            <span class="feature-icon">✓</span>
+            <span><b>Semua item dalam Pakej Mini PC Siap Pasang</b>.</span>
+          </li>
+          <li class="feature-item">
+            <span class="feature-icon">✓</span>
+            <span><b>Pilihan Smart TV Signage Komersial 50" / 55" / 65" / 75" 4K UHD</b>.</span>
+          </li>
+          <li class="feature-item">
+            <span class="feature-icon">✓</span>
+            <span><b>Heavy-Duty Wall Bracket (Tilting)</b> &amp; aksesori pemasangan dinding kukuh.</span>
+          </li>
+          <li class="feature-item">
+            <span class="feature-icon">✓</span>
+            <span><b>Peranti HDMI Video Capture</b> untuk sambungan kamera kuliah / penceramah.</span>
+          </li>
+          <li class="feature-item">
+            <span class="feature-icon">✓</span>
+            <span><b>Khidmat Pemasangan &amp; Pendawaian On-Site</b> yang kemas oleh juruteknik kami.</span>
+          </li>
+          <li class="feature-item">
+            <span class="feature-icon">✓</span>
+            <span><b>Sesi Latihan &amp; Taklimat Pengurusan</b> untuk AJK Surau &amp; Biro Pengimarahan.</span>
+          </li>
+          <li class="feature-item">
+            <span class="feature-icon">✓</span>
+            <span><b>Sokongan Teknikal Keutamaan (Priority VIP Support)</b> &amp; Servis Berkala.</span>
+          </li>
+        </ul>
+
+        <a href="https://wa.me/601118712388?text=Assalamualaikum%20Skywalker%2C%20kami%20ingin%20memohon%20Sebut%20Harga%20Rasmi%20(Quotation)%20bagi%20Pakej%20Lengkap%20Masjid%20Perdana." target="_blank" class="btn-card-action btn-card-outline">
+          <span>📄</span> Minta Sebut Harga (Quotation)
+        </a>
+      </div>
+
+    </section>
+
+    <!-- Comparison Table -->
+    <section class="section-title-wrap">
+      <h2 class="section-title">Perbandingan Ciri-Ciri Setiap Pakej</h2>
+      <p class="section-desc">Pilih pakej yang paling bersesuaian dengan bajet dan keperluan fasiliti surau anda.</p>
+    </section>
+
+    <div class="table-container">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th style="width: 40%;">Ciri / Spesifikasi</th>
+            <th style="width: 20%;" class="col-center">Pakej DIY (Perisian)</th>
+            <th style="width: 20%;" class="col-center">Pakej Mini PC Siap</th>
+            <th style="width: 20%;" class="col-center">Pakej Masjid Perdana</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Lesen Seumur Hidup (Lifetime License)</b></td>
+            <td class="col-center"><span class="check-yes">✓</span></td>
+            <td class="col-center"><span class="check-yes">✓</span></td>
+            <td class="col-center"><span class="check-yes">✓</span></td>
+          </tr>
+          <tr>
+            <td><b>Automasi Takwim JAKIM &amp; SQLite Luar Talian</b></td>
+            <td class="col-center"><span class="check-yes">✓</span></td>
+            <td class="col-center"><span class="check-yes">✓</span></td>
+            <td class="col-center"><span class="check-yes">✓</span></td>
+          </tr>
+          <tr>
+            <td><b>Azan MP3 Automatik &amp; Beep Bilal</b></td>
+            <td class="col-center"><span class="check-yes">✓</span></td>
+            <td class="col-center"><span class="check-yes">✓</span></td>
+            <td class="col-center"><span class="check-yes">✓</span></td>
+          </tr>
+          <tr>
+            <td><b>Panel Admin Web Telefon Pintar (GPS Auto-Zone)</b></td>
+            <td class="col-center"><span class="check-yes">✓</span></td>
+            <td class="col-center"><span class="check-yes">✓</span></td>
+            <td class="col-center"><span class="check-yes">✓</span></td>
+          </tr>
+          <tr>
+            <td><b>Siaran Kamera Kuliah &amp; Rakaman Fail MP4</b></td>
+            <td class="col-center"><span class="check-yes">✓</span></td>
+            <td class="col-center"><span class="check-yes">✓</span></td>
+            <td class="col-center"><span class="check-yes">✓</span></td>
+          </tr>
+          <tr>
+            <td><b>Perkakasan Mini PC Kompak Quad-Core (8GB RAM/SSD)</b></td>
+            <td class="col-center"><span class="check-no">Guna PC Surau</span></td>
+            <td class="col-center"><span class="check-yes">✓ Termasuk</span></td>
+            <td class="col-center"><span class="check-yes">✓ Termasuk</span></td>
+          </tr>
+          <tr>
+            <td><b>Auto Power-On Semula Selepas Blackout</b></td>
+            <td class="col-center"><span class="check-no">Bergantung BIOS PC</span></td>
+            <td class="col-center"><span class="check-yes">✓ Dikonfigurasi Siap</span></td>
+            <td class="col-center"><span class="check-yes">✓ Dikonfigurasi Siap</span></td>
+          </tr>
+          <tr>
+            <td><b>Peranti Smart TV 4K UHD &amp; Bracket Dinding</b></td>
+            <td class="col-center"><span class="check-no">Guna TV Sedia Ada</span></td>
+            <td class="col-center"><span class="check-no">Guna TV Sedia Ada</span></td>
+            <td class="col-center"><span class="check-yes">✓ Pilihan 50"-75"</span></td>
+          </tr>
+          <tr>
+            <td><b>Khidmat Pemasangan &amp; Pendawaian On-Site</b></td>
+            <td class="col-center"><span class="check-no">Pemasangan DIY</span></td>
+            <td class="col-center"><span class="check-no">Plug &amp; Play</span></td>
+            <td class="col-center"><span class="check-yes">✓ Juruteknik On-Site</span></td>
+          </tr>
+          <tr>
+            <td><b>Jaminan Perkakasan (Hardware Warranty)</b></td>
+            <td class="col-center"><span class="check-no">Tiada Perkakasan</span></td>
+            <td class="col-center"><span class="check-yes">1 Tahun</span></td>
+            <td class="col-center"><span class="check-yes">1-2 Tahun</span></td>
+          </tr>
+          <tr>
+            <td><b>Dokumen Sebut Harga &amp; Invois Rasmi SSM</b></td>
+            <td class="col-center"><span class="check-yes">✓ Disediakan</span></td>
+            <td class="col-center"><span class="check-yes">✓ Disediakan</span></td>
+            <td class="col-center"><span class="check-yes">✓ Disediakan</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Vendor Information Card -->
+    <section class="vendor-card">
+      <div class="vendor-info">
+        <span class="ssm-badge">🏢 SYARIKAT BERDAFTAR SSM &bull; NO. PENDAFTARAN: AS0463209-A (202303102311)</span>
+        <h3>Skywalker Consortium</h3>
+        <p>
+          Penyedia sah penyelesaian Digital Signage &amp; Automasi e-Solat Masjid/Surau di Malaysia.<br>
+          📍 <b>Alamat Perniagaan:</b> Block A8-3A, Jalan Selaman, 68000 Ampang, Selangor.<br>
+          📞 <b>Talian Hotline / WhatsApp:</b> <a href="tel:+601118712388" style="color:#38bdf8; text-decoration:none; font-weight:700;">+6011-1871 2388</a><br>
+          ✉️ <b>Emel Rasmi:</b> <a href="mailto:skywalker.co@proton.me" style="color:#34d399; text-decoration:none; font-weight:600;">skywalker.co@proton.me</a>
+        </p>
+      </div>
+      <div class="vendor-cta-buttons">
+        <a href="https://wa.me/601118712388?text=Assalamualaikum%20Skywalker%2C%20saya%20ingin%20berbincang%20mengenai%20sebut%20harga%20e-Solat%20untuk%20surau%20kami." target="_blank" class="btn-card-action btn-card-accent">
+          <span>💬</span> WhatsApp Konsultasi Percuma
+        </a>
+        <a href="tel:+601118712388" class="btn-card-action btn-card-outline">
+          <span>📞</span> Hubungi +6011-1871 2388
+        </a>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="section-title-wrap">
+      <h2 class="section-title">Soalan Lazim (FAQ Mengenai Pakej)</h2>
+      <p class="section-desc">Jawapan kepada persoalan biasa pihak jawatankuasa surau dan masjid.</p>
+    </section>
+
+    <section class="faq-grid">
+      <div class="faq-card">
+        <div class="faq-q"><span>❓</span> Adakah terdapat sebarang yuran langganan bulanan atau tahunan?</div>
+        <div class="faq-a">
+          <b>Tiada sama sekali.</b> Semua pakej kami adalah pembelian lesen kekal seumur hidup (One-Time Purchase / Lifetime). Tiada bayaran tersembunyi atau caj pembaharuan tahunan.
+        </div>
+      </div>
+
+      <div class="faq-card">
+        <div class="faq-q"><span>❓</span> Untuk Pakej DIY, apakah komputer yang boleh kami gunakan?</div>
+        <div class="faq-a">
+          Sebarang komputer PC desktop, Mini PC, atau laptop yang menyokong sistem operasi <b>Linux Debian (Debian 12/13 atau Ubuntu)</b> dengan port HDMI dan sambungan audio.
+        </div>
+      </div>
+
+      <div class="faq-card">
+        <div class="faq-q"><span>❓</span> Adakah sistem ini tetap berfungsi jika internet surau terputus?</div>
+        <div class="faq-a">
+          <b>Ya, 100% berfungsi luar talian.</b> Data takwim JAKIM disimpan di dalam pangkalan data SQLite tempatan komputer surau. Waktu solat, azan, dan iqamah berjalan tepat tanpa internet.
+        </div>
+      </div>
+
+      <div class="faq-card">
+        <div class="faq-q"><span>❓</span> Bolehkah pihak kami meminta Sebut Harga Rasmi (Quotation)?</div>
+        <div class="faq-a">
+          <b>Boleh.</b> Sila hubungi talian WhatsApp kami di <b>+6011-1871 2388</b> dengan memberikan nama surau/masjid anda. Dokumen sebut harga rasmi berlogo syarikat SSM akan dihantar dalam format PDF.
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div style="margin-bottom: 0.5rem;">
+      Hak Cipta Terpelihara &copy; 2026 <b>Skywalker Consortium</b> (SSM: AS0463209-A).
+    </div>
+    <div>
+      Sistem e-Solat Digital Signage &bull; 
+      <a href="/manual">Panduan Pengguna</a> &bull; 
+      <a href="/admin">Panel Admin</a> &bull; 
+      <a href="https://wa.me/601118712388" target="_blank">Sokongan WhatsApp</a>
+    </div>
+  </footer>
+
+</body>
+</html>

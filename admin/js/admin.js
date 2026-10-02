@@ -1,0 +1,2534 @@
+/**
+ * e-Solat Mobile Admin Web Panel Controller
+ * Handles authentication, GPS zone detection, takwim sync, adhan toggles,
+ * media slide uploads, custom tickers, and offline machine-locked license activation.
+ */
+
+let authToken = localStorage.getItem('esolat_token') || '';
+let currentSettings = {};
+let availableZones = [];
+
+// ==================== UTILS & TOASTS ====================
+function showToast(message, isError = false) {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${isError ? 'error' : ''}`;
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.remove();
+  }, 4000);
+}
+
+async function apiRequest(endpoint, method = 'GET', body = null) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (authToken) {
+    headers['Authorization'] = `Bearer ${authToken}`;
+  }
+
+  const options = { method, headers };
+  if (body) {
+    options.body = JSON.stringify(body);
+  }
+
+  try {
+    const res = await fetch(endpoint, options);
+    const data = await res.json();
+    if (!res.ok) {
+      if (res.status === 401) {
+        handleUnauthorized();
+      }
+      throw new Error(data.message || 'Ralat komunikasi dengan pelayan');
+    }
+    return data;
+  } catch (err) {
+    throw err;
+  }
+}
+
+function handleUnauthorized() {
+  authToken = '';
+  localStorage.removeItem('esolat_token');
+  document.getElementById('appContainer').style.display = 'none';
+  document.getElementById('loginModal').style.display = 'flex';
+}
+
+// ==================== AUTHENTICATION ====================
+async function checkAuth() {
+  if (!authToken) {
+    document.getElementById('loginModal').style.display = 'flex';
+    return;
+  }
+
+  try {
+    const me = await apiRequest('/api/auth/me');
+    if (me.authenticated) {
+      document.getElementById('loginModal').style.display = 'none';
+      document.getElementById('appContainer').style.display = 'flex';
+
+      if (me.force_password_change) {
+        document.getElementById('changePasswordModal').style.display = 'flex';
+      }
+      initApp();
+    } else {
+      handleUnauthorized();
+    }
+  } catch (err) {
+    handleUnauthorized();
+  }
+}
+
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const username = document.getElementById('loginUser').value.trim();
+  const password = document.getElementById('loginPass').value.trim();
+
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      authToken = data.token;
+      localStorage.setItem('esolat_token', authToken);
+      document.getElementById('loginModal').style.display = 'none';
+      document.getElementById('appContainer').style.display = 'flex';
+
+      if (data.force_password_change) {
+        document.getElementById('changePasswordModal').style.display = 'flex';
+      }
+      showToast('Log masuk berjaya.');
+      initApp();
+    } else {
+      showToast(data.message || 'Nama pengguna atau kata laluan tidak sah.', true);
+    }
+  } catch (err) {
+    showToast('Ralat sambungan: ' + err.message, true);
+  }
+});
+
+document.getElementById('forcePasswordForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const p1 = document.getElementById('newPassword').value.trim();
+  const p2 = document.getElementById('confirmPassword').value.trim();
+
+  if (p1 !== p2) {
+    showToast('Kata laluan tidak sepadan!', true);
+    return;
+  }
+  if (p1 !== '' && p1.length < 4) {
+    showToast('Kata laluan sekurang-kurangnya 4 aksara!', true);
+    return;
+  }
+
+  try {
+    const res = await apiRequest('/api/auth/change_password', 'POST', { new_password: p1 });
+    showToast(res.message || 'Kata laluan berjaya dikemas kini!');
+    document.getElementById('changePasswordModal').style.display = 'none';
+  } catch (err) {
+    showToast(err.message, true);
+  }
+});
+
+// Admin Password Panel Handler
+const adminChangePasswordForm = document.getElementById('adminChangePasswordForm');
+if (adminChangePasswordForm) {
+  adminChangePasswordForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const p1 = document.getElementById('adminNewPassInput').value.trim();
+    const p2 = document.getElementById('adminConfirmPassInput').value.trim();
+
+    if (p1 !== p2) {
+      showToast('Kata laluan pengesahan tidak sepadan!', true);
+      return;
+    }
+    if (p1 !== '' && p1.length < 4) {
+      showToast('Kata laluan sekurang-kurangnya 4 aksara (atau klik butang Kosongkan Kata Laluan)!', true);
+      return;
+    }
+
+    try {
+      const res = await apiRequest('/api/auth/change_password', 'POST', { new_password: p1 });
+      showToast(res.message || 'Kata laluan berjaya dikemas kini!');
+      document.getElementById('adminNewPassInput').value = '';
+      document.getElementById('adminConfirmPassInput').value = '';
+    } catch (err) {
+      showToast(err.message, true);
+    }
+  });
+}
+
+// Reset to Blank Password Handler
+const btnResetBlankPass = document.getElementById('btnResetBlankPass');
+if (btnResetBlankPass) {
+  btnResetBlankPass.addEventListener('click', async () => {
+    if (!confirm('Adakah anda pasti mahu mengosongkan kata laluan pentadbir? Anda akan dapat log masuk terus tanpa perlu menaip kata laluan.')) {
+      return;
+    }
+    try {
+      const res = await apiRequest('/api/auth/change_password', 'POST', { new_password: '' });
+      showToast(res.message || 'Kata laluan telah dikosongkan!');
+      document.getElementById('adminNewPassInput').value = '';
+      document.getElementById('adminConfirmPassInput').value = '';
+    } catch (err) {
+      showToast(err.message, true);
+    }
+  });
+}
+
+// Top Bar Password Button
+const btnTopPassword = document.getElementById('btnTopPassword');
+if (btnTopPassword) {
+  btnTopPassword.addEventListener('click', () => {
+    const dashNav = document.querySelector('.nav-item[data-tab="tabDashboard"]');
+    if (dashNav) dashNav.click();
+    const panel = document.getElementById('adminPasswordPanel');
+    if (panel) {
+      panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const input = document.getElementById('adminNewPassInput');
+      if (input) setTimeout(() => input.focus(), 300);
+    }
+  });
+}
+
+// Open Screen PIN Modal Button
+const btnOpenPinModal = document.getElementById('btnOpenPinModal');
+if (btnOpenPinModal) {
+  btnOpenPinModal.addEventListener('click', () => {
+    promptKioskPinSetup();
+  });
+}
+
+document.getElementById('btnLogout').addEventListener('click', () => {
+  if (confirm('Adakah anda pasti untuk log keluar?')) {
+    handleUnauthorized();
+  }
+});
+
+// ==================== TAB NAVIGATION ====================
+document.querySelectorAll('.nav-item').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const targetTabId = btn.dataset.tab;
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+
+    btn.classList.add('active');
+    const targetPane = document.getElementById(targetTabId);
+    if (targetPane) targetPane.classList.add('active');
+  });
+});
+
+document.getElementById('btnGoToLicense').addEventListener('click', () => {
+  document.querySelector('.nav-item[data-tab="tabLicense"]').click();
+});
+
+// ==================== INITIALIZATION & DATA LOADING ====================
+async function initApp() {
+  await loadZones();
+  await loadSettings();
+  await loadAudioList();
+  await loadQuranAudioList();
+  await loadLicenseStatus();
+  await loadSlides();
+  await checkCameraStatus();
+  await loadStorageInfo();
+  await loadRecordings();
+  startStatusPoller();
+  initQuranAudioSystem();
+  setInterval(checkCameraStatus, 3000);
+}
+
+async function loadZones() {
+  try {
+    const res = await apiRequest('/api/zones');
+    availableZones = res.zones || [];
+    const select = document.getElementById('selectJakimZone');
+    select.innerHTML = '';
+
+    // Group by state
+    const states = {};
+    availableZones.forEach(z => {
+      if (!states[z.state]) states[z.state] = [];
+      states[z.state].push(z);
+    });
+
+    Object.keys(states).sort().forEach(stateName => {
+      const optGroup = document.createElement('optgroup');
+      optGroup.label = stateName;
+      states[stateName].forEach(z => {
+        const opt = document.createElement('option');
+        opt.value = z.code;
+        opt.textContent = `${z.code} - ${z.location}`;
+        optGroup.appendChild(opt);
+      });
+      select.appendChild(optGroup);
+    });
+  } catch (err) {
+    console.error('Error loading zones:', err);
+  }
+}
+
+async function loadSettings() {
+  try {
+    const s = await apiRequest('/api/settings');
+    currentSettings = s;
+
+    // Header & Titles
+    const headerTitleEl = document.getElementById('appHeaderTitle');
+    if (headerTitleEl) headerTitleEl.textContent = 'Skywalker E-Solat Manager';
+    const mosqueTitleEl = document.getElementById('appMosqueTitle');
+    if (mosqueTitleEl) mosqueTitleEl.textContent = s.mosque_name || 'Surau Al-Ikhlas';
+    const zoneSubtitleEl = document.getElementById('appZoneSubtitle');
+    if (zoneSubtitleEl) zoneSubtitleEl.textContent = `${s.mosque_name || 'Surau Al-Ikhlas'} • Zon: ${s.jakim_zone || 'SGR01'}`;
+    document.getElementById('statZone').textContent = s.jakim_zone || 'SGR01';
+
+    // Zone select
+    if (s.jakim_zone) {
+      document.getElementById('selectJakimZone').value = s.jakim_zone;
+    }
+
+    // Offsets
+    ['subuh', 'syuruk', 'zohor', 'asar', 'maghrib', 'isyak'].forEach(p => {
+      const el = document.getElementById(`offset_${p}`);
+      if (el) el.value = s[`offset_${p}`] || 0;
+    });
+
+    // Adhan modes
+    ['subuh', 'zohor', 'asar', 'maghrib', 'isyak'].forEach(p => {
+      const el = document.getElementById(`adhan_mode_${p}`);
+      if (el) el.value = s[`adhan_mode_${p}`] || 'auto';
+    });
+
+    // Iqamah & Solat duration
+    ['subuh', 'zohor', 'asar', 'maghrib', 'isyak'].forEach(p => {
+      const el = document.getElementById(`iqamah_${p}`);
+      if (el) el.value = s[`iqamah_${p}`] || 10;
+    });
+    document.getElementById('solat_duration').value = s.solat_duration || 12;
+
+    // Mosque & Ticker Info
+    document.getElementById('inputMosqueName').value = s.mosque_name || '';
+    document.getElementById('inputMosqueLocation').value = s.mosque_location || '';
+    document.getElementById('inputTickerText').value = s.ticker_text || '';
+    document.getElementById('inputBankName').value = s.bank_name || '';
+    document.getElementById('inputBankAcc').value = s.bank_account_no || '';
+    document.getElementById('inputBankHolder').value = s.bank_account_holder || '';
+
+    // Typography Font Family
+    const fontChoice = (s.kiosk_font_family || 'outfit').toLowerCase();
+    const fontRadio = document.querySelector(`input[name="kiosk_font_family"][value="${fontChoice}"]`);
+    if (fontRadio) fontRadio.checked = true;
+
+    // Multi-Source Layout Mode
+    const activeLayout = s.active_layout_mode || 'fullscreen_signage';
+    const layoutRadio = document.querySelector(`input[name="active_layout_mode"][value="${activeLayout}"]`);
+    if (layoutRadio) layoutRadio.checked = true;
+    const dashLayoutRadio = document.querySelector(`input[name="dash_active_layout_mode"][value="${activeLayout}"]`);
+    if (dashLayoutRadio) dashLayoutRadio.checked = true;
+
+    document.querySelectorAll('#multiLayoutSelectorGrid .layout-option, #dashLayoutSelectorGrid .layout-option').forEach(opt => {
+      if (opt.dataset.layoutMode === activeLayout) {
+        opt.classList.add('active');
+      } else {
+        opt.classList.remove('active');
+      }
+    });
+
+    // Media Source Inputs
+    const elVideoType = document.getElementById('selectVideoType');
+    if (elVideoType) elVideoType.value = s.video_source_type || 'mp4';
+    const elVideoUrl = document.getElementById('inputVideoUrl');
+    if (elVideoUrl) elVideoUrl.value = s.video_source_url || '';
+
+    // Audio & Volume
+    const checkAudio = document.getElementById('checkVideoAudio');
+    if (checkAudio) checkAudio.checked = (s.video_audio_enabled === '1' || s.video_audio_enabled === true);
+    const rangeVol = document.getElementById('rangeVideoVolume');
+    const volLabel = document.getElementById('videoVolLabel');
+    const volVal = s.video_volume || '80';
+    if (rangeVol) rangeVol.value = volVal;
+    if (volLabel) volLabel.textContent = `${volVal}%`;
+
+    // Signage Sub-layout
+    const elSubLayout = document.getElementById('selectKioskSubLayout');
+    if (elSubLayout) elSubLayout.value = s.kiosk_layout || 'full';
+
+    // Kuliah Card Details
+    const elKuliahTitle = document.getElementById('inputKuliahTitle');
+    if (elKuliahTitle) elKuliahTitle.value = s.kuliah_title || '';
+    const elKuliahUstaz = document.getElementById('inputKuliahUstaz');
+    if (elKuliahUstaz) elKuliahUstaz.value = s.kuliah_ustaz || '';
+    const elKuliahDate = document.getElementById('inputKuliahDate');
+    if (elKuliahDate) elKuliahDate.value = s.kuliah_date || '';
+
+    // Fullscreen Media Toggle & Kiosk Layout Mode
+    const checkMediaFs = document.getElementById('checkMediaFullscreen');
+    if (checkMediaFs) {
+      checkMediaFs.checked = (s.kiosk_layout_mode === 'fullscreen' || s.media_fullscreen_enabled === '1' || s.media_fullscreen_enabled === 1 || s.media_fullscreen_enabled === true);
+    }
+    const selectLayoutMode = document.getElementById('selectKioskLayoutMode');
+    if (selectLayoutMode) {
+      selectLayoutMode.value = s.kiosk_layout_mode || ((s.media_fullscreen_enabled === '1' || s.media_fullscreen_enabled === 1) ? 'fullscreen' : 'split');
+    }
+
+    // PiP Mode
+    const selectPip = document.getElementById('selectPipMode');
+    if (selectPip) {
+      selectPip.value = s.pip_mode || 'none';
+    }
+
+    // Media Source Type
+    const selectMediaSource = document.getElementById('selectMediaSourceType');
+    if (selectMediaSource) {
+      if (s.media_source_type) {
+        selectMediaSource.value = s.media_source_type;
+      } else if (s.video_source_type === 'mp4') {
+        selectMediaSource.value = 'video';
+      } else if (s.video_source_type === 'hls' || s.video_source_type === 'youtube') {
+        selectMediaSource.value = 'stream';
+      } else {
+        selectMediaSource.value = 'slides';
+      }
+    }
+
+    // Drag & Resize Custom Canvas Layout Mode
+    const checkEditMode = document.getElementById('checkLayoutEditMode');
+    const editIndicator = document.getElementById('layoutEditModeIndicator');
+    const isEditMode = (s.layout_edit_mode === '1' || s.layout_edit_mode === true);
+    if (checkEditMode) {
+      checkEditMode.checked = isEditMode;
+    }
+    if (editIndicator) {
+      if (isEditMode) {
+        editIndicator.innerHTML = '<span style="color:#34d399; font-weight:700;">🟢 Mod Susun Aktif (Buka Skrin Kiosk Untuk Drag &amp; Resize)</span>';
+      } else {
+        editIndicator.innerHTML = '<span style="color:#94a3b8;">🔒 Mod Kunci (Read-Only)</span>';
+      }
+    }
+
+    // Bank QR Code Preview
+    const qrImg = document.getElementById('bankQrPreviewImg');
+    const qrPlaceholder = document.getElementById('bankQrPlaceholder');
+    const btnRemoveQr = document.getElementById('btnRemoveBankQr');
+    if (s.bank_qr_url) {
+      if (qrImg) {
+        qrImg.src = s.bank_qr_url + (s.bank_qr_url.includes('?') ? '&' : '?') + 't=' + Date.now();
+        qrImg.style.display = 'block';
+      }
+      if (qrPlaceholder) qrPlaceholder.style.display = 'none';
+      if (btnRemoveQr) btnRemoveQr.style.display = 'inline-block';
+    } else {
+      if (qrImg) qrImg.style.display = 'none';
+      if (qrPlaceholder) qrPlaceholder.style.display = 'block';
+      if (btnRemoveQr) btnRemoveQr.style.display = 'none';
+    }
+
+    // Azan Audio Tracks & Volume
+    const azanSubuhVal = s.audio_azan_subuh || s.audio_azan_subuh_file;
+    if (azanSubuhVal && document.getElementById('selectAzanSubuh')) {
+      document.getElementById('selectAzanSubuh').value = azanSubuhVal;
+    }
+    const azanStdVal = s.audio_azan_regular || s.audio_azan_standard_file;
+    if (azanStdVal && document.getElementById('selectAzanStandard')) {
+      document.getElementById('selectAzanStandard').value = azanStdVal;
+    }
+    const rawAzanVol = typeof s.audio_volume !== 'undefined' ? s.audio_volume : s.audio_azan_volume;
+    if (typeof rawAzanVol !== 'undefined') {
+      const azanVol = parseInt(rawAzanVol);
+      if (document.getElementById('inputAzanVolume')) document.getElementById('inputAzanVolume').value = azanVol;
+      if (document.getElementById('valAzanVolume')) document.getElementById('valAzanVolume').textContent = `${azanVol}%`;
+    }
+
+  } catch (err) {
+    console.error('Error loading settings:', err);
+  }
+}
+
+// ==================== GPS ZONE DETECTION ====================
+document.getElementById('btnDetectGps').addEventListener('click', () => {
+  const statusEl = document.getElementById('gpsStatus');
+  if (!navigator.geolocation) {
+    statusEl.innerHTML = '<span style="color:#ef4444;">Pelayar ini tidak menyokong pengesanan GPS.</span>';
+    return;
+  }
+
+  statusEl.innerHTML = '<span style="color:#fbbf24;">Sedang mengesan koordinat GPS telefon anda...</span>';
+
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      const lat = pos.coords.latitude;
+      const lon = pos.coords.longitude;
+
+      try {
+        const res = await apiRequest('/api/zones/match_gps', 'POST', { lat, lon });
+        const matched = res.matched_zone;
+        const dist = res.distance_km;
+
+        statusEl.innerHTML = `
+          <div style="background: rgba(2, 44, 34, 0.8); border: 1px solid #10b981; padding: 0.75rem; border-radius: 8px; margin-top: 0.5rem;">
+            <div style="font-weight:700; color:#34d399;">✓ Zon Dipadankan: ${matched.code} (${matched.state})</div>
+            <div style="font-size:0.8rem; color:#cbd5e1;">Kawasan: ${matched.location} (~${dist} km)</div>
+          </div>
+        `;
+
+        document.getElementById('selectJakimZone').value = matched.code;
+
+        // Auto prompt to apply and sync
+        if (confirm(`Zon ${matched.code} (${matched.location}) dikesan melalui GPS. Tetapkan zon ini dan segerakkan takwim sekarang?`)) {
+          await apiRequest('/api/settings', 'POST', { jakim_zone: matched.code });
+          await triggerTakwimSync(matched.code);
+          await loadSettings();
+        }
+
+      } catch (err) {
+        statusEl.innerHTML = `<span style="color:#ef4444;">Ralat padanan: ${err.message}</span>`;
+      }
+    },
+    (err) => {
+      statusEl.innerHTML = `<span style="color:#ef4444;">Akses GPS ditolak / gagal: ${err.message}</span>`;
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+});
+
+// Manual Zone Sync
+document.getElementById('btnSyncJakim').addEventListener('click', async () => {
+  const zone = document.getElementById('selectJakimZone').value;
+  await apiRequest('/api/settings', 'POST', { jakim_zone: zone });
+  await triggerTakwimSync(zone);
+  await loadSettings();
+});
+
+async function triggerTakwimSync(zone) {
+  const fb = document.getElementById('syncFeedback');
+  fb.innerHTML = '<span style="color:#fbbf24;">Memuat turun takwim dari JAKIM...</span>';
+  try {
+    const res = await apiRequest('/api/jakim/sync', 'POST', { zone, period: 'month' });
+    if (res.success) {
+      fb.innerHTML = `<span style="color:#34d399;">✓ ${res.message}</span>`;
+      showToast(res.message);
+    } else {
+      fb.innerHTML = `<span style="color:#ef4444;">${res.message}</span>`;
+      showToast(res.message, true);
+    }
+  } catch (err) {
+    fb.innerHTML = `<span style="color:#ef4444;">${err.message}</span>`;
+    showToast(err.message, true);
+  }
+}
+
+// ==================== OFFSETS SAVE ====================
+document.getElementById('btnSaveOffsets').addEventListener('click', async () => {
+  const updates = {};
+  ['subuh', 'syuruk', 'zohor', 'asar', 'maghrib', 'isyak'].forEach(p => {
+    updates[`offset_${p}`] = parseInt(document.getElementById(`offset_${p}`).value) || 0;
+  });
+
+  try {
+    await apiRequest('/api/settings', 'POST', updates);
+    showToast('Pelarasan waktu solat berjaya disimpan!');
+  } catch (err) {
+    showToast(err.message, true);
+  }
+});
+
+// ==================== AUDIO & AZAN MANAGEMENT ====================
+let adminPreviewAudio = null;
+let currentPreviewButton = null;
+let originalPreviewButtonHtml = '';
+let replacingTargetFileName = '';
+let replacingTargetLabel = '';
+
+function playAdminPreview(audioUrl, btnElement) {
+  if (adminPreviewAudio) {
+    adminPreviewAudio.pause();
+    if (currentPreviewButton) {
+      currentPreviewButton.innerHTML = originalPreviewButtonHtml || '🎧 Pratonton (Peranti Ini)';
+      currentPreviewButton.classList.remove('playing');
+    }
+    // If clicking same button while playing, just stop
+    if (currentPreviewButton === btnElement) {
+      adminPreviewAudio = null;
+      currentPreviewButton = null;
+      originalPreviewButtonHtml = '';
+      return;
+    }
+  }
+
+  currentPreviewButton = btnElement;
+  originalPreviewButtonHtml = btnElement.innerHTML;
+  btnElement.innerHTML = '⏹️ Henti Pratonton';
+  btnElement.classList.add('playing');
+
+  adminPreviewAudio = new Audio(audioUrl);
+  adminPreviewAudio.play().catch(err => {
+    showToast('Gagal memainkan pratonton audio: ' + err.message, true);
+    btnElement.innerHTML = originalPreviewButtonHtml || '🎧 Pratonton (Peranti Ini)';
+    btnElement.classList.remove('playing');
+    adminPreviewAudio = null;
+    currentPreviewButton = null;
+    originalPreviewButtonHtml = '';
+  });
+
+  adminPreviewAudio.onended = () => {
+    btnElement.innerHTML = originalPreviewButtonHtml || '🎧 Pratonton (Peranti Ini)';
+    btnElement.classList.remove('playing');
+    adminPreviewAudio = null;
+    currentPreviewButton = null;
+    originalPreviewButtonHtml = '';
+  };
+}
+
+async function testKioskAudio(soundName, btnElement = null) {
+  try {
+    if (btnElement) {
+      btnElement.classList.add('testing');
+    }
+    showToast(`Sedang menguji pembesar suara TV dewan solat (${soundName})...`);
+    const res = await apiRequest('/api/audio/test-kiosk', 'POST', { sound: soundName, file_name: soundName });
+    showToast(`✓ ${res.message || 'Arahan audio dihantar ke pembesar suara TV.'}`);
+  } catch (err) {
+    showToast(`Ralat ujian audio TV: ${err.message}`, true);
+  } finally {
+    if (btnElement) {
+      setTimeout(() => btnElement.classList.remove('testing'), 1500);
+    }
+  }
+}
+
+async function stopKioskAudio() {
+  try {
+    const res = await apiRequest('/api/audio/test-kiosk', 'POST', { action: 'stop' });
+    showToast(res.message || 'Audio pembesar suara TV dihentikan.');
+  } catch (err) {
+    showToast(`Ralat: ${err.message}`, true);
+  }
+}
+
+async function loadAudioList() {
+  try {
+    const res = await apiRequest('/api/audio/list');
+    if (!res.success) return;
+
+    const selectSubuh = document.getElementById('selectAzanSubuh');
+    const selectStandard = document.getElementById('selectAzanStandard');
+    const container = document.getElementById('audioTracksContainer');
+
+    const currSubuh = res.current_subuh || 'azan_subuh_special.mp3';
+    const currStandard = res.current_standard || res.current_regular || 'azan_mekah.mp3';
+    const volume = typeof res.volume !== 'undefined' ? res.volume : 85;
+
+    // Volume input & badge
+    const rangeVol = document.getElementById('inputAzanVolume');
+    const badgeVol = document.getElementById('valAzanVolume');
+    if (rangeVol) rangeVol.value = volume;
+    if (badgeVol) badgeVol.textContent = `${volume}%`;
+
+    // Populate dropdowns
+    if (selectSubuh) selectSubuh.innerHTML = '';
+    if (selectStandard) selectStandard.innerHTML = '';
+
+    res.tracks.forEach(t => {
+      const optSubuh = document.createElement('option');
+      optSubuh.value = t.file_name;
+      optSubuh.textContent = `${t.label} (${t.file_name})`;
+      if (t.file_name === currSubuh) optSubuh.selected = true;
+      if (selectSubuh) selectSubuh.appendChild(optSubuh);
+
+      const optStd = document.createElement('option');
+      optStd.value = t.file_name;
+      optStd.textContent = `${t.label} (${t.file_name})`;
+      if (t.file_name === currStandard) optStd.selected = true;
+      if (selectStandard) selectStandard.appendChild(optStd);
+    });
+
+    // Populate track library cards
+    if (container) {
+      container.innerHTML = '';
+      if (!res.tracks || res.tracks.length === 0) {
+        container.innerHTML = '<div style="color:#94a3b8; font-size:0.85rem; text-align:center; padding:1rem;">Tiada fail audio dijumpai.</div>';
+        return;
+      }
+
+      res.tracks.forEach(t => {
+        const item = document.createElement('div');
+        item.className = `audio-track-item ${t.is_active ? 'is-active' : ''}`;
+
+        const sizeKb = Math.round(t.size_bytes / 1024);
+        const sizeMb = (t.size_bytes / (1024 * 1024)).toFixed(1);
+        const sizeStr = t.size_bytes > 1024 * 1024 ? `${sizeMb} MB` : `${sizeKb} KB`;
+
+        const badgeType = t.is_preset ? '<span class="track-badge preset">Preset</span>' : '<span class="track-badge custom">Tersuai</span>';
+        const badgeSubuh = t.is_subuh ? '<span class="track-badge subuh">Subuh</span>' : '';
+        const badgeActive = t.is_active_subuh && t.is_active_regular ? '<span class="track-badge active">Aktif (Subuh & Lazim)</span>' :
+                            t.is_active_subuh ? '<span class="track-badge active">Aktif (Subuh)</span>' :
+                            t.is_active_regular ? '<span class="track-badge active">Aktif (Lazim)</span>' : '';
+
+        const timeStr = t.modified_iso ? ` • ${t.modified_iso}` : '';
+
+        item.innerHTML = `
+          <div class="audio-track-info">
+            <div class="audio-track-name">${t.label}</div>
+            <div class="audio-track-meta">
+              ${badgeActive}
+              ${badgeType}
+              ${badgeSubuh}
+              <span>${t.file_name}</span>
+              <span>•</span>
+              <span>${sizeStr}</span>
+              <span>${timeStr}</span>
+            </div>
+          </div>
+          <div class="audio-track-actions">
+            <button type="button" class="btn-inline-play" data-url="${t.file_url}" title="Pratonton audio di peranti / pelayar web ini">
+              🎧 Pratonton (Peranti Ini)
+            </button>
+            <button type="button" class="btn-inline-kiosk" data-file="${t.file_name}" title="Uji pembesar suara TV fizikal dewan solat (Kiosk)">
+              📢 Uji Pembesar Suara TV
+            </button>
+            <button type="button" class="btn-inline-replace" data-file="${t.file_name}" data-label="${t.label}" title="Gantikan fail audio ini">
+              🔄 Ganti
+            </button>
+            <button type="button" class="btn-inline-delete" data-file="${t.file_name}" data-label="${t.label}" title="Padam fail audio">
+              🗑️ Padam
+            </button>
+          </div>
+        `;
+
+        // 1. Play Local Device Preview
+        const playBtn = item.querySelector('.btn-inline-play');
+        playBtn.addEventListener('click', () => {
+          playAdminPreview(t.file_url, playBtn);
+        });
+
+        // 2. Physical TV Kiosk Speaker Test
+        const kioskBtn = item.querySelector('.btn-inline-kiosk');
+        kioskBtn.addEventListener('click', () => {
+          testKioskAudio(t.file_name, kioskBtn);
+        });
+
+        // 3. Inline Replace Action
+        const replaceBtn = item.querySelector('.btn-inline-replace');
+        replaceBtn.addEventListener('click', () => {
+          replacingTargetFileName = t.file_name;
+          replacingTargetLabel = t.label;
+          const replaceInput = document.getElementById('replaceAudioInput');
+          if (replaceInput) {
+            replaceInput.value = '';
+            replaceInput.click();
+          }
+        });
+
+        // 4. Delete Action with Confirmation
+        const deleteBtn = item.querySelector('.btn-inline-delete');
+        deleteBtn.addEventListener('click', async () => {
+          const confirmMsg = t.is_active
+            ? `Fail audio "${t.label}" (${t.file_name}) sedang digunakan sebagai azan aktif.\n\nMemadam fail ini akan mengembalikan pilihan azan ke audio lalai sistem.\nAdakah anda pasti mahu memadamkannya?`
+            : `Adakah anda pasti mahu memadam fail audio "${t.label}" (${t.file_name})?`;
+
+          if (!confirm(confirmMsg)) {
+            return;
+          }
+
+          try {
+            const delRes = await apiRequest(`/api/audio?id=${encodeURIComponent(t.file_name)}`, 'DELETE');
+            showToast(delRes.message || 'Fail audio berjaya dipadamkan.');
+            if (adminPreviewAudio && currentPreviewButton === playBtn) {
+              adminPreviewAudio.pause();
+              adminPreviewAudio = null;
+              currentPreviewButton = null;
+              originalPreviewButtonHtml = '';
+            }
+            await loadAudioList();
+            await loadSettings();
+          } catch (err) {
+            showToast('Gagal memadam fail: ' + err.message, true);
+          }
+        });
+
+        container.appendChild(item);
+      });
+    }
+
+  } catch (err) {
+    console.error('Error loading audio tracks:', err);
+  }
+}
+
+// Hidden replace file input handler
+const replaceAudioInput = document.getElementById('replaceAudioInput');
+if (replaceAudioInput) {
+  replaceAudioInput.addEventListener('change', async (e) => {
+    if (!e.target.files || e.target.files.length === 0 || !replacingTargetFileName) {
+      return;
+    }
+
+    const file = e.target.files[0];
+    const targetFile = replacingTargetFileName;
+    const targetLabel = replacingTargetLabel;
+
+    showToast(`Sedang menggantikan fail "${targetFile}" dengan fail baharu...`);
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+      try {
+        const base64 = reader.result;
+        const res = await apiRequest('/api/audio/upload', 'POST', {
+          file_name: file.name,
+          file_base64: base64,
+          target_file: targetFile,
+          label: targetLabel
+        });
+
+        showToast(res.message || `Fail "${targetFile}" berjaya digantikan!`);
+        replacingTargetFileName = '';
+        replacingTargetLabel = '';
+        await loadAudioList();
+        await loadSettings();
+      } catch (err) {
+        showToast('Gagal menggantikan fail: ' + err.message, true);
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// Volume slider live display
+const inputAzanVol = document.getElementById('inputAzanVolume');
+if (inputAzanVol) {
+  inputAzanVol.addEventListener('input', (e) => {
+    const valBadge = document.getElementById('valAzanVolume');
+    if (valBadge) valBadge.textContent = `${e.target.value}%`;
+  });
+}
+
+// Save Azan Audio Selection & Volume
+const btnSaveAzanAudio = document.getElementById('btnSaveAzanAudio');
+if (btnSaveAzanAudio) {
+  btnSaveAzanAudio.addEventListener('click', async () => {
+    const subuhFile = document.getElementById('selectAzanSubuh').value;
+    const stdFile = document.getElementById('selectAzanStandard').value;
+    const vol = parseInt(document.getElementById('inputAzanVolume').value) || 85;
+
+    try {
+      await apiRequest('/api/settings', 'POST', {
+        audio_azan_subuh: subuhFile,
+        audio_azan_regular: stdFile,
+        audio_volume: vol,
+        audio_azan_subuh_file: subuhFile,
+        audio_azan_standard_file: stdFile,
+        audio_azan_volume: vol
+      });
+      showToast('Pilihan audio Azan dan kelantangan berjaya disimpan!');
+      await loadAudioList();
+    } catch (err) {
+      showToast(err.message, true);
+    }
+  });
+}
+
+// Preview and TV Kiosk test button handlers for dropdowns
+const btnPrevSubuh = document.getElementById('btnPreviewSubuh');
+if (btnPrevSubuh) {
+  btnPrevSubuh.addEventListener('click', () => {
+    const val = document.getElementById('selectAzanSubuh').value;
+    const url = val.startsWith('/') ? val : `/kiosk/audio/azan/${val}`;
+    playAdminPreview(url, btnPrevSubuh);
+  });
+}
+
+const btnTestKioskSubuh = document.getElementById('btnTestKioskSubuh');
+if (btnTestKioskSubuh) {
+  btnTestKioskSubuh.addEventListener('click', () => {
+    const val = document.getElementById('selectAzanSubuh').value;
+    testKioskAudio(val, btnTestKioskSubuh);
+  });
+}
+
+const btnPrevStd = document.getElementById('btnPreviewStandard');
+if (btnPrevStd) {
+  btnPrevStd.addEventListener('click', () => {
+    const val = document.getElementById('selectAzanStandard').value;
+    const url = val.startsWith('/') ? val : `/kiosk/audio/azan/${val}`;
+    playAdminPreview(url, btnPrevStd);
+  });
+}
+
+const btnTestKioskStandard = document.getElementById('btnTestKioskStandard');
+if (btnTestKioskStandard) {
+  btnTestKioskStandard.addEventListener('click', () => {
+    const val = document.getElementById('selectAzanStandard').value;
+    testKioskAudio(val, btnTestKioskStandard);
+  });
+}
+
+const btnRefreshAudio = document.getElementById('btnRefreshAudioList');
+if (btnRefreshAudio) {
+  btnRefreshAudio.addEventListener('click', async () => {
+    await loadAudioList();
+    showToast('Senarai audio Azan dikemas kini.');
+  });
+}
+
+// Drag & drop dropzone text update
+const audioFileInput = document.getElementById('audioUploadInput');
+if (audioFileInput) {
+  audioFileInput.addEventListener('change', (e) => {
+    const textEl = document.getElementById('audioDropzoneText');
+    if (e.target.files && e.target.files.length > 0) {
+      if (textEl) textEl.textContent = `Fail dipilih: ${e.target.files[0].name}`;
+    } else {
+      if (textEl) textEl.textContent = 'Ketik atau seret fail MP3/WAV/OGG ke sini';
+    }
+  });
+}
+
+// Upload Form Handler
+const uploadAudioForm = document.getElementById('uploadAzanAudioForm');
+if (uploadAudioForm) {
+  uploadAudioForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fileInput = document.getElementById('audioUploadInput');
+    const titleInput = document.getElementById('audioUploadTitle');
+    const feedbackEl = document.getElementById('audioUploadFeedback');
+
+    if (!fileInput.files || fileInput.files.length === 0) {
+      showToast('Sila pilih fail audio untuk dimuat naik!', true);
+      return;
+    }
+
+    const file = fileInput.files[0];
+    const label = titleInput ? titleInput.value.trim() : '';
+
+    if (feedbackEl) feedbackEl.innerHTML = '<span style="color:#fbbf24;">Memuat naik fail audio...</span>';
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+      try {
+        const base64 = reader.result;
+        const res = await apiRequest('/api/audio/upload', 'POST', {
+          file_name: file.name,
+          file_base64: base64,
+          label: label
+        });
+
+        if (feedbackEl) feedbackEl.innerHTML = `<span style="color:#34d399;">✓ ${res.message}</span>`;
+        showToast(res.message || 'Fail audio berjaya dimuat naik!');
+
+        fileInput.value = '';
+        if (titleInput) titleInput.value = '';
+        const textEl = document.getElementById('audioDropzoneText');
+        if (textEl) textEl.textContent = 'Ketik atau seret fail MP3/WAV/OGG ke sini';
+
+        // Immediately refresh dropdown options and audio library
+        await loadAudioList();
+        await loadSettings();
+      } catch (err) {
+        if (feedbackEl) feedbackEl.innerHTML = `<span style="color:#ef4444;">${err.message}</span>`;
+        showToast(err.message, true);
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// ==================== BACAAN AL-QURAN & TARHIM SEBELUM AZAN ====================
+let quranTracksCache = [];
+
+async function loadQuranAudioList() {
+  try {
+    const res = await apiRequest('/api/quran/list');
+    if (!res.success) return;
+
+    quranTracksCache = res.tracks || [];
+    const container = document.getElementById('quranTracksContainer');
+    const countBadge = document.getElementById('countQuranTracks');
+    const selectSpecific = document.getElementById('selectSpecificQuranFile');
+    const liveBadge = document.getElementById('quranLivePlayingBadge');
+
+    if (countBadge) countBadge.textContent = quranTracksCache.length;
+    if (liveBadge) liveBadge.style.display = res.is_playing ? 'inline-block' : 'none';
+
+    // Populate configuration form if returned
+    if (res.config) {
+      const cfg = res.config;
+      const sw = document.getElementById('switchQuranPreAzan');
+      if (sw) sw.checked = (cfg.quran_pre_azan_enabled === '1' || cfg.quran_pre_azan_enabled === true);
+
+      const selLead = document.getElementById('selectQuranLeadMin');
+      if (selLead) selLead.value = String(cfg.quran_pre_azan_lead_minutes || 10);
+
+      const selMode = document.getElementById('selectQuranMode');
+      if (selMode) {
+        selMode.value = cfg.quran_pre_azan_mode || 'random';
+        const wrapSpecific = document.getElementById('wrapperSpecificQuranFile');
+        if (wrapSpecific) {
+          wrapSpecific.style.display = (selMode.value === 'specific') ? 'block' : 'none';
+        }
+      }
+
+      const inputVol = document.getElementById('inputQuranVolume');
+      const valVol = document.getElementById('valQuranVolume');
+      if (inputVol) inputVol.value = cfg.quran_pre_azan_volume || 70;
+      if (valVol) valVol.textContent = `${cfg.quran_pre_azan_volume || 70}%`;
+
+      // Prayers checkboxes
+      let prayers = [];
+      try {
+        prayers = typeof cfg.quran_pre_azan_prayers === 'string' ? JSON.parse(cfg.quran_pre_azan_prayers) : cfg.quran_pre_azan_prayers;
+      } catch (e) {
+        prayers = ['subuh', 'zohor', 'asar', 'maghrib', 'isyak', 'jumaat'];
+      }
+      ['subuh', 'zohor', 'asar', 'maghrib', 'isyak', 'jumaat'].forEach(p => {
+        const chk = document.getElementById(`chkQuran${p.charAt(0).toUpperCase() + p.slice(1)}`);
+        if (chk) chk.checked = prayers.includes(p);
+      });
+    }
+
+    // Populate Specific Surah Dropdown
+    if (selectSpecific) {
+      selectSpecific.innerHTML = '<option value="">-- Sila Pilih Fail MP3 dari Pustaka --</option>';
+      quranTracksCache.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.file_name;
+        opt.textContent = `${t.title} (${t.file_name})`;
+        if (res.config && res.config.quran_pre_azan_file === t.file_name) {
+          opt.selected = true;
+        }
+        selectSpecific.appendChild(opt);
+      });
+    }
+
+    // Render Quran Library Cards
+    if (container) {
+      container.innerHTML = '';
+      if (!quranTracksCache || quranTracksCache.length === 0) {
+        container.innerHTML = `
+          <div style="color:#94a3b8; font-size:0.85rem; text-align:center; padding:1.5rem; background:rgba(15,23,42,0.6); border-radius:10px;">
+            Tiada fail MP3 Al-Quran dijumpai. Anda boleh memuat naik fail dari telefon atau salin terus ke folder <code>/var/lib/esolat/media/quran/</code>.
+          </div>`;
+        return;
+      }
+
+      quranTracksCache.forEach(t => {
+        const item = document.createElement('div');
+        item.className = 'audio-track-item';
+        const isCurrent = res.current_track === t.file_name;
+        if (isCurrent) item.classList.add('is-active');
+
+        item.innerHTML = `
+          <div class="audio-track-info" style="flex:1;">
+            <div class="audio-track-name" style="font-weight:700; color:#f8fafc; display:flex; align-items:center; gap:0.5rem;">
+              <span>📖</span> <span>${t.title}</span>
+              ${isCurrent ? '<span class="track-badge active" style="background:#10b981; color:#022c22; font-weight:bold;">Sedang Main</span>' : ''}
+            </div>
+            <div class="audio-track-meta" style="font-size:0.75rem; color:#94a3b8; display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center; margin-top:0.25rem;">
+              <span class="track-badge preset">${t.type.toUpperCase()}</span>
+              <span>${t.file_name}</span>
+              <span>•</span>
+              <span>${t.size_formatted}</span>
+            </div>
+            <div style="margin-top:0.5rem;">
+              <audio controls preload="none" style="height:32px; width:100%; max-width:340px;">
+                <source src="${t.file_url}" type="audio/mpeg">
+                Pelayar anda tidak menyokong audio player.
+              </audio>
+            </div>
+          </div>
+          <div class="audio-track-actions" style="display:flex; gap:0.4rem; align-items:center;">
+            <button type="button" class="btn btn-sm btn-accent btn-test-quran-tv" data-file="${t.file_name}" title="Uji mainkan fail ini pada pembesar suara TV / PA surau">
+              📢 Main di TV/PA
+            </button>
+            <button type="button" class="btn btn-sm btn-outline btn-del-quran" data-file="${t.file_name}" title="Padam fail ini" style="border-color:#ef4444; color:#ef4444;">
+              🗑️ Padam
+            </button>
+          </div>
+        `;
+
+        // Action listeners
+        const btnTestTv = item.querySelector('.btn-test-quran-tv');
+        if (btnTestTv) {
+          btnTestTv.addEventListener('click', async () => {
+            const fname = btnTestTv.getAttribute('data-file');
+            try {
+              btnTestTv.disabled = true;
+              btnTestTv.textContent = '⏳ Memainkan...';
+              const r = await apiRequest('/api/quran/test_play', 'POST', {
+                file_name: fname,
+                volume: parseInt(document.getElementById('inputQuranVolume').value) || 70
+              });
+              showToast(r.message || 'Memainkan ujian audio pada TV/PA');
+              await loadQuranAudioList();
+            } catch (err) {
+              showToast(err.message, true);
+            } finally {
+              btnTestTv.disabled = false;
+              btnTestTv.textContent = '📢 Main di TV/PA';
+            }
+          });
+        }
+
+        const btnDel = item.querySelector('.btn-del-quran');
+        if (btnDel) {
+          btnDel.addEventListener('click', async () => {
+            const fname = btnDel.getAttribute('data-file');
+            if (!confirm(`Adakah anda pasti ingin memadamkan fail '${fname}' daripada pustaka Quran?`)) return;
+            try {
+              const r = await apiRequest('/api/quran/delete', 'POST', { file_name: fname });
+              showToast(r.message || 'Fail berjaya dipadam.');
+              await loadQuranAudioList();
+            } catch (err) {
+              showToast(err.message, true);
+            }
+          });
+        }
+
+        container.appendChild(item);
+      });
+    }
+  } catch (err) {
+    console.error('Error loading Quran library:', err);
+  }
+}
+
+function initQuranAudioSystem() {
+  // Mode selection change
+  const selMode = document.getElementById('selectQuranMode');
+  if (selMode) {
+    selMode.addEventListener('change', () => {
+      const wrapSpecific = document.getElementById('wrapperSpecificQuranFile');
+      if (wrapSpecific) {
+        wrapSpecific.style.display = (selMode.value === 'specific') ? 'block' : 'none';
+      }
+    });
+  }
+
+  // Volume slider
+  const inputVol = document.getElementById('inputQuranVolume');
+  const valVol = document.getElementById('valQuranVolume');
+  if (inputVol && valVol) {
+    inputVol.addEventListener('input', () => {
+      valVol.textContent = `${inputVol.value}%`;
+    });
+  }
+
+  // Save Quran Config Button
+  const btnSaveConfig = document.getElementById('btnSaveQuranConfig');
+  if (btnSaveConfig) {
+    btnSaveConfig.addEventListener('click', async () => {
+      const sw = document.getElementById('switchQuranPreAzan');
+      const selLead = document.getElementById('selectQuranLeadMin');
+      const selM = document.getElementById('selectQuranMode');
+      const selSpecific = document.getElementById('selectSpecificQuranFile');
+      const inVol = document.getElementById('inputQuranVolume');
+
+      const selectedPrayers = [];
+      ['subuh', 'zohor', 'asar', 'maghrib', 'isyak', 'jumaat'].forEach(p => {
+        const chk = document.getElementById(`chkQuran${p.charAt(0).toUpperCase() + p.slice(1)}`);
+        if (chk && chk.checked) selectedPrayers.push(p);
+      });
+
+      const payload = {
+        quran_pre_azan_enabled: sw && sw.checked ? '1' : '0',
+        quran_pre_azan_lead_minutes: selLead ? selLead.value : '10',
+        quran_pre_azan_mode: selM ? selM.value : 'random',
+        quran_pre_azan_file: selSpecific ? selSpecific.value : '',
+        quran_pre_azan_prayers: JSON.stringify(selectedPrayers),
+        quran_pre_azan_volume: inVol ? inVol.value : '70'
+      };
+
+      try {
+        btnSaveConfig.disabled = true;
+        btnSaveConfig.textContent = '⏳ Menyimpan...';
+        const res = await apiRequest('/api/quran/config', 'POST', payload);
+        showToast(res.message || 'Tetapan bacaan Al-Quran berjaya disimpan!');
+      } catch (err) {
+        showToast(err.message, true);
+      } finally {
+        btnSaveConfig.disabled = false;
+        btnSaveConfig.textContent = '💾 Simpan Tetapan Al-Quran Sebelum Azan';
+      }
+    });
+  }
+
+  // Refresh / Scan buttons
+  const btnRefresh = document.getElementById('btnRefreshQuranList');
+  if (btnRefresh) {
+    btnRefresh.addEventListener('click', async () => {
+      await loadQuranAudioList();
+      showToast('Pustaka Al-Quran berjaya dikemas kini.');
+    });
+  }
+
+  const btnScanUsb = document.getElementById('btnScanUsbQuranFolder');
+  if (btnScanUsb) {
+    btnScanUsb.addEventListener('click', async () => {
+      await loadQuranAudioList();
+      showToast('Pustaka folder USB / media/quran/ berjaya diimbas!');
+    });
+  }
+
+  // Upload input text preview
+  const quranUploadInput = document.getElementById('quranUploadInput');
+  if (quranUploadInput) {
+    quranUploadInput.addEventListener('change', (e) => {
+      const dropText = document.getElementById('quranDropzoneText');
+      if (e.target.files && e.target.files.length > 0) {
+        if (dropText) dropText.textContent = `Fail dipilih: ${e.target.files[0].name}`;
+      } else {
+        if (dropText) dropText.textContent = 'Pilih atau seret fail MP3 Quran';
+      }
+    });
+  }
+
+  // Form Upload Submit
+  const formUploadQuran = document.getElementById('formUploadQuranMp3');
+  if (formUploadQuran) {
+    formUploadQuran.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fileInput = document.getElementById('quranUploadInput');
+      const feedback = document.getElementById('quranUploadFeedback');
+      const btnSubmit = document.getElementById('btnSubmitUploadQuran');
+
+      if (!fileInput.files || fileInput.files.length === 0) {
+        showToast('Sila pilih fail MP3 untuk dimuat naik!', true);
+        return;
+      }
+
+      const file = fileInput.files[0];
+      if (feedback) feedback.innerHTML = '<span style="color:#fbbf24;">Sedang memuat naik audio Quran...</span>';
+      if (btnSubmit) {
+        btnSubmit.disabled = true;
+        btnSubmit.textContent = '⏳ Memuat naik...';
+      }
+
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          const base64 = reader.result;
+          const res = await apiRequest('/api/quran/upload', 'POST', {
+            file_name: file.name,
+            file_base64: base64
+          });
+
+          if (feedback) feedback.innerHTML = `<span style="color:#34d399;">✓ ${res.message}</span>`;
+          showToast(res.message || 'Fail MP3 berjaya disimpan ke pustaka Quran!');
+
+          fileInput.value = '';
+          const dropText = document.getElementById('quranDropzoneText');
+          if (dropText) dropText.textContent = 'Pilih atau seret fail MP3 Quran';
+
+          await loadQuranAudioList();
+        } catch (err) {
+          if (feedback) feedback.innerHTML = `<span style="color:#ef4444;">${err.message}</span>`;
+          showToast(err.message, true);
+        } finally {
+          if (btnSubmit) {
+            btnSubmit.disabled = false;
+            btnSubmit.textContent = '📤 Muat Naik ke Pustaka';
+          }
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+}
+
+// ==================== ADHAN & IQAMAH SAVE ====================
+document.getElementById('btnSaveAdhanConfig').addEventListener('click', async () => {
+  const updates = {};
+  ['subuh', 'zohor', 'asar', 'maghrib', 'isyak'].forEach(p => {
+    updates[`adhan_mode_${p}`] = document.getElementById(`adhan_mode_${p}`).value;
+    updates[`iqamah_${p}`] = parseInt(document.getElementById(`iqamah_${p}`).value) || 10;
+  });
+  updates['solat_duration'] = parseInt(document.getElementById('solat_duration').value) || 12;
+
+  try {
+    await apiRequest('/api/settings', 'POST', updates);
+    showToast('Tetapan Azan & Iqamah berjaya disimpan!');
+  } catch (err) {
+    showToast(err.message, true);
+  }
+});
+
+// ==================== MEDIA & SLIDES ====================
+async function loadSlides() {
+  try {
+    const res = await apiRequest('/api/slides');
+    const container = document.getElementById('slidesListContainer');
+    container.innerHTML = '';
+
+    if (!res.slides || res.slides.length === 0) {
+      container.innerHTML = '<div style="color:#94a3b8; font-size:0.85rem; text-align:center;">Tiada slaid poster dijumpai.</div>';
+      return;
+    }
+
+    res.slides.forEach(slide => {
+      const card = document.createElement('div');
+      card.className = 'slide-card';
+      card.innerHTML = `
+        <img class="slide-thumb" src="${slide.file_url}" alt="${slide.title}">
+        <div class="slide-info">
+          <div class="slide-title-text">${slide.title}</div>
+          <div class="slide-meta">Tempoh: ${slide.duration}s | Susunan: ${slide.sort_order}</div>
+        </div>
+        <button class="slide-del-btn" onclick="deleteSlide(${slide.id})">🗑️</button>
+      `;
+      container.appendChild(card);
+    });
+  } catch (err) {
+    console.error('Error loading slides:', err);
+  }
+}
+
+window.deleteSlide = async function(id) {
+  if (!confirm('Padamkan slaid poster ini?')) return;
+  try {
+    await apiRequest(`/api/slides/${id}`, 'DELETE');
+    showToast('Slaid berjaya dipadamkan.');
+    loadSlides();
+  } catch (err) {
+    showToast(err.message, true);
+  }
+};
+
+document.getElementById('uploadSlideForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const title = document.getElementById('slideTitle').value.trim();
+  const duration = parseInt(document.getElementById('slideDuration').value) || 12;
+  const sort_order = parseInt(document.getElementById('slideOrder').value) || 1;
+  const fileInput = document.getElementById('slideFileInput');
+
+  if (!fileInput.files || fileInput.files.length === 0) {
+    showToast('Sila pilih fail untuk dimuat naik!', true);
+    return;
+  }
+
+  const file = fileInput.files[0];
+  const reader = new FileReader();
+
+  showToast('Memproses dan memuat naik fail...');
+
+  reader.onload = async () => {
+    try {
+      const base64Data = reader.result;
+      const media_type = file.type.startsWith('video') ? 'video' : 'image';
+
+      await apiRequest('/api/slides', 'POST', {
+        title,
+        duration,
+        sort_order,
+        media_type,
+        file_base64: base64Data,
+        file_name: file.name
+      });
+
+      showToast('Slaid berjaya dimuat naik!');
+      document.getElementById('uploadSlideForm').reset();
+      loadSlides();
+    } catch (err) {
+      showToast(err.message, true);
+    }
+  };
+
+  reader.readAsDataURL(file);
+});
+
+// ==================== MULTI-SOURCE MEDIA & PiP ENGINE ====================
+// 1. Volume slider display updater
+const rangeVideoVol = document.getElementById('rangeVideoVolume');
+if (rangeVideoVol) {
+  rangeVideoVol.addEventListener('input', () => {
+    const lbl = document.getElementById('videoVolLabel');
+    if (lbl) lbl.textContent = `${rangeVideoVol.value}%`;
+  });
+}
+
+// 2. Preset stream links
+window.setPresetMedia = function(type) {
+  const mediaSourceSelect = document.getElementById('selectMediaSourceType');
+  const typeSelect = document.getElementById('selectVideoType');
+  const urlInput = document.getElementById('inputVideoUrl');
+  if (mediaSourceSelect) mediaSourceSelect.value = 'stream';
+
+  if (type === 'phone_cam') {
+    if (typeSelect) typeSelect.value = 'hls';
+    if (urlInput) {
+      urlInput.value = 'http://192.168.1.50:8080/video';
+      urlInput.focus();
+      urlInput.select();
+    }
+  } else if (type === 'youtube') {
+    if (typeSelect) typeSelect.value = 'youtube';
+    if (urlInput) {
+      urlInput.value = 'https://www.youtube.com/watch?v=';
+      urlInput.focus();
+    }
+  } else if (type === 'alhijrah') {
+    if (typeSelect) typeSelect.value = 'youtube';
+    if (urlInput) urlInput.value = 'https://www.youtube.com/watch?v=live_stream';
+  } else if (type === 'hls_sample') {
+    if (typeSelect) typeSelect.value = 'hls';
+    if (urlInput) urlInput.value = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
+  } else if (type === 'clear') {
+    if (urlInput) urlInput.value = '';
+  }
+};
+
+const btnPhoneCam = document.getElementById('btnPresetPhoneCam');
+if (btnPhoneCam) btnPhoneCam.addEventListener('click', () => setPresetMedia('phone_cam'));
+const btnYouTube = document.getElementById('btnPresetYouTube');
+if (btnYouTube) btnYouTube.addEventListener('click', () => setPresetMedia('youtube'));
+const btnAlhijrah = document.getElementById('btnPresetAlhijrah');
+if (btnAlhijrah) btnAlhijrah.addEventListener('click', () => setPresetMedia('alhijrah'));
+const btnSampleHls = document.getElementById('btnPresetSampleHls');
+if (btnSampleHls) btnSampleHls.addEventListener('click', () => setPresetMedia('hls_sample'));
+const btnClearPreset = document.getElementById('btnPresetClear');
+if (btnClearPreset) btnClearPreset.addEventListener('click', () => setPresetMedia('clear'));
+
+// 3. Layout Selector Cards Click Interaction
+document.querySelectorAll('#multiLayoutSelectorGrid .layout-option, #dashLayoutSelectorGrid .layout-option').forEach(opt => {
+  opt.addEventListener('click', async () => {
+    const layoutMode = opt.dataset.layoutMode || (opt.querySelector('input[type="radio"]') && opt.querySelector('input[type="radio"]').value);
+    if (!layoutMode) return;
+
+    // Update active classes on both grids
+    document.querySelectorAll('#multiLayoutSelectorGrid .layout-option, #dashLayoutSelectorGrid .layout-option').forEach(o => {
+      if (o.dataset.layoutMode === layoutMode) {
+        o.classList.add('active');
+        const r = o.querySelector('input[type="radio"]');
+        if (r) r.checked = true;
+      } else {
+        o.classList.remove('active');
+      }
+    });
+
+    try {
+      await apiRequest('/api/settings', 'POST', { active_layout_mode: layoutMode });
+      showToast(`📺 Mod Paparan diubah ke: ${layoutMode.replace(/_/g, ' ').toUpperCase()}`);
+      loadSettings();
+      // Also refresh live preview frame
+      const frame = document.getElementById('adminKioskPreviewFrame');
+      if (frame) {
+        setTimeout(() => { frame.src = '/kiosk?t=' + Date.now(); }, 500);
+      }
+    } catch (err) {
+      showToast(err.message, true);
+    }
+  });
+});
+
+// 4. One-Tap Quick Switch Buttons
+const handleQuickSwitch = async (mode, label) => {
+  try {
+    await apiRequest('/api/settings', 'POST', { active_layout_mode: mode });
+    showToast(label);
+    loadSettings();
+    const frame = document.getElementById('adminKioskPreviewFrame');
+    if (frame) {
+      setTimeout(() => { frame.src = '/kiosk?t=' + Date.now(); }, 500);
+    }
+  } catch (err) {
+    showToast(err.message, true);
+  }
+};
+
+const btnQuickSignage = document.getElementById('btnQuickSignage');
+if (btnQuickSignage) {
+  btnQuickSignage.addEventListener('click', () => handleQuickSwitch('fullscreen_signage', '📺 Mod Paparan: 100% Takwim Aktif'));
+}
+const btnQuickSignageDash = document.getElementById('btnQuickSignageDash');
+if (btnQuickSignageDash) {
+  btnQuickSignageDash.addEventListener('click', () => handleQuickSwitch('fullscreen_signage', '📺 Mod Paparan: 100% Takwim Aktif'));
+}
+
+const btnQuickVideo = document.getElementById('btnQuickVideo');
+if (btnQuickVideo) {
+  btnQuickVideo.addEventListener('click', () => handleQuickSwitch('fullscreen_video', '🎥 Mod Paparan: 100% Video Siaran Aktif'));
+}
+const btnQuickVideoDash = document.getElementById('btnQuickVideoDash');
+if (btnQuickVideoDash) {
+  btnQuickVideoDash.addEventListener('click', () => handleQuickSwitch('fullscreen_video', '🎥 Mod Paparan: 100% Video Siaran Aktif'));
+}
+
+// 4.0. Refresh Admin Live Preview Frame
+const btnRefreshPreview = document.getElementById('btnRefreshAdminPreview');
+if (btnRefreshPreview) {
+  btnRefreshPreview.addEventListener('click', () => {
+    const frame = document.getElementById('adminKioskPreviewFrame');
+    if (frame) {
+      frame.src = '/kiosk?t=' + Date.now();
+      showToast('Pratonton Kiosk disegarkan!');
+    }
+  });
+}
+
+// 4.1. Fullscreen Media Mode & Layout Sync
+const checkMediaFullscreen = document.getElementById('checkMediaFullscreen');
+const selectKioskLayoutModeEl = document.getElementById('selectKioskLayoutMode');
+
+if (checkMediaFullscreen) {
+  checkMediaFullscreen.addEventListener('change', async (e) => {
+    const isEnabled = e.target.checked ? '1' : '0';
+    if (selectKioskLayoutModeEl) {
+      selectKioskLayoutModeEl.value = isEnabled === '1' ? 'fullscreen' : 'split';
+    }
+    try {
+      await apiRequest('/api/settings', 'POST', {
+        media_fullscreen_enabled: isEnabled,
+        kiosk_layout_mode: isEnabled === '1' ? 'fullscreen' : 'split'
+      });
+      showToast(isEnabled === '1' 
+        ? '🖥️ Mod Skrin Penuh Media diaktifkan (100% Lebar)!' 
+        : '🖥️ Mod Skrin Penuh Media dimatikan (Paparan 2-Lajur dipulihkan).'
+      );
+    } catch (err) {
+      showToast('Gagal mengubah tetapan: ' + err.message, true);
+      e.target.checked = !e.target.checked;
+    }
+  });
+}
+
+if (selectKioskLayoutModeEl) {
+  selectKioskLayoutModeEl.addEventListener('change', (e) => {
+    if (checkMediaFullscreen) {
+      checkMediaFullscreen.checked = (e.target.value === 'fullscreen');
+    }
+  });
+}
+
+// 5. Save Media & Layout Configuration (Display Settings)
+async function handleSaveDisplaySettings() {
+  const selectLayout = document.getElementById('selectKioskLayoutMode');
+  const kiosk_layout_mode = selectLayout ? selectLayout.value : 'split';
+  const pip_mode = document.getElementById('selectPipMode') ? document.getElementById('selectPipMode').value : 'none';
+  const media_source_type = document.getElementById('selectMediaSourceType') ? document.getElementById('selectMediaSourceType').value : 'slides';
+  
+  const video_source_type = document.getElementById('selectVideoType') ? document.getElementById('selectVideoType').value : 'mp4';
+  const video_source_url = document.getElementById('inputVideoUrl') ? document.getElementById('inputVideoUrl').value.trim() : '';
+  const media_stream_url = video_source_url;
+  const video_audio_enabled = (document.getElementById('checkVideoAudio') && document.getElementById('checkVideoAudio').checked) ? '1' : '0';
+  const video_volume = document.getElementById('rangeVideoVolume') ? document.getElementById('rangeVideoVolume').value : '80';
+  const kiosk_layout = document.getElementById('selectKioskSubLayout') ? document.getElementById('selectKioskSubLayout').value : 'full';
+  const kuliah_title = document.getElementById('inputKuliahTitle') ? document.getElementById('inputKuliahTitle').value.trim() : '';
+  const kuliah_ustaz = document.getElementById('inputKuliahUstaz') ? document.getElementById('inputKuliahUstaz').value.trim() : '';
+  const kuliah_date = document.getElementById('inputKuliahDate') ? document.getElementById('inputKuliahDate').value.trim() : '';
+  const media_fullscreen_enabled = (kiosk_layout_mode === 'fullscreen' || (document.getElementById('checkMediaFullscreen') && document.getElementById('checkMediaFullscreen').checked)) ? '1' : '0';
+
+  const selectedRadio = document.querySelector('input[name="active_layout_mode"]:checked');
+  const active_layout_mode = selectedRadio ? selectedRadio.value : (kiosk_layout_mode === 'fullscreen' ? 'fullscreen_video' : 'fullscreen_signage');
+
+  try {
+    await apiRequest('/api/settings', 'POST', {
+      kiosk_layout_mode,
+      pip_mode,
+      media_source_type,
+      media_stream_url,
+      active_layout_mode,
+      video_source_type,
+      video_source_url,
+      video_audio_enabled,
+      video_volume,
+      kiosk_layout,
+      kuliah_title,
+      kuliah_ustaz,
+      kuliah_date,
+      media_fullscreen_enabled
+    });
+    showToast('Tetapan paparan berjaya dikemaskini!');
+    loadSettings();
+    // Prompt to set 4-digit PIN code for kiosk lock
+    setTimeout(promptKioskPinSetup, 600);
+  } catch (err) {
+    showToast(err.message, true);
+  }
+}
+
+// 4-Digit Security PIN Prompt Modal Handler
+function promptKioskPinSetup() {
+  const modal = document.getElementById('pinPromptModal');
+  const inputPin = document.getElementById('inputKioskPinCode');
+  if (!modal) return;
+
+  if (inputPin) {
+    inputPin.value = (currentSettings && currentSettings.kiosk_pin) ? currentSettings.kiosk_pin : '';
+  }
+  modal.style.display = 'flex';
+  if (inputPin) inputPin.focus();
+}
+
+const btnSavePinPrompt = document.getElementById('btnSavePinPrompt');
+if (btnSavePinPrompt) {
+  btnSavePinPrompt.addEventListener('click', async () => {
+    const inputPin = document.getElementById('inputKioskPinCode');
+    const pinVal = inputPin ? inputPin.value.trim() : '';
+
+    if (!/^\d{4}$/.test(pinVal)) {
+      showToast('Sila masukkan 4 digit nombor sah (contoh: 1234)!', true);
+      if (inputPin) inputPin.focus();
+      return;
+    }
+
+    try {
+      await apiRequest('/api/settings', 'POST', {
+        kiosk_pin: pinVal,
+        screen_lock_pin: pinVal
+      });
+      const modal = document.getElementById('pinPromptModal');
+      if (modal) modal.style.display = 'none';
+      showToast(`🔒 PIN keselamatan 4-digit (${pinVal}) berjaya ditetapkan!`);
+      loadSettings();
+    } catch (err) {
+      showToast('Gagal menetapkan PIN: ' + err.message, true);
+    }
+  });
+}
+
+const btnSkipPinPrompt = document.getElementById('btnSkipPinPrompt');
+if (btnSkipPinPrompt) {
+  btnSkipPinPrompt.addEventListener('click', () => {
+    const modal = document.getElementById('pinPromptModal');
+    if (modal) modal.style.display = 'none';
+  });
+}
+
+const btnSaveDisplay = document.getElementById('btnSaveDisplaySettings');
+if (btnSaveDisplay) {
+  btnSaveDisplay.addEventListener('click', handleSaveDisplaySettings);
+}
+
+const btnSaveVideo = document.getElementById('btnSaveVideoLayout');
+if (btnSaveVideo) {
+  btnSaveVideo.addEventListener('click', handleSaveDisplaySettings);
+}
+
+// 5.1. Interactive Drag & Resize Canvas Mode Listeners
+const checkLayoutEditModeEl = document.getElementById('checkLayoutEditMode');
+if (checkLayoutEditModeEl) {
+  checkLayoutEditModeEl.addEventListener('change', async (e) => {
+    const isEdit = e.target.checked ? '1' : '0';
+    try {
+      await apiRequest('/api/layout/custom', 'POST', {
+        layout_edit_mode: isEdit,
+        custom_layout_enabled: isEdit === '1' ? '1' : (currentSettings.custom_layout_enabled || '0')
+      });
+      showToast(isEdit === '1'
+        ? '📐 Mod Susun Bebas Kiosk DIBUKA! Sila buka skrin Kiosk untuk drag & resize.'
+        : '🔒 Mod Susun Kiosk DIKUNCI (Read-Only Mode).'
+      );
+      await loadSettings();
+    } catch (err) {
+      showToast('Gagal mengubah mod susun: ' + err.message, true);
+      e.target.checked = !e.target.checked;
+    }
+  });
+}
+
+const btnResetCustomLayoutEl = document.getElementById('btnResetCustomLayout');
+if (btnResetCustomLayoutEl) {
+  btnResetCustomLayoutEl.addEventListener('click', async () => {
+    if (!confirm('Adakah anda pasti mahu mereset semua zon susun atur ke konfigurasi standard?')) return;
+    try {
+      const res = await apiRequest('/api/layout/reset', 'POST', {});
+      showToast(res.message || 'Layout berjaya direset ke susun atur asal.');
+      await loadSettings();
+    } catch (err) {
+      showToast('Gagal mereset layout: ' + err.message, true);
+    }
+  });
+}
+
+// ==================== FONT TYPOGRAPHY SAVE ====================
+const btnSaveFontEl = document.getElementById('btnSaveFontFamily');
+if (btnSaveFontEl) {
+  btnSaveFontEl.addEventListener('click', async () => {
+    const selected = document.querySelector('input[name="kiosk_font_family"]:checked');
+    const fontVal = selected ? selected.value : 'outfit';
+    try {
+      await apiRequest('/api/settings', 'POST', { kiosk_font_family: fontVal });
+      showToast('🎨 Gaya fon TV Kiosk berjaya dikemas kini!');
+      await loadSettings();
+    } catch (err) {
+      showToast('Gagal menyimpan fon: ' + err.message, true);
+    }
+  });
+}
+
+// ==================== TICKER & BRANDING SAVE ====================
+document.getElementById('btnSaveBranding').addEventListener('click', async () => {
+  const mosque_name = document.getElementById('inputMosqueName').value.trim();
+  const mosque_location = document.getElementById('inputMosqueLocation').value.trim();
+  const ticker_text = document.getElementById('inputTickerText').value.trim();
+
+  try {
+    await apiRequest('/api/settings', 'POST', { mosque_name, mosque_location, ticker_text });
+    showToast('Maklumat surau & teks marquee disimpan!');
+    loadSettings();
+  } catch (err) {
+    showToast(err.message, true);
+  }
+});
+
+// Bank QR Code Preview & File Selection
+const inputBankQrFile = document.getElementById('inputBankQrFile');
+if (inputBankQrFile) {
+  inputBankQrFile.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const qrImg = document.getElementById('bankQrPreviewImg');
+        const qrPlaceholder = document.getElementById('bankQrPlaceholder');
+        if (qrImg) {
+          qrImg.src = reader.result;
+          qrImg.style.display = 'block';
+        }
+        if (qrPlaceholder) qrPlaceholder.style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+}
+
+const btnRemoveBankQr = document.getElementById('btnRemoveBankQr');
+if (btnRemoveBankQr) {
+  btnRemoveBankQr.addEventListener('click', async () => {
+    if (!confirm('Padamkan imej QR Code Bank ini?')) return;
+    try {
+      await apiRequest('/api/settings', 'POST', { bank_qr_url: '' });
+      const fileInp = document.getElementById('inputBankQrFile');
+      if (fileInp) fileInp.value = '';
+      showToast('QR Code Bank berjaya dipadam.');
+      await loadSettings();
+    } catch (err) {
+      showToast(err.message, true);
+    }
+  });
+}
+
+const btnSaveBank = document.getElementById('btnSaveBank');
+if (btnSaveBank) {
+  btnSaveBank.addEventListener('click', async () => {
+    const bank_name = document.getElementById('inputBankName').value.trim();
+    const bank_account_no = document.getElementById('inputBankAcc').value.trim();
+    const bank_account_holder = document.getElementById('inputBankHolder').value.trim();
+    const fileInp = document.getElementById('inputBankQrFile');
+
+    const payload = { bank_name, bank_account_no, bank_account_holder };
+
+    if (fileInp && fileInp.files && fileInp.files.length > 0) {
+      const file = fileInp.files[0];
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          payload.bank_qr_base64 = reader.result;
+          await apiRequest('/api/settings', 'POST', payload);
+          showToast('Maklumat akaun tabung & QR berjaya disimpan!');
+          fileInp.value = '';
+          await loadSettings();
+        } catch (err) {
+          showToast(err.message, true);
+        }
+      };
+      reader.readAsDataURL(file);
+    } else {
+      try {
+        await apiRequest('/api/settings', 'POST', payload);
+        showToast('Maklumat akaun tabung disimpan!');
+        await loadSettings();
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    }
+  });
+}
+
+// ==================== LICENSE MANAGEMENT ====================
+async function loadLicenseStatus() {
+  try {
+    const lic = await apiRequest('/api/license/status');
+    const hwid = lic.hwid || 'ESOLAT-XXXX-XXXX-XXXX';
+    document.getElementById('adminHwidDisplay').textContent = hwid;
+    const suppHwid = document.getElementById('supportHwidCode');
+    if (suppHwid) suppHwid.textContent = hwid;
+    document.getElementById('statLicense').textContent = lic.license_state || 'TRIAL';
+
+    const badge = document.getElementById('licenseInfoBadge');
+    const topBanner = document.getElementById('topTrialBanner');
+
+    if (lic.license_state === 'LICENSED') {
+      badge.innerHTML = `
+        <div style="color:#34d399; font-weight:700;">✓ SISTEM AKTIF (${lic.license_type})</div>
+        <div style="font-size:0.8rem; color:#a7f3d0;">Dilesenkan kepada: ${lic.licensee}</div>
+      `;
+      topBanner.style.display = 'none';
+    } else if (lic.license_state === 'TRIAL') {
+      badge.innerHTML = `
+        <div style="color:#fbbf24; font-weight:700;">⚠️ TEMPOH PERCUBAAN AKTIF</div>
+        <div style="font-size:0.8rem; color:#fde68a;">Baki: ${lic.days_left} hari lagi (${Math.floor(lic.seconds_left / 3600)} jam)</div>
+        <div style="font-size:0.75rem; color:#cbd5e1; margin-top:0.35rem;">Sila hubungi sokongan teknikal Skywalker Consortium (+6011-1871 2388) untuk pengaktifan lesen.</div>
+      `;
+      topBanner.style.display = 'flex';
+      document.getElementById('bannerTrialText').textContent = `Baki ${lic.days_left} hari lagi`;
+    } else {
+      badge.innerHTML = `
+        <div style="color:#ef4444; font-weight:700;">🔒 PERCUBAAN TAMAT (LOCKED)</div>
+        <div style="font-size:0.8rem; color:#fca5a5;">Sila masukkan PIN atau muat naik fail lesen untuk membuka sistem.</div>
+        <div style="font-size:0.8rem; color:#fbbf24; margin-top:0.35rem; font-weight:600;">Sila hubungi sokongan teknikal Skywalker Consortium (+6011-1871 2388) untuk pengaktifan lesen.</div>
+      `;
+      topBanner.style.display = 'flex';
+      document.getElementById('bannerTrialText').textContent = `PERCUBAAN TELAH TAMAT`;
+    }
+  } catch (err) {
+    console.error('Error loading license status:', err);
+  }
+}
+
+document.getElementById('btnCopyHwid').addEventListener('click', () => {
+  const hwid = document.getElementById('adminHwidDisplay').textContent;
+  navigator.clipboard.writeText(hwid).then(() => {
+    showToast('Machine ID disalin: ' + hwid);
+  });
+});
+
+// Activate PIN
+document.getElementById('pinActivationForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const pin = document.getElementById('inputPin').value.trim();
+
+  try {
+    const res = await apiRequest('/api/license/activate_pin', 'POST', { pin });
+    showToast(res.message);
+    document.getElementById('inputPin').value = '';
+    loadLicenseStatus();
+  } catch (err) {
+    showToast(err.message, true);
+  }
+});
+
+// Upload .lic File
+document.getElementById('btnUploadLicFile').addEventListener('click', () => {
+  const fileInput = document.getElementById('licFileInput');
+  if (!fileInput.files || fileInput.files.length === 0) {
+    showToast('Sila pilih fail esolat.lic terlebih dahulu!', true);
+    return;
+  }
+
+  const file = fileInput.files[0];
+  const reader = new FileReader();
+
+  reader.onload = async () => {
+    try {
+      const content = reader.result;
+      const res = await apiRequest('/api/license/upload_lic', 'POST', { license_content: content });
+      showToast(res.message);
+      loadLicenseStatus();
+    } catch (err) {
+      showToast(err.message, true);
+    }
+  };
+
+  reader.readAsText(file);
+});
+
+// ==================== AUDIO & KIOSK TESTS ====================
+const btnTestAdhanEl = document.getElementById('btnTestAdhan');
+if (btnTestAdhanEl) btnTestAdhanEl.addEventListener('click', () => triggerAudioTest('adhan', btnTestAdhanEl));
+
+const btnTestSubuhEl = document.getElementById('btnTestSubuh');
+if (btnTestSubuhEl) btnTestSubuhEl.addEventListener('click', () => triggerAudioTest('subuh', btnTestSubuhEl));
+
+const btnTestBeepEl = document.getElementById('btnTestBeep');
+if (btnTestBeepEl) btnTestBeepEl.addEventListener('click', () => triggerAudioTest('beep', btnTestBeepEl));
+
+const btnTestPreAdhanEl = document.getElementById('btnTestPreAdhan');
+if (btnTestPreAdhanEl) btnTestPreAdhanEl.addEventListener('click', () => triggerAudioTest('pre_adhan', btnTestPreAdhanEl));
+
+const btnStopKioskAudioEl = document.getElementById('btnStopKioskAudio');
+if (btnStopKioskAudioEl) btnStopKioskAudioEl.addEventListener('click', () => stopKioskAudio());
+
+async function triggerAudioTest(sound, btnElement = null) {
+  try {
+    if (btnElement) btnElement.classList.add('testing');
+    showToast(`Menguji pembesar suara TV dewan solat: ${sound}...`);
+    const res = await apiRequest('/api/audio/test-kiosk', 'POST', { sound });
+    showToast(`✓ ${res.message || 'Arahan ujian audio TV dihantar.'}`);
+  } catch (err) {
+    showToast(`Ralat ujian audio TV: ${err.message}`, true);
+  } finally {
+    if (btnElement) {
+      setTimeout(() => btnElement.classList.remove('testing'), 1500);
+    }
+  }
+}
+
+window.simulateState = async function(state) {
+  try {
+    const res = await apiRequest('/api/system/test_state', 'POST', { state, prayer: 'Zohor', duration: 30 });
+    showToast(res.message);
+  } catch (err) {
+    showToast(err.message, true);
+  }
+};
+
+window.clearSimulation = async function() {
+  try {
+    const res = await apiRequest('/api/system/clear_test_state', 'POST', {});
+    showToast(res.message);
+  } catch (err) {
+    showToast(err.message, true);
+  }
+};
+
+document.getElementById('btnReloadKiosk').addEventListener('click', async () => {
+  try {
+    await apiRequest('/api/system/reload_kiosk', 'POST', {});
+    showToast('Arahan muat semula TV kiosk dihantar!');
+  } catch (err) {
+    showToast(err.message, true);
+  }
+});
+
+// ==================== LIVE CAMERA & RECORDING ====================
+let isCameraLiveOnTV = false;
+
+async function checkCameraStatus() {
+  try {
+    const res = await apiRequest('/api/camera/status');
+    const dot = document.getElementById('camStatusDot');
+    const text = document.getElementById('camStatusText');
+    const btnRecord = document.getElementById('btnToggleRecord');
+    const timerBadge = document.getElementById('recordingTimerBadge');
+
+    if (!dot || !text) return;
+
+    if (res.camera_detected) {
+      dot.textContent = '🟢';
+      text.textContent = `Kamera Dikesan (${res.video_devices.join(', ')})`;
+    } else {
+      dot.textContent = '⚪';
+      text.textContent = 'Tiada kad HDMI capture dikesan';
+    }
+
+    if (res.is_recording) {
+      btnRecord.textContent = '⏹️ Hentikan Rakaman';
+      btnRecord.classList.remove('btn-danger');
+      btnRecord.classList.add('btn-warning');
+      timerBadge.style.display = 'block';
+      const m = Math.floor(res.duration_seconds / 60);
+      const s = res.duration_seconds % 60;
+      document.getElementById('recTimerText').textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    } else {
+      btnRecord.textContent = '🔴 Mula Rakam MP4';
+      btnRecord.classList.remove('btn-warning');
+      btnRecord.classList.add('btn-danger');
+      timerBadge.style.display = 'none';
+    }
+  } catch (err) {}
+}
+
+async function loadRecordings() {
+  try {
+    const res = await apiRequest('/api/camera/recordings');
+    const list = document.getElementById('recordingsList');
+    if (!list) return;
+    list.innerHTML = '';
+    if (!res.recordings || res.recordings.length === 0) {
+      list.innerHTML = '<div style="font-size:0.8rem; color:#94a3b8; text-align:center;">Tiada fail rakaman.</div>';
+      return;
+    }
+    res.recordings.forEach(rec => {
+      const row = document.createElement('div');
+      row.style = 'background:rgba(15,23,42,0.5); padding:0.5rem 0.75rem; border-radius:8px; display:flex; align-items:center; justify-content:space-between; font-size:0.85rem;';
+      row.innerHTML = `
+        <div>
+          <div style="font-weight:600; color:#fff;">${rec.filename}</div>
+          <div style="font-size:0.75rem; color:#94a3b8;">${rec.created_at} | ${rec.size_mb} MB</div>
+        </div>
+        <div style="display:flex; gap:0.4rem;">
+          <a href="${rec.download_url}" download class="btn btn-sm btn-outline" style="text-decoration:none;">⬇️</a>
+          <button class="btn btn-sm btn-danger" onclick="deleteRecording('${rec.filename}')">🗑️</button>
+        </div>
+      `;
+      list.appendChild(row);
+    });
+  } catch (err) {}
+}
+
+window.deleteRecording = async function(filename) {
+  if (!confirm(`Padamkan fail rakaman ${filename}?`)) return;
+  try {
+    await apiRequest(`/api/camera/recordings/${filename}`, 'DELETE');
+    showToast('Fail rakaman dipadamkan.');
+    loadRecordings();
+  } catch (err) {
+    showToast(err.message, true);
+  }
+};
+
+document.getElementById('btnToggleLiveCam').addEventListener('click', async () => {
+  isCameraLiveOnTV = !isCameraLiveOnTV;
+  try {
+    const res = await apiRequest('/api/camera/toggle_live_display', 'POST', { enable: isCameraLiveOnTV });
+    showToast(res.message);
+    document.getElementById('btnToggleLiveCam').textContent = isCameraLiveOnTV ? '⏹️ Hentikan Siaran TV' : '📺 Papar Kamera di TV';
+  } catch (err) {
+    showToast(err.message, true);
+  }
+});
+
+document.getElementById('btnToggleRecord').addEventListener('click', async () => {
+  try {
+    const status = await apiRequest('/api/camera/status');
+    if (status.is_recording) {
+      const res = await apiRequest('/api/camera/record/stop', 'POST');
+      showToast(res.message);
+      checkCameraStatus();
+      loadRecordings();
+    } else {
+      const res = await apiRequest('/api/camera/record/start', 'POST');
+      showToast(res.message);
+      checkCameraStatus();
+    }
+  } catch (err) {
+    showToast(err.message, true);
+  }
+});
+
+// ==================== RECORDING STORAGE LOCATION MANAGEMENT ====================
+async function loadStorageInfo() {
+  const select = document.getElementById('recStorageSelect');
+  const pathDisplay = document.getElementById('storagePathDisplay');
+  const freeDisplay = document.getElementById('storageFreeDisplay');
+  if (!select) return;
+
+  try {
+    const res = await apiRequest('/api/camera/storage');
+    if (res.storage_info) {
+      if (pathDisplay) pathDisplay.textContent = `📁 ${res.storage_info.path}`;
+      if (freeDisplay) {
+        freeDisplay.textContent = `${res.storage_info.free_gb} GB bebas (${res.storage_info.total_gb} GB)`;
+        freeDisplay.style.color = res.storage_info.free_gb < 2 ? '#ef4444' : '#38bdf8';
+      }
+    }
+
+    if (res.available_drives && res.available_drives.length > 0) {
+      select.innerHTML = '';
+      res.available_drives.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d.path;
+        opt.textContent = d.label;
+        if (d.is_current) opt.selected = true;
+        select.appendChild(opt);
+      });
+      const customOpt = document.createElement('option');
+      customOpt.value = '__custom__';
+      customOpt.textContent = '➕ Tetapkan Laluan Lain (Custom Path)...';
+      select.appendChild(customOpt);
+    }
+  } catch (err) {}
+}
+
+const recStorageSelect = document.getElementById('recStorageSelect');
+if (recStorageSelect) {
+  recStorageSelect.addEventListener('change', async (e) => {
+    const val = e.target.value;
+    const customGroup = document.getElementById('customStorageGroup');
+    if (val === '__custom__') {
+      if (customGroup) customGroup.style.display = 'block';
+      return;
+    }
+    if (customGroup) customGroup.style.display = 'none';
+    try {
+      const res = await apiRequest('/api/camera/storage', 'POST', { storage_path: val });
+      showToast(res.message);
+      await loadStorageInfo();
+      await loadRecordings();
+    } catch (err) {
+      showToast(err.message, true);
+    }
+  });
+}
+
+const btnApplyCustomStorage = document.getElementById('btnApplyCustomStorage');
+if (btnApplyCustomStorage) {
+  btnApplyCustomStorage.addEventListener('click', async () => {
+    const input = document.getElementById('customStorageInput');
+    const customPath = input ? input.value.trim() : '';
+    if (!customPath) {
+      showToast('Sila masukkan laluan folder storan yang sah.', true);
+      return;
+    }
+    try {
+      const res = await apiRequest('/api/camera/storage', 'POST', { storage_path: customPath });
+      showToast(res.message);
+      const customGroup = document.getElementById('customStorageGroup');
+      if (customGroup) customGroup.style.display = 'none';
+      await loadStorageInfo();
+      await loadRecordings();
+    } catch (err) {
+      showToast(err.message, true);
+    }
+  });
+}
+
+const btnRescanStorage = document.getElementById('btnRescanStorage');
+if (btnRescanStorage) {
+  btnRescanStorage.addEventListener('click', async () => {
+    showToast('Mengimbas pemacu USB / External HDD...');
+    await loadStorageInfo();
+    showToast('Senarai pemacu storan dikemaskini!');
+  });
+}
+
+// ==================== LIVE STATUS POLLER ====================
+function startStatusPoller() {
+  setInterval(async () => {
+    try {
+      const s = await fetch('/api/state').then(r => r.json());
+      document.getElementById('statClock').textContent = s.current_time || '--:--:--';
+      document.getElementById('statNextPrayer').textContent = `${(s.next_prayer || '--').toUpperCase()} (${Math.floor((s.time_to_next_seconds || 0) / 60)}m)`;
+    } catch (e) {}
+  }, 2000);
+}
+
+// ==================== PWA WEBAPK / SERVICE WORKER REGISTRATION ====================
+let deferredInstallPrompt = null;
+
+function setupPWA() {
+  if ('serviceWorker' in navigator) {
+    // Unregister any legacy root-scoped service workers
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (const reg of registrations) {
+        if (reg.scope.endsWith(':8080/') || reg.scope.endsWith('/')) {
+          if (!reg.scope.includes('/admin/')) {
+            reg.unregister();
+          }
+        }
+      }
+    }).catch(() => {});
+
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/admin/sw.js', { scope: '/admin/' })
+        .then((reg) => {
+          console.log('[PWA] Service Worker registered successfully with scope:', reg.scope);
+        })
+        .catch((err) => {
+          console.warn('[PWA] Service Worker registration failed:', err);
+        });
+    });
+  }
+
+  // Handle Chrome / Android WebAPK install prompt
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+
+    const btnTopInstall = document.getElementById('btnInstallPwa');
+    const pwaBanner = document.getElementById('pwaInstallBanner');
+
+    if (btnTopInstall) btnTopInstall.style.display = 'inline-flex';
+    if (pwaBanner && !sessionStorage.getItem('dismissedPwaBanner')) {
+      pwaBanner.style.display = 'block';
+    }
+  });
+
+  const triggerInstall = async () => {
+    if (!deferredInstallPrompt) {
+      // Fallback advice if already installed or on iOS
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      if (isIOS) {
+        alert('Untuk memasang di iPhone/iPad:\n1. Tekan butang Share (Kongsi) di bawah pelayar Safari\n2. Pilih "Add to Home Screen" (Tambah ke Skrin Utama)');
+      } else {
+        alert('Untuk memasang aplikasi:\nTekan menu 3 titik di penjuru kanan atas pelayar Chrome anda dan pilih "Pasang aplikasi" (Install app) atau "Tambah ke Skrin Utama".');
+      }
+      return;
+    }
+
+    deferredInstallPrompt.prompt();
+    const choiceResult = await deferredInstallPrompt.userChoice;
+    if (choiceResult.outcome === 'accepted') {
+      console.log('[PWA] User accepted the install prompt');
+      showToast('Aplikasi e-Solat Admin sedang dipasang ke skrin telefon anda!');
+    }
+    deferredInstallPrompt = null;
+    const btnTopInstall = document.getElementById('btnInstallPwa');
+    const pwaBanner = document.getElementById('pwaInstallBanner');
+    if (btnTopInstall) btnTopInstall.style.display = 'none';
+    if (pwaBanner) pwaBanner.style.display = 'none';
+  };
+
+  const btnTopInstall = document.getElementById('btnInstallPwa');
+  const btnTrigger = document.getElementById('btnTriggerInstallPwa');
+  const btnDismiss = document.getElementById('btnDismissPwaBanner');
+
+  if (btnTopInstall) btnTopInstall.addEventListener('click', triggerInstall);
+  if (btnTrigger) btnTrigger.addEventListener('click', triggerInstall);
+  if (btnDismiss) {
+    btnDismiss.addEventListener('click', () => {
+      const pwaBanner = document.getElementById('pwaInstallBanner');
+      if (pwaBanner) pwaBanner.style.display = 'none';
+      sessionStorage.setItem('dismissedPwaBanner', '1');
+    });
+  }
+}
+
+// ==================== NETWORK BROADCAST & PHONE CONNECTIVITY ====================
+let cachedNetworkInfo = null;
+
+async function updateNetworkInfo() {
+  try {
+    const net = await fetch('/api/system/network').then(r => r.json());
+    cachedNetworkInfo = net;
+    renderNetworkInfo(net);
+  } catch (err) {
+    console.warn('[NETWORK] Could not fetch network info:', err);
+  }
+}
+
+function renderNetworkInfo(net) {
+  if (!net) return;
+
+  const primaryIp = net.primary_ip || (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' ? window.location.hostname : '127.0.0.1');
+  const port = net.port || window.location.port || '8080';
+  const hostname = net.hostname ? `${net.hostname}.local` : `${window.location.hostname}`;
+  const adminUrl = net.admin_url || `http://${primaryIp}:${port}/admin`;
+
+  // 1. Update Login Modal broadcast
+  const loginUrlEl = document.getElementById('loginNetUrl');
+  const loginHostEl = document.getElementById('loginNetHostname');
+  if (loginUrlEl) loginUrlEl.textContent = adminUrl;
+  if (loginHostEl) loginHostEl.textContent = `Hostname: ${hostname}`;
+
+  // 2. Update Top Nav bar badge
+  const topNavIp = document.getElementById('topNavIpText');
+  if (topNavIp) topNavIp.textContent = primaryIp;
+
+  // 3. Update Dashboard Network Card
+  const netHostEl = document.getElementById('netHostname');
+  const netIpEl = document.getElementById('netPrimaryIp');
+  const netAdminInput = document.getElementById('netAdminUrlInput');
+  const netQrLabel = document.getElementById('netQrUrlLabel');
+
+  if (netHostEl) netHostEl.textContent = hostname;
+  if (netIpEl) netIpEl.textContent = primaryIp;
+  if (netAdminInput) netAdminInput.value = adminUrl;
+  if (netQrLabel) netQrLabel.textContent = adminUrl;
+
+  // Update QR image src
+  const netQrImg = document.getElementById('netQrImg');
+  if (netQrImg) {
+    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(adminUrl)}`;
+    netQrImg.src = qrApiUrl;
+  }
+}
+
+function setupNetworkBroadcastUI() {
+  // Copy Admin URL button
+  const btnCopy = document.getElementById('btnCopyAdminUrl');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', async () => {
+      const input = document.getElementById('netAdminUrlInput');
+      const urlToCopy = input ? input.value : (cachedNetworkInfo ? cachedNetworkInfo.admin_url : window.location.href);
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(urlToCopy);
+        } else if (input) {
+          input.select();
+          document.execCommand('copy');
+        }
+        showToast('📋 Pautan Admin disalin! Buka pautan ini pada telefon pintar AJK.');
+      } catch (err) {
+        showToast(`Pautan: ${urlToCopy}`);
+      }
+    });
+  }
+
+  // Toggle QR Code Box
+  const btnShowQr = document.getElementById('btnShowNetQr');
+  const btnCloseQr = document.getElementById('btnCloseNetQr');
+  const qrBox = document.getElementById('netQrContainer');
+
+  if (btnShowQr && qrBox) {
+    btnShowQr.addEventListener('click', () => {
+      const isHidden = qrBox.style.display === 'none';
+      qrBox.style.display = isHidden ? 'block' : 'none';
+      if (isHidden) {
+        qrBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    });
+  }
+
+  if (btnCloseQr && qrBox) {
+    btnCloseQr.addEventListener('click', () => {
+      qrBox.style.display = 'none';
+    });
+  }
+
+  // Top Nav IP button click
+  const btnTopNet = document.getElementById('btnTopNetInfo');
+  if (btnTopNet) {
+    btnTopNet.addEventListener('click', () => {
+      const input = document.getElementById('netAdminUrlInput');
+      if (input) {
+        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        input.style.boxShadow = '0 0 15px #3b82f6';
+        setTimeout(() => { input.style.boxShadow = ''; }, 1500);
+      }
+      showToast(`📡 IP Sistem: ${cachedNetworkInfo?.primary_ip || window.location.hostname} | Port: ${cachedNetworkInfo?.port || '8080'}`);
+    });
+  }
+}
+
+// ==================== HARDWARE & NETWORK DIAGNOSTIC SCANNER ====================
+let diagnosticsLoaded = false;
+
+async function loadHardwareDiagnostics(fullScan = false) {
+  const btnFull = document.getElementById('btnRunFullDiag');
+  const btnNet = document.getElementById('btnScanNetOnly');
+  const spinner = document.getElementById('diagScanSpinner');
+  const netBadge = document.getElementById('diagNetScanningBadge');
+
+  if (btnFull) btnFull.disabled = true;
+  if (btnNet) btnNet.disabled = true;
+  if (spinner) spinner.style.display = 'inline';
+  if (fullScan && netBadge) netBadge.style.display = 'inline';
+
+  try {
+    const endpoint = fullScan ? '/api/system/diagnostics/all' : '/api/system/diagnostics/hardware';
+    const res = await fetch(endpoint).then(r => r.json());
+    renderDiagnostics(res);
+    diagnosticsLoaded = true;
+    if (fullScan) {
+      showToast('✅ Imbasan diagnostik lengkap berjaya diselesaikan!');
+    }
+  } catch (err) {
+    showToast(`Ralat imbasan: ${err.message}`, true);
+  } finally {
+    if (btnFull) btnFull.disabled = false;
+    if (btnNet) btnNet.disabled = false;
+    if (spinner) spinner.style.display = 'none';
+    if (netBadge) netBadge.style.display = 'none';
+  }
+}
+
+async function scanNetworkOnly() {
+  const btnNet = document.getElementById('btnScanNetOnly');
+  const netBadge = document.getElementById('diagNetScanningBadge');
+  const tableBody = document.getElementById('diagNetTableBody');
+
+  if (btnNet) btnNet.disabled = true;
+  if (netBadge) netBadge.style.display = 'inline';
+  if (tableBody) {
+    tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:1.5rem; color:#fbbf24;">⚡ Sedang mengimbas semua IP peranti pada subnet surau...</td></tr>`;
+  }
+
+  try {
+    const res = await fetch('/api/system/diagnostics/network').then(r => r.json());
+    renderNetworkScan(res.network_devices || []);
+    showToast(`✅ Imbasan selesai: ${res.total_found || 0} peranti dikesan.`);
+  } catch (err) {
+    showToast(`Ralat imbasan IP: ${err.message}`, true);
+  } finally {
+    if (btnNet) btnNet.disabled = false;
+    if (netBadge) netBadge.style.display = 'none';
+  }
+}
+
+function renderDiagnostics(data) {
+  if (!data) return;
+
+  // 1. Summary Stats
+  const summary = data.summary || {};
+  const statCams = document.getElementById('diagStatCams');
+  const statDisp = document.getElementById('diagStatDisplays');
+  const statNet = document.getElementById('diagStatNetDevices');
+  const statAud = document.getElementById('diagStatAudio');
+
+  if (statCams) statCams.textContent = summary.cameras_and_capture_cards ?? (data.media_and_usb?.video_devices?.length || 0);
+  if (statDisp) statDisp.textContent = summary.connected_screens ?? (data.hdmi_and_displays?.connected_count || 0);
+  if (statNet) statNet.textContent = summary.network_devices_found ?? (data.network_scan?.length || 0);
+  if (statAud) statAud.textContent = summary.audio_outputs ?? (data.audio_hardware?.playback_devices?.length || 0);
+
+  // 2. Video Capture & USB Media Devices
+  const videoList = document.getElementById('diagVideoDevicesList');
+  const videoDevs = data.media_and_usb?.video_devices || [];
+  if (videoList) {
+    if (videoDevs.length === 0) {
+      videoList.innerHTML = `<div style="padding:0.75rem; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); border-radius:8px; color:#fca5a5; font-size:0.8rem; text-align:center;">⚠️ Tiada peranti HDMI capture / USB camera dikesan di /dev/video*.</div>`;
+    } else {
+      videoList.innerHTML = videoDevs.map(v => `
+        <div style="background:rgba(15,23,42,0.8); border:1px solid ${v.is_capture_card ? 'rgba(52,211,153,0.5)' : 'rgba(255,255,255,0.1)'}; border-radius:8px; padding:0.6rem 0.85rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+          <div>
+            <div style="font-weight:700; color:#ffffff; font-size:0.85rem;">${v.name}</div>
+            <div style="font-size:0.75rem; color:#94a3b8; font-family:monospace;">Node: ${v.device} &bull; ${v.type}</div>
+          </div>
+          <span style="background:${v.is_capture_card ? 'rgba(16,185,129,0.2)' : 'rgba(148,163,184,0.2)'}; color:${v.is_capture_card ? '#34d399' : '#94a3b8'}; padding:0.2rem 0.5rem; border-radius:6px; font-size:0.7rem; font-weight:700;">
+            ${v.is_capture_card ? 'HDMI CAPTURE / CAM' : 'V4L2 NODE'}
+          </span>
+        </div>
+      `).join('');
+    }
+  }
+
+  // USB hardware text
+  const usbPre = document.getElementById('diagUsbHardwareList');
+  if (usbPre) {
+    const usbs = data.media_and_usb?.usb_hardware || [];
+    usbPre.textContent = usbs.length > 0 ? usbs.join('\n') : 'Tiada peranti USB dikesan melalui lsusb.';
+  }
+
+  // 3. HDMI Displays
+  const dispList = document.getElementById('diagDisplaysList');
+  const displays = data.hdmi_and_displays?.displays || [];
+  if (dispList) {
+    if (displays.length === 0) {
+      dispList.innerHTML = `<div style="font-size:0.8rem; color:#94a3b8; padding:0.5rem;">Tiada maklumat paparan DRM dikesan.</div>`;
+    } else {
+      dispList.innerHTML = displays.map(d => `
+        <div style="background:rgba(15,23,42,0.8); border:1px solid ${d.connected ? 'rgba(52,211,153,0.4)' : 'rgba(255,255,255,0.1)'}; border-radius:8px; padding:0.75rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+            <span style="font-weight:700; color:#38bdf8; font-size:0.85rem;">${d.port}</span>
+            <span style="font-size:0.7rem; font-weight:700; padding:0.15rem 0.45rem; border-radius:4px; background:${d.connected ? '#059669' : '#475569'}; color:#ffffff;">
+              ${d.connected ? 'BERSAMBUNG' : 'TIADA SAMBUNGAN'}
+            </span>
+          </div>
+          <div style="font-size:0.75rem; color:#94a3b8;">Resolusi: <b style="color:#ffffff;">${d.active_mode}</b></div>
+          ${d.supported_modes?.length ? `<div style="font-size:0.7rem; color:#64748b; margin-top:0.25rem;">Disokong: ${d.supported_modes.join(', ')}</div>` : ''}
+        </div>
+      `).join('');
+    }
+  }
+
+  // 4. Audio Hardware
+  const playList = document.getElementById('diagAudioPlaybackList');
+  const capList = document.getElementById('diagAudioCaptureList');
+  const playCards = data.audio_hardware?.playback_devices || [];
+  const capCards = data.audio_hardware?.capture_devices || [];
+
+  if (playList) {
+    playList.innerHTML = playCards.length > 0
+      ? playCards.map(c => `<li>${c}</li>`).join('')
+      : `<li style="color:#94a3b8;">Tiada kad playback dikesan (aplay).</li>`;
+  }
+  if (capList) {
+    capList.innerHTML = capCards.length > 0
+      ? capCards.map(c => `<li>${c}</li>`).join('')
+      : `<li style="color:#94a3b8;">Tiada kad rakaman dikesan (arecord).</li>`;
+  }
+
+  // 5. System Ports
+  const portsBody = document.getElementById('diagPortsTableBody');
+  const ports = data.listening_ports || [];
+  if (portsBody) {
+    if (ports.length === 0) {
+      portsBody.innerHTML = `<tr><td colspan="3" style="padding:0.5rem; text-align:center; color:#94a3b8;">Tiada rekod port terbuka.</td></tr>`;
+    } else {
+      portsBody.innerHTML = ports.map(p => `
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+          <td style="padding:0.35rem 0.5rem; color:#34d399;">${p.protocol}</td>
+          <td style="padding:0.35rem 0.5rem; color:#38bdf8;">${p.local_address}</td>
+          <td style="padding:0.35rem 0.5rem; color:#94a3b8;">${p.process || p.state}</td>
+        </tr>
+      `).join('');
+    }
+  }
+
+  // 6. Network devices (if present in full scan)
+  if (data.network_scan) {
+    renderNetworkScan(data.network_scan);
+  }
+}
+
+function renderNetworkScan(devices) {
+  const tableBody = document.getElementById('diagNetTableBody');
+  if (!tableBody) return;
+
+  if (!devices || devices.length === 0) {
+    tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:1.5rem; color:#94a3b8;">Tiada peranti IP ditemui pada subnet semasa.</td></tr>`;
+    return;
+  }
+
+  tableBody.innerHTML = devices.map(d => {
+    const portsStr = d.open_ports?.map(p => `<span style="background:#1e293b; color:#38bdf8; padding:0.15rem 0.35rem; border-radius:4px; font-size:0.7rem; margin-right:0.25rem;">${p.port} (${p.service})</span>`).join('') || '<span style="color:#64748b;">-</span>';
+    
+    let actionBtn = '';
+    if (d.is_camera || d.suggested_rtsp) {
+      actionBtn = `<button type="button" class="btn btn-sm btn-primary" onclick="applyCameraIp('${d.ip}')" style="font-size:0.75rem; padding:0.25rem 0.6rem;">🎥 Guna Sebagai Kamera</button>`;
+    } else {
+      actionBtn = `<button type="button" class="btn btn-sm btn-outline" onclick="copyText('${d.ip}')" style="font-size:0.75rem; padding:0.25rem 0.5rem;">📋 Salin IP</button>`;
+    }
+
+    return `
+      <tr style="border-bottom:1px solid rgba(255,255,255,0.07); ${d.is_camera ? 'background:rgba(16,185,129,0.08);' : ''}">
+        <td style="padding:0.6rem 0.75rem; font-family:monospace; font-weight:700; color:${d.is_camera ? '#34d399' : '#ffffff'};">
+          ${d.ip} ${d.hostname ? `<div style="font-size:0.7rem; color:#94a3b8;">${d.hostname}</div>` : ''}
+        </td>
+        <td style="padding:0.6rem 0.75rem;">
+          <span style="font-size:0.75rem; font-weight:600; color:${d.is_camera ? '#34d399' : '#cbd5e1'};">
+            ${d.device_type}
+          </span>
+        </td>
+        <td style="padding:0.6rem 0.75rem;">${portsStr}</td>
+        <td style="padding:0.6rem 0.75rem; font-family:monospace; font-size:0.75rem; color:#94a3b8;">${d.mac}</td>
+        <td style="padding:0.6rem 0.75rem; text-align:right;">${actionBtn}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+window.applyCameraIp = async function(ip) {
+  const rtspUrl = `rtsp://admin:password@${ip}:554/live/ch0`;
+  try {
+    const res = await fetch('/api/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        camera_source_type: 'rtsp',
+        camera_rtsp_url: rtspUrl
+      })
+    }).then(r => r.json());
+    showToast(`🎥 Kamera RTSP (${ip}) berjaya ditetapkan untuk rakaman e-Solat!`);
+  } catch (err) {
+    showToast(`Ralat menetapkan kamera: ${err.message}`, true);
+  }
+};
+
+window.copyText = async function(text) {
+  try {
+    if (navigator.clipboard) await navigator.clipboard.writeText(text);
+    showToast(`Disalin: ${text}`);
+  } catch (e) {
+    showToast(`IP: ${text}`);
+  }
+};
+
+function setupDiagnosticsUI() {
+  const btnFull = document.getElementById('btnRunFullDiag');
+  const btnNet = document.getElementById('btnScanNetOnly');
+
+  if (btnFull) btnFull.addEventListener('click', () => loadHardwareDiagnostics(true));
+  if (btnNet) btnNet.addEventListener('click', () => scanNetworkOnly());
+
+  // Auto load hardware status when switching to tabDiagnostics
+  const diagNavBtn = document.querySelector('.nav-item[data-tab="tabDiagnostics"]');
+  if (diagNavBtn) {
+    diagNavBtn.addEventListener('click', () => {
+      if (!diagnosticsLoaded) {
+        loadHardwareDiagnostics(false);
+      }
+    });
+  }
+}
+
+// Initialize on DOM load
+window.addEventListener('DOMContentLoaded', () => {
+  setupPWA();
+  setupNetworkBroadcastUI();
+  setupDiagnosticsUI();
+  updateNetworkInfo();
+  checkAuth();
+});
+

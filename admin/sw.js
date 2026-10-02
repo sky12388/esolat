@@ -1,42 +1,35 @@
-const CACHE_NAME = 'esolat-mobile-admin-v1';
-const ASSETS_TO_CACHE = [
-  './',
-  './index.html',
-  './manifest.json',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './icons/icon-maskable-512.png',
-  './icons/apple-touch-icon.png',
-  './icons/favicon.png'
-];
+/**
+ * e-Solat Admin Console Service Worker
+ * Version: 1.1.1
+ * Provides offline support and WebAPK installation on Android without blocking requests.
+ */
 
-self.addEventListener('install', (e) => {
+const CACHE_NAME = 'esolat-admin-v1.1.1';
+
+self.addEventListener('install', (event) => {
   self.skipWaiting();
-  e.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
-  );
 });
 
-self.addEventListener('activate', (e) => {
-  e.waitUntil(
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
-        keys.map((k) => {
-          if (k !== CACHE_NAME) {
-            return caches.delete(k);
-          }
-        })
+        keys.map((key) => caches.delete(key))
       );
     }).then(() => self.clients.claim())
   );
 });
 
-self.addEventListener('fetch', (e) => {
-  // Pass network requests through, fallback to cache for local static assets
-  if (e.request.url.includes('/api/')) {
-    return; // Don't cache dynamic API requests
+self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+
+  // Only handle GET requests strictly within /admin/ and same-origin
+  if (event.request.method !== 'GET' || url.origin !== location.origin || !url.pathname.startsWith('/admin')) {
+    return;
   }
-  e.respondWith(
-    caches.match(e.request).then((res) => res || fetch(e.request).catch(() => caches.match('./index.html')))
+
+  // Network-First, direct passthrough with graceful fallback
+  event.respondWith(
+    fetch(event.request).catch(() => caches.match(event.request))
   );
 });

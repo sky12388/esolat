@@ -34,6 +34,17 @@
   
   <!-- Custom Stylesheet -->
   <link rel="stylesheet" href="css/style.css">
+
+  <!-- PWA Manifest & Icons -->
+  <link rel="manifest" href="/esolat/manifest.json">
+  <meta name="theme-color" content="#064e3b">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="e-Solat">
+  <link rel="apple-touch-icon" href="/esolat/icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/esolat/icons/icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/esolat/icons/icon-512.png">
 </head>
 <body class="bg-islamic-pattern text-slate-100 min-h-screen antialiased selection:bg-emerald-500 selection:text-white">
 
@@ -1273,5 +1284,14 @@
 
   <!-- Scripts -->
   <script src="js/main.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/esolat/sw.js', { scope: '/esolat/' })
+          .then((reg) => console.log('PWA Service Worker registered:', reg.scope))
+          .catch((err) => console.warn('PWA Service Worker registration failed:', err));
+      });
+    }
+  </script>
 </body>
 </html>

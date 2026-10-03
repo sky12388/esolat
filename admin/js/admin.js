@@ -20,6 +20,13 @@ function showToast(message, isError = false) {
   }, 4000);
 }
 
+function formatNetworkErrorMessage(err) {
+  if (window.location.protocol === 'https:') {
+    return 'Pelayar menyekat sambungan HTTP tempatan (Mixed Content / HTTPS-ke-HTTP). Sila buka terus URL Tempatan LAN: http://[IP_PC]:8080/admin pada peranti anda.';
+  }
+  return `Gagal berhubung ke pelayan e-Solat (${err.message || 'Network Error'}). Sila pastikan PC Kiosk hidup dan peranti berada dalam satu rangkaian Wi-Fi yang sama (Port 8080).`;
+}
+
 async function apiRequest(endpoint, method = 'GET', body = null) {
   const headers = { 'Content-Type': 'application/json' };
   if (authToken) {
@@ -42,6 +49,9 @@ async function apiRequest(endpoint, method = 'GET', body = null) {
     }
     return data;
   } catch (err) {
+    if (window.location.protocol === 'https:') {
+      console.warn('Mixed Content Warning: Direct HTTP fetch from HTTPS origin is blocked by modern browsers.');
+    }
     throw err;
   }
 }
@@ -82,6 +92,8 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const username = document.getElementById('loginUser').value.trim();
   const password = document.getElementById('loginPass').value.trim();
+  const alertEl = document.getElementById('loginConnectionAlert');
+  if (alertEl) alertEl.style.display = 'none';
 
   try {
     const res = await fetch('/api/auth/login', {
@@ -105,7 +117,12 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
       showToast(data.message || 'Nama pengguna atau kata laluan tidak sah.', true);
     }
   } catch (err) {
-    showToast('Ralat sambungan: ' + err.message, true);
+    const errorMsg = formatNetworkErrorMessage(err);
+    showToast(errorMsg, true);
+    if (alertEl) {
+      alertEl.style.display = 'block';
+      alertEl.innerHTML = `<strong>⚠️ Ralat Sambungan / Mixed Content:</strong> ${errorMsg}`;
+    }
   }
 });
 

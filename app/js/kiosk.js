@@ -824,7 +824,7 @@ async function syncState() {
 
     // Mosque Branding
     if (data.settings) {
-      document.getElementById('mosqueName').textContent = (data.settings.mosque_name || 'SURAU AL-IKHLAS').toUpperCase();
+      document.getElementById('mosqueName').textContent = (data.settings.mosque_name || 'SURAU DARUL TAQWA').toUpperCase();
       document.getElementById('mosqueLocation').textContent = data.settings.mosque_location || '';
       
       // Ticker text update

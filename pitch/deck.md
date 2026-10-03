@@ -113,7 +113,7 @@ style: |
 # 📺 Simulasi TV: Mod 1 — Paparan Standard / Takwim Rasmi Penuh (Default)
 
 <div class="tv-box">
-  <b>SURAU AL-IKHLAS (ZON SGR01)</b> | Jam: <b>12:45:30</b> | 16 Rabiulawal 1448H<br>
+  <b>SURAU DARUL TAQWA (ZON SGR01)</b> | Jam: <b>12:45:30</b> | 16 Rabiulawal 1448H<br>
   <hr style="margin:6px 0; opacity:0.3;">
   <b>6 Kotak Solat:</b> Imsak (05:42) | Subuh (05:52) | Syuruk (07:05) | <b>⭐ Zohor (13:10)</b> | Asar (16:22) | Maghrib (19:15)<br>
   <hr style="margin:6px 0; opacity:0.3;">
@@ -217,7 +217,7 @@ style: |
     </div>
     <div style="flex:1;">
       <span style="background:#831843; color:#fbcfe8; font-size:10px; padding:2px 6px; font-weight:bold;">💖 TABUNG WAKAF SURAU</span>
-      <h3 style="color:#fff; margin:4px 0; font-size:15px;">SURAU AL-IKHLAS SEKSYEN 7</h3>
+      <h3 style="color:#fff; margin:4px 0; font-size:15px;">SURAU DARUL TAQWA</h3>
       <div style="background:#0f172a; padding:6px; border-radius:6px; font-size:12px; margin:4px 0;">
         Bank Islam: <b style="color:#fbbf24;">1203 8010 0987 65</b>
       </div>

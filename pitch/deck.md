@@ -105,7 +105,33 @@ style: |
 * 💬 **Tukar Teks Hebahan Serta-merta:** Taip mesej pengumuman di telefon, teks terus berjalan di skrin TV dewan solat.
 * 🖼️ **Muat Naik Poster Tanpa Pendrive:** Pilih gambar dari galeri telefon AJK dan muat naik terus ke TV jemaah.
 * 🔒 **Akses Rangkaian Tempatan Selamat:** Dilindungi kata laluan pentadbir melalui Wi-Fi surau. Menyokong Android, iOS, iPad, & Laptop.
-* ✨ **Teknologi PWA:** Boleh dipasang terus ke Home Screen telefon pintar tanpa perlu muat turun dari App Store (Percuma).
+* ✨ **Teknologi PWA:** Boleh dipasang terus ke Home Screen telefon pintar tanpa perlu muat turun dari App Store.
+
+---
+
+# 📱 Simulasi Antaramuka: Mobile Admin Panel
+
+<div class="card" style="border: 2px solid #f59e0b;">
+  <b>🕌 e-Solat Admin • Surau Darul Taqwa</b> | Status: <span style="color:#34d399;">🟢 Kiosk Online</span><br>
+  <hr style="margin:6px 0; opacity:0.3;">
+  <b>Tab Navigasi:</b> [📢 Teks Hebahan] &bull; [🖼️ Poster Kuliah] &bull; [⏱️ Waktu Solat] &bull; [⚙️ Tetapan Sistem]<br>
+  <hr style="margin:6px 0; opacity:0.3;">
+  <b>Borang Hebahan Semasa:</b><br>
+  <i>"Selamat Datang ke Surau Darul Taqwa. Kuliah Maghrib Perdana malam ini..."</i><br>
+  <hr style="margin:6px 0; opacity:0.3;">
+  <b>Tindakan:</b> [💾 Simpan & Papar ke TV Serta-merta] ➔ <i>Mesej bertukar dalam 1 saat di TV jemaah.</i>
+</div>
+
+* **Keistimewaan:** Tiada pemasangan perisian rumit — buka terus melalui pelayar web telefon pintar barisan AJK.
+
+---
+
+# 🎛️ Modul Lengkap Admin Panel
+
+* 📢 **Modul Hebahan Pintar:** Tulis mesej pengumuman kariah, hebahan solat jenazah, dan aktiviti surau terus ke running ticker TV.
+* 🖼️ **Pengurus Media & Galeri Poster:** Muat naik gambar poster ceramah mingguan terus dari galeri telefon dan tetapkan masa putaran.
+* ⏱️ **Pelaras Waktu Solat & Iqamah:** Pilihan zon JAKIM automatik, pelarasan minit (+/-) dan selang detik iqamah mengikut solat.
+* 💳 **Pengurusan Infaq & Kawalan Kiosk:** Kemas kini Kod QR DuitNow bank surau dan butang kawalan pantas gelap skrin / but semula.
 
 ---
 

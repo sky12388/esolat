@@ -154,7 +154,7 @@ html {
 }
 
 /* ==============================================================================
-   RESPONSIVE MOBILE TYPOGRAPHY & OVERFLOW WRAP CONTROLS
+   RESPONSIVE MOBILE TYPOGRAPHY, WORD-BREAK & DUAL-ORIENTATION (PORTRAIT & LANDSCAPE)
    ============================================================================== */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -166,16 +166,16 @@ html {
 }
 
 h1, .slide-h1 {
-  font-size: clamp(1.4rem, 4vw, 2.8rem) !important;
-  line-height: 1.25 !important;
+  font-size: clamp(1.6rem, 5vw, 3rem) !important;
+  line-height: 1.15 !important;
   word-break: normal !important;
   overflow-wrap: break-word !important;
   hyphens: manual !important;
 }
 
 h2, .slide-h2 {
-  font-size: clamp(1.2rem, 3.2vw, 2.2rem) !important;
-  line-height: 1.3 !important;
+  font-size: clamp(1.25rem, 3.5vw, 2.2rem) !important;
+  line-height: 1.25 !important;
   word-break: normal !important;
   overflow-wrap: break-word !important;
   hyphens: manual !important;
@@ -197,6 +197,12 @@ h4, .slide-h4 {
   hyphens: manual !important;
 }
 
+.container, .max-w-7xl, .max-w-6xl, .max-w-5xl, .max-w-4xl, .max-w-3xl, .max-w-2xl, .slide-wrapper {
+  padding-left: max(1rem, env(safe-area-inset-left)) !important;
+  padding-right: max(1rem, env(safe-area-inset-right)) !important;
+}
+
+/* Portrait Mobile Overrides */
 @media (max-width: 768px) {
   h1, .slide-h1 {
     font-size: 1.75rem !important;
@@ -214,8 +220,34 @@ h4, .slide-h4 {
     font-size: 1.05rem !important;
     line-height: 1.35 !important;
   }
-  .container, .max-w-7xl, .max-w-5xl, .max-w-4xl, .max-w-3xl, .max-w-2xl {
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
+}
+
+/* Dual-Orientation Support: Mobile Landscape Mode */
+@media (orientation: landscape) and (max-height: 500px) {
+  /* Elakkan seksyen terkunci 100vh yang memotong kandungan */
+  .slide, section, .reveal section, .hero-section {
+    min-height: auto !important;
+    height: auto !important;
+    padding: 2.5rem max(1rem, env(safe-area-inset-right)) 2.5rem max(1rem, env(safe-area-inset-left)) !important;
+    overflow-y: auto !important;
+  }
+  /* Kecilkan tajuk supaya tidak memenuhi seluruh skrin landskap */
+  h1, .slide-h1 {
+    font-size: 1.5rem !important;
+    line-height: 1.15 !important;
+  }
+  h2, .slide-h2 {
+    font-size: 1.2rem !important;
+    line-height: 1.25 !important;
+  }
+  h3, .slide-h3 {
+    font-size: 1rem !important;
+    line-height: 1.3 !important;
+  }
+  /* Susun simulator / kad bersebelahan (2 kolum) */
+  .grid-container, .features-grid, .package-container {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+    gap: 1rem !important;
   }
 }

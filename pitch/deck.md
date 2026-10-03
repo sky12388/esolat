@@ -55,7 +55,7 @@ style: |
 
 # 🕌 Skywalker e-Solat
 ## Sistem Paparan Digital & Pengurusan Kariah Pintar
-**Solusi Autonomi 24/7 Berasaskan Linux untuk Masjid & Surau Moden**
+**Solusi Autonomi 24/7 Berasaskan Debian Linux untuk Masjid & Surau Moden**
 
 ---
 * **Entiti:** Skywalker Consortium (SSM: AS0463209-A)
@@ -66,55 +66,51 @@ style: |
 
 ---
 
-# ⚠️ Masalah Utama Sistem Tradisional (The Pain Points)
+# 🌟 Visi Pemerkasaan Masjid Pintar
 
-* **Android Box Murah Cepat Panas (Overheat) & Hang**
-  * Tidak tahan operasi 24 jam. Jangka hayat perkakasan sangat pendek (6–12 bulan).
-* **Windows Update Crash & Skrin Biru (BSOD)**
-  * PC tiba-tiba reboot atau sangkut update di waktu azan/solat jemaah.
-* **Menyusahkan AJK (Cucuk Pendrive Manual)**
-  * Terpaksa panjat dinding dan cucuk USB di belakang TV setiap kali mahu menukar poster kuliah.
-* **Lumpuh Bila Tiada Internet**
-  * Sistem cloud gagal berfungsi apabila talian Wi-Fi surau terputus.
+* 🕌 **Ketepatan Ibadah:** Penyelarasan takwim solat rasmi JAKIM secara automatik mengikut zon kariah tanpa perlu pelarasan jam manual.
+* 📢 **Komunikasi Pantas:** Hebahan aktiviti, kuliah mingguan, dan pengumuman segera disiarkan secara dinamik di skrin televisyen dewan solat.
+* 💳 **Infaq Tanpa Tunai:** Memudahkan jemaah menyumbang ke tabung pembangunan & kebajikan surau melalui imbasan Kod QR DuitNow.
+* 📲 **Kemudahan AJK:** Pengurusan paparan yang boleh dikendalikan dengan mudah oleh barisan AJK terus melalui telefon pintar.
 
 ---
 
-# ✨ Penyelesaian Kami (The Skywalker Advantage)
+# 🛡️ Ketahanan Enjin & Senibina Sistem
 
-* 🐧 **Enjin Debian 13 (Trixie) Linux Enterprise**
-  * Kestabilan tahap industri, kebal virus, sifar gangguan Windows Update, dan *Auto-Boot Recovery* segera selepas blackout.
+* 🐧 **Enjin Debian Linux 64-bit**
+  * Beroperasi secara kendiri 24/7 dengan kestabilan tahap pelayan industri. Kebal virus, sifar gangguan restart paksa, dan memastikan paparan kekal lancar setiap masa.
+* ⚡ **Perlindungan Auto-Recovery**
+  * Dilengkapi mekanisme Auto-Boot & Kiosk Recovery. Sekiranya berlaku gangguan bekalan elektrik (blackout), sistem terus menyala dan memulihkan paparan TV secara automatik.
 * 📶 **100% Autonomi Luar Talian (Offline Autonomy)**
-  * Waktu solat JAKIM kekal tepat selama 365 hari tanpa memerlukan talian internet berterusan.
-* 📱 **Ekosistem Hibrid Public TV + Wireless Admin**
-  * Paparan awam jemaah di TV diasingkan daripada kawalan pentadbir tanpa wayar.
+  * Seluruh kalendar takwim solat JAKIM setahun penuh disimpan di dalam pangkalan data tempatan (local SQLite). Beroperasi 100% tepat selama 365 hari tanpa internet.
 
 ---
 
-# 🎯 Ciri-Ciri Utama Sistem (Core Features)
+# 🎯 Keupayaan Teras Sistem (Core Features)
 
 * 🕌 **Integrasi Penuh Takwim JAKIM**
-  * Selaras automatik mengikut zon rasmi negeri (cth: SGR01, WLY01, KDH02).
-* 📺 **Mod Susun Atur Skrin Pintar**
-  * Pilihan paparan *Takwim Penuh*, *Dwi-Skrin 50/50*, dan *Fokus Kuliah 65/35*.
-* 🔊 **Audio Azan & Peringatan Iqamah**
-  * Sambung ke PA Sistem untuk nada amaran pra-azan, alunan azan, dan kiraan detik solat.
+  * Selaras automatik mengikut zon rasmi negeri di seluruh Semenanjung, Sabah, dan Sarawak (cth: SGR01, WLY01, KDH02).
+* 🔊 **Audio Azan & Peringatan Iqamah ke PA Sistem**
+  * Sambung ke amplifier surau untuk nada amaran pra-azan, alunan azan, dan bunyi isyarat detik iqamah secara automatik.
+* ⏱️ **Kiraan Detik (Countdown) Solat & Iqamah**
+  * Memaparkan baki masa tepat menuju waktu azan dan selang masa menunggu iqamah yang boleh dilaraskan (5–15 minit).
 * 📢 **Hebahan Teks Berjalan (Running Ticker)**
-  * Hebahan segera info kematian, gotong-royong, dan jadual kuliah harian.
+  * Bar mesej teks bergerak bagi menghebahkan makluman kariah, jadual kuliah harian, dan peringatan adab surau.
 
 ---
 
-# 📲 Ciri Eksklusif: Mobile Admin App (PWA)
+# 📲 Kawalan Pantas Mobile Admin App (PWA)
 
-**Tiada lagi cucuk pendrive! Kawalan terus dari telefon pintar AJK.**
+**Kawal dan kemas kini paparan TV terus dari telefon pintar AJK.**
 
-* 📱 **Menyokong Semua Peranti:** Android, iPhone, iPad, Tablet, dan Komputer Riba.
-* 🖼️ **Muat Naik Poster Kuliah Serta-merta:** Gambar dari telefon terus dipaparkan di TV tanpa mengganggu jemaah.
-* 💳 **Kod QR Infaq / Wakaf DuitNow:** Paparan Kod QR Bank Surau untuk kutipan dana jemaah tanpa tunai.
-* 🔒 **Privasi & Keselamatan:** Dilindungi kata laluan & hanya boleh diakses melalui Wi-Fi surau.
+* 💬 **Tukar Teks Hebahan Serta-merta:** Taip mesej pengumuman di telefon, teks terus berjalan di skrin TV dewan solat.
+* 🖼️ **Muat Naik Poster Tanpa Pendrive:** Pilih gambar dari galeri telefon AJK dan muat naik terus ke TV jemaah.
+* 🔒 **Akses Rangkaian Tempatan Selamat:** Dilindungi kata laluan pentadbir melalui Wi-Fi surau. Menyokong Android, iOS, iPad, & Laptop.
+* ✨ **Teknologi PWA:** Boleh dipasang terus ke Home Screen telefon pintar tanpa perlu muat turun dari App Store (Percuma).
 
 ---
 
-# 📺 Simulasi TV: Mod 1 — Paparan Standard / Takwim Penuh (Idle)
+# 📺 Simulasi TV: Mod 1 — Paparan Standard / Takwim Rasmi Penuh (Default)
 
 <div class="tv-box">
   <b>SURAU AL-IKHLAS (ZON SGR01)</b> | Jam: <b>12:45:30</b> | 16 Rabiulawal 1448H<br>
@@ -127,14 +123,14 @@ style: |
   <b>Ticker:</b> <i>Selamat Datang &bull; Sila senyapkan telefon bimbit &bull; Gotong-royong Ahad ini 8.00 pagi.</i>
 </div>
 
-* **Fungsi:** Paparan harian jemaah dengan takwim dominan dan selingan poster kuliah.
+* **Fungsi:** Paparan harian jemaah dengan takwim dominan dan selingan poster kuliah kariah.
 
 ---
 
-# 📺 Simulasi TV: Mod 2 — Menjelang Azan & Masuk Waktu
+# 📺 Simulasi TV: Mod 2 — Masuk Waktu Azan & Panggilan Solat
 
 <div class="tv-box" style="border-color:#f59e0b; background:#1c1302;">
-  <div style="color:#fbbf24; font-weight:bold; font-size:22px; text-align:center;">🔔 WAKTU AZAN TELAH MASUK</div>
+  <div style="color:#fbbf24; font-weight:bold; font-size:22px; text-align:center;">🔔 MASUK WAKTU SOLAT</div>
   <div style="font-size:26px; text-align:center; margin:10px 0;">حَيَّ عَلَى الصَّلَاةِ</div>
   <div style="font-size:20px; font-weight:bold; text-align:center; color:#ffffff;">AZAN ZOHOR — 13:10 (ZON SGR01)</div>
   <hr style="margin:8px 0; opacity:0.3;">
@@ -144,11 +140,11 @@ style: |
   </div>
 </div>
 
-* **Fungsi:** Skrin bertukar tema secara automatik mengikut jadual tepat takwim JAKIM.
+* **Fungsi:** Skrin bertukar tema kontra tinggi secara automatik mengikut waktu solat JAKIM.
 
 ---
 
-# 📺 Simulasi TV: Mod 3 — Mod Iqamah & Rapatkan Saf
+# 📺 Simulasi TV: Mod 3 — Mod Iqamah & Rapatkan Saf (Countdown)
 
 <div class="tv-box" style="border-color:#06b6d4; background:#02181e;">
   <div style="color:#38bdf8; font-weight:bold; text-align:center;">PANGGILAN SOLAT ZOHOR — KIRAAN DETIK IQAMAH</div>
@@ -162,11 +158,11 @@ style: |
   </div>
 </div>
 
-* **Fungsi:** Selang masa detik iqamah boleh dilaraskan AJK (1–30 minit).
+* **Fungsi:** Kiraan detik menuju iqamah dengan peringatan hadis saf dan mematikan telefon bimbit.
 
 ---
 
-# 📺 Simulasi TV: Mod 4 — Mod Solat Berjemaah (Blackout Mode)
+# 📺 Simulasi TV: Mod 4 — Mod Solat Khusyuk (Screen Blanking)
 
 <div class="tv-box" style="border-color:#334155; background:#030712; color:#64748b;">
   <div style="display:flex; justify-content:space-between; font-size:12px; opacity:0.4;">
@@ -176,7 +172,7 @@ style: |
   <div style="text-align:center; padding:30px 0; opacity:0.5;">
     <div style="font-size:30px; margin-bottom:8px;">🕌</div>
     <div style="color:#e2e8f0; font-weight:bold; font-size:18px;">SOLAT BERJEMAAH SEDANG DIDIRIKAN</div>
-    <div style="font-size:12px; margin-top:4px;">Skrin digelapkan sepenuhnya demi memelihara kekhusyukan ibadah jemaah.</div>
+    <div style="font-size:12px; margin-top:4px;">Skrin digelapkan secara automatik demi memelihara ketertiban ibadah jemaah.</div>
   </div>
   <div style="text-align:center; font-size:10px; opacity:0.3;">
     Skrin akan kembali menyala secara automatik selepas tempoh solat tamat.
@@ -187,7 +183,7 @@ style: |
 
 ---
 
-# 📺 Simulasi TV: Mod 5 — Mod Dwi-Skrin / Kuliah Kariah
+# 📺 Simulasi TV: Mod 5 — Mod Dwi-Skrin & Fokus Kuliah
 
 <div class="tv-box" style="border-color:#a855f7; background:#14081c;">
   <div style="display:flex; gap:12px;">
@@ -206,7 +202,7 @@ style: |
   </div>
 </div>
 
-* **Fungsi:** Siaran slaid kuliah/video ceramah serentak dengan paparan waktu solat.
+* **Fungsi:** Siaran slaid kuliah / live stream serentak bersama paparan takwim waktu solat seterusnya.
 
 ---
 
@@ -217,7 +213,7 @@ style: |
     <div style="background:#fff; color:#000; padding:10px; border-radius:10px; text-align:center; width:130px;">
       <span style="color:#e11d48; font-weight:bold; font-size:10px;">DuitNow QR</span>
       <div style="font-size:36px; margin:5px 0;">📱</div>
-      <span style="font-size:9px; font-weight:bold;">Imbas Guna Bank / e-Wallet</span>
+      <span style="font-size:9px; font-weight:bold;">Imbas Bank / e-Wallet</span>
     </div>
     <div style="flex:1;">
       <span style="background:#831843; color:#fbcfe8; font-size:10px; padding:2px 6px; font-weight:bold;">💖 TABUNG WAKAF SURAU</span>
@@ -234,28 +230,17 @@ style: |
 
 ---
 
-# ⚖️ Perbandingan Sistem
-
-| Kriteria Penilaian | Android Box / Windows Biasa | Skywalker e-Solat (Debian Linux) |
-| :--- | :--- | :--- |
-| **Ketahanan Operasi 24/7** | ❌ Kerap rosak (6–12 bulan) | ✅ **Gred Industri Berterusan (5+ Tahun)** |
-| **Risiko Tergendala / Crash** | ❌ Tinggi (Update / Virus) | ✅ **Sifar Crash (Debian Enterprise)** |
-| **Yuran Bulanan / Tahunan** | ❌ Ada langganan berulang | ✅ **Tiada Yuran (Lesen Seumur Hidup)** |
-| **Kemas Kini Poster Kuliah** | ❌ Manual cucuk pendrive | ✅ **Terus dari Telefon Pintar AJK** |
-| **Operasi Tanpa Internet** | ❌ Terjejas / Ralat | ✅ **100% Autonomi Luar Talian** |
-
----
-
 # 💎 Pakej Perkakasan & Tawaran Harga
 
 ### 📦 Pakej 1: Kiosk Autonomi Asas (Headless CLI) — **RM 1,499.00**
 * Mini PC Debian Linux Enterprise
 * Lesen Kekal Seumur Hidup (Lifetime)
 * Mobile Admin App (PWA) disertakan Percuma
-* Fokus 100% operasi paparan TV surau
+* Auto-Boot & Kiosk Recovery
+* Sesuai untuk Surau Jumaat & Surau Kariah standard
 
 ### ⭐ Pakej 2: Sistem Kerja Hibrid Lengkap — **RM 2,499.00**
-* Semua ciri Pakej 1 + Desktop Environment untuk kegunaan pejabat masjid
+* Semua ciri Pakej 1 + Desktop Environment untuk pejabat masjid
 * Kekunci pantas Desktop Switcher
 * Perkakasan spesifikasi lebih berkuasa
 * *Pilihan Tambahan:* Monitor FHD 22"/24" (Harga atas permintaan)
@@ -264,7 +249,7 @@ style: |
 
 # 🛡️ Jaminan & Khidmat Sokongan
 
-* 🛡️ **Waranti Perkakasan PC:** 1 Tahun Penuh (Tukar Ganti Komponen Rasmi).
+* 🛡️ **Waranti Perkakasan PC:** 1 Tahun Penuh (Tukar Ganti Komponen Rasmi 1-ke-1).
 * 🚗 **On-Site Support Percuma:** 3 Bulan sokongan teknikal terus ke lokasi surau.
 * 💻 **Remote Technical Support Percuma:** 1 Tahun bantuan konfigurasi jarak jauh.
 * 👨‍🏫 **Pemasangan & Latihan AJK:** Penentukuran kabel HDMI, panduan bertulis dan latihan praktikal penggunaan sistem.
@@ -275,7 +260,7 @@ style: |
 
 **Tempah Sesi Demonstrasi Percuma di Surau Anda Sekarang!**
 
-* 👤 **Pegawai Perhubungan:** Carl Kelana Abdul Latiff
+* 👤 **Pegawai Perhubungan & Pemasaran:** Carl Kelana Abdul Latiff
 * 🏢 **Entiti:** Skywalker Consortium (SSM: AS0463209-A)
 * 📱 **WhatsApp / Telefon:** [+60 10-318 4047](https://wa.me/60103184047?text=Assalamualaikum%20En%20Carl,%20saya%20berminat%20dengan%20Sistem%20Skywalker%20e-Solat)
 * ✉️ **Emel Rasmi:** skywalker.co@proton.me

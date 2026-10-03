@@ -20,6 +20,13 @@ function showToast(message, isError = false) {
   }, 4000);
 }
 
+function broadcastAdminSync(type = 'SETTINGS_UPDATED', payload = {}) {
+  try {
+    const ch = new BroadcastChannel('esolat_sync');
+    ch.postMessage(Object.assign({ type, timestamp: Date.now() }, payload));
+  } catch (_) {}
+}
+
 function formatNetworkErrorMessage(err) {
   if (window.location.protocol === 'https:') {
     return 'Pelayar menyekat sambungan HTTP tempatan (Mixed Content / HTTPS-ke-HTTP). Sila buka terus URL Tempatan LAN: http://[IP_PC]:8080/admin pada peranti anda.';
@@ -288,9 +295,21 @@ async function loadZones() {
 }
 
 async function loadSettings() {
+  let s = null;
   try {
-    const s = await apiRequest('/api/settings');
+    s = await apiRequest('/api/settings');
     currentSettings = s;
+    localStorage.setItem('esolat_admin_settings', JSON.stringify(s));
+    if (s.jakim_zone) localStorage.setItem('esolat_zone', s.jakim_zone);
+  } catch (err) {
+    try {
+      s = JSON.parse(localStorage.getItem('esolat_admin_settings') || '{}');
+      currentSettings = s;
+    } catch (_) {}
+  }
+  if (!s) s = {};
+
+  try {
 
     // Header & Titles
     const headerTitleEl = document.getElementById('appHeaderTitle');
@@ -592,10 +611,12 @@ async function triggerTakwimSync(zone) {
   const fb = document.getElementById('syncFeedback');
   if (fb) fb.innerHTML = '<span style="color:#fbbf24;">Memuat turun takwim dari JAKIM...</span>';
   try {
+    localStorage.setItem('esolat_zone', zone);
     const res = await apiRequest('/api/jakim/sync', 'POST', { zone, period: 'month' });
     if (res && res.success) {
       if (fb) fb.innerHTML = `<span style="color:#34d399;">✓ ${res.message}</span>`;
       showToast(res.message);
+      broadcastAdminSync('TAKWIM_UPDATED', { zone });
       return;
     } else {
       throw new Error(res?.message || 'Gagal memuat turun data');
@@ -608,9 +629,11 @@ async function triggerTakwimSync(zone) {
       const res2 = await fetch(fallbackUrl, { cache: 'no-cache' }).then(r => r.json());
       if (res2 && (res2.prayers || res2.prayerTime)) {
         localStorage.setItem(`cached_takwim_${zone}`, JSON.stringify(res2));
+        localStorage.setItem('esolat_zone', zone);
         const msg = `✓ Takwim zon ${zone} berjaya disegerakkan (Mod Web/Simulasi)!`;
         if (fb) fb.innerHTML = `<span style="color:#34d399;">${msg}</span>`;
         showToast(msg);
+        broadcastAdminSync('TAKWIM_UPDATED', { zone });
         return;
       }
     } catch (fallbackErr) {

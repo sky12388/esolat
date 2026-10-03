@@ -1,13 +1,14 @@
 {
-  "name": "Skywalker e-Solat Admin — Panel Kawalan Masjid",
+  "name": "Skywalker e-Solat Admin — Panel Kawalan Surau",
   "short_name": "e-Solat Admin",
-  "description": "Panel Kawalan AJK & Pengimbas Rangkaian e-Solat Kiosk Masjid Pintar",
-  "start_url": "./index.html",
-  "scope": "./",
+  "description": "Panel Kawalan Mudah Alih AJK & Pengurusan Digital Kiosk e-Solat Masjid & Surau",
+  "start_url": "../admin/index.html",
+  "scope": "../",
   "display": "standalone",
   "background_color": "#022c22",
   "theme_color": "#064e3b",
-  "orientation": "portrait-primary",
+  "orientation": "any",
+  "categories": ["utilities", "productivity"],
   "icons": [
     {
       "src": "./icons/icon-192.png",

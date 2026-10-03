@@ -590,19 +590,36 @@ document.getElementById('btnSyncJakim').addEventListener('click', async () => {
 
 async function triggerTakwimSync(zone) {
   const fb = document.getElementById('syncFeedback');
-  fb.innerHTML = '<span style="color:#fbbf24;">Memuat turun takwim dari JAKIM...</span>';
+  if (fb) fb.innerHTML = '<span style="color:#fbbf24;">Memuat turun takwim dari JAKIM...</span>';
   try {
     const res = await apiRequest('/api/jakim/sync', 'POST', { zone, period: 'month' });
-    if (res.success) {
-      fb.innerHTML = `<span style="color:#34d399;">✓ ${res.message}</span>`;
+    if (res && res.success) {
+      if (fb) fb.innerHTML = `<span style="color:#34d399;">✓ ${res.message}</span>`;
       showToast(res.message);
+      return;
     } else {
-      fb.innerHTML = `<span style="color:#ef4444;">${res.message}</span>`;
-      showToast(res.message, true);
+      throw new Error(res?.message || 'Gagal memuat turun data');
     }
   } catch (err) {
-    fb.innerHTML = `<span style="color:#ef4444;">${err.message}</span>`;
-    showToast(err.message, true);
+    console.warn('[Takwim] Local API unavailable, attempting public CORS / web simulation fallback:', err);
+    try {
+      if (fb) fb.innerHTML = '<span style="color:#38bdf8;">Menghubungi pelayan takwim sandaran...</span>';
+      const fallbackUrl = `https://api.waktusolat.app/v2/solat/${encodeURIComponent(zone)}`;
+      const res2 = await fetch(fallbackUrl, { cache: 'no-cache' }).then(r => r.json());
+      if (res2 && (res2.prayers || res2.prayerTime)) {
+        localStorage.setItem(`cached_takwim_${zone}`, JSON.stringify(res2));
+        const msg = `✓ Takwim zon ${zone} berjaya disegerakkan (Mod Web/Simulasi)!`;
+        if (fb) fb.innerHTML = `<span style="color:#34d399;">${msg}</span>`;
+        showToast(msg);
+        return;
+      }
+    } catch (fallbackErr) {
+      console.warn('[Takwim] Alternative API fallback failed:', fallbackErr);
+    }
+
+    const errMsg = err.message || 'Gagal menyegerakkan takwim';
+    if (fb) fb.innerHTML = `<span style="color:#ef4444;">${errMsg}</span>`;
+    showToast(errMsg, true);
   }
 }
 

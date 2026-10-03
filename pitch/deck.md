@@ -220,29 +220,12 @@ style: |
       <div style="background:#0f172a; padding:6px; border-radius:6px; font-size:12px; margin:4px 0;">
         Bank Islam: <b style="color:#fbbf24;">1203 8010 0987 65</b>
       </div>
-      <div style="font-size:11px; color:#cbd5e1;">Sasaran Terkumpul: <b>RM 45,000 / RM 50,000 (90%)</b></div>
+      <div style="font-size:11px; color:#cbd5e1;">Sasaran Kutipan: <b>90% Tercapai</b></div>
     </div>
   </div>
 </div>
 
 * **Fungsi:** Menggalakkan kutipan dana dan infaq jemaah secara tanpa tunai (*cashless*).
-
----
-
-# 💎 Pakej Perkakasan & Tawaran Harga
-
-### 📦 Pakej 1: Kiosk Autonomi Asas (Headless CLI) — **RM 1,499.00**
-* Mini PC Debian Linux Enterprise
-* Lesen Kekal Seumur Hidup (Lifetime)
-* Mobile Admin App (PWA) disertakan Percuma
-* Auto-Boot & Kiosk Recovery
-* Sesuai untuk Surau Jumaat & Surau Kariah standard
-
-### ⭐ Pakej 2: Sistem Kerja Hibrid Lengkap — **RM 2,499.00**
-* Semua ciri Pakej 1 + Desktop Environment untuk pejabat masjid
-* Kekunci pantas Desktop Switcher
-* Perkakasan spesifikasi lebih berkuasa
-* *Pilihan Tambahan:* Monitor FHD 22"/24" (Harga atas permintaan)
 
 ---
 

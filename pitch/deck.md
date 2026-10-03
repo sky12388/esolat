@@ -62,7 +62,6 @@ style: |
 * **Pegawai Perhubungan:** Carl Kelana Abdul Latiff
 * **WhatsApp / Telefon:** [+60 10-318 4047](https://wa.me/60103184047?text=Assalamualaikum%20En%20Carl,%20saya%20berminat%20dengan%20Sistem%20Skywalker%20e-Solat)
 * **Emel Rasmi:** skywalker.co@proton.me
-* **Laman Web:** https://sky12388.github.io/esolat/
 
 ---
 
@@ -264,7 +263,6 @@ style: |
 * 🏢 **Entiti:** Skywalker Consortium (SSM: AS0463209-A)
 * 📱 **WhatsApp / Telefon:** [+60 10-318 4047](https://wa.me/60103184047?text=Assalamualaikum%20En%20Carl,%20saya%20berminat%20dengan%20Sistem%20Skywalker%20e-Solat)
 * ✉️ **Emel Rasmi:** skywalker.co@proton.me
-* 🌐 **Laman Web:** https://sky12388.github.io/esolat/
 
 ---
 ### **Terima Kasih & Sesi Soal Jawab (Q&A)**

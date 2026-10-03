@@ -17,6 +17,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&family=Reem+Kufi:wght@500;600;700&family=Scheherazade+New:wght@400;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <!-- Local Offline QR Engine & HTML5 Camera Scanner -->
+  <script src="/admin/js/qrcode.min.js"></script>
+  <script src="/admin/js/html5-qrcode.min.js"></script>
 </head>
 <body>
 
@@ -46,10 +49,35 @@
           <a href="/pricing" target="_blank" style="color:#fbbf24; text-decoration:none; font-weight:600;">
             💎 Pakej &amp; Harga
           </a>
+        </div>
         <!-- Diagnostic Connection Alert for Mixed Content / LAN -->
         <div id="loginConnectionAlert" style="display:none; margin-top:1rem; padding:0.6rem 0.8rem; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); border-radius:8px; font-size:0.75rem; color:#fca5a5; text-align:center;"></div>
+
+        <!-- PWA TV Discovery & Camera QR Scanner Section -->
+        <div id="pwaDiscoveryBox" style="margin-top:1.25rem; padding:0.85rem; background:linear-gradient(135deg, rgba(15,23,42,0.95), rgba(6,78,59,0.4)); border:1px solid rgba(52,211,153,0.35); border-radius:12px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.4rem;">
+            <span style="font-size:0.8rem; font-weight:700; color:#34d399;">📡 Sambungan TV e-Solat</span>
+            <span id="pwaConnStatusBadge" style="font-size:0.7rem; padding:0.15rem 0.45rem; border-radius:6px; background:rgba(52,211,153,0.2); color:#34d399; font-weight:600;">Sedia Berhubung</span>
+          </div>
+          
+          <div style="font-size:0.75rem; color:#cbd5e1; margin-bottom:0.5rem; line-height:1.4;">
+            atau masukkan IP secara manual:
+          </div>
+          
+          <div style="display:flex; gap:0.4rem; align-items:center;">
+            <input type="text" id="inputManualKioskIp" placeholder="cth: 192.168.1.100 atau esolat.local" style="flex:1; background:#0f172a; border:1px solid #334155; color:#38bdf8; font-family:monospace; padding:0.45rem 0.65rem; border-radius:8px; font-size:0.8rem;">
+            <button type="button" class="btn btn-sm btn-primary" id="btnConnectManualIp" style="padding:0.45rem 0.75rem; font-size:0.8rem; white-space:nowrap;">Sambung</button>
+          </div>
+          
+          <!-- Prominent Camera QR Scanner Button -->
+          <button type="button" class="btn btn-block" id="btnOpenQrScanner" style="margin-top:0.65rem; padding:0.65rem 1rem; background:linear-gradient(135deg, #059669, #0d9488); border:1px solid #34d399; color:#ffffff; font-weight:700; font-size:0.88rem; border-radius:10px; display:flex; align-items:center; justify-content:center; gap:0.5rem; cursor:pointer; box-shadow:0 4px 12px rgba(5,150,105,0.35);">
+            <span style="font-size:1.15rem;">📷</span>
+            <span>Imbas Kod QR Kiosk</span>
+          </button>
+        </div>
+
         <!-- Login Network Broadcast Info -->
-        <div id="loginNetBroadcast" style="margin-top:1.25rem; padding:0.6rem 0.8rem; background:rgba(15,23,42,0.8); border:1px solid rgba(59,130,246,0.3); border-radius:8px; font-size:0.75rem; color:#94a3b8; text-align:center;">
+        <div id="loginNetBroadcast" style="margin-top:1rem; padding:0.6rem 0.8rem; background:rgba(15,23,42,0.8); border:1px solid rgba(59,130,246,0.3); border-radius:8px; font-size:0.75rem; color:#94a3b8; text-align:center;">
           <div>📡 <strong>Akses Telefon Pintar (Wi-Fi Surau):</strong></div>
           <div style="color:#38bdf8; font-family:monospace; margin-top:0.2rem; font-weight:bold; font-size:0.8rem;" id="loginNetUrl">http://192.168.x.x:8080/admin</div>
           <div style="font-size:0.7rem; color:#64748b; margin-top:0.15rem;" id="loginNetHostname">Hostname: esolat.local</div>
@@ -210,14 +238,19 @@
                 </div>
               </div>
 
-              <!-- Collapsible QR Code Box -->
-              <div id="netQrContainer" style="display:none; margin-top:0.85rem; text-align:center; padding:1rem; background:#ffffff; border-radius:12px; border:2px solid #3b82f6;">
-                <div style="color:#0f172a; font-weight:700; font-size:0.9rem; margin-bottom:0.5rem;">📱 Imbas dengan Kamera Telefon untuk Log Masuk</div>
-                <div id="netQrImageWrapper" style="display:flex; justify-content:center; align-items:center; min-height:180px;">
-                  <img id="netQrImg" alt="QR Kod Sambungan" style="width:210px; height:210px; border-radius:10px; border:1px solid #e2e8f0;">
+              <!-- Collapsible QR Code Box (Large High-Contrast View) -->
+              <div id="netQrContainer" style="display:none; margin-top:0.85rem; text-align:center; padding:1.25rem 1rem; background:#ffffff; border-radius:16px; border:3px solid #10b981; box-shadow:0 10px 25px rgba(0,0,0,0.35);">
+                <div style="color:#0f172a; font-weight:800; font-size:1rem; margin-bottom:0.35rem;">📱 Imbas dengan Kamera Telefon untuk Mengawal e-Solat</div>
+                <div style="font-size:0.75rem; color:#64748b; margin-bottom:0.75rem;">Imbas kod QR di bawah untuk membuka panel kawalan AJK tanpa taip IP:</div>
+                <div id="netQrImageWrapper" style="display:flex; justify-content:center; align-items:center; min-height:260px; padding:0.5rem; background:#ffffff; border-radius:12px; border:2px solid #e2e8f0; width:max-content; margin:0 auto;">
+                  <div id="netQrCanvasContainer"></div>
+                  <img id="netQrImg" alt="QR Kod Sambungan" style="width:260px; height:260px; border-radius:8px; display:none;">
                 </div>
-                <div style="color:#475569; font-size:0.75rem; margin-top:0.5rem; font-family:monospace; font-weight:bold;" id="netQrUrlLabel">http://192.168.x.x:8080/admin</div>
-                <button type="button" class="btn btn-sm btn-outline" id="btnCloseNetQr" style="margin-top:0.6rem; color:#0f172a; border-color:#cbd5e1; font-size:0.75rem; padding:0.25rem 0.75rem;">Tutup Kod QR</button>
+                <div style="color:#0f172a; font-size:0.9rem; margin-top:0.65rem; font-family:monospace; font-weight:800; background:#f1f5f9; padding:0.35rem 0.75rem; border-radius:8px; display:inline-block; border:1px solid #cbd5e1;" id="netQrUrlLabel">http://192.168.x.x:8080/admin</div>
+                <div style="margin-top:0.75rem; display:flex; gap:0.5rem; justify-content:center;">
+                  <button type="button" class="btn btn-sm btn-primary" id="btnCopyQrUrlDirect" style="font-size:0.75rem; padding:0.35rem 0.85rem;">📋 Salin URL</button>
+                  <button type="button" class="btn btn-sm btn-outline" id="btnCloseNetQr" style="color:#0f172a; border-color:#cbd5e1; font-size:0.75rem; padding:0.35rem 0.85rem;">✕ Tutup Kod QR</button>
+                </div>
               </div>
             </div>
 
@@ -367,6 +400,22 @@
             </div>
 
             <!-- TV Kiosk Quick Tests & Simulation Actions -->
+            <!-- ==================== QUICK ACTION: IQAMAH SEKARANG ==================== -->
+            <div class="section-card" style="border: 2px solid #34d399; background: linear-gradient(135deg, rgba(6,78,59,0.4), rgba(15,23,42,0.95));">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                <h2 class="card-title" style="color:#34d399; font-size:1.1rem; margin:0; display:flex; align-items:center; gap:0.5rem;">
+                  <span>⚡</span> Kawalan Segera Bilal
+                </h2>
+                <span class="preview-badge-live" style="background:#059669; color:#fff; font-size:0.75rem;">OPERASI LIVE</span>
+              </div>
+              <p class="card-desc" style="color:#cbd5e1; font-size:0.85rem; margin-bottom:1rem;">
+                Sekiranya imam/jemaah sudah bersedia, tekan butang di bawah untuk membatalkan detik undur dan menukar skrin TV terus ke Mod Solat (Rapatkan Saf).
+              </p>
+              <button type="button" class="btn btn-block btn-lg" id="btnFastIqamahNowDashboard" style="background:linear-gradient(135deg, #059669, #10b981); color:#ffffff; font-weight:800; font-size:1.15rem; padding:0.9rem; border:none; box-shadow:0 0 20px rgba(16,185,129,0.4); border-radius:12px; cursor:pointer;">
+                ⚡ [ Terus Iqamah Sekarang ]
+              </button>
+            </div>
+
             <div class="section-card">
               <h2 class="card-title">Ujian Pantas Pembesar Suara TV Kiosk</h2>
               <p class="card-desc">Uji output audio fizikal ke pembesar suara TV dewan solat (HDMI / 3.5mm Jack) &amp; simulasi skrin.</p>
@@ -504,6 +553,24 @@
             </div>
           </div>
           <button class="btn btn-primary btn-block mt-3" id="btnSaveOffsets">Simpan Pelarasan Waktu</button>
+        </div>
+
+        <!-- ==================== HIJRI EVENTS COUNTDOWN CARD ==================== -->
+        <div class="section-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+            <div style="flex:1; min-width:240px;">
+              <h2 class="card-title" style="margin-bottom:0.2rem; display:flex; align-items:center; gap:0.4rem;">
+                <span>⏳</span> Detik Undur Hari Kebesaran Islam
+              </h2>
+              <p class="card-desc" style="margin-bottom:0;">
+                Kira dan paparkan baki hari ke peristiwa penting Islam (Ramadhan, Maulidur Rasul, Aidilfitri, Aidiladha dll) pada lencana tarikh dan teks pengumuman bergerak di TV Kiosk.
+              </p>
+            </div>
+            <label class="toggle-switch" style="flex-shrink:0;">
+              <input type="checkbox" id="switchHijriCountdown" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
         </div>
       </section>
 
@@ -832,40 +899,51 @@
         </div>
 
         <div class="section-card">
-          <h2 class="card-title">Tempoh Kiraan Iqamah (Minit)</h2>
-          <p class="card-desc">Tempoh masa kiraan undur Iqamah sebelum solat berjemaah dimulakan.</p>
+          <h2 class="card-title">Tempoh Detik Iqamah (Minit)</h2>
+          <p class="card-desc">Tempoh masa kiraan undur Iqamah sebelum solat berjemaah dimulakan bagi setiap waktu solat.</p>
 
           <div class="form-row-2">
             <div class="form-group">
               <label>Subuh (Minit)</label>
-              <input type="number" id="iqamah_subuh" value="15" min="1" max="60">
+              <input type="number" id="iqamah_subuh" value="10" min="1" max="60">
             </div>
             <div class="form-group">
               <label>Zohor (Minit)</label>
-              <input type="number" id="iqamah_zohor" value="10" min="1" max="60">
+              <input type="number" id="iqamah_zohor" value="7" min="1" max="60">
             </div>
           </div>
           <div class="form-row-2">
             <div class="form-group">
               <label>Asar (Minit)</label>
-              <input type="number" id="iqamah_asar" value="10" min="1" max="60">
+              <input type="number" id="iqamah_asar" value="7" min="1" max="60">
             </div>
             <div class="form-group">
               <label>Maghrib (Minit)</label>
-              <input type="number" id="iqamah_maghrib" value="10" min="1" max="60">
+              <input type="number" id="iqamah_maghrib" value="5" min="1" max="60">
             </div>
           </div>
           <div class="form-row-2">
             <div class="form-group">
               <label>Isyak (Minit)</label>
-              <input type="number" id="iqamah_isyak" value="10" min="1" max="60">
+              <input type="number" id="iqamah_isyak" value="7" min="1" max="60">
             </div>
             <div class="form-group">
-              <label>Mod Solat Senyap (Minit)</label>
-              <input type="number" id="solat_duration" value="12" min="5" max="30">
+              <label>Jumaat (Minit)</label>
+              <input type="number" id="iqamah_jumaat" value="0" min="0" max="60">
             </div>
           </div>
+          <div class="form-group">
+            <label>Mod Solat Senyap / Khusyuk (Minit)</label>
+            <input type="number" id="solat_duration" value="12" min="5" max="30">
+          </div>
           <button class="btn btn-primary btn-block mt-3" id="btnSaveAdhanConfig">Simpan Tetapan Azan &amp; Iqamah</button>
+
+          <div style="margin-top:1.5rem; padding-top:1rem; border-top:1px dashed rgba(52,211,153,0.3);">
+            <div style="font-size:0.85rem; font-weight:700; color:#34d399; margin-bottom:0.4rem;">Pintasan Tindakan Terus:</div>
+            <button type="button" class="btn btn-block" id="btnFastIqamahNowTab3" style="background:#059669; color:#fff; font-weight:800; font-size:1.05rem; padding:0.75rem; border:none; border-radius:10px; cursor:pointer;">
+              ⚡ [ Terus Iqamah Sekarang ]
+            </button>
+          </div>
         </div>
       </section>
 
@@ -893,6 +971,21 @@
                 <label>Susunan (No. Turutan)</label>
                 <input type="number" id="slideOrder" value="1" min="1" max="99">
               </div>
+            </div>
+            <div class="form-group">
+              <label>Penjadual Hari Paparan (Day-of-Week Rules)</label>
+              <select id="slideDaysActive">
+                <option value="all">Semua Hari (Setiap Hari)</option>
+                <option value="JUMAAT">Hari Jumaat Sahaja</option>
+                <option value="SABTU,AHAD">Hujung Minggu Sahaja (Sabtu &amp; Ahad)</option>
+                <option value="ISNIN,SELASA,RABU,KHAMIS">Hari Bekerja Sahaja (Isnin - Khamis)</option>
+                <option value="ISNIN">Isnin Sahaja</option>
+                <option value="SELASA">Selasa Sahaja</option>
+                <option value="RABU">Rabu Sahaja</option>
+                <option value="KHAMIS">Khamis Sahaja</option>
+                <option value="SABTU">Sabtu Sahaja</option>
+                <option value="AHAD">Ahad Sahaja</option>
+              </select>
             </div>
             <button type="submit" class="btn btn-accent btn-block" id="btnUploadSlide">
               <span>📤</span> Muat Naik Slaid
@@ -1097,6 +1190,29 @@
               </div>
             </div>
 
+            <!-- ==================== AUTO-DISCOVER PTZ / IP CAMERA BOX ==================== -->
+            <div class="mt-3" style="background:linear-gradient(135deg, rgba(6,78,59,0.35), rgba(15,23,42,0.9)); border:1px solid rgba(52,211,153,0.4); border-radius:12px; padding:0.9rem 1rem;">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+                <div>
+                  <div style="font-weight:700; font-size:0.9rem; color:#34d399; display:flex; align-items:center; gap:0.4rem;">
+                    <span>📹</span> Pengesan Kamera PTZ / IP Pintar (Auto-Discovery)
+                  </div>
+                  <div style="font-size:0.75rem; color:#cbd5e1; margin-top:0.2rem;">
+                    Imbas kamera ONVIF, RTSP IP Camera, dan HDMI capture dalam Wi-Fi/LAN surau secara automatik.
+                  </div>
+                </div>
+                <button type="button" class="btn btn-sm btn-primary" id="btnDiscoverCameras" style="white-space:nowrap; font-weight:700; padding:0.4rem 0.85rem;">
+                  <span>🔍</span> Cari Kamera Automatik
+                </button>
+              </div>
+
+              <!-- Discovered Cameras Results Dropdown/List -->
+              <div id="discoveredCamerasContainer" style="display:none; margin-top:0.85rem; padding-top:0.75rem; border-top:1px solid rgba(255,255,255,0.12);">
+                <div id="discoverStatusMsg" style="font-size:0.8rem; color:#38bdf8; margin-bottom:0.5rem; display:flex; align-items:center; gap:0.4rem;"></div>
+                <div id="discoveredCamerasList" style="display:flex; flex-direction:column; gap:0.5rem;"></div>
+              </div>
+            </div>
+
             <!-- Helpful Guide Box for Mobile Phone Camera & Audio Quality -->
             <div class="side-info-config-box mt-3" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 0.9rem;">
               <div style="display:flex; align-items:center; gap:0.5rem; color:#38bdf8; font-weight:700; font-size:0.85rem;">
@@ -1191,7 +1307,16 @@
           </div>
 
           <!-- 6. Slide Sub-Layout & Kuliah Info (for Signage Viewport) -->
-          <div class="side-info-config-box mt-3">
+            <!-- 3-Layout Preset Switcher -->
+            <div class="form-group mt-2">
+              <label style="color:#38bdf8; font-weight:700;">📐 Mod Reka Bentuk Susun Atur (Layout Switcher):</label>
+              <select id="selectKioskLayoutPreset">
+                <option value="horizontal_glass">Mod A: Horizontal Glass (Bar Waktu Melintang Di Atas - Lalai)</option>
+                <option value="sidebar_elegance">Mod B: Sidebar Elegan (Jadual Waktu Menegak Di Sisi Kanan)</option>
+                <option value="grid_contemporary">Mod C: Grid Kontemporari (Jam Gergasi Atas + Bar Waktu Di Bawah)</option>
+              </select>
+            </div>
+
             <span class="sub-label">Susunan Slaid Dalam Takwim:</span>
             <div class="form-group mt-2">
               <select id="selectKioskSubLayout">
@@ -1201,8 +1326,33 @@
               </select>
             </div>
 
-            <div class="form-group">
-              <label>Tajuk Kuliah</label>
+            <!-- Lower-Third Live Kuliah Broadcast Overlay -->
+            <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.75rem; margin-top: 0.75rem;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span class="sub-label" style="color:#fbbf24; font-weight:700;">📺 Lapisan Lower-Third (Siaran Langsung Kuliah):</span>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="switchLowerThird" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div class="form-group mt-2">
+                <label>Nama Penceramah / Ustaz Jemputan</label>
+                <input type="text" id="inputLowerThirdSpeaker" placeholder="cth: Ustaz Hj. Ahmad Fauzi">
+              </div>
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label>Tajuk Kuliah</label>
+                  <input type="text" id="inputLowerThirdTopic" placeholder="cth: Kuliah Maghrib: Menghayati Rahsia Al-Quran">
+                </div>
+                <div class="form-group">
+                  <label>Kitab Pengajian</label>
+                  <input type="text" id="inputLowerThirdKitab" placeholder="cth: Kitab Bahrul Mazi">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group mt-2">
+              <label>Tajuk Kuliah (Sisi Kanan)</label>
               <input type="text" id="inputKuliahTitle" placeholder="cth: Kuliah Maghrib Perdana: Menghayati Al-Quran">
             </div>
             <div class="form-row-2">
@@ -1213,6 +1363,63 @@
               <div class="form-group">
                 <label>Hari / Masa</label>
                 <input type="text" id="inputKuliahDate" placeholder="cth: Setiap Hari Rabu (Lepas Maghrib)">
+              </div>
+            </div>
+
+            <!-- Petugas Bertugas Hari Ini (Duty Roster) -->
+            <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.75rem; margin-top: 0.75rem;">
+              <span class="sub-label" style="color:#c084fc; font-weight:700;">🕌 Jadual Petugas Hari Ini (Duty Roster):</span>
+              <div class="form-row-3" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:0.5rem; margin-top:0.4rem;">
+                <div class="form-group">
+                  <label>Imam Bertugas</label>
+                  <input type="text" id="inputRosterImam" placeholder="cth: Ustaz Hj. Wan Ahmad">
+                </div>
+                <div class="form-group">
+                  <label>Bilal Bertugas</label>
+                  <input type="text" id="inputRosterBilal" placeholder="cth: En. Roslan Ismail">
+                </div>
+                <div class="form-group">
+                  <label>Siak Bertugas</label>
+                  <input type="text" id="inputRosterSiak" placeholder="cth: En. Mohd Khairi">
+                </div>
+              </div>
+            </div>
+
+            <!-- Penyata Ringkasan Tabung & Kewangan Infaq -->
+            <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.75rem; margin-top: 0.75rem;">
+              <span class="sub-label" style="color:#34d399; font-weight:700;">💰 Penyata Tabung &amp; Ringkasan Kewangan:</span>
+              <div class="form-row-2" style="margin-top:0.4rem;">
+                <div class="form-group">
+                  <label>Kutipan Solat Jumaat</label>
+                  <input type="text" id="inputTabungJumaat" placeholder="cth: RM 3,450.00">
+                </div>
+                <div class="form-group">
+                  <label>Infaq Subuh / Harian</label>
+                  <input type="text" id="inputTabungSubuh" placeholder="cth: RM 820.00">
+                </div>
+              </div>
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label>Tabung Pembangunan / Wakaf</label>
+                  <input type="text" id="inputTabungPembangunan" placeholder="cth: RM 45,200.00">
+                </div>
+                <div class="form-group">
+                  <label>Tarikh / Catatan Kutipan</label>
+                  <input type="text" id="inputTabungTarikh" placeholder="cth: Kutipan Jumaat Lepas">
+                </div>
+              </div>
+            </div>
+
+            <!-- Mutiara Hadis Pilihan Harian -->
+            <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.75rem; margin-top: 0.75rem;">
+              <span class="sub-label" style="color:#fbbf24; font-weight:700;">📖 Mutiara Hadis Pilihan Harian:</span>
+              <div class="form-group" style="margin-top:0.4rem;">
+                <label>Teks Mutiara Hadis</label>
+                <input type="text" id="inputHadithText" placeholder="cth: Sesiapa yang membina masjid kerana Allah, Allah akan membina untuknya sebuah rumah di dalam syurga.">
+              </div>
+              <div class="form-group">
+                <label>Sumber / Riwayat Hadis</label>
+                <input type="text" id="inputHadithSource" placeholder="cth: HR. Al-Bukhari & Muslim">
               </div>
             </div>
           </div>
@@ -1295,6 +1502,94 @@
           </button>
         </div>
 
+        <!-- ==================== MULTI-THEME SELECTION CARD ==================== -->
+        <div class="section-card">
+          <h2 class="card-title">🎭 Tema Visual Paparan TV (UI Theme Engine)</h2>
+          <p class="card-desc">Pilih tema antaramuka visual untuk keseluruhan paparan e-Solat Kiosk 1080p:</p>
+
+          <div class="form-group mt-2">
+            <div class="theme-selector-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:0.75rem; margin-top:0.5rem;">
+              
+              <!-- Theme 1: Emerald Nabawi (Default) -->
+              <label class="theme-option-card" style="border:1px solid rgba(52,211,153,0.4); border-radius:10px; padding:0.85rem; background:linear-gradient(135deg, rgba(6,78,59,0.7), rgba(2,44,34,0.9)); cursor:pointer; display:flex; gap:0.6rem; align-items:flex-start;">
+                <input type="radio" name="kiosk_theme" value="emerald_nabawi" checked style="margin-top:0.25rem;">
+                <div>
+                  <div style="font-size:1.05rem; font-weight:700; color:#fbbf24;">🌿 Emerald Nabawi (Lalai)</div>
+                  <div style="font-size:0.75rem; color:#a7f3d0; margin-top:0.2rem;">Hijau Zamrud Masjid Nabawi + Sentuhan Emas + Tipografi Kontras Tinggi.</div>
+                </div>
+              </label>
+
+              <!-- Theme 2: Modern Dark Glass -->
+              <label class="theme-option-card" style="border:1px solid rgba(56,189,248,0.35); border-radius:10px; padding:0.85rem; background:linear-gradient(135deg, rgba(15,23,42,0.85), rgba(3,7,18,0.95)); cursor:pointer; display:flex; gap:0.6rem; align-items:flex-start;">
+                <input type="radio" name="kiosk_theme" value="dark_glass" style="margin-top:0.25rem;">
+                <div>
+                  <div style="font-size:1.05rem; font-weight:700; color:#38bdf8;">✨ Modern Dark Glass</div>
+                  <div style="font-size:0.75rem; color:#94a3b8; margin-top:0.2rem;">Kad Frosted Glass (blur 16px) + Neon Glow moden &amp; elegan.</div>
+                </div>
+              </label>
+
+              <!-- Theme 3: Clean Minimalist -->
+              <label class="theme-option-card" style="border:1px solid rgba(255,255,255,0.2); border-radius:10px; padding:0.85rem; background:linear-gradient(135deg, rgba(17,24,39,0.9), rgba(0,0,0,0.95)); cursor:pointer; display:flex; gap:0.6rem; align-items:flex-start;">
+                <input type="radio" name="kiosk_theme" value="clean_minimalist" style="margin-top:0.25rem;">
+                <div>
+                  <div style="font-size:1.05rem; font-weight:700; color:#facc15;">⬛ Clean Minimalist</div>
+                  <div style="font-size:0.75rem; color:#e2e8f0; margin-top:0.2rem;">Kontras tinggi hitam pekat untuk jarak penglihatan maksimum dari saf belakang.</div>
+                </div>
+              </label>
+
+            </div>
+          </div>
+
+          <button type="button" class="btn btn-primary btn-block mt-3" id="btnSaveTheme">
+            💾 Simpan Pilihan Tema Kiosk
+          </button>
+        </div>
+
+        <!-- ==================== INSTANT JANAZAH / TAKZIAH & JUMAAT NOTICE CARD ==================== -->
+        <div class="section-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:0.75rem;">
+            <div>
+              <h2 class="card-title" style="margin-bottom:0.2rem; color:#fca5a5;">🕊️ Makluman Kematian &amp; Solat Jenazah Segera</h2>
+              <p class="card-desc" style="margin-bottom:0;">Picu paparan takziah segera (Innalillahiwainnailaihirojiun) pada skrin TV dengan 1-klik:</p>
+            </div>
+            <label class="toggle-switch" style="flex-shrink:0;">
+              <input type="checkbox" id="switchJanazahNotice">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div id="boxJanazahDetails" style="display:none; background:rgba(0,0,0,0.3); padding:0.85rem; border-radius:10px; border:1px solid rgba(239,68,68,0.3); margin-top:0.5rem;">
+            <div class="form-group">
+              <label>Nama Allahyarham / Allahyarhamah</label>
+              <input type="text" id="inputJanazahName" placeholder="cth: Allahyarham Hj. Ismail bin Abdullah">
+            </div>
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Waktu Solat Jenazah</label>
+                <input type="text" id="inputJanazahSolatTime" placeholder="cth: Selepas Solat Zohor (1:30 PM)">
+              </div>
+              <div class="form-group">
+                <label>Tempat Solat</label>
+                <input type="text" id="inputJanazahSolatLoc" placeholder="cth: Surau Darul Taqwa">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Lokasi Tanah Perkuburan</label>
+              <input type="text" id="inputJanazahKuburLoc" placeholder="cth: Tanah Perkuburan Islam Seksyen 21, Shah Alam">
+            </div>
+          </div>
+
+          <!-- Friday Khutbah Title Setting -->
+          <div style="border-top:1px solid rgba(255,255,255,0.1); padding-top:0.75rem; margin-top:0.85rem;">
+            <label style="color:#fbbf24; font-weight:700;">🕌 Tajuk Khutbah Solat Jumaat:</label>
+            <input type="text" id="inputJumaatKhutbahTitle" placeholder="cth: Membina Ummah MADANI Berteraskan Taqwa" style="margin-top:0.3rem;">
+          </div>
+
+          <button type="button" class="btn btn-primary btn-block mt-3" id="btnSaveJanazahJumaat">
+            💾 Simpan Makluman Takziah &amp; Khutbah
+          </button>
+        </div>
+
         <div class="section-card">
           <h2 class="card-title">Maklumat Surau &amp; Masjid</h2>
           <div class="form-group">
@@ -1313,7 +1608,17 @@
           <div class="form-group">
             <textarea id="inputTickerText" rows="4" placeholder="Tulis pengumuman di sini..."></textarea>
           </div>
-          <button class="btn btn-primary btn-block" id="btnSaveBranding">Simpan Maklumat &amp; Pengumuman</button>
+          <div class="form-group mt-3" style="background:rgba(2,44,34,0.5); padding:0.75rem 1rem; border-radius:10px; border:1px solid rgba(52,211,153,0.3); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+            <div>
+              <div style="font-size:0.85rem; font-weight:700; color:#34d399;">⏳ Selitkan Detik Undur Kalendar Islam</div>
+              <div style="font-size:0.75rem; color:#cbd5e1;">Papar automatik baki hari (cth: "Lagi 23 Hari Menjelang Ramadhan") dalam teks berjalan</div>
+            </div>
+            <label class="toggle-switch" style="flex-shrink:0;">
+              <input type="checkbox" id="switchHijriCountdownTicker" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <button class="btn btn-primary btn-block mt-3" id="btnSaveBranding">Simpan Maklumat &amp; Pengumuman</button>
         </div>
 
         <div class="section-card">
@@ -1708,6 +2013,54 @@
       </button>
     </nav>
 
+  </div>
+
+  <!-- ==================== CAMERA QR SCANNER MODAL ==================== -->
+  <div id="qrScannerModal" class="admin-modal-backdrop" style="display:none; z-index:2100; background:rgba(15,23,42,0.92); backdrop-filter:blur(12px);">
+    <div class="admin-modal-card" style="max-width:440px; width:92%; padding:1.25rem; background:#0f172a; border:1px solid rgba(52,211,153,0.4); border-radius:20px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.85);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <span style="font-size:1.3rem;">📷</span>
+          <h3 style="font-size:1.05rem; font-weight:700; color:#34d399; margin:0;">Imbas Kod QR Kiosk</h3>
+        </div>
+        <button type="button" class="icon-btn" id="btnCloseQrScanner" style="width:32px; height:32px; font-size:1rem; color:#94a3b8; background:rgba(255,255,255,0.06); border-radius:8px;" title="Tutup">✕</button>
+      </div>
+
+      <!-- Scanner Video Viewport Wrapper with Animated Reticle -->
+      <div class="scanner-viewport-wrapper" style="position:relative; width:100%; min-height:280px; height:280px; background:#020617; border-radius:14px; overflow:hidden; border:2px solid rgba(52,211,153,0.4); display:flex; align-items:center; justify-content:center;">
+        <div id="qrCameraReader" style="width:100%; height:100%;"></div>
+        
+        <!-- Animated Reticle HUD Overlay -->
+        <div class="scanner-reticle-hud" id="scannerReticleHud" style="position:absolute; inset:0; pointer-events:none; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:10;">
+          <div style="position:relative; width:210px; height:210px; border:2px dashed rgba(52,211,153,0.8); border-radius:16px; box-shadow:0 0 25px rgba(52,211,153,0.25);">
+            <div class="laser-scanner-line" style="position:absolute; left:0; width:100%; height:3px; background:linear-gradient(90deg, transparent, #34d399, #10b981, transparent); box-shadow:0 0 12px #34d399; animation:laser-scan 2s ease-in-out infinite alternate;"></div>
+          </div>
+          <div style="font-size:0.75rem; color:#34d399; margin-top:0.65rem; font-weight:700; text-shadow:0 1px 4px rgba(0,0,0,0.9); background:rgba(2,44,34,0.85); padding:0.25rem 0.75rem; border-radius:8px; border:1px solid rgba(52,211,153,0.3);">
+            Arahkan kamera ke Kod QR TV Kiosk
+          </div>
+        </div>
+      </div>
+
+      <!-- Scanner Controls & Switcher -->
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem; margin-top:0.85rem; flex-wrap:wrap;">
+        <select id="cameraSelectDropdown" class="form-control" style="flex:1; min-width:140px; font-size:0.78rem; background:#1e293b; border:1px solid #334155; color:#f8fafc; padding:0.35rem 0.5rem; border-radius:8px;">
+          <option value="">Kamera Belakang (Lalai)</option>
+        </select>
+        <button type="button" class="btn btn-sm btn-outline" id="btnSwitchCameraFacing" style="font-size:0.75rem; padding:0.35rem 0.65rem;" title="Tukar Kamera Depan/Belakang">🔄 Tukar Kamera</button>
+      </div>
+
+      <!-- Image File Scan Fallback -->
+      <div style="margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid rgba(255,255,255,0.08); display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:0.75rem; color:#94a3b8;">Atau pilih gambar QR dari galeri:</span>
+        <label for="inputQrFileScan" class="btn btn-sm btn-outline" style="font-size:0.75rem; padding:0.35rem 0.75rem; cursor:pointer; margin:0; border-color:#34d399; color:#34d399;">
+          🖼️ Pilih Fail Imej
+        </label>
+        <input type="file" id="inputQrFileScan" accept="image/*" style="display:none;">
+      </div>
+
+      <!-- Status / Diagnostic Feedback -->
+      <div id="qrScanStatusMsg" style="display:none; margin-top:0.75rem; padding:0.5rem 0.75rem; border-radius:8px; font-size:0.75rem; text-align:center;"></div>
+    </div>
   </div>
 
   <!-- 4-Digit Security PIN Setup Modal (After Screen Layout Setting) -->

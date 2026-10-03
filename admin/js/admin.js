@@ -319,9 +319,10 @@ async function loadSettings() {
     });
 
     // Iqamah & Solat duration
-    ['subuh', 'zohor', 'asar', 'maghrib', 'isyak'].forEach(p => {
+    const defaultIqamahMap = { subuh: 10, zohor: 7, asar: 7, maghrib: 5, isyak: 7, jumaat: 0 };
+    ['subuh', 'zohor', 'asar', 'maghrib', 'isyak', 'jumaat'].forEach(p => {
       const el = document.getElementById(`iqamah_${p}`);
-      if (el) el.value = s[`iqamah_${p}`] || 10;
+      if (el) el.value = s[`iqamah_${p}`] !== undefined ? s[`iqamah_${p}`] : defaultIqamahMap[p];
     });
     document.getElementById('solat_duration').value = s.solat_duration || 12;
 
@@ -332,6 +333,13 @@ async function loadSettings() {
     document.getElementById('inputBankName').value = s.bank_name || '';
     document.getElementById('inputBankAcc').value = s.bank_account_no || '';
     document.getElementById('inputBankHolder').value = s.bank_account_holder || '';
+
+    // Hijri Islamic Events Countdown Toggle
+    const isHijriCountdownOn = (s.hijri_countdown_enabled !== '0' && s.hijri_countdown_enabled !== false);
+    const swCountdown = document.getElementById('switchHijriCountdown');
+    if (swCountdown) swCountdown.checked = isHijriCountdownOn;
+    const swCountdownTicker = document.getElementById('switchHijriCountdownTicker');
+    if (swCountdownTicker) swCountdownTicker.checked = isHijriCountdownOn;
 
     // Typography Font Family
     const fontChoice = (s.kiosk_font_family || 'outfit').toLowerCase();
@@ -368,9 +376,22 @@ async function loadSettings() {
     if (rangeVol) rangeVol.value = volVal;
     if (volLabel) volLabel.textContent = `${volVal}%`;
 
-    // Signage Sub-layout
+    // Layout Preset & Signage Sub-layout
+    const elLayoutPreset = document.getElementById('selectKioskLayoutPreset');
+    if (elLayoutPreset) elLayoutPreset.value = s.kiosk_layout_preset || 'horizontal_glass';
+
     const elSubLayout = document.getElementById('selectKioskSubLayout');
     if (elSubLayout) elSubLayout.value = s.kiosk_layout || 'full';
+
+    // Lower-Third Live Broadcast Overlay
+    const swLowerThird = document.getElementById('switchLowerThird');
+    if (swLowerThird) swLowerThird.checked = (s.lower_third_enabled === '1' || s.lower_third_enabled === 1 || s.lower_third_enabled === true);
+    const elLtSpeaker = document.getElementById('inputLowerThirdSpeaker');
+    if (elLtSpeaker) elLtSpeaker.value = s.lower_third_speaker || '';
+    const elLtTopic = document.getElementById('inputLowerThirdTopic');
+    if (elLtTopic) elLtTopic.value = s.lower_third_topic || '';
+    const elLtKitab = document.getElementById('inputLowerThirdKitab');
+    if (elLtKitab) elLtKitab.value = s.lower_third_kitab || '';
 
     // Kuliah Card Details
     const elKuliahTitle = document.getElementById('inputKuliahTitle');
@@ -379,6 +400,30 @@ async function loadSettings() {
     if (elKuliahUstaz) elKuliahUstaz.value = s.kuliah_ustaz || '';
     const elKuliahDate = document.getElementById('inputKuliahDate');
     if (elKuliahDate) elKuliahDate.value = s.kuliah_date || '';
+
+    // Mosque Administration: Duty Roster (Imam, Bilal, Siak)
+    const elRosterImam = document.getElementById('inputRosterImam');
+    if (elRosterImam) elRosterImam.value = s.roster_imam || '';
+    const elRosterBilal = document.getElementById('inputRosterBilal');
+    if (elRosterBilal) elRosterBilal.value = s.roster_bilal || '';
+    const elRosterSiak = document.getElementById('inputRosterSiak');
+    if (elRosterSiak) elRosterSiak.value = s.roster_siak || '';
+
+    // Mosque Administration: Tabung & Kewangan
+    const elTabungJumaat = document.getElementById('inputTabungJumaat');
+    if (elTabungJumaat) elTabungJumaat.value = s.tabung_jumaat || '';
+    const elTabungSubuh = document.getElementById('inputTabungSubuh');
+    if (elTabungSubuh) elTabungSubuh.value = s.tabung_infaq_subuh || '';
+    const elTabungPb = document.getElementById('inputTabungPembangunan');
+    if (elTabungPb) elTabungPb.value = s.tabung_pembangunan || '';
+    const elTabungTarikh = document.getElementById('inputTabungTarikh');
+    if (elTabungTarikh) elTabungTarikh.value = s.tabung_tarikh || '';
+
+    // Mosque Administration: Hadith of the Day
+    const elHadithText = document.getElementById('inputHadithText');
+    if (elHadithText) elHadithText.value = s.hadith_text || '';
+    const elHadithSource = document.getElementById('inputHadithSource');
+    if (elHadithSource) elHadithSource.value = s.hadith_source || '';
 
     // Fullscreen Media Toggle & Kiosk Layout Mode
     const checkMediaFs = document.getElementById('checkMediaFullscreen');
@@ -457,6 +502,31 @@ async function loadSettings() {
       if (document.getElementById('inputAzanVolume')) document.getElementById('inputAzanVolume').value = azanVol;
       if (document.getElementById('valAzanVolume')) document.getElementById('valAzanVolume').textContent = `${azanVol}%`;
     }
+
+    // Theme Selector
+    const activeTheme = (s.kiosk_theme || 'emerald_nabawi').toLowerCase().replace('-', '_');
+    const themeRadio = document.querySelector(`input[name="kiosk_theme"][value="${activeTheme}"]`);
+    if (themeRadio) themeRadio.checked = true;
+
+    // Instant Janazah Notice
+    const swJanazah = document.getElementById('switchJanazahNotice');
+    const boxJanazah = document.getElementById('boxJanazahDetails');
+    const isJanazahActive = (s.janazah_enabled === '1' || s.janazah_enabled === 1 || s.janazah_enabled === true);
+    if (swJanazah) swJanazah.checked = isJanazahActive;
+    if (boxJanazah) boxJanazah.style.display = isJanazahActive ? 'block' : 'none';
+
+    const inputJanazahName = document.getElementById('inputJanazahName');
+    if (inputJanazahName) inputJanazahName.value = s.janazah_arwah_name || '';
+    const inputJanazahTime = document.getElementById('inputJanazahSolatTime');
+    if (inputJanazahTime) inputJanazahTime.value = s.janazah_solat_time || '';
+    const inputJanazahLoc = document.getElementById('inputJanazahSolatLoc');
+    if (inputJanazahLoc) inputJanazahLoc.value = s.janazah_solat_loc || '';
+    const inputJanazahKubur = document.getElementById('inputJanazahKuburLoc');
+    if (inputJanazahKubur) inputJanazahKubur.value = s.janazah_kubur_loc || '';
+
+    // Friday Khutbah Title
+    const inputJumaatKhutbah = document.getElementById('inputJumaatKhutbahTitle');
+    if (inputJumaatKhutbah) inputJumaatKhutbah.value = s.jumaat_khutbah_title || '';
 
   } catch (err) {
     console.error('Error loading settings:', err);
@@ -1258,7 +1328,10 @@ document.getElementById('btnSaveAdhanConfig').addEventListener('click', async ()
   const updates = {};
   ['subuh', 'zohor', 'asar', 'maghrib', 'isyak'].forEach(p => {
     updates[`adhan_mode_${p}`] = document.getElementById(`adhan_mode_${p}`).value;
-    updates[`iqamah_${p}`] = parseInt(document.getElementById(`iqamah_${p}`).value) || 10;
+  });
+  ['subuh', 'zohor', 'asar', 'maghrib', 'isyak', 'jumaat'].forEach(p => {
+    const el = document.getElementById(`iqamah_${p}`);
+    if (el) updates[`iqamah_${p}`] = parseInt(el.value) || 0;
   });
   updates['solat_duration'] = parseInt(document.getElementById('solat_duration').value) || 12;
 
@@ -1269,6 +1342,26 @@ document.getElementById('btnSaveAdhanConfig').addEventListener('click', async ()
     showToast(err.message, true);
   }
 });
+
+// ==================== FAST ACTION: TERUS IQAMAH SEKARANG ====================
+async function triggerImmediateIqamahNow() {
+  if (!confirm('Adakah anda pasti mahu membatalkan detik undur dan terus menukar skrin TV ke Mod Solat (Rapatkan Saf) sekarang?')) {
+    return;
+  }
+  try {
+    const res = await apiRequest('/api/iqamah/now', 'POST', {});
+    showToast('⚡ Skrin TV telah beralih ke Mod Solat (Rapatkan Saf) serta-merta!');
+    if (typeof fetchState === 'function') fetchState();
+  } catch (err) {
+    showToast(`Ralat mencetuskan mod solat: ${err.message}`, true);
+  }
+}
+
+const btnFastDash = document.getElementById('btnFastIqamahNowDashboard');
+if (btnFastDash) btnFastDash.addEventListener('click', triggerImmediateIqamahNow);
+
+const btnFastTab3 = document.getElementById('btnFastIqamahNowTab3');
+if (btnFastTab3) btnFastTab3.addEventListener('click', triggerImmediateIqamahNow);
 
 // ==================== MEDIA & SLIDES ====================
 async function loadSlides() {
@@ -1285,11 +1378,12 @@ async function loadSlides() {
     res.slides.forEach(slide => {
       const card = document.createElement('div');
       card.className = 'slide-card';
+      const dayLabel = (slide.days_active && slide.days_active !== 'all') ? ` | 📅 ${slide.days_active}` : '';
       card.innerHTML = `
         <img class="slide-thumb" src="${slide.file_url}" alt="${slide.title}">
         <div class="slide-info">
           <div class="slide-title-text">${slide.title}</div>
-          <div class="slide-meta">Tempoh: ${slide.duration}s | Susunan: ${slide.sort_order}</div>
+          <div class="slide-meta">Tempoh: ${slide.duration}s | Susunan: ${slide.sort_order}${dayLabel}</div>
         </div>
         <button class="slide-del-btn" onclick="deleteSlide(${slide.id})">🗑️</button>
       `;
@@ -1316,6 +1410,7 @@ document.getElementById('uploadSlideForm').addEventListener('submit', async (e) 
   const title = document.getElementById('slideTitle').value.trim();
   const duration = parseInt(document.getElementById('slideDuration').value) || 12;
   const sort_order = parseInt(document.getElementById('slideOrder').value) || 1;
+  const days_active = document.getElementById('slideDaysActive') ? document.getElementById('slideDaysActive').value : 'all';
   const fileInput = document.getElementById('slideFileInput');
 
   if (!fileInput.files || fileInput.files.length === 0) {
@@ -1337,6 +1432,7 @@ document.getElementById('uploadSlideForm').addEventListener('submit', async (e) 
         title,
         duration,
         sort_order,
+        days_active,
         media_type,
         file_base64: base64Data,
         file_name: file.name
@@ -1528,10 +1624,31 @@ async function handleSaveDisplaySettings() {
   const media_stream_url = video_source_url;
   const video_audio_enabled = (document.getElementById('checkVideoAudio') && document.getElementById('checkVideoAudio').checked) ? '1' : '0';
   const video_volume = document.getElementById('rangeVideoVolume') ? document.getElementById('rangeVideoVolume').value : '80';
+  const kiosk_layout_preset = document.getElementById('selectKioskLayoutPreset') ? document.getElementById('selectKioskLayoutPreset').value : 'horizontal_glass';
   const kiosk_layout = document.getElementById('selectKioskSubLayout') ? document.getElementById('selectKioskSubLayout').value : 'full';
+
+  const lower_third_enabled = (document.getElementById('switchLowerThird') && document.getElementById('switchLowerThird').checked) ? '1' : '0';
+  const lower_third_speaker = document.getElementById('inputLowerThirdSpeaker') ? document.getElementById('inputLowerThirdSpeaker').value.trim() : '';
+  const lower_third_topic = document.getElementById('inputLowerThirdTopic') ? document.getElementById('inputLowerThirdTopic').value.trim() : '';
+  const lower_third_kitab = document.getElementById('inputLowerThirdKitab') ? document.getElementById('inputLowerThirdKitab').value.trim() : '';
+
   const kuliah_title = document.getElementById('inputKuliahTitle') ? document.getElementById('inputKuliahTitle').value.trim() : '';
   const kuliah_ustaz = document.getElementById('inputKuliahUstaz') ? document.getElementById('inputKuliahUstaz').value.trim() : '';
   const kuliah_date = document.getElementById('inputKuliahDate') ? document.getElementById('inputKuliahDate').value.trim() : '';
+
+  // Mosque Administration (Duty Roster, Tabung, Hadith)
+  const roster_imam = document.getElementById('inputRosterImam') ? document.getElementById('inputRosterImam').value.trim() : '';
+  const roster_bilal = document.getElementById('inputRosterBilal') ? document.getElementById('inputRosterBilal').value.trim() : '';
+  const roster_siak = document.getElementById('inputRosterSiak') ? document.getElementById('inputRosterSiak').value.trim() : '';
+
+  const tabung_jumaat = document.getElementById('inputTabungJumaat') ? document.getElementById('inputTabungJumaat').value.trim() : '';
+  const tabung_infaq_subuh = document.getElementById('inputTabungSubuh') ? document.getElementById('inputTabungSubuh').value.trim() : '';
+  const tabung_pembangunan = document.getElementById('inputTabungPembangunan') ? document.getElementById('inputTabungPembangunan').value.trim() : '';
+  const tabung_tarikh = document.getElementById('inputTabungTarikh') ? document.getElementById('inputTabungTarikh').value.trim() : '';
+
+  const hadith_text = document.getElementById('inputHadithText') ? document.getElementById('inputHadithText').value.trim() : '';
+  const hadith_source = document.getElementById('inputHadithSource') ? document.getElementById('inputHadithSource').value.trim() : '';
+
   const media_fullscreen_enabled = (kiosk_layout_mode === 'fullscreen' || (document.getElementById('checkMediaFullscreen') && document.getElementById('checkMediaFullscreen').checked)) ? '1' : '0';
 
   const selectedRadio = document.querySelector('input[name="active_layout_mode"]:checked');
@@ -1540,6 +1657,7 @@ async function handleSaveDisplaySettings() {
   try {
     await apiRequest('/api/settings', 'POST', {
       kiosk_layout_mode,
+      kiosk_layout_preset,
       pip_mode,
       media_source_type,
       media_stream_url,
@@ -1549,9 +1667,22 @@ async function handleSaveDisplaySettings() {
       video_audio_enabled,
       video_volume,
       kiosk_layout,
+      lower_third_enabled,
+      lower_third_speaker,
+      lower_third_topic,
+      lower_third_kitab,
       kuliah_title,
       kuliah_ustaz,
       kuliah_date,
+      roster_imam,
+      roster_bilal,
+      roster_siak,
+      tabung_jumaat,
+      tabung_infaq_subuh,
+      tabung_pembangunan,
+      tabung_tarikh,
+      hadith_text,
+      hadith_source,
       media_fullscreen_enabled
     });
     showToast('Tetapan paparan berjaya dikemaskini!');
@@ -1657,6 +1788,84 @@ if (btnResetCustomLayoutEl) {
   });
 }
 
+// ==================== AUTO-DISCOVERY PTZ / IP CAMERA ====================
+const btnDiscoverCamerasEl = document.getElementById('btnDiscoverCameras');
+if (btnDiscoverCamerasEl) {
+  btnDiscoverCamerasEl.addEventListener('click', async () => {
+    const container = document.getElementById('discoveredCamerasContainer');
+    const statusMsg = document.getElementById('discoverStatusMsg');
+    const listEl = document.getElementById('discoveredCamerasList');
+    if (!container || !statusMsg || !listEl) return;
+
+    container.style.display = 'block';
+    statusMsg.innerHTML = '<span class="loading-spinner">⏳</span> Sedang mengimbas kamera ONVIF &amp; RTSP dalam rangkaian...';
+    listEl.innerHTML = '';
+    btnDiscoverCamerasEl.disabled = true;
+
+    try {
+      const res = await apiRequest('/api/ptz/discover');
+      const cameras = res.cameras || [];
+
+      if (cameras.length === 0) {
+        statusMsg.innerHTML = '❌ Tiada kamera IP / ONVIF ditemui dalam rangkaian semasa.';
+        listEl.innerHTML = '<div style="font-size:0.75rem; color:#94a3b8; padding:0.4rem;">Pastikan kamera PTZ/IP dihidupkan dan disambungkan ke Wi-Fi atau port LAN surau yang sama.</div>';
+      } else {
+        statusMsg.innerHTML = `✅ Ditemui <b>${cameras.length}</b> peranti kamera dalam rangkaian:`;
+        listEl.innerHTML = '';
+
+        cameras.forEach(cam => {
+          const card = document.createElement('div');
+          card.style.cssText = 'background:rgba(15,23,42,0.9); border:1px solid rgba(52,211,153,0.3); border-radius:8px; padding:0.6rem 0.75rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;';
+
+          const infoDiv = document.createElement('div');
+          infoDiv.innerHTML = `
+            <div style="font-weight:700; color:#f8fafc; font-size:0.85rem;">📹 ${cam.vendor || 'IP Camera'} (${cam.ip})</div>
+            <div style="font-size:0.72rem; color:#94a3b8;">Jenis: ${cam.type || 'RTSP'} &bull; Kaedah: ${cam.discovery_method || 'LAN'}</div>
+            <div style="font-size:0.72rem; color:#38bdf8; font-family:monospace; word-break:break-all;">${cam.rtsp_url}</div>
+          `;
+
+          const btnUse = document.createElement('button');
+          btnUse.type = 'button';
+          btnUse.className = 'btn btn-sm btn-primary';
+          btnUse.style.cssText = 'font-size:0.75rem; padding:0.3rem 0.65rem; white-space:nowrap; font-weight:700;';
+          btnUse.textContent = '✔️ Guna Kamera Ini';
+          btnUse.onclick = async () => {
+            const urlInput = document.getElementById('inputVideoUrl');
+            const mediaType = document.getElementById('selectMediaSourceType');
+            const videoType = document.getElementById('selectVideoType');
+
+            if (urlInput) urlInput.value = cam.rtsp_url;
+            if (mediaType) mediaType.value = 'stream';
+            if (videoType) videoType.value = 'hls';
+
+            try {
+              await apiRequest('/api/settings', 'POST', {
+                media_source_type: 'stream',
+                video_source_type: 'hls',
+                video_source_url: cam.rtsp_url,
+                media_stream_url: cam.rtsp_url,
+                camera_rtsp_url: cam.rtsp_url
+              });
+              showToast(`🎥 Kamera ${cam.vendor || cam.ip} berjaya dipilih & disimpan!`);
+              await loadSettings();
+            } catch (err) {
+              showToast('Gagal menyimpan kamera: ' + err.message, true);
+            }
+          };
+
+          card.appendChild(infoDiv);
+          card.appendChild(btnUse);
+          listEl.appendChild(card);
+        });
+      }
+    } catch (err) {
+      statusMsg.innerHTML = '⚠️ Ralat semasa mengimbas kamera: ' + err.message;
+    } finally {
+      btnDiscoverCamerasEl.disabled = false;
+    }
+  });
+}
+
 // ==================== FONT TYPOGRAPHY SAVE ====================
 const btnSaveFontEl = document.getElementById('btnSaveFontFamily');
 if (btnSaveFontEl) {
@@ -1669,6 +1878,59 @@ if (btnSaveFontEl) {
       await loadSettings();
     } catch (err) {
       showToast('Gagal menyimpan fon: ' + err.message, true);
+    }
+  });
+}
+
+// ==================== THEME SELECTION SAVE ====================
+const btnSaveThemeEl = document.getElementById('btnSaveTheme');
+if (btnSaveThemeEl) {
+  btnSaveThemeEl.addEventListener('click', async () => {
+    const selected = document.querySelector('input[name="kiosk_theme"]:checked');
+    const themeVal = selected ? selected.value : 'emerald_nabawi';
+    try {
+      await apiRequest('/api/settings', 'POST', { kiosk_theme: themeVal });
+      showToast('🎭 Tema visual TV Kiosk berjaya dikemas kini!');
+      await loadSettings();
+    } catch (err) {
+      showToast('Gagal menyimpan tema: ' + err.message, true);
+    }
+  });
+}
+
+// ==================== INSTANT JANAZAH & JUMAAT SAVE ====================
+const swJanazahEl = document.getElementById('switchJanazahNotice');
+if (swJanazahEl) {
+  swJanazahEl.addEventListener('change', () => {
+    const box = document.getElementById('boxJanazahDetails');
+    if (box) box.style.display = swJanazahEl.checked ? 'block' : 'none';
+  });
+}
+
+const btnSaveJanazahEl = document.getElementById('btnSaveJanazahJumaat');
+if (btnSaveJanazahEl) {
+  btnSaveJanazahEl.addEventListener('click', async () => {
+    const swJanazah = document.getElementById('switchJanazahNotice');
+    const janazah_enabled = (swJanazah && swJanazah.checked) ? '1' : '0';
+    const janazah_arwah_name = document.getElementById('inputJanazahName') ? document.getElementById('inputJanazahName').value.trim() : '';
+    const janazah_solat_time = document.getElementById('inputJanazahSolatTime') ? document.getElementById('inputJanazahSolatTime').value.trim() : '';
+    const janazah_solat_loc = document.getElementById('inputJanazahSolatLoc') ? document.getElementById('inputJanazahSolatLoc').value.trim() : '';
+    const janazah_kubur_loc = document.getElementById('inputJanazahKuburLoc') ? document.getElementById('inputJanazahKuburLoc').value.trim() : '';
+    const jumaat_khutbah_title = document.getElementById('inputJumaatKhutbahTitle') ? document.getElementById('inputJumaatKhutbahTitle').value.trim() : '';
+
+    try {
+      await apiRequest('/api/settings', 'POST', {
+        janazah_enabled,
+        janazah_arwah_name,
+        janazah_solat_time,
+        janazah_solat_loc,
+        janazah_kubur_loc,
+        jumaat_khutbah_title
+      });
+      showToast(janazah_enabled === '1' ? '🕊️ Papan tanda takziah diaktifkan di skrin TV!' : 'Tetapan takziah & khutbah disimpan.');
+      await loadSettings();
+    } catch (err) {
+      showToast('Gagal menyimpan: ' + err.message, true);
     }
   });
 }
@@ -1687,6 +1949,32 @@ document.getElementById('btnSaveBranding').addEventListener('click', async () =>
     showToast(err.message, true);
   }
 });
+
+// ==================== HIJRI COUNTDOWN TOGGLE HANDLER ====================
+async function handleHijriCountdownToggle(enabled) {
+  const val = enabled ? '1' : '0';
+  const sw1 = document.getElementById('switchHijriCountdown');
+  const sw2 = document.getElementById('switchHijriCountdownTicker');
+  if (sw1) sw1.checked = enabled;
+  if (sw2) sw2.checked = enabled;
+
+  try {
+    await apiRequest('/api/settings', 'POST', { hijri_countdown_enabled: val });
+    showToast(enabled ? '⏳ Detik undur Hari Kebesaran Islam diaktifkan!' : 'Detik undur Hari Kebesaran Islam dinyahaktifkan.');
+  } catch (err) {
+    showToast('Gagal menyimpan tetapan: ' + err.message, true);
+  }
+}
+
+const swCountdownEl = document.getElementById('switchHijriCountdown');
+if (swCountdownEl) {
+  swCountdownEl.addEventListener('change', (e) => handleHijriCountdownToggle(e.target.checked));
+}
+
+const swCountdownTickerEl = document.getElementById('switchHijriCountdownTicker');
+if (swCountdownTickerEl) {
+  swCountdownTickerEl.addEventListener('change', (e) => handleHijriCountdownToggle(e.target.checked));
+}
 
 // Bank QR Code Preview & File Selection
 const inputBankQrFile = document.getElementById('inputBankQrFile');
@@ -2234,11 +2522,33 @@ function renderNetworkInfo(net) {
   if (netAdminInput) netAdminInput.value = adminUrl;
   if (netQrLabel) netQrLabel.textContent = adminUrl;
 
-  // Update QR image src
+  // Update QR display (Local Canvas Generator with Fallback)
+  const netQrCanvas = document.getElementById('netQrCanvasContainer');
   const netQrImg = document.getElementById('netQrImg');
-  if (netQrImg) {
-    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(adminUrl)}`;
-    netQrImg.src = qrApiUrl;
+  if (netQrCanvas) {
+    netQrCanvas.innerHTML = '';
+    if (typeof QRCode !== 'undefined') {
+      try {
+        new QRCode(netQrCanvas, {
+          text: adminUrl,
+          width: 260,
+          height: 260,
+          colorDark: "#022c22",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.M
+        });
+        if (netQrImg) netQrImg.style.display = 'none';
+      } catch (e) {
+        console.warn('Local QRCode error, falling back to API:', e);
+        if (netQrImg) {
+          netQrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(adminUrl)}`;
+          netQrImg.style.display = 'block';
+        }
+      }
+    } else if (netQrImg) {
+      netQrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(adminUrl)}`;
+      netQrImg.style.display = 'block';
+    }
   }
 }
 
@@ -2259,6 +2569,21 @@ function setupNetworkBroadcastUI() {
         showToast('📋 Pautan Admin disalin! Buka pautan ini pada telefon pintar AJK.');
       } catch (err) {
         showToast(`Pautan: ${urlToCopy}`);
+      }
+    });
+  }
+
+  // Direct Copy URL button inside QR modal
+  const btnCopyDirect = document.getElementById('btnCopyQrUrlDirect');
+  if (btnCopyDirect) {
+    btnCopyDirect.addEventListener('click', async () => {
+      const label = document.getElementById('netQrUrlLabel');
+      const textToCopy = label ? label.textContent : (cachedNetworkInfo ? cachedNetworkInfo.admin_url : window.location.href);
+      try {
+        if (navigator.clipboard) await navigator.clipboard.writeText(textToCopy);
+        showToast('📋 Pautan Admin disalin!');
+      } catch (e) {
+        showToast(`Pautan: ${textToCopy}`);
       }
     });
   }
@@ -2296,6 +2621,262 @@ function setupNetworkBroadcastUI() {
       }
       showToast(`📡 IP Sistem: ${cachedNetworkInfo?.primary_ip || window.location.hostname} | Port: ${cachedNetworkInfo?.port || '8080'}`);
     });
+  }
+}
+
+// ==================== PWA TV DISCOVERY & MANUAL IP CONNECTION ====================
+function setupManualIpConnectionUI() {
+  const manualIpInput = document.getElementById('inputManualKioskIp');
+  const btnConnect = document.getElementById('btnConnectManualIp');
+
+  // Load last connected IP from localStorage if available
+  const lastIp = localStorage.getItem('last_connected_ip');
+  if (lastIp && manualIpInput) {
+    manualIpInput.value = lastIp;
+  }
+
+  if (btnConnect && manualIpInput) {
+    btnConnect.addEventListener('click', () => {
+      const rawVal = manualIpInput.value.trim();
+      if (!rawVal) {
+        showToast('Sila masukkan alamat IP atau Hostname Kiosk.', true);
+        return;
+      }
+      connectToKioskTarget(rawVal);
+    });
+
+    manualIpInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        btnConnect.click();
+      }
+    });
+  }
+}
+
+function normalizeKioskUrl(target) {
+  let url = target.trim();
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    url = 'http://' + url;
+  }
+  try {
+    const parsed = new URL(url);
+    if (!parsed.port && !target.includes(':')) {
+      parsed.port = '8080';
+    }
+    if (!parsed.pathname || parsed.pathname === '/') {
+      parsed.pathname = '/admin';
+    }
+    return parsed.toString();
+  } catch (err) {
+    if (!url.includes(':8080')) {
+      url = url.replace(/\/+$/, '') + ':8080/admin';
+    }
+    return url;
+  }
+}
+
+function connectToKioskTarget(target) {
+  const finalUrl = normalizeKioskUrl(target);
+  localStorage.setItem('last_connected_ip', target);
+  showToast(`📡 Menyambung ke TV Kiosk: ${finalUrl}`);
+
+  try {
+    const targetObj = new URL(finalUrl);
+    if (targetObj.host !== window.location.host) {
+      setTimeout(() => {
+        window.location.href = finalUrl;
+      }, 500);
+      return;
+    }
+  } catch (e) {}
+
+  showToast(`✅ Anda sudah berada pada pelayan ${target}!`);
+}
+
+// ==================== CAMERA QR SCANNER ENGINE ====================
+let html5QrScanner = null;
+let currentCameraFacing = 'environment';
+let availableCamerasList = [];
+
+function setupQrScannerUI() {
+  const btnOpenScanner = document.getElementById('btnOpenQrScanner');
+  const btnCloseScanner = document.getElementById('btnCloseQrScanner');
+  const scannerModal = document.getElementById('qrScannerModal');
+  const btnSwitchFacing = document.getElementById('btnSwitchCameraFacing');
+  const cameraSelect = document.getElementById('cameraSelectDropdown');
+  const fileScanInput = document.getElementById('inputQrFileScan');
+
+  if (btnOpenScanner && scannerModal) {
+    btnOpenScanner.addEventListener('click', async () => {
+      scannerModal.style.display = 'flex';
+      await startCameraScanner();
+    });
+  }
+
+  if (btnCloseScanner && scannerModal) {
+    btnCloseScanner.addEventListener('click', async () => {
+      await stopCameraScanner();
+      scannerModal.style.display = 'none';
+    });
+  }
+
+  if (btnSwitchFacing) {
+    btnSwitchFacing.addEventListener('click', async () => {
+      currentCameraFacing = (currentCameraFacing === 'environment') ? 'user' : 'environment';
+      await startCameraScanner();
+    });
+  }
+
+  if (cameraSelect) {
+    cameraSelect.addEventListener('change', async () => {
+      const selectedCamId = cameraSelect.value;
+      await startCameraScanner(selectedCamId);
+    });
+  }
+
+  if (fileScanInput) {
+    fileScanInput.addEventListener('change', async (e) => {
+      if (e.target.files && e.target.files.length > 0) {
+        const imageFile = e.target.files[0];
+        await scanQrFromImageFile(imageFile);
+      }
+    });
+  }
+}
+
+async function startCameraScanner(specificCameraId = null) {
+  const statusMsg = document.getElementById('qrScanStatusMsg');
+  if (statusMsg) {
+    statusMsg.style.display = 'block';
+    statusMsg.style.background = 'rgba(59,130,246,0.15)';
+    statusMsg.style.color = '#93c5fd';
+    statusMsg.style.border = '1px solid rgba(59,130,246,0.3)';
+    statusMsg.innerHTML = 'Memulakan kamera... Sila berikan kebenaran jika diminta.';
+  }
+
+  await stopCameraScanner();
+
+  if (typeof Html5Qrcode === 'undefined') {
+    if (statusMsg) {
+      statusMsg.style.background = 'rgba(239,68,68,0.15)';
+      statusMsg.style.color = '#fca5a5';
+      statusMsg.innerHTML = 'Enjin pengimbas QR (Html5Qrcode) tidak dapat dimuatkan.';
+    }
+    return;
+  }
+
+  try {
+    html5QrScanner = new Html5Qrcode("qrCameraReader");
+
+    try {
+      const devices = await Html5Qrcode.getCameras();
+      availableCamerasList = devices || [];
+      const camSelect = document.getElementById('cameraSelectDropdown');
+      if (camSelect && availableCamerasList.length > 0) {
+        camSelect.innerHTML = availableCamerasList.map(c => 
+          `<option value="${c.id}" ${c.id === specificCameraId ? 'selected' : ''}>${c.label || 'Kamera ' + c.id}</option>`
+        ).join('');
+      }
+    } catch (e) {
+      console.warn('Unable to enumerate cameras:', e);
+    }
+
+    const cameraConfig = specificCameraId ? specificCameraId : { facingMode: currentCameraFacing };
+    const scanConfig = {
+      fps: 15,
+      qrbox: { width: 210, height: 210 },
+      aspectRatio: 1.0
+    };
+
+    await html5QrScanner.start(
+      cameraConfig,
+      scanConfig,
+      onQrCodeSuccess,
+      (errorMessage) => { /* Ignore per-frame decode errors */ }
+    );
+
+    if (statusMsg) {
+      statusMsg.style.display = 'none';
+    }
+  } catch (err) {
+    console.error('Camera Scanner Error:', err);
+    if (statusMsg) {
+      statusMsg.style.display = 'block';
+      statusMsg.style.background = 'rgba(239,68,68,0.15)';
+      statusMsg.style.color = '#fca5a5';
+      statusMsg.style.border = '1px solid rgba(239,68,68,0.3)';
+
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        statusMsg.innerHTML = '❌ <b>Izin Kamera Ditolak</b><br>Sila benarkan akses kamera dalam tetapan kebenaran pelayar anda.';
+      } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+        statusMsg.innerHTML = '❌ <b>Tiada Kamera Dikesan</b><br>Peranti anda tidak mempunyai perkakasan kamera yang aktif.';
+      } else if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && !window.location.hostname.endsWith('.local')) {
+        statusMsg.innerHTML = '⚠️ <b>Sekatan Keselamatan Pelayar (HTTP)</b><br>Pelayar mudah alih menyekat kamera pada persekitaran HTTP tanpa sijil keselamatan. Sila gunakan <b>🖼️ Pilih Fail Imej</b> atau taip IP secara manual.';
+      } else {
+        statusMsg.innerHTML = `⚠️ Ralat kamera: ${err.message || err}`;
+      }
+    }
+  }
+}
+
+async function onQrCodeSuccess(decodedText, decodedResult) {
+  if (!decodedText) return;
+
+  if (navigator.vibrate) {
+    try { navigator.vibrate(150); } catch(e){}
+  }
+
+  await stopCameraScanner();
+
+  const scannerModal = document.getElementById('qrScannerModal');
+  if (scannerModal) scannerModal.style.display = 'none';
+
+  let target = decodedText.trim();
+  const manualIpInput = document.getElementById('inputManualKioskIp');
+  if (manualIpInput) manualIpInput.value = target;
+
+  showToast(`✅ Kod QR Dikesan: ${target}`);
+  connectToKioskTarget(target);
+}
+
+async function scanQrFromImageFile(imageFile) {
+  const statusMsg = document.getElementById('qrScanStatusMsg');
+  if (statusMsg) {
+    statusMsg.style.display = 'block';
+    statusMsg.style.background = 'rgba(59,130,246,0.15)';
+    statusMsg.style.color = '#93c5fd';
+    statusMsg.innerHTML = 'Menganalisis gambar QR...';
+  }
+
+  try {
+    if (!html5QrScanner) {
+      html5QrScanner = new Html5Qrcode("qrCameraReader");
+    }
+    const decodedText = await html5QrScanner.scanFile(imageFile, true);
+    await onQrCodeSuccess(decodedText, null);
+  } catch (err) {
+    if (statusMsg) {
+      statusMsg.style.background = 'rgba(239,68,68,0.15)';
+      statusMsg.style.color = '#fca5a5';
+      statusMsg.innerHTML = '❌ Kod QR tidak dapat dikesan dalam gambar yang dipilih. Sila pastikan gambar jelas dan tidak kabur.';
+    }
+  }
+}
+
+async function stopCameraScanner() {
+  if (html5QrScanner) {
+    try {
+      if (html5QrScanner.isScanning) {
+        await html5QrScanner.stop();
+      }
+    } catch (e) {
+      console.warn('Error stopping scanner:', e);
+    }
+    try {
+      html5QrScanner.clear();
+    } catch(e){}
+    html5QrScanner = null;
   }
 }
 
@@ -2544,6 +3125,8 @@ function setupDiagnosticsUI() {
 window.addEventListener('DOMContentLoaded', () => {
   setupPWA();
   setupNetworkBroadcastUI();
+  setupManualIpConnectionUI();
+  setupQrScannerUI();
   setupDiagnosticsUI();
   updateNetworkInfo();
   checkAuth();

@@ -1414,5 +1414,44 @@ textarea {
   }
 }
 
+/* ==================== CAMERA QR SCANNER STYLES ==================== */
+@keyframes laser-scan {
+  0% {
+    top: 5%;
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    top: 92%;
+    opacity: 0.8;
+  }
+}
 
+.scanner-viewport-wrapper video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 12px;
+}
 
+#qrCameraReader {
+  border: none !important;
+}
+
+#qrCameraReader __scan_region__ {
+  box-shadow: none !important;
+}
+
+#qrCameraReader img {
+  display: none !important;
+}
+
+.btn-qr-scan {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-qr-scan:active {
+  transform: scale(0.98);
+}

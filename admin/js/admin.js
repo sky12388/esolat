@@ -296,9 +296,9 @@ async function loadSettings() {
     const headerTitleEl = document.getElementById('appHeaderTitle');
     if (headerTitleEl) headerTitleEl.textContent = 'Skywalker E-Solat Manager';
     const mosqueTitleEl = document.getElementById('appMosqueTitle');
-    if (mosqueTitleEl) mosqueTitleEl.textContent = s.mosque_name || 'Surau Al-Ikhlas';
+    if (mosqueTitleEl) mosqueTitleEl.textContent = s.mosque_name || 'Surau Darul Taqwa';
     const zoneSubtitleEl = document.getElementById('appZoneSubtitle');
-    if (zoneSubtitleEl) zoneSubtitleEl.textContent = `${s.mosque_name || 'Surau Al-Ikhlas'} • Zon: ${s.jakim_zone || 'SGR01'}`;
+    if (zoneSubtitleEl) zoneSubtitleEl.textContent = `${s.mosque_name || 'Surau Darul Taqwa'} • Zon: ${s.jakim_zone || 'SGR01'}`;
     document.getElementById('statZone').textContent = s.jakim_zone || 'SGR01';
 
     // Zone select

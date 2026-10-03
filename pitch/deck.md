@@ -2,7 +2,7 @@
 marp: true
 theme: default
 paginate: true
-header: 'e-Solat Display System — Sistem Paparan Digital & Pengurusan Kariah Pintar'
+header: 'e-Solat Display System'
 footer: 'Skywalker Consortium (SSM: AS0463209-A) | Carl Kelana: +60 10-318 4047'
 style: |
   section {

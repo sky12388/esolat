@@ -2,7 +2,7 @@
 marp: true
 theme: default
 paginate: true
-header: 'Skywalker e-Solat — Sistem Paparan Digital & Pengurusan Kariah Pintar'
+header: 'e-Solat Display System — Sistem Paparan Digital & Pengurusan Kariah Pintar'
 footer: 'Skywalker Consortium (SSM: AS0463209-A) | Carl Kelana: +60 10-318 4047'
 style: |
   section {
@@ -53,14 +53,14 @@ style: |
   }
 ---
 
-# 🕌 Skywalker e-Solat
+# 🕌 e-Solat Display System
 ## Sistem Paparan Digital & Pengurusan Kariah Pintar
 **Solusi Autonomi 24/7 Berasaskan Debian Linux untuk Masjid & Surau Moden**
 
 ---
 * **Entiti:** Skywalker Consortium (SSM: AS0463209-A)
 * **Pegawai Perhubungan:** Carl Kelana Abdul Latiff
-* **WhatsApp / Telefon:** [+60 10-318 4047](https://wa.me/60103184047?text=Assalamualaikum%20En%20Carl,%20saya%20berminat%20dengan%20Sistem%20Skywalker%20e-Solat)
+* **WhatsApp / Telefon:** [+60 10-318 4047](https://wa.me/60103184047?text=Assalamualaikum%20En%20Carl,%20saya%20berminat%20dengan%20Sistem%20e-Solat%20Display)
 * **Emel Rasmi:** skywalker.co@proton.me
 
 ---
@@ -261,7 +261,7 @@ style: |
 
 * 👤 **Pegawai Perhubungan & Pemasaran:** Carl Kelana Abdul Latiff
 * 🏢 **Entiti:** Skywalker Consortium (SSM: AS0463209-A)
-* 📱 **WhatsApp / Telefon:** [+60 10-318 4047](https://wa.me/60103184047?text=Assalamualaikum%20En%20Carl,%20saya%20berminat%20dengan%20Sistem%20Skywalker%20e-Solat)
+* 📱 **WhatsApp / Telefon:** [+60 10-318 4047](https://wa.me/60103184047?text=Assalamualaikum%20En%20Carl,%20saya%20berminat%20dengan%20Sistem%20e-Solat%20Display)
 * ✉️ **Emel Rasmi:** skywalker.co@proton.me
 
 ---

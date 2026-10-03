@@ -553,51 +553,83 @@ async function loadSettings() {
 }
 
 // ==================== GPS ZONE DETECTION ====================
-document.getElementById('btnDetectGps').addEventListener('click', () => {
-  const statusEl = document.getElementById('gpsStatus');
-  if (!navigator.geolocation) {
-    statusEl.innerHTML = '<span style="color:#ef4444;">Pelayar ini tidak menyokong pengesanan GPS.</span>';
-    return;
+function initGpsSecurityCheck() {
+  const gpsBox = document.querySelector('.gps-box') || document.getElementById('btnDetectGps')?.closest('.gps-box');
+  const isSecure = (window.isSecureContext === true) || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+  if (gpsBox && !isSecure) {
+    gpsBox.style.display = 'none';
   }
+}
 
-  statusEl.innerHTML = '<span style="color:#fbbf24;">Sedang mengesan koordinat GPS telefon anda...</span>';
-
-  navigator.geolocation.getCurrentPosition(
-    async (pos) => {
-      const lat = pos.coords.latitude;
-      const lon = pos.coords.longitude;
-
-      try {
-        const res = await apiRequest('/api/zones/match_gps', 'POST', { lat, lon });
-        const matched = res.matched_zone;
-        const dist = res.distance_km;
-
-        statusEl.innerHTML = `
-          <div style="background: rgba(2, 44, 34, 0.8); border: 1px solid #10b981; padding: 0.75rem; border-radius: 8px; margin-top: 0.5rem;">
-            <div style="font-weight:700; color:#34d399;">✓ Zon Dipadankan: ${matched.code} (${matched.state})</div>
-            <div style="font-size:0.8rem; color:#cbd5e1;">Kawasan: ${matched.location} (~${dist} km)</div>
-          </div>
-        `;
-
-        document.getElementById('selectJakimZone').value = matched.code;
-
-        // Auto prompt to apply and sync
-        if (confirm(`Zon ${matched.code} (${matched.location}) dikesan melalui GPS. Tetapkan zon ini dan segerakkan takwim sekarang?`)) {
-          await apiRequest('/api/settings', 'POST', { jakim_zone: matched.code });
-          await triggerTakwimSync(matched.code);
-          await loadSettings();
-        }
-
-      } catch (err) {
-        statusEl.innerHTML = `<span style="color:#ef4444;">Ralat padanan: ${err.message}</span>`;
+const btnGps = document.getElementById('btnDetectGps');
+if (btnGps) {
+  btnGps.addEventListener('click', () => {
+    const statusEl = document.getElementById('gpsStatus');
+    const isSecure = (window.isSecureContext === true) || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    if (!isSecure) {
+      if (statusEl) {
+        statusEl.innerHTML = '<span style="color:#94a3b8; font-size:0.85rem;">💡 Pengesanan GPS memerlukan sambungan HTTPS. Sila pilih zon dari senarai di bawah.</span>';
       }
-    },
-    (err) => {
-      statusEl.innerHTML = `<span style="color:#ef4444;">Akses GPS ditolak / gagal: ${err.message}</span>`;
-    },
-    { enableHighAccuracy: true, timeout: 10000 }
-  );
-});
+      document.getElementById('selectJakimZone')?.focus();
+      return;
+    }
+
+    if (!navigator.geolocation) {
+      if (statusEl) {
+        statusEl.innerHTML = '<span style="color:#94a3b8; font-size:0.85rem;">Pelayar ini tidak menyokong pengesanan GPS. Sila pilih zon secara manual di bawah.</span>';
+      }
+      document.getElementById('selectJakimZone')?.focus();
+      return;
+    }
+
+    if (statusEl) {
+      statusEl.innerHTML = '<span style="color:#fbbf24;">Sedang mengesan koordinat GPS telefon anda...</span>';
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+
+        try {
+          const res = await apiRequest('/api/zones/match_gps', 'POST', { lat, lon });
+          const matched = res.matched_zone;
+          const dist = res.distance_km;
+
+          if (statusEl) {
+            statusEl.innerHTML = `
+              <div style="background: rgba(2, 44, 34, 0.8); border: 1px solid #10b981; padding: 0.75rem; border-radius: 8px; margin-top: 0.5rem;">
+                <div style="font-weight:700; color:#34d399;">✓ Zon Dipadankan: ${matched.code} (${matched.state})</div>
+                <div style="font-size:0.8rem; color:#cbd5e1;">Kawasan: ${matched.location} (~${dist} km)</div>
+              </div>
+            `;
+          }
+
+          const selZone = document.getElementById('selectJakimZone');
+          if (selZone) selZone.value = matched.code;
+
+          // Auto prompt to apply and sync
+          if (confirm(`Zon ${matched.code} (${matched.location}) dikesan melalui GPS. Tetapkan zon ini dan segerakkan takwim sekarang?`)) {
+            await apiRequest('/api/settings', 'POST', { jakim_zone: matched.code });
+            await triggerTakwimSync(matched.code);
+            await loadSettings();
+          }
+
+        } catch (err) {
+          if (statusEl) statusEl.innerHTML = `<span style="color:#94a3b8; font-size:0.85rem;">Sila pilih zon secara manual di bawah.</span>`;
+        }
+      },
+      (err) => {
+        console.warn('[GPS] Geolocation notice:', err.message);
+        if (statusEl) {
+          statusEl.innerHTML = '<span style="color:#94a3b8; font-size:0.85rem;">Akses GPS tidak tersedia. Sila pilih zon secara manual di bawah.</span>';
+        }
+        document.getElementById('selectJakimZone')?.focus();
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  });
+}
 
 // Manual Zone Sync
 document.getElementById('btnSyncJakim').addEventListener('click', async () => {
@@ -3320,6 +3352,7 @@ function setupDiagnosticsUI() {
 // Initialize on DOM load
 window.addEventListener('DOMContentLoaded', () => {
   setupPWA();
+  initGpsSecurityCheck();
   setupNetworkBroadcastUI();
   setupSmartPairingUI();
   setupQuickControlsUI();

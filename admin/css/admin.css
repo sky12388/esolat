@@ -312,10 +312,11 @@ textarea {
 }
 
 .btn {
-  padding: 0.8rem 1.25rem;
+  min-height: 48px;
+  padding: 0.75rem 1.25rem;
   border-radius: 12px;
   font-size: 0.95rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   border: none;
   display: inline-flex;
@@ -323,6 +324,8 @@ textarea {
   justify-content: center;
   gap: 0.5rem;
   transition: all 0.15s;
+  user-select: none;
+  touch-action: manipulation;
 }
 
 .btn-block {
@@ -330,9 +333,24 @@ textarea {
 }
 
 .btn-sm {
-  padding: 0.5rem 0.75rem;
-  font-size: 0.8rem;
-  border-radius: 8px;
+  min-height: 38px;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.82rem;
+  border-radius: 9px;
+}
+
+.preset-tab-btn {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  transition: all 0.2s ease;
+}
+
+.preset-tab-btn.active {
+  background: rgba(6, 78, 59, 0.75) !important;
+  border-color: #34d399 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 12px rgba(52, 211, 153, 0.3);
 }
 
 .btn-primary {

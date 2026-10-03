@@ -2624,17 +2624,46 @@ function setupNetworkBroadcastUI() {
   }
 }
 
-// ==================== PWA TV DISCOVERY & MANUAL IP CONNECTION ====================
-function setupManualIpConnectionUI() {
+// ==================== SMART PAIRING & 1-CLICK RECONNECT ====================
+function setupSmartPairingUI() {
+  const lastConnectedCard = document.getElementById('lastConnectedCard');
+  const lastConnectedHostText = document.getElementById('lastConnectedHostText');
+  const btnQuickReconnect = document.getElementById('btnQuickReconnectLast');
+  const btnToggleManual = document.getElementById('btnToggleManualIp');
+  const manualAccordion = document.getElementById('manualIpAccordionContent');
+  const manualChevron = document.getElementById('manualIpChevron');
   const manualIpInput = document.getElementById('inputManualKioskIp');
   const btnConnect = document.getElementById('btnConnectManualIp');
 
-  // Load last connected IP from localStorage if available
+  // Check localStorage for previous connection
   const lastIp = localStorage.getItem('last_connected_ip');
-  if (lastIp && manualIpInput) {
-    manualIpInput.value = lastIp;
+  if (lastIp) {
+    if (lastConnectedCard && lastConnectedHostText) {
+      lastConnectedHostText.textContent = lastIp;
+      lastConnectedCard.style.display = 'block';
+    }
+    if (manualIpInput) {
+      manualIpInput.value = lastIp;
+    }
   }
 
+  // 1-Click Reconnect button
+  if (btnQuickReconnect && lastIp) {
+    btnQuickReconnect.addEventListener('click', () => {
+      connectToKioskTarget(lastIp);
+    });
+  }
+
+  // Toggle manual IP accordion
+  if (btnToggleManual && manualAccordion) {
+    btnToggleManual.addEventListener('click', () => {
+      const isHidden = manualAccordion.style.display === 'none';
+      manualAccordion.style.display = isHidden ? 'block' : 'none';
+      if (manualChevron) manualChevron.textContent = isHidden ? '▲' : '▼';
+    });
+  }
+
+  // Connect manual IP button
   if (btnConnect && manualIpInput) {
     btnConnect.addEventListener('click', () => {
       const rawVal = manualIpInput.value.trim();
@@ -2652,6 +2681,133 @@ function setupManualIpConnectionUI() {
       }
     });
   }
+}
+
+// ==================== QUICK ACTION CONTROLS (DASHBOARD) ====================
+let isSolatModeActive = false;
+
+function setupQuickControlsUI() {
+  const btnForceIqamah = document.getElementById('btnQuickForceIqamah');
+  const btnToggleSolat = document.getElementById('btnQuickToggleSolatMode');
+  const btnTestAudio = document.getElementById('btnQuickTestAudio');
+  const btnSendTicker = document.getElementById('btnQuickSendTicker');
+  const inputQuickTicker = document.getElementById('inputQuickTickerMsg');
+  const btnPresetMakkah = document.getElementById('btnQuickPresetMakkah');
+  const btnPresetMadinah = document.getElementById('btnQuickPresetMadinah');
+  const btnPresetDefault = document.getElementById('btnQuickPresetDefault');
+
+  // 1. Force Iqamah Now (Emergency Trigger for Bilal/Imam)
+  if (btnForceIqamah) {
+    btnForceIqamah.addEventListener('click', async () => {
+      if (!confirm('Langkau kiraan undur dan laksanakan Iqamah / Mod Solat sekarang?')) return;
+      try {
+        if (navigator.vibrate) navigator.vibrate(200);
+        await fetch('/api/iqamah/now', { method: 'POST' });
+        showToast('⏱️ Iqamah diaktifkan! Paparan TV beralih ke mod solat serta-merta.');
+      } catch (err) {
+        showToast(`Ralat mencetuskan Iqamah: ${err.message}`, true);
+      }
+    });
+  }
+
+  // 2. Blackout / Khusyuk Prayer Mode Toggle
+  if (btnToggleSolat) {
+    btnToggleSolat.addEventListener('click', async () => {
+      try {
+        if (!isSolatModeActive) {
+          await fetch('/api/system/test_state', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ state: 'SOLAT', duration: 900 })
+          });
+          isSolatModeActive = true;
+          btnToggleSolat.style.background = '#ef4444';
+          btnToggleSolat.style.color = '#ffffff';
+          btnToggleSolat.style.borderColor = '#ef4444';
+          btnToggleSolat.innerHTML = '<span>☀️</span><span>Kembalikan Skrin TV</span>';
+          showToast('🌙 Mod Khusyuk / Skrin Gelap diaktifkan pada TV.');
+        } else {
+          await fetch('/api/system/clear_test_state', { method: 'POST' });
+          isSolatModeActive = false;
+          btnToggleSolat.style.background = 'rgba(251,191,36,0.08)';
+          btnToggleSolat.style.color = '#fbbf24';
+          btnToggleSolat.style.borderColor = '#fbbf24';
+          btnToggleSolat.innerHTML = '<span>🌙</span><span>Matikan Skrin / Mod Khusyuk</span>';
+          showToast('☀️ Skrin TV dikembalikan ke mod biasa.');
+        }
+      } catch (err) {
+        showToast(`Ralat mod khusyuk: ${err.message}`, true);
+      }
+    });
+  }
+
+  // 3. Audio Test Chime
+  if (btnTestAudio) {
+    btnTestAudio.addEventListener('click', async () => {
+      try {
+        await fetch('/api/audio/test_kiosk', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sound: 'pre_adhan' })
+        });
+        showToast('🔔 Isyarat audio ujian dimainkan pada pembesar suara TV.');
+      } catch (err) {
+        showToast(`Ralat ujian audio: ${err.message}`, true);
+      }
+    });
+  }
+
+  // 4. Quick Ticker Sender
+  if (btnSendTicker && inputQuickTicker) {
+    btnSendTicker.addEventListener('click', async () => {
+      const text = inputQuickTicker.value.trim();
+      if (!text) {
+        showToast('Sila masukkan teks ticker pengumuman.', true);
+        return;
+      }
+      try {
+        await apiRequest('/api/settings', 'POST', { ticker_text: text });
+        showToast('📢 Ticker berjaya dihantar dan dipaparkan di TV!');
+      } catch (err) {
+        showToast(`Ralat menghantar ticker: ${err.message}`, true);
+      }
+    });
+  }
+
+  // 5. Quick Stage Presets
+  const setPreset = async (presetType, btnActive) => {
+    [btnPresetMakkah, btnPresetMadinah, btnPresetDefault].forEach(b => {
+      if (b) {
+        b.classList.remove('active');
+        b.style.borderColor = 'rgba(255,255,255,0.2)';
+        b.style.color = '#cbd5e1';
+      }
+    });
+    if (btnActive) {
+      btnActive.classList.add('active');
+      btnActive.style.borderColor = '#34d399';
+      btnActive.style.color = '#34d399';
+    }
+
+    try {
+      if (presetType === 'makkah') {
+        await apiRequest('/api/settings', 'POST', { display_mode: 'video', stream_preset: 'makkah' });
+        showToast('🕋 Saluran Makkah Live diaktifkan di TV.');
+      } else if (presetType === 'madinah') {
+        await apiRequest('/api/settings', 'POST', { display_mode: 'video', stream_preset: 'madinah' });
+        showToast('🕌 Saluran Madinah Live diaktifkan di TV.');
+      } else {
+        await apiRequest('/api/settings', 'POST', { display_mode: 'signage', stream_preset: 'none' });
+        showToast('📋 Paparan Takwim & Slaid Lalai diaktifkan di TV.');
+      }
+    } catch (err) {
+      showToast(`Ralat menetapkan paparan: ${err.message}`, true);
+    }
+  };
+
+  if (btnPresetMakkah) btnPresetMakkah.addEventListener('click', () => setPreset('makkah', btnPresetMakkah));
+  if (btnPresetMadinah) btnPresetMadinah.addEventListener('click', () => setPreset('madinah', btnPresetMadinah));
+  if (btnPresetDefault) btnPresetDefault.addEventListener('click', () => setPreset('default', btnPresetDefault));
 }
 
 function normalizeKioskUrl(target) {
@@ -3125,7 +3281,8 @@ function setupDiagnosticsUI() {
 window.addEventListener('DOMContentLoaded', () => {
   setupPWA();
   setupNetworkBroadcastUI();
-  setupManualIpConnectionUI();
+  setupSmartPairingUI();
+  setupQuickControlsUI();
   setupQrScannerUI();
   setupDiagnosticsUI();
   updateNetworkInfo();

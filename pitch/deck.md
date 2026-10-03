@@ -229,15 +229,6 @@ style: |
 
 ---
 
-# 🛡️ Jaminan & Khidmat Sokongan
-
-* 🛡️ **Waranti Perkakasan PC:** 1 Tahun Penuh (Tukar Ganti Komponen Rasmi 1-ke-1).
-* 🚗 **On-Site Support Percuma:** 3 Bulan sokongan teknikal terus ke lokasi surau.
-* 💻 **Remote Technical Support Percuma:** 1 Tahun bantuan konfigurasi jarak jauh.
-* 👨‍🏫 **Pemasangan & Latihan AJK:** Penentukuran kabel HDMI, panduan bertulis dan latihan praktikal penggunaan sistem.
-
----
-
 # 🚀 Hubungi Kami & Sesi Demonstrasi
 
 **Tempah Sesi Demonstrasi Percuma di Surau Anda Sekarang!**

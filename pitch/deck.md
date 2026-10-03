@@ -3,7 +3,7 @@ marp: true
 theme: default
 paginate: true
 header: 'Skywalker e-Solat — Sistem Paparan Digital & Pengurusan Kariah Pintar'
-footer: 'Skywalker Consortium (SSM: AS0463209-A) | WhatsApp: +6011-1871 2388'
+footer: 'Skywalker Consortium (SSM: AS0463209-A) | Carl Kelana: +60 10-318 4047'
 style: |
   section {
     background-color: #021a14;
@@ -58,8 +58,10 @@ style: |
 **Solusi Autonomi 24/7 Berasaskan Linux untuk Masjid & Surau Moden**
 
 ---
-* **Disediakan oleh:** Skywalker Consortium (SSM: AS0463209-A)
-* **Hubungi:** +6011-1871 2388 | skywalker.co@proton.me
+* **Entiti:** Skywalker Consortium (SSM: AS0463209-A)
+* **Pegawai Perhubungan:** Carl Kelana Abdul Latiff
+* **WhatsApp / Telefon:** [+60 10-318 4047](https://wa.me/60103184047?text=Assalamualaikum%20En%20Carl,%20saya%20berminat%20dengan%20Sistem%20Skywalker%20e-Solat)
+* **Emel Rasmi:** skywalker.co@proton.me
 * **Laman Web:** https://sky12388.github.io/esolat/
 
 ---
@@ -273,10 +275,11 @@ style: |
 
 **Tempah Sesi Demonstrasi Percuma di Surau Anda Sekarang!**
 
-* 📱 **WhatsApp / Telefon:** +6011-1871 2388
+* 👤 **Pegawai Perhubungan:** Carl Kelana Abdul Latiff
+* 🏢 **Entiti:** Skywalker Consortium (SSM: AS0463209-A)
+* 📱 **WhatsApp / Telefon:** [+60 10-318 4047](https://wa.me/60103184047?text=Assalamualaikum%20En%20Carl,%20saya%20berminat%20dengan%20Sistem%20Skywalker%20e-Solat)
 * ✉️ **Emel Rasmi:** skywalker.co@proton.me
 * 🌐 **Laman Web:** https://sky12388.github.io/esolat/
-* 🏢 **Syarikat:** Skywalker Consortium (SSM: AS0463209-A)
 
 ---
 ### **Terima Kasih & Sesi Soal Jawab (Q&A)**

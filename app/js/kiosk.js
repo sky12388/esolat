@@ -1485,11 +1485,9 @@ function initMaintenanceSystem() {
 // Initialize on load
 window.addEventListener('DOMContentLoaded', () => {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then((registrations) => {
-      for (const reg of registrations) {
-        reg.unregister();
-      }
-    }).catch(() => {});
+    navigator.serviceWorker.register('./sw.js', { scope: './' })
+      .then((reg) => console.log('e-Solat App SW registered:', reg.scope))
+      .catch((err) => console.warn('e-Solat App SW registration failed:', err));
   }
   startClientClock();
   startBottomWidgetCycle();

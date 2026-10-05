@@ -65,7 +65,7 @@
       const dt = dateObj instanceof Date ? dateObj : new Date(dateObj || Date.now());
       if (typeof Intl !== 'undefined' && Intl.DateTimeFormat) {
         try {
-          const parts = new Intl.DateTimeFormat('en-u-ca-islamic-umalqura', {
+          const parts = new Intl.DateTimeFormat('ms-u-ca-islamic-umalqura', {
             day: 'numeric',
             month: 'numeric',
             year: 'numeric'

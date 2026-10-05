@@ -7,7 +7,8 @@ let currentSlideIndex = 0;
 let slidesList = [];
 let slideTimer = null;
 let lastReloadCounter = null;
-let lastState = null;
+let lastKioskData = null;
+let lastOverlayPhase = null;
 
 // Audio elements
 const audioAdhan = document.getElementById('audioAdhan');
@@ -183,7 +184,29 @@ function getFallbackOrCachedTakwim(now = new Date()) {
   }
 
   const nowSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-  const prayerSecs = [
+
+  // Fardhu prayers only for Next Prayer countdown
+  const fardhuSecs = [
+    { name: 'Subuh', sec: timeStringToSeconds(ribbon.Subuh) },
+    { name: 'Zohor', sec: timeStringToSeconds(ribbon.Zohor) },
+    { name: 'Asar', sec: timeStringToSeconds(ribbon.Asar) },
+    { name: 'Maghrib', sec: timeStringToSeconds(ribbon.Maghrib) },
+    { name: 'Isyak', sec: timeStringToSeconds(ribbon.Isyak) }
+  ];
+
+  let nextPrayer = 'Subuh';
+  let timeToNext = (86400 - nowSec) + fardhuSecs[0].sec;
+  for (const f of fardhuSecs) {
+    if (f.sec > nowSec) {
+      nextPrayer = f.name;
+      timeToNext = f.sec - nowSec;
+      break;
+    }
+  }
+
+  // All slots for active ribbon indicator
+  const allSlots = [
+    { name: 'Imsak', sec: timeStringToSeconds(ribbon.Imsak) },
     { name: 'Subuh', sec: timeStringToSeconds(ribbon.Subuh) },
     { name: 'Syuruk', sec: timeStringToSeconds(ribbon.Syuruk) },
     { name: 'Zohor', sec: timeStringToSeconds(ribbon.Zohor) },
@@ -191,39 +214,11 @@ function getFallbackOrCachedTakwim(now = new Date()) {
     { name: 'Maghrib', sec: timeStringToSeconds(ribbon.Maghrib) },
     { name: 'Isyak', sec: timeStringToSeconds(ribbon.Isyak) }
   ];
-
   let currentSlot = 'Isyak';
-  let nextPrayer = 'Subuh';
-  let timeToNext = (86400 - nowSec) + prayerSecs[0].sec;
-
-  if (nowSec < prayerSecs[0].sec) {
-    currentSlot = 'Isyak';
-    nextPrayer = 'Subuh';
-    timeToNext = prayerSecs[0].sec - nowSec;
-  } else if (nowSec < prayerSecs[1].sec) {
-    currentSlot = 'Subuh';
-    nextPrayer = 'Syuruk';
-    timeToNext = prayerSecs[1].sec - nowSec;
-  } else if (nowSec < prayerSecs[2].sec) {
-    currentSlot = 'Syuruk';
-    nextPrayer = 'Zohor';
-    timeToNext = prayerSecs[2].sec - nowSec;
-  } else if (nowSec < prayerSecs[3].sec) {
-    currentSlot = 'Zohor';
-    nextPrayer = 'Asar';
-    timeToNext = prayerSecs[3].sec - nowSec;
-  } else if (nowSec < prayerSecs[4].sec) {
-    currentSlot = 'Asar';
-    nextPrayer = 'Maghrib';
-    timeToNext = prayerSecs[4].sec - nowSec;
-  } else if (nowSec < prayerSecs[5].sec) {
-    currentSlot = 'Maghrib';
-    nextPrayer = 'Isyak';
-    timeToNext = prayerSecs[5].sec - nowSec;
-  } else {
-    currentSlot = 'Isyak';
-    nextPrayer = 'Subuh';
-    timeToNext = (86400 - nowSec) + prayerSecs[0].sec;
+  for (const s of allSlots) {
+    if (s.sec <= nowSec) {
+      currentSlot = s.name;
+    }
   }
 
   return {
@@ -260,7 +255,13 @@ function getFallbackOrCachedState() {
     bank_account_holder: 'Tabung Pengurusan Surau Darul Taqwa',
     hadith_text: 'Sebaik-baik amalan adalah solat pada awal waktunya.',
     hadith_source: 'HR. Al-Bukhari & Muslim',
-    hijri_countdown_enabled: '1'
+    hijri_countdown_enabled: '1',
+    janazah_enabled: '0',
+    janazah_arwah_name: '',
+    janazah_solat_time: 'Selepas Solat Zohor',
+    janazah_solat_loc: 'Surau Darul Taqwa',
+    janazah_kubur_loc: 'Tanah Perkuburan Islam Seksyen 21, Shah Alam',
+    jumaat_khutbah_title: 'Membina Ummah MADANI Berteraskan Taqwa'
   };
 
   const mergedSettings = Object.assign({}, defaultSettings, savedSettings);
@@ -296,10 +297,66 @@ function getFallbackOrCachedState() {
   };
 }
 
-// 1. Digital Clock (Client-side high precision)
+const HIJRI_MONTH_NAMES_MY = [
+  "Muharram", "Safar", "Rabiulawal", "Rabiulakhir",
+  "Jamadilawal", "Jamadilakhir", "Rejab", "Syaaban",
+  "Ramadhan", "Syawal", "Zulkaedah", "Zulhijjah"
+];
+
+function formatHijriDateDisplay(hijriInput) {
+  if (!hijriInput) {
+    if (window.HijriCountdown) {
+      try {
+        return window.HijriCountdown.getFallbackHijriDate().formatted;
+      } catch (_) {}
+    }
+    return '';
+  }
+  if (typeof hijriInput === 'string') {
+    const trimmed = hijriInput.trim();
+    if (trimmed.includes(' ') && (trimmed.endsWith('H') || trimmed.endsWith('h'))) {
+      for (const mName of HIJRI_MONTH_NAMES_MY) {
+        if (trimmed.toLowerCase().includes(mName.toLowerCase())) {
+          return trimmed;
+        }
+      }
+    }
+  }
+  if (window.HijriCountdown) {
+    try {
+      const p = window.HijriCountdown.parseHijriDate(hijriInput);
+      if (p && p.month && p.day) {
+        const mName = HIJRI_MONTH_NAMES_MY[p.month - 1] || 'Hijri';
+        const yr = p.year || 1448;
+        return `${p.day} ${mName} ${yr}H`;
+      }
+    } catch (_) {}
+  }
+  return String(hijriInput);
+}
+
+// 1. Digital Clock & Fullscreen Kuliah State Controller
+function setKuliahFullScreen(isFullScreen) {
+  const active = (isFullScreen === true || isFullScreen === 'true' || isFullScreen === 1 || isFullScreen === '1');
+  if (active) {
+    document.body.classList.add('mode-kuliah-fullscreen');
+    const kc = document.getElementById('kioskContainer');
+    if (kc) kc.classList.add('mode-kuliah-fullscreen');
+  } else {
+    document.body.classList.remove('mode-kuliah-fullscreen');
+    const kc = document.getElementById('kioskContainer');
+    if (kc) kc.classList.remove('mode-kuliah-fullscreen');
+  }
+  try {
+    localStorage.setItem('kuliah_fullscreen', active ? 'true' : 'false');
+  } catch (_) {}
+}
+window.setKuliahFullScreen = setKuliahFullScreen;
+
 function startClientClock() {
   const clockEl = document.getElementById('digitalClock');
   const pipClockEl = document.getElementById('pipClock');
+  const hudClockEl = document.getElementById('hudClock');
   const gDateEl = document.getElementById('gregorianDate');
   const pipDateEl = document.getElementById('pipDate');
   const hDateEl = document.getElementById('hijriDate');
@@ -310,19 +367,26 @@ function startClientClock() {
     const m = String(now.getMinutes()).padStart(2, '0');
     const s = String(now.getSeconds()).padStart(2, '0');
     const timeStr = `${h}:${m}:${s}`;
-    if (clockEl) clockEl.textContent = timeStr;
-    if (pipClockEl) pipClockEl.textContent = timeStr;
+    if (clockEl && clockEl.textContent !== timeStr) clockEl.textContent = timeStr;
+    if (pipClockEl && pipClockEl.textContent !== timeStr) pipClockEl.textContent = timeStr;
+    if (hudClockEl && hudClockEl.textContent !== timeStr) hudClockEl.textContent = timeStr;
 
-    // Update live dates on client
+    // 100% Pure Malay Single Source of Truth (Zero Flicker, Zero English)
     const gFormatted = getSystemGregorianDateFormatted(now);
-    if (gDateEl && (!lastState || !lastState.gregorian_date)) gDateEl.textContent = gFormatted;
-    if (pipDateEl && (!lastState || !lastState.gregorian_date)) pipDateEl.textContent = gFormatted;
+    if (gDateEl && gDateEl.textContent !== gFormatted) {
+      gDateEl.textContent = gFormatted;
+    }
+    if (pipDateEl && pipDateEl.textContent !== gFormatted) {
+      pipDateEl.textContent = gFormatted;
+    }
 
-    if (hDateEl && (!lastState || !lastState.hijri_date) && window.HijriCountdown) {
-      try {
-        const fb = window.HijriCountdown.getFallbackHijriDate(now);
-        if (fb && fb.formatted) hDateEl.textContent = fb.formatted;
-      } catch (_) {}
+    if (hDateEl) {
+      const effectiveHijri = (lastKioskData && lastKioskData.hijri_date)
+        ? formatHijriDateDisplay(lastKioskData.hijri_date)
+        : (window.HijriCountdown ? window.HijriCountdown.getFallbackHijriDate(now).formatted : '');
+      if (effectiveHijri && hDateEl.textContent !== effectiveHijri) {
+        hDateEl.textContent = effectiveHijri;
+      }
     }
   }
   update();
@@ -364,20 +428,33 @@ function applyLayoutMode(mode) {
   container.classList.add(targetUnderscore);
 }
 
-function getYouTubeEmbedUrl(url, muted) {
+function getYouTubeEmbedUrl(url, muted = true) {
+  if (window.mediaPlayerEngine && typeof window.mediaPlayerEngine.getYouTubeEmbedUrl === 'function') {
+    return window.mediaPlayerEngine.getYouTubeEmbedUrl(url, muted);
+  }
   if (!url) return '';
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const regExp = /(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|live\/))([\w-]{11})/;
   const match = url.match(regExp);
-  const videoId = (match && match[2].length === 11) ? match[2] : null;
+  const videoId = (match && match[1]) ? match[1] : null;
   if (!videoId) return url;
   const muteParam = muted ? 1 : 0;
   return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=${muteParam}&controls=0&loop=1&playlist=${videoId}&enablejsapi=1`;
 }
 
+function playStream(url, options = {}) {
+  if (window.mediaPlayerEngine && typeof window.mediaPlayerEngine.playStream === 'function') {
+    return window.mediaPlayerEngine.playStream(url, options);
+  }
+}
+
 function setupMediaStream(url, type, isMuted, volume) {
-  const video = document.getElementById('kioskVideoPlayer');
-  const iframe = document.getElementById('kioskIframePlayer');
-  const stageMedia = document.getElementById('stageMediaLayer');
+  if (window.mediaPlayerEngine && typeof window.mediaPlayerEngine.setupMediaStream === 'function') {
+    return window.mediaPlayerEngine.setupMediaStream(url, type, isMuted, volume);
+  }
+
+  const video = document.getElementById('hls-video') || document.getElementById('kioskVideoPlayer') || document.getElementById('kioskVideo');
+  const iframe = document.getElementById('kioskIframePlayer') || document.getElementById('kioskIframe');
+  const stageMedia = document.getElementById('persistent-stream-container') || document.getElementById('stageMediaLayer');
   const stageSlides = document.getElementById('stageSlidesLayer');
   const fallbackLayer = document.getElementById('mediaFallbackLayer');
   const fallbackTitle = document.getElementById('fallbackTitle');
@@ -422,6 +499,9 @@ function setupMediaStream(url, type, isMuted, volume) {
       video.style.display = 'block';
       video.volume = Math.max(0, Math.min(1, volume / 100));
       video.muted = isMuted;
+      video.playsInline = true;
+      video.setAttribute('playsinline', '');
+      if (isMuted) video.setAttribute('muted', '');
 
       if (currentLoadedMediaUrl !== url) {
         currentLoadedMediaUrl = url;
@@ -480,23 +560,31 @@ function setupMediaStream(url, type, isMuted, volume) {
       video.style.display = 'block';
       video.volume = Math.max(0, Math.min(1, volume / 100));
       video.muted = isMuted;
+      video.playsInline = true;
+      video.setAttribute('playsinline', '');
+      if (isMuted) video.setAttribute('muted', '');
 
       if (currentLoadedMediaUrl !== url) {
         currentLoadedMediaUrl = url;
         const isHls = url.includes('.m3u8') || normalizedType === 'hls';
 
-        if (isHls && window.Hls && Hls.isSupported()) {
+        if (isHls && window.Hls && window.Hls.isSupported()) {
           if (hlsInstance) hlsInstance.destroy();
-          hlsInstance = new Hls({ autoStartLoad: true });
+          hlsInstance = new window.Hls({ autoStartLoad: true });
           hlsInstance.loadSource(url);
           hlsInstance.attachMedia(video);
-          hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-            video.play().catch(() => {});
+          hlsInstance.on(window.Hls.Events.MANIFEST_PARSED, () => {
+            video.muted = isMuted;
+            video.play().catch(e => console.log('Autoplay blocked:', e));
           });
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+          video.src = url;
+          video.muted = isMuted;
+          video.play().catch(e => console.log('Autoplay blocked:', e));
         } else {
           video.src = url;
           video.load();
-          video.play().catch(() => {});
+          video.play().catch(e => console.log('Autoplay blocked:', e));
         }
 
         if (badgeText) badgeText.textContent = isHls ? 'STRIM LANGSUNG HLS' : 'SIARAN LANGSUNG KULIAH';
@@ -572,11 +660,19 @@ function renderSlides(slides) {
   });
 
   currentSlideIndex = 0;
-  restartSlideTimer();
+  
+  // Only start slide timer if slides layer is actually visible
+  const stageSlides = document.getElementById('stageSlidesLayer');
+  if (stageSlides && stageSlides.style.display !== 'none') {
+    restartSlideTimer();
+  }
 }
 
 function nextSlide() {
   if (slidesList.length <= 1) return;
+  const stageSlides = document.getElementById('stageSlidesLayer');
+  if (stageSlides && stageSlides.style.display === 'none') return;
+
   const items = document.querySelectorAll('.slide-item');
   const dots = document.querySelectorAll('.dot');
 
@@ -591,11 +687,32 @@ function nextSlide() {
   if (dots[currentSlideIndex]) dots[currentSlideIndex].classList.add('active');
 }
 
+function pauseSlideTimer() {
+  if (slideTimer) {
+    clearInterval(slideTimer);
+    slideTimer = null;
+  }
+}
+
+function resumeSlideTimer() {
+  const stageSlides = document.getElementById('stageSlidesLayer');
+  if (stageSlides && stageSlides.style.display === 'none') return;
+  if (!slideTimer && slidesList.length > 1) {
+    const durationSec = (slidesList[currentSlideIndex] && slidesList[currentSlideIndex].duration) || 12;
+    slideTimer = setInterval(nextSlide, durationSec * 1000);
+  }
+}
+
 function restartSlideTimer() {
-  if (slideTimer) clearInterval(slideTimer);
+  pauseSlideTimer();
+  const stageSlides = document.getElementById('stageSlidesLayer');
+  if (stageSlides && stageSlides.style.display === 'none') return;
   const durationSec = (slidesList[currentSlideIndex] && slidesList[currentSlideIndex].duration) || 12;
   slideTimer = setInterval(nextSlide, durationSec * 1000);
 }
+
+window.pauseSlideTimer = pauseSlideTimer;
+window.resumeSlideTimer = resumeSlideTimer;
 
 // 2b. Bottom Card Cycling Manager (Infaq QR <-> Next Kuliah <-> Hijri Countdown <-> Hadith)
 let bottomCycleTimer = null;
@@ -765,6 +882,167 @@ function stopKioskAdhan(fade = true) {
   }
 }
 
+// Pre-Adhan Warning Beep Limiter (Maximum 7 soft chimes)
+let preAdhanBeepCount = 0;
+const MAX_PRE_ADHAN_BEEPS = 7;
+let preAdhanAudioCtx = null;
+
+function playSoftWarningChime() {
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (AudioContextClass) {
+      if (!preAdhanAudioCtx || preAdhanAudioCtx.state === 'closed') {
+        preAdhanAudioCtx = new AudioContextClass();
+      }
+      if (preAdhanAudioCtx.state === 'suspended') {
+        preAdhanAudioCtx.resume();
+      }
+      const ctx = preAdhanAudioCtx;
+      const now = ctx.currentTime;
+      
+      // Dual sine oscillators: Warm fundamental tone + soft harmonic chime
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(659.25, now); // E5 (warm melodic chime)
+      osc1.frequency.exponentialRampToValueAtTime(654, now + 0.55);
+
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(1318.5, now); // E6 harmonic
+      osc2.frequency.exponentialRampToValueAtTime(1308, now + 0.45);
+
+      // Gentle attack to avoid harsh clicking, smooth exponential decay for calming atmosphere
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.linearRampToValueAtTime(0.20, now + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.65);
+
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc1.start(now);
+      osc2.start(now);
+      osc1.stop(now + 0.7);
+      osc2.stop(now + 0.7);
+      return;
+    }
+  } catch (e) {
+    console.warn('[KIOSK] WebAudio chime notice, fallback to audio element:', e);
+  }
+
+  // Fallback to pre-recorded audio element
+  if (audioPreAdhan) {
+    audioPreAdhan.currentTime = 0;
+    audioPreAdhan.volume = 0.5;
+    audioPreAdhan.play().catch(() => {});
+  }
+}
+
+// Function to immediately stop and silence all audio
+function silenceAllKioskAudio() {
+  stopKioskAdhan(false);
+  if (audioAdhan) { audioAdhan.pause(); audioAdhan.currentTime = 0; }
+  if (audioSubuh) { audioSubuh.pause(); audioSubuh.currentTime = 0; }
+  if (audioBeep) { audioBeep.pause(); audioBeep.currentTime = 0; }
+  if (audioPreAdhan) { audioPreAdhan.pause(); audioPreAdhan.currentTime = 0; }
+  if (currentAdhanAudio) {
+    try {
+      currentAdhanAudio.pause();
+      currentAdhanAudio.currentTime = 0;
+    } catch (_) {}
+    currentAdhanAudio = null;
+  }
+}
+
+// 2d. Running Ticker / Marquee Manager
+let currentTickerText = '';
+let pendingTickerText = null;
+let isTickerInitialized = false;
+
+function initTickerSystem() {
+  const tickerEl = document.getElementById('tickerContent') || document.getElementById('tickerText');
+  if (!tickerEl) return;
+
+  tickerEl.addEventListener('animationiteration', () => {
+    if (pendingTickerText && pendingTickerText !== currentTickerText) {
+      applyTickerTextAndDuration(tickerEl, pendingTickerText);
+    } else {
+      recalcTickerBounds(tickerEl);
+    }
+  });
+
+  tickerEl.addEventListener('animationend', () => {
+    if (pendingTickerText && pendingTickerText !== currentTickerText) {
+      applyTickerTextAndDuration(tickerEl, pendingTickerText);
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    recalcTickerBounds(tickerEl);
+  });
+}
+
+function recalcTickerBounds(tickerEl) {
+  if (!tickerEl) return;
+  const wrapper = tickerEl.parentElement || document.getElementById('tickerWrapper');
+  const wrapperWidth = wrapper ? wrapper.offsetWidth : window.innerWidth;
+  const textWidth = tickerEl.scrollWidth || 500;
+
+  tickerEl.style.setProperty('--marquee-start', `${wrapperWidth}px`);
+  tickerEl.style.setProperty('--marquee-end', `-${textWidth + 60}px`);
+
+  const speed = 65; // pixels per second for comfortable reading speed
+  const totalDistance = wrapperWidth + textWidth + 60;
+  const duration = Math.max(12, totalDistance / speed);
+  tickerEl.style.animationDuration = `${duration}s`;
+}
+
+function updateTickerDisplay(newText, forceImmediate = false) {
+  const tickerEl = document.getElementById('tickerContent') || document.getElementById('tickerText');
+  if (!tickerEl) return;
+
+  const text = (newText || '').trim();
+  if (!text) return;
+
+  if (!isTickerInitialized) {
+    initTickerSystem();
+    isTickerInitialized = true;
+  }
+
+  if (text === currentTickerText && !forceImmediate) {
+    return;
+  }
+
+  if (!currentTickerText || forceImmediate) {
+    applyTickerTextAndDuration(tickerEl, text);
+  } else {
+    pendingTickerText = text;
+  }
+}
+
+function applyTickerTextAndDuration(tickerEl, text) {
+  currentTickerText = text;
+  pendingTickerText = null;
+  tickerEl.textContent = text;
+
+  const wrapper = tickerEl.parentElement || document.getElementById('tickerWrapper');
+  const wrapperWidth = wrapper ? wrapper.offsetWidth : window.innerWidth;
+  const textWidth = tickerEl.scrollWidth || (text.length * 18);
+
+  tickerEl.style.setProperty('--marquee-start', `${wrapperWidth}px`);
+  tickerEl.style.setProperty('--marquee-end', `-${textWidth + 60}px`);
+
+  const speed = 65; // pixels per second
+  const totalDistance = wrapperWidth + textWidth + 60;
+  const duration = Math.max(12, totalDistance / speed);
+
+  tickerEl.style.animation = 'none';
+  void tickerEl.offsetWidth; // force DOM reflow
+  tickerEl.style.animation = `marqueeLinear ${duration}s linear infinite`;
+}
+
 // 3. Overlay State Switcher
 function applyState(data) {
   const overlays = {
@@ -782,15 +1060,17 @@ function applyState(data) {
     if (el) el.classList.remove('show');
   });
 
-  const state = data.state;
+  const state = data.state || 'NORMAL';
   const prayer = data.active_prayer || 'Zohor';
   const sec = data.countdown_seconds || 0;
+  const isPhaseTransition = (lastOverlayPhase !== state);
 
   if (state === 'LOCKED') {
-    stopKioskAdhan(false);
+    silenceAllKioskAudio();
     overlays.LOCKED.classList.add('show');
     document.getElementById('lockedHwid').textContent = data.hwid || 'ESOLAT-XXXX-XXXX-XXXX';
     document.getElementById('lockedIp').textContent = window.location.hostname || 'localhost';
+    lastOverlayPhase = state;
     return;
   }
 
@@ -817,42 +1097,59 @@ function applyState(data) {
     overlays.PRE_ADHAN.classList.add('show');
     document.getElementById('preAdhanPrayer').textContent = prayer.toUpperCase();
     document.getElementById('preAdhanCounter').textContent = formatSeconds(sec);
-    if (lastState !== 'PRE_ADHAN') {
-      audioPreAdhan.play().catch(() => {});
+
+    if (isPhaseTransition) {
+      preAdhanBeepCount = 0;
+      silenceAllKioskAudio();
     }
   } else if (state === 'ADHAN') {
+    preAdhanBeepCount = 0;
     overlays.ADHAN.classList.add('show');
     document.getElementById('adhanPrayerName').textContent = prayer.toUpperCase();
     document.getElementById('adhanTimer').textContent = formatSeconds(sec);
-    if (lastState !== 'ADHAN') {
+
+    if (isPhaseTransition) {
+      silenceAllKioskAudio();
       playKioskAdhan(prayer, data.settings || {});
     }
   } else if (state === 'DOA_ADHAN') {
+    preAdhanBeepCount = 0;
     overlays.DOA_ADHAN.classList.add('show');
-    if (lastState === 'ADHAN') {
+    if (lastOverlayPhase === 'ADHAN') {
       stopKioskAdhan(true);
     }
   } else if (state === 'IQAMAH') {
+    preAdhanBeepCount = 0;
     overlays.IQAMAH.classList.add('show');
     document.getElementById('iqamahPrayerName').textContent = `SOLAT ${prayer.toUpperCase()}`;
     document.getElementById('iqamahDigits').textContent = formatSeconds(sec);
-    if (lastState === 'ADHAN' || lastState === 'DOA_ADHAN') {
+    if (lastOverlayPhase === 'ADHAN' || lastOverlayPhase === 'DOA_ADHAN') {
       stopKioskAdhan(true);
     }
   } else if (state === 'SOLAT') {
+    preAdhanBeepCount = 0;
     overlays.SOLAT.classList.add('show');
-    stopKioskAdhan(false);
-    if (lastState !== 'SOLAT') {
-      audioBeep.play().catch(() => {});
+
+    // 100% SILENCE during Solat in progress
+    if (isPhaseTransition) {
+      silenceAllKioskAudio();
+      // Single soft one-shot chime at transition into Saf/Solat
+      if (lastOverlayPhase === 'IQAMAH') {
+        playSoftWarningChime();
+      }
+    } else {
+      // Keep strictly muted throughout solat
+      if (audioBeep && !audioBeep.paused) audioBeep.pause();
     }
   } else {
     // NORMAL state
-    if (lastState === 'ADHAN') {
+    preAdhanBeepCount = 0;
+    if (lastOverlayPhase === 'ADHAN') {
       stopKioskAdhan(true);
     }
   }
 
-  lastState = state;
+  lastOverlayPhase = state;
 }
 
 // ==================== INTERACTIVE DRAG & RESIZE CANVAS ENGINE ====================
@@ -1198,7 +1495,7 @@ async function syncState() {
       data = getFallbackOrCachedState();
     }
 
-    lastState = data;
+    lastKioskData = data;
 
     // Check remote reload trigger
     if (data.kiosk_reload_counter !== undefined && lastReloadCounter !== null && data.kiosk_reload_counter > lastReloadCounter) {
@@ -1215,10 +1512,10 @@ async function syncState() {
       document.getElementById('mosqueLocation').textContent = data.settings.mosque_location || '';
       
       // Ticker text update with optional Hijri Islamic Event Countdown injection
-      const countdownEnabled = (data.settings.hijri_countdown_enabled !== '0' && data.settings.hijri_countdown_enabled !== false);
+      const isTickerCountdownEnabled = (data.settings.hijri_countdown_enabled !== '0' && data.settings.hijri_countdown_enabled !== false);
       let targetTickerText = (data.settings.ticker_text || '').trim();
       try {
-        if (window.HijriCountdown && countdownEnabled) {
+        if (window.HijriCountdown && isTickerCountdownEnabled) {
           targetTickerText = window.HijriCountdown.formatTickerWithCountdown(targetTickerText, data.hijri_date || null, true);
           updateHijriEventCard(data.hijri_date || null);
         }
@@ -1226,10 +1523,7 @@ async function syncState() {
         console.warn('[HIJRI] Ticker countdown injection notice:', err);
       }
 
-      const tickerEl = document.getElementById('tickerContent');
-      if (tickerEl && tickerEl.textContent.trim() !== targetTickerText.trim()) {
-        tickerEl.textContent = targetTickerText;
-      }
+      updateTickerDisplay(targetTickerText);
 
       const mainContainer = document.getElementById('main-container') || document.getElementById('kioskMainBody');
       const kioskContainer = document.getElementById('kioskContainer');
@@ -1281,13 +1575,37 @@ async function syncState() {
       if (kioskContainer) kioskContainer.classList.add(`font-${fontChoice}`);
 
       // Multi-Theme Engine Sync
-      const themeChoice = (data.settings.kiosk_theme || 'emerald_nabawi').toLowerCase().replace('-', '_');
-      ['theme-emerald-nabawi', 'theme-emerald_nabawi', 'theme-dark-glass', 'theme-dark_glass', 'theme-clean-minimalist', 'theme-clean_minimalist'].forEach(c => {
+      const currentTheme = data.settings.selected_theme || data.settings.kiosk_theme || localStorage.getItem('selected_theme') || 'emerald';
+      if (window.applyTheme) {
+        window.applyTheme(currentTheme);
+      }
+      const themeChoice = currentTheme.toLowerCase().replace(/-/g, '_');
+      const ALL_THEMES = [
+        'theme-emerald-nabawi', 'theme-emerald_nabawi', 'theme-emerald',
+        'theme-royal-sapphire', 'theme-royal_sapphire', 'theme-sapphire',
+        'theme-midnight-oled', 'theme-midnight_oled', 'theme-clean-minimalist', 'theme-clean_minimalist',
+        'theme-madinah-bronze', 'theme-madinah_bronze', 'theme-terracotta',
+        'theme-al-aqsa-teal', 'theme-al_aqsa_teal', 'theme-ottoman',
+        'theme-dark-glass', 'theme-dark_glass'
+      ];
+      ALL_THEMES.forEach(c => {
         document.body.classList.remove(c);
         if (kioskContainer) kioskContainer.classList.remove(c);
       });
       document.body.classList.add(`theme-${themeChoice}`);
       if (kioskContainer) kioskContainer.classList.add(`theme-${themeChoice}`);
+
+      // Fullscreen Kuliah Mode Sync
+      if (typeof data.settings.kuliah_fullscreen !== 'undefined') {
+        setKuliahFullScreen(data.settings.kuliah_fullscreen);
+      }
+
+      // Update Floating Minimal HUD Next Prayer
+      const hudNextEl = document.getElementById('hudNextPrayer');
+      if (hudNextEl && data.next_prayer) {
+        const nextTime = (data.ribbon_times && data.ribbon_times[data.next_prayer]) ? data.ribbon_times[data.next_prayer] : '';
+        hudNextEl.textContent = `${data.next_prayer.toUpperCase()}: ${nextTime || formatSeconds(data.time_to_next_seconds || 0)}`;
+      }
 
       // Instant Janazah Notice Board
       const janazahActive = (data.settings.janazah_enabled === '1' || data.settings.janazah_enabled === 1 || data.settings.janazah_enabled === true);
@@ -1323,6 +1641,8 @@ async function syncState() {
         } else {
           jumaatLayer.style.display = 'none';
         }
+      }
+
       // 1. Dynamic Kiosk Layout Mode Sync
       const layoutPreset = (data.settings.kiosk_layout_preset || 'horizontal_glass').toLowerCase().replace('-', '_');
       ['layout-preset-horizontal_glass', 'layout-preset-sidebar_elegance', 'layout-preset-grid_contemporary'].forEach(c => {
@@ -1518,25 +1838,63 @@ async function syncState() {
       }
     }
 
-    // Dates
-    if (data.gregorian_date) {
-      const gDateEl = document.getElementById('gregorianDate');
-      if (gDateEl) gDateEl.textContent = data.gregorian_date;
-      const pipDateEl = document.getElementById('pipDate');
-      if (pipDateEl) pipDateEl.textContent = data.gregorian_date;
+    // Dates (Single Unified Source of Truth - Pure Malay formatting)
+    const effectiveGregorian = getSystemGregorianDateFormatted(new Date());
+    const gDateEl = document.getElementById('gregorianDate');
+    if (gDateEl && gDateEl.textContent !== effectiveGregorian) {
+      gDateEl.textContent = effectiveGregorian;
+    }
+    const pipDateEl = document.getElementById('pipDate');
+    if (pipDateEl && pipDateEl.textContent !== effectiveGregorian) {
+      pipDateEl.textContent = effectiveGregorian;
     }
 
     const hijriDateEl = document.getElementById('hijriDate');
-    const effectiveHijri = data.hijri_date || (window.HijriCountdown ? window.HijriCountdown.getFallbackHijriDate().formatted : '');
-    if (hijriDateEl && effectiveHijri) {
+    const effectiveHijri = data.hijri_date
+      ? formatHijriDateDisplay(data.hijri_date)
+      : (window.HijriCountdown ? window.HijriCountdown.getFallbackHijriDate().formatted : '');
+    if (hijriDateEl && effectiveHijri && hijriDateEl.textContent !== effectiveHijri) {
       hijriDateEl.textContent = effectiveHijri;
     }
 
+    // Status Masuk Waktu under Center Digital Clock
+    const statusBadge = document.getElementById('clockPrayerStatus');
+    if (statusBadge) {
+      if (data.state && data.state !== 'NORMAL') {
+        const pName = (data.active_prayer || data.current_prayer_slot || '').toUpperCase();
+        if (data.state === 'ADHAN') {
+          statusBadge.textContent = `📢 AZAN ${pName}`;
+          statusBadge.style.display = 'inline-block';
+        } else if (data.state === 'IQAMAH') {
+          statusBadge.textContent = `⏳ IQAMAH ${pName} (${formatSeconds(data.countdown_seconds || 0)})`;
+          statusBadge.style.display = 'inline-block';
+        } else if (data.state === 'SOLAT') {
+          statusBadge.textContent = `🕌 SOLAT ${pName} BERJEMAAH`;
+          statusBadge.style.display = 'inline-block';
+        } else if (data.state === 'DOA_ADHAN') {
+          statusBadge.textContent = `🤲 DOA SELEPAS AZAN`;
+          statusBadge.style.display = 'inline-block';
+        } else if (data.state === 'PRE_ADHAN') {
+          statusBadge.textContent = `⏰ PERSEDIAAN AZAN ${pName}`;
+          statusBadge.style.display = 'inline-block';
+        } else {
+          statusBadge.style.display = 'none';
+        }
+      } else if (data.next_prayer) {
+        const nextName = String(data.next_prayer).toUpperCase();
+        const nextTime = (data.ribbon_times && (data.ribbon_times[data.next_prayer] || data.ribbon_times[data.next_prayer.toLowerCase()])) || '';
+        statusBadge.textContent = nextTime ? `MENUJU ${nextName} (${nextTime})` : `MENUJU ${nextName}`;
+        statusBadge.style.display = 'inline-block';
+      } else {
+        statusBadge.style.display = 'none';
+      }
+    }
+
     // Update Hijri Event Countdown Badge
-    const countdownEnabled = (data.settings && data.settings.hijri_countdown_enabled !== '0' && data.settings.hijri_countdown_enabled !== false);
+    const isBadgeCountdownEnabled = (data.settings && data.settings.hijri_countdown_enabled !== '0' && data.settings.hijri_countdown_enabled !== false);
     if (window.HijriCountdown) {
       try {
-        window.HijriCountdown.updateCountdownBadge('hijri-countdown-badge', data.hijri_date || null, countdownEnabled);
+        window.HijriCountdown.updateCountdownBadge('hijri-countdown-badge', data.hijri_date || null, isBadgeCountdownEnabled);
       } catch (err) {
         console.warn('[HIJRI] Badge update notice:', err);
       }
@@ -2022,15 +2380,48 @@ window.addEventListener('DOMContentLoaded', () => {
   try {
     const syncChannel = new BroadcastChannel('esolat_sync');
     syncChannel.onmessage = (event) => {
-      if (event.data && (event.data.type === 'TAKWIM_UPDATED' || event.data.type === 'SETTINGS_UPDATED')) {
-        syncState();
+      if (event.data) {
+        if (event.data.type === 'TOGGLE_KULIAH_FULLSCREEN') {
+          setKuliahFullScreen(event.data.value);
+        } else if (
+          event.data.type === 'TAKWIM_UPDATED' || 
+          event.data.type === 'SETTINGS_UPDATED' ||
+          event.data.type === 'UPDATE_DEATH_NOTICE' ||
+          event.data.type === 'kiosk_media_config' ||
+          event.data.type === 'media_update'
+        ) {
+          if (event.data.type === 'kiosk_media_config' || event.data.type === 'media_update') {
+            const cfg = event.data.media_config || event.data;
+            if (cfg && window.setupMediaStream) {
+              window.setupMediaStream(cfg.media_stream_url || '', cfg.media_source_type || 'slides', true, 80);
+            }
+          }
+          syncState();
+        }
       }
     };
   } catch (_) {}
 
   window.addEventListener('storage', (event) => {
-    if (event.key && (event.key.startsWith('cached_takwim') || event.key === 'esolat_admin_settings' || event.key === 'esolat_zone')) {
-      syncState();
+    if (event.key) {
+      if (event.key === 'kuliah_fullscreen') {
+        setKuliahFullScreen(event.newValue === 'true' || event.newValue === true);
+      } else if (
+        event.key.startsWith('cached_takwim') || 
+        event.key === 'esolat_admin_settings' || 
+        event.key === 'esolat_zone' ||
+        event.key === 'kiosk_media_config'
+      ) {
+        if (event.key === 'kiosk_media_config' && event.newValue) {
+          try {
+            const cfg = JSON.parse(event.newValue);
+            if (cfg && window.setupMediaStream) {
+              window.setupMediaStream(cfg.media_stream_url || '', cfg.media_source_type || 'slides', true, 80);
+            }
+          } catch (_) {}
+        }
+        syncState();
+      }
     }
   });
 
@@ -2038,6 +2429,201 @@ window.addEventListener('DOMContentLoaded', () => {
   startBottomWidgetCycle();
   initCanvasInteractionListeners();
   initMaintenanceSystem();
+  initTvRemoteAndModals();
   syncState();
   setInterval(syncState, 1000);
 });
+
+/* ==================== TV REMOTE & MODAL CONTROLLERS ==================== */
+function initTvRemoteAndModals() {
+  const modalTvSettings = document.getElementById('modalTvSettings');
+  const modalDonationQr = document.getElementById('modalDonationQr');
+  const modalExitConfirm = document.getElementById('modalExitConfirm');
+  const tvOfflineBadge = document.getElementById('tvOfflineBadge');
+
+  const THEME_LIST = [
+    'emerald_nabawi',
+    'royal_sapphire',
+    'midnight_oled',
+    'madinah_bronze',
+    'al_aqsa_teal',
+    'dark_glass'
+  ];
+
+  function applyKioskTheme(themeName) {
+    const cleanTheme = (themeName || 'emerald_nabawi').toLowerCase().replace(/-/g, '_');
+    const ALL_THEMES = [
+      'theme-emerald-nabawi', 'theme-emerald_nabawi', 'theme-emerald',
+      'theme-royal-sapphire', 'theme-royal_sapphire', 'theme-sapphire',
+      'theme-midnight-oled', 'theme-midnight_oled', 'theme-clean-minimalist', 'theme-clean_minimalist',
+      'theme-madinah-bronze', 'theme-madinah_bronze', 'theme-terracotta',
+      'theme-al-aqsa-teal', 'theme-al_aqsa_teal', 'theme-ottoman',
+      'theme-dark-glass', 'theme-dark_glass'
+    ];
+    ALL_THEMES.forEach(c => {
+      document.body.classList.remove(c);
+      if (kioskContainer) kioskContainer.classList.remove(c);
+    });
+    document.body.classList.add(`theme-${cleanTheme}`);
+    if (kioskContainer) kioskContainer.classList.add(`theme-${cleanTheme}`);
+    localStorage.setItem('kiosk_theme', cleanTheme);
+
+    // Update active state in modal buttons
+    document.querySelectorAll('.tv-theme-btn').forEach(btn => {
+      if (btn.getAttribute('data-theme') === cleanTheme) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+
+    // Save to server backend
+    fetch('/api/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ kiosk_theme: cleanTheme })
+    }).catch(() => {});
+
+    try {
+      const ch = new BroadcastChannel('esolat_sync');
+      ch.postMessage({ type: 'SETTINGS_UPDATED', kiosk_theme: cleanTheme });
+    } catch (_) {}
+  }
+
+  // Bind theme buttons in Quick Settings
+  document.querySelectorAll('.tv-theme-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const t = btn.getAttribute('data-theme');
+      if (t) applyKioskTheme(t);
+    });
+  });
+
+  // Audio Toggle
+  let tvAudioMuted = false;
+  const btnTvToggleAudio = document.getElementById('btnTvToggleAudio');
+  const tvAudioStatusText = document.getElementById('tvAudioStatusText');
+  if (btnTvToggleAudio) {
+    btnTvToggleAudio.addEventListener('click', () => {
+      tvAudioMuted = !tvAudioMuted;
+      [audioAdhan, audioSubuh, audioBeep, audioPreAdhan].forEach(a => {
+        if (a) a.muted = tvAudioMuted;
+      });
+      if (tvAudioStatusText) {
+        tvAudioStatusText.textContent = tvAudioMuted ? 'Audio Azan: SENYAP (MUTE)' : 'Audio Azan: AKTIF';
+      }
+    });
+  }
+
+  // Reload button
+  const btnTvReload = document.getElementById('btnTvReload');
+  if (btnTvReload) {
+    btnTvReload.addEventListener('click', () => {
+      window.location.reload();
+    });
+  }
+
+  // Modal Close buttons
+  const btnCloseTvSettings = document.getElementById('btnCloseTvSettings');
+  if (btnCloseTvSettings) {
+    btnCloseTvSettings.addEventListener('click', () => {
+      if (modalTvSettings) modalTvSettings.classList.remove('active');
+    });
+  }
+
+  const btnCloseDonationQr = document.getElementById('btnCloseDonationQr');
+  if (btnCloseDonationQr) {
+    btnCloseDonationQr.addEventListener('click', () => {
+      if (modalDonationQr) modalDonationQr.classList.remove('active');
+    });
+  }
+
+  const btnCancelExitConfirm = document.getElementById('btnCancelExitConfirm');
+  if (btnCancelExitConfirm) {
+    btnCancelExitConfirm.addEventListener('click', () => {
+      if (modalExitConfirm) modalExitConfirm.classList.remove('active');
+    });
+  }
+
+  const btnProceedExit = document.getElementById('btnProceedExit');
+  if (btnProceedExit) {
+    btnProceedExit.addEventListener('click', () => {
+      window.location.href = '/admin/';
+    });
+  }
+
+  // TV Remote Control & Keyboard D-Pad Navigation
+  window.addEventListener('keydown', (e) => {
+    // If PIN modal is open, let maintenance keypad handle digits
+    const maintModal = document.getElementById('modalMaintenance');
+    if (maintModal && maintModal.classList.contains('active')) {
+      return;
+    }
+
+    const key = e.key;
+
+    // 1. Menu / 'M' / 'N' key -> Toggle TV Quick Settings & Network QR
+    if (key === 'm' || key === 'M' || key === 'n' || key === 'N' || key === 'ContextMenu') {
+      e.preventDefault();
+      if (modalTvSettings) {
+        const isOpening = !modalTvSettings.classList.contains('active');
+        modalTvSettings.classList.toggle('active');
+        if (modalDonationQr) modalDonationQr.classList.remove('active');
+        if (modalExitConfirm) modalExitConfirm.classList.remove('active');
+        if (isOpening && window.renderKioskNetworkQr) {
+          window.renderKioskNetworkQr(true);
+        }
+      }
+    }
+
+    // 2. 'T' key -> Cycle Theme instantly
+    else if (key === 't' || key === 'T') {
+      e.preventDefault();
+      const cur = (localStorage.getItem('kiosk_theme') || 'emerald_nabawi').toLowerCase();
+      let nextIdx = (THEME_LIST.indexOf(cur) + 1) % THEME_LIST.length;
+      if (nextIdx < 0) nextIdx = 0;
+      applyKioskTheme(THEME_LIST[nextIdx]);
+    }
+
+    // 3. 'Enter' / 'Space' / 'Q' -> Toggle DuitNow QR Donation Pop-up
+    else if ((key === 'Enter' || key === ' ' || key === 'q' || key === 'Q') && !modalTvSettings?.classList.contains('active')) {
+      e.preventDefault();
+      if (modalDonationQr) {
+        modalDonationQr.classList.toggle('active');
+        if (modalExitConfirm) modalExitConfirm.classList.remove('active');
+      }
+    }
+
+    // 4. 'Escape' / 'Back' -> Dismiss modal or show Exit Confirmation
+    else if (key === 'Escape' || key === 'Backspace' || key === 'BrowserBack') {
+      if (modalTvSettings?.classList.contains('active')) {
+        e.preventDefault();
+        modalTvSettings.classList.remove('active');
+      } else if (modalDonationQr?.classList.contains('active')) {
+        e.preventDefault();
+        modalDonationQr.classList.remove('active');
+      } else if (modalExitConfirm?.classList.contains('active')) {
+        e.preventDefault();
+        modalExitConfirm.classList.remove('active');
+      } else {
+        e.preventDefault();
+        if (modalExitConfirm) modalExitConfirm.classList.add('active');
+      }
+    }
+  });
+
+  // Offline / Online Status Monitoring
+  function updateOfflineStatus() {
+    if (tvOfflineBadge) {
+      if (!navigator.onLine) {
+        tvOfflineBadge.style.display = 'flex';
+      } else {
+        tvOfflineBadge.style.display = 'none';
+      }
+    }
+  }
+
+  window.addEventListener('online', updateOfflineStatus);
+  window.addEventListener('offline', updateOfflineStatus);
+  updateOfflineStatus();
+}

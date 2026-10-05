@@ -33,32 +33,32 @@
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
   
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="./css/style.css">
 
   <!-- PWA Manifest & Icons -->
-  <link rel="manifest" href="/esolat/manifest.json">
+  <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#064e3b">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="e-Solat">
-  <link rel="apple-touch-icon" href="/esolat/icons/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="/esolat/icons/icon-192.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="/esolat/icons/icon-512.png">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png">
 </head>
 <body class="bg-islamic-pattern text-slate-100 min-h-screen antialiased selection:bg-emerald-500 selection:text-white">
 
   <!-- ==================== AUDIO DEMO ASSETS (HIDDEN) ==================== -->
-  <audio id="demoAudioChime" preload="none" src="assets/audio/pre_adhan.wav"></audio>
-  <audio id="demoAudioBeep" preload="none" src="assets/audio/beep.wav"></audio>
-  <audio id="demoAudioAdhan" preload="none" src="assets/audio/adhan.mp3"></audio>
+  <audio id="demoAudioChime" preload="none" src="./assets/audio/pre_adhan.wav"></audio>
+  <audio id="demoAudioBeep" preload="none" src="./assets/audio/beep.wav"></audio>
+  <audio id="demoAudioAdhan" preload="none" src="./assets/audio/adhan.mp3"></audio>
 
   <!-- ==================== TOP ANNOUNCEMENT BANNER ==================== -->
   <div class="bg-gradient-to-r from-emerald-950 via-emerald-800 to-emerald-950 border-b border-emerald-600/40 text-xs py-2.5 px-4 text-center text-emerald-100 shadow-md">
     <div class="max-w-7xl mx-auto flex items-center justify-center gap-3 flex-wrap">
       <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-black bg-amber-400 text-slate-950">📲 APLIKASI AJK</span>
       <span><b>Panel Kawalan Mudah Alih (PWA):</b> Imbas IP Surau &amp; kawal TV terus dari telefon anda!</span>
-      <a href="admin/" target="_blank" class="font-black text-amber-300 underline hover:text-white transition">🚀 Buka / Pasang PWA Sekarang &rarr;</a>
+      <a href="./admin/" target="_blank" class="font-black text-amber-300 underline hover:text-white transition">🚀 Buka / Pasang PWA Sekarang &rarr;</a>
       <span class="hidden md:inline text-emerald-600">|</span>
       <a href="https://wa.me/601118712388" target="_blank" class="text-emerald-300 hover:text-white transition hidden md:inline">WhatsApp: +6011-1871 2388</a>
     </div>
@@ -96,11 +96,11 @@
 
       <!-- Desktop CTA -->
       <div class="hidden lg:flex items-center gap-3">
-        <a href="admin/" target="_blank" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-xs bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 border border-emerald-300 shadow-lg shadow-emerald-950/80 hover:scale-105 transition duration-200">
+        <a href="./admin/" target="_blank" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-xs bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 border border-emerald-300 shadow-lg shadow-emerald-950/80 hover:scale-105 transition duration-200">
           <span>📲</span>
           <span>Pasang App AJK (PWA)</span>
         </a>
-        <a href="downloads/skywalker-esolat_1.3.14_amd64.deb" class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl font-bold text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 hover:border-emerald-500/50 transition duration-200" download>
+        <a href="./downloads/skywalker-esolat_1.3.14_amd64.deb" class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl font-bold text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 hover:border-emerald-500/50 transition duration-200" download>
           <span>📥</span>
           <span>Muat Turun .deb</span>
         </a>
@@ -121,7 +121,7 @@
 
     <!-- Mobile Nav Menu (Hidden by default) -->
     <div id="mobileNavMenu" class="hidden md:hidden px-4 pt-2 pb-6 bg-slate-900/95 border-b border-slate-800 space-y-3">
-      <a href="admin/" target="_blank" class="block w-full text-center py-3 rounded-xl font-black bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 shadow-lg text-sm">
+      <a href="./admin/" target="_blank" class="block w-full text-center py-3 rounded-xl font-black bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 shadow-lg text-sm">
         📲 Buka &amp; Pasang App AJK (PWA)
       </a>
       <a href="#ciri-ciri" class="block py-2 text-slate-300 hover:text-emerald-400 font-medium">Ciri Utama</a>
@@ -130,7 +130,7 @@
       <a href="#spesifikasi" class="block py-2 text-slate-300 hover:text-emerald-400 font-medium">Perkakasan</a>
       <a href="#pakej" class="block py-2 text-slate-300 hover:text-emerald-400 font-medium">Pakej Tawaran</a>
       <a href="#faq" class="block py-2 text-slate-300 hover:text-emerald-400 font-medium">Soalan Lazim</a>
-      <a href="downloads/skywalker-esolat_1.3.14_amd64.deb" class="block w-full text-center py-2.5 rounded-xl font-bold bg-slate-800 text-emerald-400 border border-slate-700 text-sm" download>
+      <a href="./downloads/skywalker-esolat_1.3.14_amd64.deb" class="block w-full text-center py-2.5 rounded-xl font-bold bg-slate-800 text-emerald-400 border border-slate-700 text-sm" download>
         📥 Muat Turun eSolat .deb (v1.3.14)
       </a>
       <a href="https://wa.me/601118712388" target="_blank" class="block w-full text-center py-3 rounded-xl font-bold bg-emerald-600 text-white">
@@ -166,7 +166,7 @@
           <a href="https://wa.me/601118712388?text=Assalamualaikum%20Skywalker%20Consortium,%20saya%20mewakili%20surau/masjid%20berminat%20dapatkan%20sebut%20harga%20e-Solat" target="_blank" class="w-full sm:w-auto px-8 py-4 rounded-xl font-extrabold text-base bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-xl shadow-amber-950/40 hover:-translate-y-0.5 transition duration-200 text-center">
             💬 Dapatkan Sebut Harga Rasmi (Quotation)
           </a>
-          <a href="downloads/skywalker-esolat_1.3.14_amd64.deb" class="w-full sm:w-auto px-8 py-4 rounded-xl font-bold text-base bg-emerald-600 hover:bg-emerald-500 text-white shadow-xl shadow-emerald-950/50 hover:-translate-y-0.5 transition duration-200 text-center flex items-center justify-center gap-2" download>
+          <a href="./downloads/skywalker-esolat_1.3.14_amd64.deb" class="w-full sm:w-auto px-8 py-4 rounded-xl font-bold text-base bg-emerald-600 hover:bg-emerald-500 text-white shadow-xl shadow-emerald-950/50 hover:-translate-y-0.5 transition duration-200 text-center flex items-center justify-center gap-2" download>
             <span>📥</span>
             <span>Muat Turun Percubaan 7 Hari (.deb)</span>
           </a>
@@ -197,7 +197,7 @@
                 </p>
               </div>
             </div>
-            <a href="admin/" target="_blank" class="w-full sm:w-auto px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-950 flex items-center justify-center gap-2 shrink-0 hover:scale-105 transition duration-200">
+            <a href="./admin/" target="_blank" class="w-full sm:w-auto px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-950 flex items-center justify-center gap-2 shrink-0 hover:scale-105 transition duration-200">
               <span>🚀</span>
               <span>Buka &amp; Pasang PWA</span>
             </a>
@@ -891,7 +891,7 @@
           </div>
 
           <div class="mt-8 space-y-2.5">
-            <a href="downloads/skywalker-esolat_1.3.14_amd64.deb" class="w-full py-3 rounded-xl font-extrabold text-xs bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-950/60 transition flex items-center justify-center gap-2 text-center" download>
+            <a href="./downloads/skywalker-esolat_1.3.14_amd64.deb" class="w-full py-3 rounded-xl font-extrabold text-xs bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-950/60 transition flex items-center justify-center gap-2 text-center" download>
               <span>📥</span>
               <span>Muat Turun Percubaan 7 Hari (.deb)</span>
             </a>

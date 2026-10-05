@@ -1,15 +1,18 @@
 /**
  * Skywalker e-Solat Service Worker
+ * Version: 1.3.14
  */
-const CACHE_NAME = 'esolat-pwa-v1.3.2';
+const CACHE_NAME = 'esolat-pwa-v1.3.14';
 const ASSETS = [
-  '/esolat/',
-  '/esolat/index.html',
-  '/esolat/manifest.json',
-  '/esolat/css/style.css',
-  '/esolat/js/main.js',
-  '/esolat/icons/icon-192.png',
-  '/esolat/icons/icon-512.png'
+  './',
+  './index.html',
+  './manifest.json',
+  './css/style.css',
+  './js/main.js',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
+  './icons/icon-maskable-512.png',
+  './icons/apple-touch-icon.png'
 ];
 
 self.addEventListener('install', (event) => {
@@ -34,14 +37,24 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   // Chrome PWA requirement: Must have a fetch event listener
+  if (event.request.method !== 'GET') return;
+
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
         return cachedResponse;
       }
-      return fetch(event.request).catch(() => {
-        if (event.request.mode === 'navigate') {
-          return caches.match('/esolat/index.html');
+      return fetch(event.request).then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+        }
+        return networkResponse;
+      }).catch(() => {
+        if (event.request.headers.get('accept')?.includes('text/html')) {
+          return caches.match('./index.html');
         }
       });
     })

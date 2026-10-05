@@ -2702,8 +2702,10 @@ function setupPWA() {
 
     const btnTopInstall = document.getElementById('btnInstallPwa');
     const pwaBanner = document.getElementById('pwaInstallBanner');
+    const loginPwaCard = document.getElementById('loginPwaInstallCard');
 
     if (btnTopInstall) btnTopInstall.style.display = 'inline-flex';
+    if (loginPwaCard) loginPwaCard.style.display = 'block';
     if (pwaBanner && !sessionStorage.getItem('dismissedPwaBanner')) {
       pwaBanner.style.display = 'block';
     }
@@ -2730,16 +2732,20 @@ function setupPWA() {
     deferredInstallPrompt = null;
     const btnTopInstall = document.getElementById('btnInstallPwa');
     const pwaBanner = document.getElementById('pwaInstallBanner');
+    const loginPwaCard = document.getElementById('loginPwaInstallCard');
     if (btnTopInstall) btnTopInstall.style.display = 'none';
     if (pwaBanner) pwaBanner.style.display = 'none';
+    if (loginPwaCard) loginPwaCard.style.display = 'none';
   };
 
   const btnTopInstall = document.getElementById('btnInstallPwa');
   const btnTrigger = document.getElementById('btnTriggerInstallPwa');
+  const btnLoginTrigger = document.getElementById('btnLoginTriggerInstall');
   const btnDismiss = document.getElementById('btnDismissPwaBanner');
 
   if (btnTopInstall) btnTopInstall.addEventListener('click', triggerInstall);
   if (btnTrigger) btnTrigger.addEventListener('click', triggerInstall);
+  if (btnLoginTrigger) btnLoginTrigger.addEventListener('click', triggerInstall);
   if (btnDismiss) {
     btnDismiss.addEventListener('click', () => {
       const pwaBanner = document.getElementById('pwaInstallBanner');

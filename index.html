@@ -1283,15 +1283,41 @@
   </footer>
 
   <!-- Scripts -->
-  <script src="js/main.js"></script>
+  <script src="./js/main.js"></script>
   <script>
+    let deferredPrompt = null;
+
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/esolat/sw.js', { scope: '/esolat/' })
-          .then((reg) => console.log('PWA Service Worker registered:', reg.scope))
-          .catch((err) => console.warn('PWA Service Worker registration failed:', err));
+        const swUrl = new URL('sw.js', window.location.href).href;
+        navigator.serviceWorker.register(swUrl)
+          .then((reg) => console.log('[PWA] Service Worker registered:', reg.scope))
+          .catch((err) => console.warn('[PWA] Service Worker registration failed:', err));
       });
     }
+
+    // Chrome / Android PWA Install Prompt Listener
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      console.log('[PWA] beforeinstallprompt captured');
+
+      const installBtns = document.querySelectorAll('.btn-install-pwa, #btn-install-pwa, [data-action="install-pwa"]');
+      installBtns.forEach((btn) => {
+        btn.style.display = 'inline-flex';
+        btn.onclick = async (ev) => {
+          ev.preventDefault();
+          if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log('[PWA] Install prompt outcome:', outcome);
+            deferredPrompt = null;
+          } else {
+            window.location.href = './admin/';
+          }
+        };
+      });
+    });
   </script>
 </body>
 </html>

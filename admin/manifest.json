@@ -1,5 +1,5 @@
 {
-  "name": "e-Solat Admin Console",
+  "name": "e-Solat Admin Mobile",
   "short_name": "e-Solat Admin",
   "description": "Panel Pengurusan & Kawalan Digital Kiosk e-Solat Surau & Masjid",
   "start_url": "./index.html",
@@ -7,7 +7,7 @@
   "display": "standalone",
   "background_color": "#064e3b",
   "theme_color": "#059669",
-  "orientation": "any",
+  "orientation": "portrait",
   "categories": ["utilities", "productivity"],
   "icons": [
     {

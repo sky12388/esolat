@@ -402,9 +402,11 @@ async function loadSettings() {
     const elSubLayout = document.getElementById('selectKioskSubLayout');
     if (elSubLayout) elSubLayout.value = s.kiosk_layout || 'full';
 
-    // Lower-Third Live Broadcast Overlay
+    // Lower-Third Live Broadcast Overlay & Kuliah Fullscreen
     const swLowerThird = document.getElementById('switchLowerThird');
     if (swLowerThird) swLowerThird.checked = (s.lower_third_enabled === '1' || s.lower_third_enabled === 1 || s.lower_third_enabled === true);
+    const swKuliahFs = document.getElementById('switchKuliahFullscreen');
+    if (swKuliahFs) swKuliahFs.checked = (s.kuliah_fullscreen === '1' || s.kuliah_fullscreen === 1 || s.kuliah_fullscreen === true);
     const elLtSpeaker = document.getElementById('inputLowerThirdSpeaker');
     if (elLtSpeaker) elLtSpeaker.value = s.lower_third_speaker || '';
     const elLtTopic = document.getElementById('inputLowerThirdTopic');
@@ -522,9 +524,18 @@ async function loadSettings() {
       if (document.getElementById('valAzanVolume')) document.getElementById('valAzanVolume').textContent = `${azanVol}%`;
     }
 
-    // Theme Selector
-    const activeTheme = (s.kiosk_theme || 'emerald_nabawi').toLowerCase().replace('-', '_');
-    const themeRadio = document.querySelector(`input[name="kiosk_theme"][value="${activeTheme}"]`);
+    // Theme Selector (Multi-Theme Engine)
+    let activeTheme = (s.selected_theme || s.kiosk_theme || 'emerald').toLowerCase().trim().replace(/_/g, '-');
+    if (activeTheme === 'emerald-nabawi') activeTheme = 'emerald';
+    if (activeTheme === 'royal-sapphire') activeTheme = 'navy-gold';
+    if (activeTheme === 'midnight-oled' || activeTheme === 'clean-minimalist') activeTheme = 'onyx-dark';
+    if (activeTheme === 'al-aqsa-teal') activeTheme = 'ottoman-cyan';
+    if (activeTheme === 'ivory') activeTheme = 'clean-ivory';
+
+    let themeRadio = document.querySelector(`input[name="kiosk_theme"][value="${activeTheme}"]`);
+    if (!themeRadio) {
+      themeRadio = document.querySelector(`input[name="kiosk_theme"][value="emerald"]`);
+    }
     if (themeRadio) themeRadio.checked = true;
 
     // Instant Janazah Notice
@@ -649,6 +660,8 @@ async function triggerTakwimSync(zone) {
       if (fb) fb.innerHTML = `<span style="color:#34d399;">✓ ${res.message}</span>`;
       showToast(res.message);
       broadcastAdminSync('TAKWIM_UPDATED', { zone });
+      await syncAdminStatePoller();
+      updateAdminRealTimeStatus();
       return;
     } else {
       throw new Error(res?.message || 'Gagal memuat turun data');
@@ -666,6 +679,8 @@ async function triggerTakwimSync(zone) {
         if (fb) fb.innerHTML = `<span style="color:#34d399;">${msg}</span>`;
         showToast(msg);
         broadcastAdminSync('TAKWIM_UPDATED', { zone });
+        await syncAdminStatePoller();
+        updateAdminRealTimeStatus();
         return;
       }
     } catch (fallbackErr) {
@@ -688,6 +703,8 @@ document.getElementById('btnSaveOffsets').addEventListener('click', async () => 
   try {
     await apiRequest('/api/settings', 'POST', updates);
     showToast('Pelarasan waktu solat berjaya disimpan!');
+    await syncAdminStatePoller();
+    updateAdminRealTimeStatus();
   } catch (err) {
     showToast(err.message, true);
   }
@@ -1531,47 +1548,106 @@ if (rangeVideoVol) {
   });
 }
 
-// 2. Preset stream links
-window.setPresetMedia = function(type) {
+// 2. Preset stream links & Auto Sync
+window.setPresetMedia = async function(type) {
   const mediaSourceSelect = document.getElementById('selectMediaSourceType');
   const typeSelect = document.getElementById('selectVideoType');
   const urlInput = document.getElementById('inputVideoUrl');
-  if (mediaSourceSelect) mediaSourceSelect.value = 'stream';
 
-  if (type === 'phone_cam') {
-    if (typeSelect) typeSelect.value = 'hls';
-    if (urlInput) {
-      urlInput.value = 'http://192.168.1.50:8080/video';
+  let media_source_type = 'stream';
+  let video_source_type = 'youtube';
+  let media_stream_url = '';
+  let toastMsg = '';
+
+  if (type === 'makkah') {
+    media_source_type = 'stream';
+    video_source_type = 'hls';
+    media_stream_url = 'https://cdn-globecast.akamaized.net/live/eds/saudi_quran/hls_roku/index.m3u8';
+    toastMsg = '🕋 Siaran Langsung Makkah Live 24/7 (HLS) diaktifkan di TV Kiosk!';
+  } else if (type === 'madinah') {
+    media_source_type = 'stream';
+    video_source_type = 'hls';
+    media_stream_url = 'https://cdn-globecast.akamaized.net/live/eds/saudi_sunnah/hls_roku/index.m3u8';
+    toastMsg = '🕌 Siaran Langsung Madinah Live 24/7 (HLS) diaktifkan di TV Kiosk!';
+  } else if (type === 'alhijrah') {
+    media_source_type = 'stream';
+    video_source_type = 'hls';
+    media_stream_url = 'https://d25tgymtnqzu8s.cloudfront.net/smil:berita/playlist.m3u8?id=5';
+    toastMsg = '📺 Siaran Langsung TV Al-Hijrah / Berita (HLS) diaktifkan di TV Kiosk!';
+  } else if (type === 'phone_cam') {
+    media_source_type = 'stream';
+    video_source_type = 'hls';
+    media_stream_url = 'http://192.168.1.50:8080/video';
+    toastMsg = '📱 Pautan Kamera Telefon ditetapkan. Sila sahkan alamat IP telefon anda.';
+  } else if (type === 'hls_sample') {
+    media_source_type = 'stream';
+    video_source_type = 'hls';
+    media_stream_url = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
+    toastMsg = '🌊 Strim Ujian HLS Mux dimuatkan!';
+  } else if (type === 'clear' || type === 'default' || type === 'slides') {
+    media_source_type = 'slides';
+    video_source_type = 'mp4';
+    media_stream_url = '';
+    toastMsg = '📋 Pemain media dikosongkan. Slaid poster dipaparkan sebagai lalai.';
+  }
+
+  // Update UI form inputs
+  if (mediaSourceSelect) mediaSourceSelect.value = media_source_type;
+  if (typeSelect) typeSelect.value = video_source_type;
+  if (urlInput) {
+    urlInput.value = media_stream_url;
+    if (type === 'phone_cam') {
       urlInput.focus();
       urlInput.select();
     }
-  } else if (type === 'youtube') {
-    if (typeSelect) typeSelect.value = 'youtube';
-    if (urlInput) {
-      urlInput.value = 'https://www.youtube.com/watch?v=';
-      urlInput.focus();
+  }
+
+  // Save to localStorage for instant cross-tab kiosk sync
+  const mediaConfig = {
+    media_source_type,
+    video_source_type,
+    media_stream_url,
+    timestamp: Date.now()
+  };
+  try {
+    localStorage.setItem('kiosk_media_config', JSON.stringify(mediaConfig));
+  } catch (_) {}
+
+  // Broadcast sync signal to TV Kiosk
+  broadcastAdminSync('kiosk_media_config', { media_config: mediaConfig });
+  broadcastAdminSync('SETTINGS_UPDATED');
+
+  // Persist settings to backend
+  try {
+    await apiRequest('/api/settings', 'POST', {
+      media_source_type,
+      video_source_type,
+      video_source_url: media_stream_url,
+      media_stream_url
+    });
+    if (toastMsg) showToast(toastMsg);
+    // Refresh preview frame if open
+    const frame = document.getElementById('adminKioskPreviewFrame');
+    if (frame) {
+      setTimeout(() => { frame.src = '/kiosk?t=' + Date.now(); }, 500);
     }
-  } else if (type === 'alhijrah') {
-    if (typeSelect) typeSelect.value = 'youtube';
-    if (urlInput) urlInput.value = 'https://www.youtube.com/watch?v=live_stream';
-  } else if (type === 'hls_sample') {
-    if (typeSelect) typeSelect.value = 'hls';
-    if (urlInput) urlInput.value = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
-  } else if (type === 'clear') {
-    if (urlInput) urlInput.value = '';
+  } catch (err) {
+    showToast(`Ralat menyimpan praset: ${err.message}`, true);
   }
 };
 
+const btnPresetMakkahMedia = document.getElementById('btnPresetMakkah');
+if (btnPresetMakkahMedia) btnPresetMakkahMedia.addEventListener('click', () => setPresetMedia('makkah'));
+const btnPresetMadinahMedia = document.getElementById('btnPresetMadinah');
+if (btnPresetMadinahMedia) btnPresetMadinahMedia.addEventListener('click', () => setPresetMedia('madinah'));
+const btnPresetAlhijrahMedia = document.getElementById('btnPresetAlhijrah');
+if (btnPresetAlhijrahMedia) btnPresetAlhijrahMedia.addEventListener('click', () => setPresetMedia('alhijrah'));
+const btnClearPresetMedia = document.getElementById('btnPresetClear');
+if (btnClearPresetMedia) btnClearPresetMedia.addEventListener('click', () => setPresetMedia('clear'));
 const btnPhoneCam = document.getElementById('btnPresetPhoneCam');
 if (btnPhoneCam) btnPhoneCam.addEventListener('click', () => setPresetMedia('phone_cam'));
-const btnYouTube = document.getElementById('btnPresetYouTube');
-if (btnYouTube) btnYouTube.addEventListener('click', () => setPresetMedia('youtube'));
-const btnAlhijrah = document.getElementById('btnPresetAlhijrah');
-if (btnAlhijrah) btnAlhijrah.addEventListener('click', () => setPresetMedia('alhijrah'));
 const btnSampleHls = document.getElementById('btnPresetSampleHls');
 if (btnSampleHls) btnSampleHls.addEventListener('click', () => setPresetMedia('hls_sample'));
-const btnClearPreset = document.getElementById('btnPresetClear');
-if (btnClearPreset) btnClearPreset.addEventListener('click', () => setPresetMedia('clear'));
 
 // 3. Layout Selector Cards Click Interaction
 document.querySelectorAll('#multiLayoutSelectorGrid .layout-option, #dashLayoutSelectorGrid .layout-option').forEach(opt => {
@@ -1959,9 +2035,21 @@ const btnSaveThemeEl = document.getElementById('btnSaveTheme');
 if (btnSaveThemeEl) {
   btnSaveThemeEl.addEventListener('click', async () => {
     const selected = document.querySelector('input[name="kiosk_theme"]:checked');
-    const themeVal = selected ? selected.value : 'emerald_nabawi';
+    const themeVal = selected ? selected.value : 'emerald';
     try {
-      await apiRequest('/api/settings', 'POST', { kiosk_theme: themeVal });
+      await apiRequest('/api/settings', 'POST', { 
+        selected_theme: themeVal,
+        kiosk_theme: themeVal 
+      });
+      try {
+        const ch = new BroadcastChannel('esolat_sync');
+        ch.postMessage({ 
+          type: 'THEME_CHANGED', 
+          theme: themeVal,
+          selected_theme: themeVal,
+          kiosk_theme: themeVal 
+        });
+      } catch (_) {}
       showToast('🎭 Tema visual TV Kiosk berjaya dikemas kini!');
       await loadSettings();
     } catch (err) {
@@ -1990,15 +2078,26 @@ if (btnSaveJanazahEl) {
     const janazah_kubur_loc = document.getElementById('inputJanazahKuburLoc') ? document.getElementById('inputJanazahKuburLoc').value.trim() : '';
     const jumaat_khutbah_title = document.getElementById('inputJumaatKhutbahTitle') ? document.getElementById('inputJumaatKhutbahTitle').value.trim() : '';
 
+    const payload = {
+      janazah_enabled,
+      janazah_arwah_name,
+      janazah_solat_time,
+      janazah_solat_loc,
+      janazah_kubur_loc,
+      jumaat_khutbah_title
+    };
+
     try {
-      await apiRequest('/api/settings', 'POST', {
-        janazah_enabled,
-        janazah_arwah_name,
-        janazah_solat_time,
-        janazah_solat_loc,
-        janazah_kubur_loc,
-        jumaat_khutbah_title
-      });
+      await apiRequest('/api/settings', 'POST', payload);
+      try {
+        const cached = JSON.parse(localStorage.getItem('esolat_admin_settings') || '{}');
+        Object.assign(cached, payload);
+        localStorage.setItem('esolat_admin_settings', JSON.stringify(cached));
+      } catch (_) {}
+
+      broadcastAdminSync('SETTINGS_UPDATED', payload);
+      broadcastAdminSync('UPDATE_DEATH_NOTICE', payload);
+
       showToast(janazah_enabled === '1' ? '🕊️ Papan tanda takziah diaktifkan di skrin TV!' : 'Tetapan takziah & khutbah disimpan.');
       await loadSettings();
     } catch (err) {
@@ -2460,15 +2559,112 @@ if (btnRescanStorage) {
   });
 }
 
-// ==================== LIVE STATUS POLLER ====================
+// ==================== LIVE STATUS POLLER & REAL-TIME ADMIN CLOCK ====================
+let adminPrayerTimes = null;
+let adminClockInterval = null;
+
+// Initialize cached ribbon times from local storage if available
+try {
+  const cachedTimes = localStorage.getItem('esolat_admin_ribbon_times');
+  if (cachedTimes) {
+    adminPrayerTimes = JSON.parse(cachedTimes);
+  }
+} catch (_) {}
+
+function calculateNextPrayerFromTimes(now, times) {
+  if (!times) return null;
+  // Fardhu prayers only (Syuruk & Imsak are marker times, not prayer times)
+  const prayerOrder = [
+    { name: 'Subuh', time: times.Subuh },
+    { name: 'Zohor', time: times.Zohor },
+    { name: 'Asar', time: times.Asar },
+    { name: 'Maghrib', time: times.Maghrib },
+    { name: 'Isyak', time: times.Isyak }
+  ];
+
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+  for (const p of prayerOrder) {
+    if (!p.time || p.time === '--:--') continue;
+    const parts = p.time.split(':');
+    if (parts.length >= 2) {
+      const pMinutes = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+      if (pMinutes > currentMinutes) {
+        return { name: p.name.toUpperCase(), time: p.time };
+      }
+    }
+  }
+
+  // If passed Isyak, next prayer is tomorrow's Subuh
+  const subuhTime = times.Subuh || '--:--';
+  return { name: 'SUBUH', time: subuhTime };
+}
+
+function updateAdminRealTimeStatus() {
+  const now = new Date();
+  
+  // 1. Update Real-Time Clock
+  const clockEl = document.getElementById('statClock') || document.getElementById('adminCurrentTime');
+  if (clockEl) {
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    clockEl.textContent = `${hours}:${minutes}:${seconds}`;
+  }
+
+  // 2. Update Next Prayer Display
+  const nextEl = document.getElementById('statNextPrayer');
+  if (nextEl) {
+    const next = calculateNextPrayerFromTimes(now, adminPrayerTimes);
+    if (next && next.time && next.time !== '--:--') {
+      nextEl.textContent = `${next.name} (${next.time})`;
+    }
+  }
+}
+
+function startAdminClock() {
+  if (adminClockInterval) clearInterval(adminClockInterval);
+  updateAdminRealTimeStatus();
+  adminClockInterval = setInterval(updateAdminRealTimeStatus, 1000);
+}
+
+async function syncAdminStatePoller() {
+  try {
+    const s = await fetch('/api/state', { cache: 'no-store' }).then(r => r.json());
+    if (s) {
+      if (s.ribbon_times) {
+        adminPrayerTimes = s.ribbon_times;
+        try {
+          localStorage.setItem('esolat_admin_ribbon_times', JSON.stringify(s.ribbon_times));
+        } catch (_) {}
+      }
+
+      const nextEl = document.getElementById('statNextPrayer');
+      if (nextEl) {
+        if (s.next_prayer && s.ribbon_times && s.ribbon_times[s.next_prayer]) {
+          nextEl.textContent = `${s.next_prayer.toUpperCase()} (${s.ribbon_times[s.next_prayer]})`;
+        } else if (s.next_prayer) {
+          const m = Math.floor((s.time_to_next_seconds || 0) / 60);
+          nextEl.textContent = `${s.next_prayer.toUpperCase()} (${m}m)`;
+        }
+      }
+
+      if (s.settings && s.settings.jakim_zone) {
+        const zoneEl = document.getElementById('statZone');
+        if (zoneEl && (zoneEl.textContent === '--' || !zoneEl.textContent)) {
+          zoneEl.textContent = s.settings.jakim_zone;
+        }
+      }
+    }
+  } catch (e) {
+    // Silent fail for polling errors
+  }
+}
+
 function startStatusPoller() {
-  setInterval(async () => {
-    try {
-      const s = await fetch('/api/state').then(r => r.json());
-      document.getElementById('statClock').textContent = s.current_time || '--:--:--';
-      document.getElementById('statNextPrayer').textContent = `${(s.next_prayer || '--').toUpperCase()} (${Math.floor((s.time_to_next_seconds || 0) / 60)}m)`;
-    } catch (e) {}
-  }, 2000);
+  startAdminClock();
+  syncAdminStatePoller();
+  setInterval(syncAdminStatePoller, 2000);
 }
 
 // ==================== PWA WEBAPK / SERVICE WORKER REGISTRATION ====================
@@ -2557,9 +2753,30 @@ let cachedNetworkInfo = null;
 
 async function updateNetworkInfo() {
   try {
-    const net = await fetch('/api/system/network').then(r => r.json());
+    let net = null;
+    try {
+      const res = await fetch('/api/system/network-info', { cache: 'no-store' });
+      if (res.ok) net = await res.json();
+    } catch (_) {}
+    if (!net) {
+      net = await fetch('/api/system/network', { cache: 'no-store' }).then(r => r.json());
+    }
     cachedNetworkInfo = net;
     renderNetworkInfo(net);
+
+    // Cache paired network settings in localStorage
+    if (net) {
+      const pIp = net.ip || net.primary_ip;
+      const port = net.port || '8080';
+      const adminUrl = net.admin_url || `http://${pIp}:${port}/admin/`;
+      try {
+        if (pIp && pIp !== '127.0.0.1' && pIp !== 'localhost') {
+          localStorage.setItem('last_connected_ip', `${pIp}:${port}`);
+          localStorage.setItem('esolat_base_url', `http://${pIp}:${port}`);
+          localStorage.setItem('esolat_admin_url', adminUrl);
+        }
+      } catch (_) {}
+    }
   } catch (err) {
     console.warn('[NETWORK] Could not fetch network info:', err);
   }
@@ -2707,6 +2924,19 @@ function setupSmartPairingUI() {
   const manualIpInput = document.getElementById('inputManualKioskIp');
   const btnConnect = document.getElementById('btnConnectManualIp');
 
+  // Auto-cache base URL upon opening link from QR scan for the first time
+  const currentHost = window.location.hostname;
+  const currentPort = window.location.port || '8080';
+  const currentOrigin = window.location.origin;
+  if (currentHost && currentHost !== 'localhost' && currentHost !== '127.0.0.1') {
+    try {
+      const targetStr = `${currentHost}:${currentPort}`;
+      localStorage.setItem('last_connected_ip', targetStr);
+      localStorage.setItem('esolat_base_url', currentOrigin);
+      localStorage.setItem('esolat_admin_url', window.location.href);
+    } catch (_) {}
+  }
+
   // Check localStorage for previous connection
   const lastIp = localStorage.getItem('last_connected_ip');
   if (lastIp) {
@@ -2766,6 +2996,7 @@ function setupQuickControlsUI() {
   const inputQuickTicker = document.getElementById('inputQuickTickerMsg');
   const btnPresetMakkah = document.getElementById('btnQuickPresetMakkah');
   const btnPresetMadinah = document.getElementById('btnQuickPresetMadinah');
+  const btnPresetAlhijrah = document.getElementById('btnQuickPresetAlhijrah');
   const btnPresetDefault = document.getElementById('btnQuickPresetDefault');
 
   // 1. Force Iqamah Now (Emergency Trigger for Bilal/Imam)
@@ -2848,7 +3079,7 @@ function setupQuickControlsUI() {
 
   // 5. Quick Stage Presets
   const setPreset = async (presetType, btnActive) => {
-    [btnPresetMakkah, btnPresetMadinah, btnPresetDefault].forEach(b => {
+    [btnPresetMakkah, btnPresetMadinah, btnPresetAlhijrah, btnPresetDefault].forEach(b => {
       if (b) {
         b.classList.remove('active');
         b.style.borderColor = 'rgba(255,255,255,0.2)';
@@ -2861,25 +3092,119 @@ function setupQuickControlsUI() {
       btnActive.style.color = '#34d399';
     }
 
-    try {
-      if (presetType === 'makkah') {
-        await apiRequest('/api/settings', 'POST', { display_mode: 'video', stream_preset: 'makkah' });
-        showToast('🕋 Saluran Makkah Live diaktifkan di TV.');
-      } else if (presetType === 'madinah') {
-        await apiRequest('/api/settings', 'POST', { display_mode: 'video', stream_preset: 'madinah' });
-        showToast('🕌 Saluran Madinah Live diaktifkan di TV.');
-      } else {
-        await apiRequest('/api/settings', 'POST', { display_mode: 'signage', stream_preset: 'none' });
-        showToast('📋 Paparan Takwim & Slaid Lalai diaktifkan di TV.');
-      }
-    } catch (err) {
-      showToast(`Ralat menetapkan paparan: ${err.message}`, true);
+    if (window.setPresetMedia) {
+      await window.setPresetMedia(presetType);
     }
   };
 
   if (btnPresetMakkah) btnPresetMakkah.addEventListener('click', () => setPreset('makkah', btnPresetMakkah));
   if (btnPresetMadinah) btnPresetMadinah.addEventListener('click', () => setPreset('madinah', btnPresetMadinah));
-  if (btnPresetDefault) btnPresetDefault.addEventListener('click', () => setPreset('default', btnPresetDefault));
+  if (btnPresetAlhijrah) btnPresetAlhijrah.addEventListener('click', () => setPreset('alhijrah', btnPresetAlhijrah));
+  if (btnPresetDefault) btnPresetDefault.addEventListener('click', () => setPreset('clear', btnPresetDefault));
+
+  // 6. Kuliah Live Surau Toggle & Source Selector
+  const btnToggleLectureLive = document.getElementById('btnToggleLectureLive');
+  const btnToggleLectureText = document.getElementById('btnToggleLectureText');
+  const badgeLectureLiveStatus = document.getElementById('badgeLectureLiveStatus');
+  const selectLectureSource = document.getElementById('selectLectureSource');
+  const customLectureUrlGroup = document.getElementById('customLectureUrlGroup');
+  const inputCustomLectureUrl = document.getElementById('inputCustomLectureUrl');
+
+  let isLectureLiveActive = false;
+
+  if (selectLectureSource) {
+    selectLectureSource.addEventListener('change', () => {
+      if (selectLectureSource.value === 'custom') {
+        if (customLectureUrlGroup) customLectureUrlGroup.style.display = 'block';
+      } else {
+        if (customLectureUrlGroup) customLectureUrlGroup.style.display = 'none';
+      }
+    });
+  }
+
+  if (btnToggleLectureLive) {
+    btnToggleLectureLive.addEventListener('click', async () => {
+      if (!isLectureLiveActive) {
+        // START KULIAH
+        let activeLectureUrl = selectLectureSource ? selectLectureSource.value : 'http://10.91.129.177:8888/live.m3u8';
+        if (activeLectureUrl === 'custom' && inputCustomLectureUrl) {
+          activeLectureUrl = inputCustomLectureUrl.value.trim() || 'http://10.91.129.177:8888/live.m3u8';
+        }
+
+        isLectureLiveActive = true;
+        btnToggleLectureLive.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+        btnToggleLectureLive.style.boxShadow = '0 4px 15px rgba(16, 185, 129, 0.4)';
+        if (btnToggleLectureText) btnToggleLectureText.textContent = '⏹ TAMATKAN KULIAH (KEMBALI KE MAKKAH)';
+        if (badgeLectureLiveStatus) {
+          badgeLectureLiveStatus.textContent = 'SEDANG BERSIARAN';
+          badgeLectureLiveStatus.style.background = 'rgba(16, 185, 129, 0.2)';
+          badgeLectureLiveStatus.style.color = '#34d399';
+          badgeLectureLiveStatus.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+        }
+
+        const payload = {
+          action: 'SWITCH_MEDIA',
+          mode: 'KULIAH',
+          sourceUrl: activeLectureUrl,
+          type: 'hls',
+          timestamp: Date.now()
+        };
+
+        try {
+          localStorage.setItem('kiosk_media_config', JSON.stringify(payload));
+        } catch (_) {}
+
+        broadcastAdminSync('SWITCH_MEDIA', payload);
+        broadcastAdminSync('kiosk_media_config', { media_config: { media_source_type: 'stream', video_source_type: 'hls', media_stream_url: activeLectureUrl } });
+
+        try {
+          await apiRequest('/api/settings', 'POST', {
+            media_source_type: 'stream',
+            video_source_type: 'hls',
+            video_source_url: activeLectureUrl,
+            media_stream_url: activeLectureUrl
+          });
+        } catch (_) {}
+
+        showToast('🔴 Siaran Langsung Kuliah Surau diaktifkan di TV Kiosk!');
+      } else {
+        // STOP KULIAH -> RETURN TO MAKKAH LIVE
+        isLectureLiveActive = false;
+        btnToggleLectureLive.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+        btnToggleLectureLive.style.boxShadow = '0 4px 15px rgba(239, 68, 68, 0.4)';
+        if (btnToggleLectureText) btnToggleLectureText.textContent = 'MULAKAN SIARAN KULIAH LIVE SURAU';
+        if (badgeLectureLiveStatus) {
+          badgeLectureLiveStatus.textContent = 'STANDBY';
+          badgeLectureLiveStatus.style.background = 'rgba(239,68,68,0.2)';
+          badgeLectureLiveStatus.style.color = '#fca5a5';
+          badgeLectureLiveStatus.style.borderColor = 'rgba(239,68,68,0.4)';
+        }
+
+        const payload = {
+          action: 'SWITCH_MEDIA',
+          mode: 'DEFAULT',
+          timestamp: Date.now()
+        };
+
+        try {
+          localStorage.setItem('kiosk_media_config', JSON.stringify(payload));
+        } catch (_) {}
+
+        broadcastAdminSync('SWITCH_MEDIA', payload);
+
+        try {
+          await apiRequest('/api/settings', 'POST', {
+            media_source_type: 'stream',
+            video_source_type: 'hls',
+            video_source_url: 'https://cdn-globecast.akamaized.net/live/eds/saudi_quran/hls_roku/index.m3u8',
+            media_stream_url: 'https://cdn-globecast.akamaized.net/live/eds/saudi_quran/hls_roku/index.m3u8'
+          });
+        } catch (_) {}
+
+        showToast('🕋 Siaran Kuliah ditamatkan. TV Kiosk kembali ke Makkah Live 24/7.');
+      }
+    });
+  }
 }
 
 function normalizeKioskUrl(target) {
@@ -3349,8 +3674,366 @@ function setupDiagnosticsUI() {
   }
 }
 
+// ==================== IP PTZ CAMERA & KULIAH LIVE MANAGER ====================
+let isKuliahLiveActive = false;
+let camPreviewHls = null;
+
+function generateRtspUrl() {
+  const ip = document.getElementById('inputCamIp')?.value.trim() || '192.168.1.108';
+  const port = document.getElementById('inputCamPort')?.value.trim() || '554';
+  const user = document.getElementById('inputCamUser')?.value.trim() || 'admin';
+  const pass = document.getElementById('inputCamPass')?.value.trim() || '';
+  const subtype = document.getElementById('selectCamSubtype')?.value || '1';
+  
+  const authPart = pass ? `${user}:${pass}@` : `${user}@`;
+  return `rtsp://${authPart}${ip}:${port}/cam/realmonitor?channel=1&subtype=${subtype}`;
+}
+
+function updateRtspInputIfDefault() {
+  const rtspInput = document.getElementById('inputCamRtspUrl');
+  if (rtspInput) {
+    rtspInput.value = generateRtspUrl();
+  }
+}
+
+async function loadKuliahCameraStatus() {
+  try {
+    const res = await apiRequest('/api/camera/bridge/status');
+    if (res) {
+      isKuliahLiveActive = Boolean(res.kuliah_live_active);
+      updateKuliahLiveUI(isKuliahLiveActive);
+
+      if (res.camera_ip && document.getElementById('inputCamIp')) document.getElementById('inputCamIp').value = res.camera_ip;
+      if (res.camera_port && document.getElementById('inputCamPort')) document.getElementById('inputCamPort').value = res.camera_port;
+      if (res.camera_user && document.getElementById('inputCamUser')) document.getElementById('inputCamUser').value = res.camera_user;
+      if (res.camera_pass && document.getElementById('inputCamPass')) document.getElementById('inputCamPass').value = res.camera_pass;
+      if (res.camera_subtype && document.getElementById('selectCamSubtype')) document.getElementById('selectCamSubtype').value = res.camera_subtype;
+      if (res.camera_rtsp_url && document.getElementById('inputCamRtspUrl')) document.getElementById('inputCamRtspUrl').value = res.camera_rtsp_url;
+      if (res.kuliah_title && document.getElementById('inputCamKuliahTitle')) document.getElementById('inputCamKuliahTitle').value = res.kuliah_title;
+      if (res.kuliah_ustaz && document.getElementById('inputCamKuliahUstaz')) document.getElementById('inputCamKuliahUstaz').value = res.kuliah_ustaz;
+      if (res.kuliah_kitab && document.getElementById('inputCamKuliahKitab')) document.getElementById('inputCamKuliahKitab').value = res.kuliah_kitab;
+      if (res.kuliah_fullscreen !== undefined && document.getElementById('switchKuliahFullscreen')) {
+        document.getElementById('switchKuliahFullscreen').checked = Boolean(res.kuliah_fullscreen);
+      }
+
+      if (res.engine && document.getElementById('camPreviewEngineText')) {
+        document.getElementById('camPreviewEngineText').textContent = `Enjin: ${res.engine} (Latensi < 0.5s)`;
+      }
+    }
+  } catch (_) {}
+}
+
+function updateKuliahLiveUI(active) {
+  isKuliahLiveActive = active;
+  const badge = document.getElementById('kuliahLiveStatusBadge');
+  const dot = document.getElementById('kuliahLiveStatusDot');
+  const text = document.getElementById('kuliahLiveStatusText');
+  const btn = document.getElementById('btnMasterToggleKuliahLive');
+  const btnText = document.getElementById('btnMasterToggleKuliahLiveText');
+
+  if (active) {
+    if (badge) {
+      badge.style.background = 'rgba(239, 68, 68, 0.25)';
+      badge.style.borderColor = 'rgba(239, 68, 68, 0.6)';
+      badge.style.color = '#fca5a5';
+    }
+    if (dot) dot.textContent = '🔴';
+    if (text) text.textContent = 'SEDANG TAYANG LIVE DI TV';
+
+    if (btn) {
+      btn.style.background = 'linear-gradient(135deg, #dc2626, #b91c1c)';
+      btn.style.boxShadow = '0 4px 14px rgba(220,38,38,0.45)';
+    }
+    if (btnText) btnText.textContent = 'HENTIKAN TAYANGAN LIVE DI TV';
+  } else {
+    if (badge) {
+      badge.style.background = 'rgba(148,163,184,0.2)';
+      badge.style.borderColor = 'rgba(255,255,255,0.1)';
+      badge.style.color = '#cbd5e1';
+    }
+    if (dot) dot.textContent = '⚪';
+    if (text) text.textContent = 'MOD STANDBY (MAKKAH/SLAID)';
+
+    if (btn) {
+      btn.style.background = 'linear-gradient(135deg, #059669, #047857)';
+      btn.style.boxShadow = '0 4px 14px rgba(5,150,105,0.4)';
+    }
+    if (btnText) btnText.textContent = 'TAYANG KULIAH LIVE KE TV (HIDUPKAN)';
+  }
+}
+
+function setupKuliahCameraLiveUI() {
+  const inputsToWatch = ['inputCamIp', 'inputCamPort', 'inputCamUser', 'inputCamPass', 'selectCamSubtype'];
+  inputsToWatch.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', updateRtspInputIfDefault);
+  });
+
+  // Presets
+  const btnDahua = document.getElementById('btnPresetBrandDahua');
+  const btnHik = document.getElementById('btnPresetBrandHikvision');
+  const btnOnvif = document.getElementById('btnPresetBrandOnvif');
+
+  if (btnDahua) {
+    btnDahua.addEventListener('click', () => {
+      const ip = document.getElementById('inputCamIp')?.value.trim() || '192.168.1.108';
+      const port = document.getElementById('inputCamPort')?.value.trim() || '554';
+      const user = document.getElementById('inputCamUser')?.value.trim() || 'admin';
+      const pass = document.getElementById('inputCamPass')?.value.trim() || '';
+      const auth = pass ? `${user}:${pass}@` : `${user}@`;
+      document.getElementById('inputCamRtspUrl').value = `rtsp://${auth}${ip}:${port}/cam/realmonitor?channel=1&subtype=1`;
+      showToast('Praset Dahua PTZ dipilih.');
+    });
+  }
+
+  if (btnHik) {
+    btnHik.addEventListener('click', () => {
+      const ip = document.getElementById('inputCamIp')?.value.trim() || '192.168.1.108';
+      const port = document.getElementById('inputCamPort')?.value.trim() || '554';
+      const user = document.getElementById('inputCamUser')?.value.trim() || 'admin';
+      const pass = document.getElementById('inputCamPass')?.value.trim() || '';
+      const auth = pass ? `${user}:${pass}@` : `${user}@`;
+      document.getElementById('inputCamRtspUrl').value = `rtsp://${auth}${ip}:${port}/Streaming/Channels/102`;
+      showToast('Praset Hikvision IP dipilih.');
+    });
+  }
+
+  if (btnOnvif) {
+    btnOnvif.addEventListener('click', () => {
+      const ip = document.getElementById('inputCamIp')?.value.trim() || '192.168.1.108';
+      const port = document.getElementById('inputCamPort')?.value.trim() || '554';
+      const user = document.getElementById('inputCamUser')?.value.trim() || 'admin';
+      const pass = document.getElementById('inputCamPass')?.value.trim() || '';
+      const auth = pass ? `${user}:${pass}@` : `${user}@`;
+      document.getElementById('inputCamRtspUrl').value = `rtsp://${auth}${ip}:${port}/onvif1`;
+      showToast('Praset Generic ONVIF dipilih.');
+    });
+  }
+
+  // Test Camera
+  const btnTest = document.getElementById('btnTestCamConn');
+  const alertBox = document.getElementById('camTestResultAlert');
+  if (btnTest) {
+    btnTest.addEventListener('click', async () => {
+      const ip = document.getElementById('inputCamIp')?.value.trim();
+      const port = document.getElementById('inputCamPort')?.value.trim() || '554';
+      if (!ip) {
+        showToast('Sila masukkan alamat IP kamera.', true);
+        return;
+      }
+      btnTest.disabled = true;
+      btnTest.textContent = '⏳ Menguji port 554...';
+      if (alertBox) alertBox.style.display = 'none';
+
+      try {
+        const res = await apiRequest('/api/camera/bridge/test', 'POST', { ip, port: parseInt(port, 10) });
+        if (alertBox) {
+          alertBox.style.display = 'block';
+          if (res.success && res.reachable) {
+            alertBox.style.background = 'rgba(5, 150, 105, 0.2)';
+            alertBox.style.border = '1px solid rgba(52, 211, 153, 0.5)';
+            alertBox.style.color = '#6ee7b7';
+            alertBox.innerHTML = `✅ <b>Sambungan Berjaya:</b> Port ${port} pada kamera ${ip} sedia dan beroperasi!`;
+          } else {
+            alertBox.style.background = 'rgba(239, 68, 68, 0.2)';
+            alertBox.style.border = '1px solid rgba(239, 68, 68, 0.5)';
+            alertBox.style.color = '#fca5a5';
+            alertBox.innerHTML = `❌ <b>Gagal Menyambung:</b> ${res.message || 'Kamera tidak membalas.'}`;
+          }
+        }
+      } catch (err) {
+        if (alertBox) {
+          alertBox.style.display = 'block';
+          alertBox.style.background = 'rgba(239, 68, 68, 0.2)';
+          alertBox.style.border = '1px solid rgba(239, 68, 68, 0.5)';
+          alertBox.style.color = '#fca5a5';
+          alertBox.innerHTML = `❌ <b>Ralat:</b> ${err.message}`;
+        }
+      } finally {
+        btnTest.disabled = false;
+        btnTest.textContent = '🔍 Uji Sambungan';
+      }
+    });
+  }
+
+  // Save Camera Config
+  const btnSave = document.getElementById('btnSaveCamConfig');
+  if (btnSave) {
+    btnSave.addEventListener('click', async () => {
+      const payload = {
+        camera_ip: document.getElementById('inputCamIp')?.value.trim(),
+        camera_port: document.getElementById('inputCamPort')?.value.trim(),
+        camera_user: document.getElementById('inputCamUser')?.value.trim(),
+        camera_pass: document.getElementById('inputCamPass')?.value.trim(),
+        camera_subtype: document.getElementById('selectCamSubtype')?.value,
+        camera_rtsp_url: document.getElementById('inputCamRtspUrl')?.value.trim(),
+        enable: isKuliahLiveActive
+      };
+
+      try {
+        await apiRequest('/api/camera/toggle_live_display', 'POST', payload);
+        showToast('Tetapan kamera IP PTZ berjaya disimpan!');
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    });
+  }
+
+  // Save Kuliah Info
+  const btnSaveKuliah = document.getElementById('btnSaveCamKuliahInfo');
+  if (btnSaveKuliah) {
+    btnSaveKuliah.addEventListener('click', async () => {
+      const payload = {
+        kuliah_title: document.getElementById('inputCamKuliahTitle')?.value.trim(),
+        kuliah_ustaz: document.getElementById('inputCamKuliahUstaz')?.value.trim(),
+        kuliah_kitab: document.getElementById('inputCamKuliahKitab')?.value.trim(),
+        enable: isKuliahLiveActive
+      };
+      try {
+        await apiRequest('/api/camera/toggle_live_display', 'POST', payload);
+        showToast('Maklumat penceramah & tajuk kuliah dikemas kini!');
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    });
+  }
+
+  // Master Toggle Button
+  const btnMaster = document.getElementById('btnMasterToggleKuliahLive');
+  if (btnMaster) {
+    btnMaster.addEventListener('click', async () => {
+      const nextState = !isKuliahLiveActive;
+      btnMaster.disabled = true;
+
+      const payload = {
+        enable: nextState,
+        camera_ip: document.getElementById('inputCamIp')?.value.trim(),
+        camera_port: document.getElementById('inputCamPort')?.value.trim(),
+        camera_user: document.getElementById('inputCamUser')?.value.trim(),
+        camera_pass: document.getElementById('inputCamPass')?.value.trim(),
+        camera_subtype: document.getElementById('selectCamSubtype')?.value,
+        camera_rtsp_url: document.getElementById('inputCamRtspUrl')?.value.trim(),
+        kuliah_title: document.getElementById('inputCamKuliahTitle')?.value.trim(),
+        kuliah_ustaz: document.getElementById('inputCamKuliahUstaz')?.value.trim(),
+        kuliah_kitab: document.getElementById('inputCamKuliahKitab')?.value.trim()
+      };
+
+      try {
+        const res = await apiRequest('/api/kuliah/toggle_live', 'POST', payload);
+        updateKuliahLiveUI(nextState);
+        showToast(res.message || (nextState ? 'Siaran Kuliah LIVE diaktifkan!' : 'Siaran Kuliah LIVE ditutup.'));
+
+        // Broadcast to all open tabs / TV kiosk
+        if (window.BroadcastChannel) {
+          const bc = new BroadcastChannel('esolat_media_channel');
+          bc.postMessage({
+            type: 'kiosk_media_config',
+            mode: nextState ? 'KULIAH' : 'DEFAULT',
+            sourceUrl: res.stream_url || '/stream/live.m3u8',
+            streamType: 'hls',
+            speaker: payload.kuliah_ustaz,
+            title: payload.kuliah_title,
+            kitab: payload.kuliah_kitab
+          });
+        }
+      } catch (err) {
+        showToast(err.message, true);
+      } finally {
+        btnMaster.disabled = false;
+      }
+    });
+  }
+
+  // Kuliah Fullscreen Switch Handler
+  const swKuliahFs = document.getElementById('switchKuliahFullscreen');
+  if (swKuliahFs) {
+    swKuliahFs.addEventListener('change', async () => {
+      const val = swKuliahFs.checked;
+      try {
+        await apiRequest('/api/settings', 'POST', { kuliah_fullscreen: val });
+        broadcastAdminSync('TOGGLE_KULIAH_FULLSCREEN', { value: val });
+        try {
+          const ch = new BroadcastChannel('esolat_sync');
+          ch.postMessage({ type: 'TOGGLE_KULIAH_FULLSCREEN', value: val });
+        } catch (_) {}
+        showToast(val ? '🖥️ Mod Kuliah Skrin Penuh diaktifkan di TV' : '📺 Mod Kuliah kembali ke saiz piawai');
+      } catch (err) {
+        showToast('Gagal menukar mod skrin penuh: ' + err.message, true);
+      }
+    });
+  }
+
+  // Phone Preview Video
+  const btnPreview = document.getElementById('btnPreviewCamPhone');
+  const previewCard = document.getElementById('camPreviewCard');
+  const btnClosePreview = document.getElementById('btnCloseCamPreview');
+  const previewVideo = document.getElementById('camPreviewVideo');
+  const previewLoading = document.getElementById('camPreviewLoading');
+
+  if (btnPreview) {
+    btnPreview.addEventListener('click', async () => {
+      if (previewCard) previewCard.style.display = 'block';
+      if (previewLoading) previewLoading.style.display = 'flex';
+
+      const rtspUrl = document.getElementById('inputCamRtspUrl')?.value.trim();
+      try {
+        // Start bridge if not running
+        const startRes = await apiRequest('/api/camera/bridge/start', 'POST', { rtsp_url: rtspUrl });
+        const streamUrl = (startRes.engine === 'go2rtc')
+          ? `http://${window.location.hostname}:1984/stream.html?src=kuliah`
+          : '/stream/live.m3u8';
+
+        setTimeout(() => {
+          if (previewLoading) previewLoading.style.display = 'none';
+          if (previewVideo) {
+            if (window.Hls && Hls.isSupported()) {
+              if (camPreviewHls) camPreviewHls.destroy();
+              camPreviewHls = new Hls({ lowLatencyMode: true });
+              camPreviewHls.loadSource(streamUrl);
+              camPreviewHls.attachMedia(previewVideo);
+              camPreviewHls.on(Hls.Events.MANIFEST_PARSED, () => {
+                previewVideo.play().catch(() => {});
+              });
+            } else {
+              previewVideo.src = streamUrl;
+              previewVideo.play().catch(() => {});
+            }
+          }
+        }, 1000);
+      } catch (err) {
+        if (previewLoading) previewLoading.style.display = 'none';
+        showToast(`Ralat pra-tonton: ${err.message}`, true);
+      }
+    });
+  }
+
+  if (btnClosePreview) {
+    btnClosePreview.addEventListener('click', () => {
+      if (previewCard) previewCard.style.display = 'none';
+      if (previewVideo) {
+        previewVideo.pause();
+        previewVideo.src = '';
+      }
+      if (camPreviewHls) {
+        camPreviewHls.destroy();
+        camPreviewHls = null;
+      }
+    });
+  }
+
+  // Auto load when tabCameraLive is clicked
+  const camNavBtn = document.querySelector('.nav-item[data-tab="tabCameraLive"]');
+  if (camNavBtn) {
+    camNavBtn.addEventListener('click', () => {
+      loadKuliahCameraStatus();
+    });
+  }
+}
+
 // Initialize on DOM load
 window.addEventListener('DOMContentLoaded', () => {
+  startAdminClock();
+  syncAdminStatePoller();
   setupPWA();
   initGpsSecurityCheck();
   setupNetworkBroadcastUI();
@@ -3358,6 +4041,7 @@ window.addEventListener('DOMContentLoaded', () => {
   setupQuickControlsUI();
   setupQrScannerUI();
   setupDiagnosticsUI();
+  setupKuliahCameraLiveUI();
   updateNetworkInfo();
   checkAuth();
 });

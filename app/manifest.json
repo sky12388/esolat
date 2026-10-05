@@ -1,7 +1,7 @@
 {
-  "name": "Skywalker e-Solat Admin",
-  "short_name": "e-Solat Admin",
-  "description": "Panel Pengurusan & Kawalan Digital Kiosk e-Solat Surau & Masjid",
+  "name": "Skywalker e-Solat Remote",
+  "short_name": "e-Solat Remote",
+  "description": "Universal PWA Mobile Admin Controller untuk Sistem e-Solat Surau & Masjid",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

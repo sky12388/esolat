@@ -6,7 +6,7 @@
   <title>Panduan Pengguna — Skywalker E-Solat Manager</title>
   <link rel="stylesheet" href="./css/admin.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
   <style>
     .manual-page {
@@ -299,6 +299,101 @@
       color: #fff !important;
       border: 1px solid rgba(255, 255, 255, 0.2);
     }
+    .kbd-badge {
+      display: inline-block;
+      padding: 0.15rem 0.45rem;
+      font-size: 0.78rem;
+      font-family: inherit;
+      font-weight: 700;
+      color: #f8fafc;
+      background: #1e293b;
+      border: 1px solid #475569;
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+    .update-method-card {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      padding: 1.25rem;
+      margin-top: 1rem;
+    }
+    .update-method-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 0.6rem;
+      margin-bottom: 0.85rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .update-method-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fbbf24;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .update-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.2rem 0.6rem;
+      border-radius: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .badge-easy {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(16, 185, 129, 0.5);
+      color: #34d399;
+    }
+    .badge-fast {
+      background: rgba(245, 158, 11, 0.2);
+      border: 1px solid rgba(245, 158, 11, 0.5);
+      color: #fbbf24;
+    }
+    .code-snippet-box {
+      position: relative;
+      background: #021a14;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      margin: 0.75rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .code-snippet-text {
+      font-family: 'Space Grotesk', monospace;
+      font-size: 0.88rem;
+      color: #34d399;
+      word-break: break-all;
+      flex: 1;
+    }
+    .btn-copy {
+      padding: 0.45rem 0.9rem;
+      background: #059669;
+      border: 1px solid #34d399;
+      border-radius: 8px;
+      color: #ffffff;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-copy:hover {
+      background: #10b981;
+      transform: translateY(-1px);
+    }
   </style>
 </head>
 <body>
@@ -308,9 +403,14 @@
     <!-- Top Navigation & Header -->
     <header class="manual-header">
       <div class="manual-top-bar">
-        <a href="./index.html" class="btn-back">
-          <span>←</span> Kembali ke Panel Admin
-        </a>
+        <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+          <a href="../" class="btn-back">
+            <span>🏠</span> Laman Utama
+          </a>
+          <a href="../admin/" class="btn-back">
+            <span>⚙️</span> Panel Admin
+          </a>
+        </div>
         <div style="display:flex; gap:0.5rem; align-items:center;">
           <a href="./pricing.html" class="btn-back" style="background:linear-gradient(135deg, #d97706, #b45309); border-color:#fbbf24; color:#fff;">
             <span>💎</span> Pakej &amp; Harga
@@ -326,7 +426,7 @@
 
     <!-- Search Input -->
     <div class="search-input-box">
-      <input type="text" id="manualSearch" placeholder="🔍 Cari fungsi... (cth: WebRTC, QR, Kamera, Azan, Iqamah, Password, Poster, GPS, Warga Emas)">
+      <input type="text" id="manualSearch" placeholder="🔍 Cari fungsi... (cth: Kemas Kini, Update, WebRTC, QR, Kamera, Azan, Iqamah, Password, Poster, GPS)">
     </div>
 
     <!-- Table of Contents -->
@@ -347,6 +447,7 @@
         <li><a href="#sec12">12. Panduan Pengaktifan Lesen</a></li>
         <li><a href="#sec13">13. Soalan Lazim (FAQ) &amp; Bantuan</a></li>
         <li><a href="#sec14">14. Maklumat Rasmi Pembekal</a></li>
+        <li><a href="#sec-update">15. 🔄 Panduan Kemas Kini Perisian e-Solat</a></li>
       </ul>
     </nav>
 
@@ -642,6 +743,92 @@
         </div>
       </section>
 
+      <!-- Section 15: Software Update Guide -->
+      <section id="sec-update" class="manual-section">
+        <h2>15. 🔄 Panduan Kemas Kini Perisian e-Solat</h2>
+        <p>
+          Kemas kini perisian membolehkan sistem e-Solat surau anda menerima ciri-ciri baharu, peningkatan kestabilan operasi autonomi 24/7, serta tampalan sekuriti terkini daripada pihak Skywalker Consortium.
+        </p>
+
+        <div class="success-box">
+          <b>✓ Selamat &amp; Tanpa Kehilangan Data (In-Place Upgrade):</b> Proses kemas kini tidak akan memadamkan tetapan nama masjid/surau, zon solat JAKIM, muat naik poster, audio azan, atau pangkalan data rekod surau anda di <code>/var/lib/esolat/</code>.
+        </div>
+
+        <!-- PILIHAN 1: Melalui Pelayar Web -->
+        <div class="update-method-card">
+          <div class="update-method-header">
+            <div class="update-method-title">
+              <span>🌐 Pilihan 1: Melalui Pelayar Web</span>
+            </div>
+            <span class="update-badge badge-easy">Paling Mudah (UI)</span>
+          </div>
+          
+          <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 0.75rem;">
+            Kaedah visual menggunakan pelayar web Chromium terus pada komputer surau.
+          </p>
+
+          <ol style="margin-left: 1.25rem;">
+            <li>
+              <b>Langkah 1:</b> Tekan pintasan papan kekunci <kbd class="kbd-badge">Ctrl</kbd> + <kbd class="kbd-badge">Alt</kbd> + <kbd class="kbd-badge">➡️</kbd> untuk beralih dari mod paparan skrin Kiosk ke paparan desktop komputer (Desktop MATE).
+            </li>
+            <li>
+              <b>Langkah 2:</b> Buka pelayar web <b>Chromium</b> dan layari laman web rasmi: <a href="https://sky12388.github.io/esolat/" target="_blank" style="color:#38bdf8; font-weight:700; text-decoration:underline;">https://sky12388.github.io/esolat/</a>
+            </li>
+            <li>
+              <b>Langkah 3:</b> Klik butang kuning keemasan <b>"Download eSolat (Percubaan 7 Hari)"</b> untuk memuat turun pakej pemasang <code>.deb</code> versi terkini.
+            </li>
+            <li>
+              <b>Langkah 4:</b> Buka folder <i>Downloads</i> pada komputer, kemudian klik dua kali pada fail pakej <code>.deb</code> yang telah dimuat turun untuk memulakan pemasangan (*Package Installer*).
+            </li>
+            <li>
+              <b>Langkah 5:</b> Masukkan kata laluan <code style="color:#fbbf24; font-weight:700; background:#1e293b; padding:2px 8px; border-radius:4px;">8888</code> sekiranya diminta oleh sistem bagi tujuan pengesahan keselamatan kebenaran pentadbir (*keyring/authentication*).
+            </li>
+          </ol>
+        </div>
+
+        <!-- PILIHAN 2: Melalui Terminal -->
+        <div class="update-method-card">
+          <div class="update-method-header">
+            <div class="update-method-title">
+              <span>⚡ Pilihan 2: Melalui Terminal</span>
+            </div>
+            <span class="update-badge badge-fast">Paling Pantas (1 Minit)</span>
+          </div>
+
+          <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 0.75rem;">
+            Kaedah pantas satu baris arahan (*single-line command*) untuk memuat turun dan memasang kemas kini secara automatik.
+          </p>
+
+          <ol style="margin-left: 1.25rem;">
+            <li>
+              <b>Langkah 1:</b> Buka aplikasi Terminal melalui menu (*Applications ➔ System Tools ➔ MATE Terminal*) atau tekan pintasan papan kekunci <kbd class="kbd-badge">Ctrl</kbd> + <kbd class="kbd-badge">Alt</kbd> + <kbd class="kbd-badge">T</kbd>.
+            </li>
+            <li>
+              <b>Langkah 2:</b> Salin arahan satu baris berikut:
+              <div class="code-snippet-box">
+                <span class="code-snippet-text">curl -sSL https://sky12388.github.io/esolat/downloads/skywalker.esolat.deb -o /tmp/esolat.deb &amp;&amp; sudo dpkg -i /tmp/esolat.deb</span>
+                <button type="button" class="btn-copy" onclick="copyUpdateCommand(this)">
+                  <span>📋</span> Salin Kod
+                </button>
+              </div>
+            </li>
+            <li>
+              <b>Langkah 3:</b> Klik kanan tetikus di dalam tetingkap Terminal, pilih <b>Paste</b> (atau tekan <kbd class="kbd-badge">Ctrl</kbd> + <kbd class="kbd-badge">Shift</kbd> + <kbd class="kbd-badge">V</kbd>), kemudian tekan <b>Enter</b>.
+            </li>
+            <li>
+              <b>Langkah 4:</b> Masukkan kata laluan <code style="color:#fbbf24; font-weight:700; background:#1e293b; padding:2px 8px; border-radius:4px;">8888</code> apabila diminta.
+              <div class="note-box" style="margin: 0.5rem 0 0.75rem;">
+                <b>💡 Nota Keselamatan:</b> Semasa menaip kata laluan di Terminal Linux, aksara memang tidak akan dipaparkan pada skrin (tiada bintang/titik). Teruskan menaip <code>8888</code> dan terus tekan <b>Enter</b>.
+              </div>
+            </li>
+            <li>
+              <b>Langkah 5:</b> Pemasang akan mengemas kini semua servis secara autonomi. Mulakan semula komputer (*reboot*) sekiranya perlu dengan menaip arahan:
+              <div class="code-box" style="margin: 0.4rem 0;">sudo reboot</div>
+            </li>
+          </ol>
+        </div>
+      </section>
+
     </article>
 
   </div>
@@ -665,6 +852,47 @@
         }
       });
     });
+
+    // Copy Command to Clipboard with Visual Feedback
+    function copyUpdateCommand(btn) {
+      const cmd = "curl -sSL https://sky12388.github.io/esolat/downloads/skywalker.esolat.deb -o /tmp/esolat.deb && sudo dpkg -i /tmp/esolat.deb";
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(cmd).then(() => {
+          showCopied(btn);
+        }).catch(() => {
+          fallbackCopy(cmd, btn);
+        });
+      } else {
+        fallbackCopy(cmd, btn);
+      }
+    }
+
+    function showCopied(btn) {
+      const orig = btn.innerHTML;
+      btn.innerHTML = "<span>✓</span> Disalin!";
+      btn.style.background = "#047857";
+      setTimeout(() => {
+        btn.innerHTML = orig;
+        btn.style.background = "#059669";
+      }, 2000);
+    }
+
+    function fallbackCopy(text, btn) {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      try {
+        document.execCommand("copy");
+        showCopied(btn);
+      } catch (err) {
+        console.error("Gagal menyalin kod:", err);
+      }
+      document.body.removeChild(textarea);
+    }
   </script>
 </body>
 </html>

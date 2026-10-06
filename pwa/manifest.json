@@ -1,7 +1,7 @@
 {
-  "name": "Skywalker e-Solat Remote",
-  "short_name": "e-Solat Remote",
-  "description": "Alat Kawalan Jauh & Panel Pengurusan e-Solat TV Kiosk",
+  "name": "Skywalker e-Solat Admin App",
+  "short_name": "Admin App",
+  "description": "Aplikasi Kawalan Jauh & Panel Pengurusan Admin e-Solat Kiosk",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

@@ -1,7 +1,11 @@
 /* ==============================================================================
-   e-Solat Phone Admin Panel - Mobile-First Stylesheet
-   Tailored for iOS Safari, Android Chrome, and Desktop browsers.
+   e-Solat Phone Admin Panel - Senior-Friendly Large Text & High-Contrast Stylesheet
+   Optimized for senior AJK readability with larger fonts, high contrast, and large touch targets.
    ============================================================================== */
+
+html {
+  font-size: 18px; /* Globally boosts all typography and spacing for easy reading */
+}
 
 :root {
   --primary: #059669;
@@ -9,11 +13,11 @@
   --primary-light: #10b981;
   --accent: #d97706;
   --accent-light: #fbbf24;
-  --bg: #0f172a;
-  --card-bg: rgba(30, 41, 59, 0.7);
-  --card-border: rgba(255, 255, 255, 0.1);
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
+  --bg: #0b1120;
+  --card-bg: rgba(30, 41, 59, 0.85);
+  --card-border: rgba(255, 255, 255, 0.15);
+  --text-main: #ffffff;
+  --text-muted: #cbd5e1;
   --danger: #ef4444;
 }
 
@@ -32,6 +36,8 @@ body {
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
+  font-size: 1.05rem;
+  line-height: 1.5;
 }
 
 /* ==================== AUTH MODALS ==================== */
@@ -41,8 +47,8 @@ body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(12px);
+  background: rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(14px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -52,12 +58,12 @@ body {
 
 .auth-card {
   width: 100%;
-  max-width: 420px;
+  max-width: 460px;
   background: #1e293b;
-  border: 1px solid var(--card-border);
-  border-radius: 20px;
-  padding: 2rem 1.5rem;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  border: 1.5px solid var(--card-border);
+  border-radius: 22px;
+  padding: 2.25rem 1.75rem;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.65);
 }
 
 .auth-header {
@@ -66,20 +72,21 @@ body {
 }
 
 .auth-logo {
-  font-size: 3rem;
+  font-size: 3.2rem;
   margin-bottom: 0.5rem;
 }
 
 .auth-header h2 {
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   color: #fff;
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: -0.2px;
 }
 
 .auth-header p {
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: var(--text-muted);
-  margin-top: 0.25rem;
+  margin-top: 0.35rem;
 }
 
 .warning-header h2 {
@@ -91,17 +98,17 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  max-width: 600px;
+  max-width: 720px;
   margin: 0 auto;
   width: 100%;
   position: relative;
   background: #0b1120;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 35px rgba(0, 0, 0, 0.6);
   transition: max-width 0.3s ease, margin 0.3s ease, border-radius 0.3s ease;
 }
 
 .top-nav {
-  height: 64px;
+  height: 72px;
   background: linear-gradient(135deg, var(--primary-dark), #065f46);
   border-bottom: 2px solid var(--accent);
   display: flex;
@@ -120,34 +127,43 @@ body {
 }
 
 .logo-emoji {
-  font-size: 1.75rem;
+  font-size: 2rem;
 }
 
 .top-brand h1 {
-  font-size: 1.1rem;
-  font-weight: 700;
+  font-size: 1.25rem;
+  font-weight: 800;
   color: #ffffff;
   line-height: 1.2;
 }
 
 .app-subtitle {
-  font-size: 0.75rem;
+  font-size: 0.88rem;
   color: #a7f3d0;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .top-actions {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.6rem;
+  align-items: center;
 }
 
 .icon-btn {
-  background: rgba(255, 255, 255, 0.15);
-  border: none;
-  font-size: 1.2rem;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 1.35rem;
+  min-width: 44px;
+  height: 44px;
+  padding: 0 0.5rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #fff;
+}
   display: flex;
   align-items: center;
   justify-content: center;
@@ -209,58 +225,61 @@ body {
 /* ==================== CARDS & SECTIONS ==================== */
 .section-card {
   background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 16px;
-  padding: 1.25rem;
-  margin-bottom: 1.25rem;
+  border: 1.5px solid var(--card-border);
+  border-radius: 18px;
+  padding: 1.4rem;
+  margin-bottom: 1.4rem;
   backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
 }
 
 .card-title {
-  font-size: 1.15rem;
-  font-weight: 700;
+  font-size: 1.32rem;
+  font-weight: 800;
   color: #fff;
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.45rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  line-height: 1.3;
 }
 
 .card-desc {
-  font-size: 0.825rem;
-  color: var(--text-muted);
+  font-size: 0.95rem;
+  color: #cbd5e1;
   margin-bottom: 1.25rem;
-  line-height: 1.4;
+  line-height: 1.5;
 }
 
 /* Status Grid */
 .status-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
+  gap: 0.85rem;
 }
 
 .stat-item {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  padding: 0.85rem;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
 }
 
 .stat-label {
-  font-size: 0.75rem;
-  color: var(--text-muted);
+  font-size: 0.82rem;
+  color: #94a3b8;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .stat-val {
-  font-size: 1.2rem;
-  font-weight: 700;
+  font-size: 1.35rem;
+  font-weight: 800;
   color: #fff;
-  margin-top: 0.25rem;
+  margin-top: 0.3rem;
 }
 
 .stat-val.highlight {
@@ -268,61 +287,71 @@ body {
 }
 
 .stat-val.badge-status {
-  font-size: 0.85rem;
+  font-size: 0.95rem;
+  font-weight: 700;
   color: #34d399;
 }
 
 /* ==================== FORMS & BUTTONS ==================== */
 .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: 1.15rem;
 }
 
 .form-row-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
+  gap: 0.85rem;
 }
 
 label {
   display: block;
-  font-size: 0.825rem;
-  font-weight: 600;
-  color: #cbd5e1;
-  margin-bottom: 0.4rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin-bottom: 0.45rem;
 }
 
 input, select, textarea {
   width: 100%;
-  padding: 0.75rem 0.85rem;
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
-  color: #fff;
-  font-size: 0.95rem;
-  transition: border-color 0.2s;
+  min-height: 50px;
+  padding: 0.8rem 1rem;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 1.05rem;
+  font-weight: 600;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 input:focus, select:focus, textarea:focus {
   outline: none;
   border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
 }
 
 textarea {
   resize: vertical;
+  min-height: 80px;
+  font-size: 1.05rem;
 }
 
 .btn {
-  padding: 0.8rem 1.25rem;
-  border-radius: 12px;
-  font-size: 0.95rem;
-  font-weight: 600;
+  min-height: 52px;
+  padding: 0.85rem 1.4rem;
+  border-radius: 14px;
+  font-size: 1.05rem;
+  font-weight: 800;
   cursor: pointer;
   border: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
   transition: all 0.15s;
+  user-select: none;
+  touch-action: manipulation;
+  letter-spacing: 0.2px;
 }
 
 .btn-block {
@@ -330,9 +359,25 @@ textarea {
 }
 
 .btn-sm {
-  padding: 0.5rem 0.75rem;
-  font-size: 0.8rem;
-  border-radius: 8px;
+  min-height: 44px;
+  padding: 0.5rem 0.95rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  border-radius: 10px;
+}
+
+.preset-tab-btn {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  transition: all 0.2s ease;
+}
+
+.preset-tab-btn.active {
+  background: rgba(6, 78, 59, 0.75) !important;
+  border-color: #34d399 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 12px rgba(52, 211, 153, 0.3);
 }
 
 .btn-primary {
@@ -533,52 +578,88 @@ textarea {
   font-weight: 600;
 }
 
-/* ==================== BOTTOM NAVIGATION ==================== */
+/* ==================== BOTTOM NAVIGATION (100% FULL WIDTH FIT) ==================== */
 .bottom-nav {
   position: absolute;
   bottom: 0;
   left: 0;
-  width: 100%;
-  height: 64px;
-  background: #0f172a;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 80px;
+  height: 80px;
+  background: #090e1a;
+  border-top: 2px solid rgba(251, 191, 36, 0.35);
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-around !important;
   z-index: 50;
+  box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.7);
+  box-sizing: border-box !important;
+  padding: 8px 4px 12px 4px !important;
+  overflow: hidden;
 }
 
 .nav-item {
   background: none;
   border: none;
-  color: var(--text-muted);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.2rem;
-  flex: 1;
+  border-top: 3px solid transparent;
+  color: #fbbf24;
+  flex: 1 1 0 !important;
+  width: auto !important;
+  min-width: 0 !important;
   height: 100%;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  padding: 4px 2px !important;
   cursor: pointer;
-  transition: color 0.15s;
+  transition: all 0.15s ease-in-out;
+  text-decoration: none;
+  box-sizing: border-box;
 }
 
 .nav-icon {
-  font-size: 1.15rem;
+  font-size: 1.55rem !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  margin-bottom: 4px !important;
 }
 
 .nav-text {
-  font-size: 0.62rem;
-  font-weight: 600;
+  font-size: clamp(0.72rem, 1.8vw, 0.95rem) !important;
+  font-weight: 700 !important;
+  color: #fbbf24 !important;
   letter-spacing: -0.2px;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  width: 100% !important;
+  line-height: 1.15;
+}
+
+.nav-item:hover {
+  background: rgba(251, 191, 36, 0.08);
 }
 
 .nav-item.active {
-  color: var(--primary-light);
+  color: #fef08a !important;
+  border-top: 3px solid #facc15 !important;
+  background: rgba(250, 204, 21, 0.12) !important;
 }
 
 .nav-item.active .nav-icon {
   transform: translateY(-2px);
+  filter: drop-shadow(0 0 8px rgba(250, 204, 21, 0.7));
+}
+
+.nav-item.active .nav-text {
+  color: #fef08a !important;
+  font-weight: 800 !important;
+  text-shadow: 0 0 10px rgba(254, 240, 138, 0.6) !important;
 }
 
 /* ==================== TOASTS ==================== */
@@ -1414,5 +1495,238 @@ textarea {
   }
 }
 
+/* ==================== CAMERA QR SCANNER STYLES ==================== */
+@keyframes laser-scan {
+  0% {
+    top: 5%;
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    top: 92%;
+    opacity: 0.8;
+  }
+}
 
+.scanner-viewport-wrapper video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 12px;
+}
+
+#qrCameraReader {
+  border: none !important;
+}
+
+#qrCameraReader __scan_region__ {
+  box-shadow: none !important;
+}
+
+#qrCameraReader img {
+  display: none !important;
+}
+
+.btn-qr-scan {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-qr-scan:active {
+  transform: scale(0.98);
+}
+
+/* ==============================================================================
+   SENIOR AJK ACCESSIBILITY & HIGH-CONTRAST OVERRIDES
+   Ensures elderly committee members can read every text, button, and input clearly.
+   ============================================================================== */
+
+/* 1. Global Text Size & Contrast Boost */
+p, span, div, li, td, th {
+  letter-spacing: 0.2px;
+}
+
+/* Overwrite tiny inline font sizes */
+[style*="font-size:0.7rem"],
+[style*="font-size: 0.7rem"],
+[style*="font-size:0.72rem"],
+[style*="font-size: 0.72rem"],
+[style*="font-size:0.75rem"],
+[style*="font-size: 0.75rem"],
+[style*="font-size:0.78rem"],
+[style*="font-size: 0.78rem"] {
+  font-size: 0.92rem !important;
+  color: #cbd5e1 !important;
+}
+
+[style*="font-size:0.8rem"],
+[style*="font-size: 0.8rem"],
+[style*="font-size:0.82rem"],
+[style*="font-size: 0.82rem"],
+[style*="font-size:0.85rem"],
+[style*="font-size: 0.85rem"] {
+  font-size: 1rem !important;
+}
+
+/* 2. Labels, Inputs & Dropdowns */
+label, .sub-label {
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+  color: #f8fafc !important;
+  line-height: 1.4 !important;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="number"],
+input[type="time"],
+select,
+textarea {
+  font-size: 1.12rem !important;
+  font-weight: 600 !important;
+  min-height: 52px !important;
+  color: #ffffff !important;
+  background: rgba(15, 23, 42, 0.9) !important;
+  border-width: 2px !important;
+}
+
+select option {
+  font-size: 1.1rem !important;
+  padding: 0.6rem !important;
+  background: #0f172a !important;
+  color: #ffffff !important;
+}
+
+/* 3. Buttons & Action Links */
+.btn {
+  font-size: 1.08rem !important;
+  font-weight: 800 !important;
+  min-height: 54px !important;
+}
+
+.btn-sm {
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  min-height: 44px !important;
+}
+
+/* 4. Section Card Titles & Descriptions */
+.card-title, h2.card-title, h3.card-title {
+  font-size: 1.35rem !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  line-height: 1.3 !important;
+}
+
+.card-desc {
+  font-size: 0.98rem !important;
+  color: #cbd5e1 !important;
+  line-height: 1.55 !important;
+}
+
+/* 5. Prayer Time Adjustments & Takwim Tables */
+.prayer-label {
+  font-size: 1.2rem !important;
+  font-weight: 800 !important;
+  color: #fbbf24 !important;
+}
+
+.offset-item label {
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  color: #e2e8f0 !important;
+}
+
+.offset-item input {
+  font-size: 1.3rem !important;
+  font-weight: 800 !important;
+  min-height: 48px !important;
+  color: #34d399 !important;
+}
+
+/* 6. Status Badges & Indicators */
+.stat-label {
+  font-size: 0.88rem !important;
+  font-weight: 700 !important;
+  color: #94a3b8 !important;
+}
+
+.stat-val {
+  font-size: 1.45rem !important;
+  font-weight: 800 !important;
+}
+
+.preview-badge-live {
+  font-size: 0.85rem !important;
+  font-weight: 800 !important;
+  padding: 0.35rem 0.75rem !important;
+}
+
+/* 7. Bottom Navigation Bar */
+.bottom-nav {
+  height: 80px !important;
+  min-height: 80px !important;
+  border-top: 2px solid rgba(251, 191, 36, 0.35) !important;
+  padding: 8px 4px 12px 4px !important;
+  display: flex !important;
+  justify-content: space-around !important;
+}
+
+.nav-item {
+  flex: 1 1 0 !important;
+  width: auto !important;
+  min-width: 0 !important;
+  padding: 4px 2px !important;
+}
+
+.nav-icon {
+  font-size: 1.55rem !important;
+  margin-bottom: 4px !important;
+}
+
+.nav-text {
+  font-size: clamp(0.72rem, 1.8vw, 0.95rem) !important;
+  font-weight: 700 !important;
+  color: #fbbf24 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  width: 100% !important;
+}
+
+.nav-item.active {
+  color: #fef08a !important;
+  border-top: 3px solid #facc15 !important;
+  background: rgba(250, 204, 21, 0.12) !important;
+}
+
+.nav-item.active .nav-text {
+  color: #fef08a !important;
+  font-weight: 800 !important;
+  text-shadow: 0 0 10px rgba(254, 240, 138, 0.6) !important;
+}
+
+/* 8. Toggle Switches (Larger for Aging Fingers) */
+.toggle-switch {
+  transform: scale(1.15);
+  transform-origin: right center;
+  margin-right: 4px;
+}
+
+/* 9. Audio & Slide Lists */
+.slide-title-text {
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+}
+
+.slide-meta {
+  font-size: 0.9rem !important;
+  color: #cbd5e1 !important;
+}
+
+.audio-item-title {
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+}
 

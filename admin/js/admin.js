@@ -20,6 +20,13 @@ function showToast(message, isError = false) {
   }, 4000);
 }
 
+function broadcastAdminSync(type = 'SETTINGS_UPDATED', payload = {}) {
+  try {
+    const ch = new BroadcastChannel('esolat_sync');
+    ch.postMessage(Object.assign({ type, timestamp: Date.now() }, payload));
+  } catch (_) {}
+}
+
 function formatNetworkErrorMessage(err) {
   if (window.location.protocol === 'https:') {
     return 'Pelayar menyekat sambungan HTTP tempatan (Mixed Content / HTTPS-ke-HTTP). Sila buka terus URL Tempatan LAN: http://[IP_PC]:8080/admin pada peranti anda.';
@@ -288,9 +295,21 @@ async function loadZones() {
 }
 
 async function loadSettings() {
+  let s = null;
   try {
-    const s = await apiRequest('/api/settings');
+    s = await apiRequest('/api/settings');
     currentSettings = s;
+    localStorage.setItem('esolat_admin_settings', JSON.stringify(s));
+    if (s.jakim_zone) localStorage.setItem('esolat_zone', s.jakim_zone);
+  } catch (err) {
+    try {
+      s = JSON.parse(localStorage.getItem('esolat_admin_settings') || '{}');
+      currentSettings = s;
+    } catch (_) {}
+  }
+  if (!s) s = {};
+
+  try {
 
     // Header & Titles
     const headerTitleEl = document.getElementById('appHeaderTitle');
@@ -319,9 +338,10 @@ async function loadSettings() {
     });
 
     // Iqamah & Solat duration
-    ['subuh', 'zohor', 'asar', 'maghrib', 'isyak'].forEach(p => {
+    const defaultIqamahMap = { subuh: 10, zohor: 7, asar: 7, maghrib: 5, isyak: 7, jumaat: 0 };
+    ['subuh', 'zohor', 'asar', 'maghrib', 'isyak', 'jumaat'].forEach(p => {
       const el = document.getElementById(`iqamah_${p}`);
-      if (el) el.value = s[`iqamah_${p}`] || 10;
+      if (el) el.value = s[`iqamah_${p}`] !== undefined ? s[`iqamah_${p}`] : defaultIqamahMap[p];
     });
     document.getElementById('solat_duration').value = s.solat_duration || 12;
 
@@ -332,6 +352,13 @@ async function loadSettings() {
     document.getElementById('inputBankName').value = s.bank_name || '';
     document.getElementById('inputBankAcc').value = s.bank_account_no || '';
     document.getElementById('inputBankHolder').value = s.bank_account_holder || '';
+
+    // Hijri Islamic Events Countdown Toggle
+    const isHijriCountdownOn = (s.hijri_countdown_enabled !== '0' && s.hijri_countdown_enabled !== false);
+    const swCountdown = document.getElementById('switchHijriCountdown');
+    if (swCountdown) swCountdown.checked = isHijriCountdownOn;
+    const swCountdownTicker = document.getElementById('switchHijriCountdownTicker');
+    if (swCountdownTicker) swCountdownTicker.checked = isHijriCountdownOn;
 
     // Typography Font Family
     const fontChoice = (s.kiosk_font_family || 'outfit').toLowerCase();
@@ -368,9 +395,24 @@ async function loadSettings() {
     if (rangeVol) rangeVol.value = volVal;
     if (volLabel) volLabel.textContent = `${volVal}%`;
 
-    // Signage Sub-layout
+    // Layout Preset & Signage Sub-layout
+    const elLayoutPreset = document.getElementById('selectKioskLayoutPreset');
+    if (elLayoutPreset) elLayoutPreset.value = s.kiosk_layout_preset || 'horizontal_glass';
+
     const elSubLayout = document.getElementById('selectKioskSubLayout');
     if (elSubLayout) elSubLayout.value = s.kiosk_layout || 'full';
+
+    // Lower-Third Live Broadcast Overlay & Kuliah Fullscreen
+    const swLowerThird = document.getElementById('switchLowerThird');
+    if (swLowerThird) swLowerThird.checked = (s.lower_third_enabled === '1' || s.lower_third_enabled === 1 || s.lower_third_enabled === true);
+    const swKuliahFs = document.getElementById('switchKuliahFullscreen');
+    if (swKuliahFs) swKuliahFs.checked = (s.kuliah_fullscreen === '1' || s.kuliah_fullscreen === 1 || s.kuliah_fullscreen === true);
+    const elLtSpeaker = document.getElementById('inputLowerThirdSpeaker');
+    if (elLtSpeaker) elLtSpeaker.value = s.lower_third_speaker || '';
+    const elLtTopic = document.getElementById('inputLowerThirdTopic');
+    if (elLtTopic) elLtTopic.value = s.lower_third_topic || '';
+    const elLtKitab = document.getElementById('inputLowerThirdKitab');
+    if (elLtKitab) elLtKitab.value = s.lower_third_kitab || '';
 
     // Kuliah Card Details
     const elKuliahTitle = document.getElementById('inputKuliahTitle');
@@ -379,6 +421,30 @@ async function loadSettings() {
     if (elKuliahUstaz) elKuliahUstaz.value = s.kuliah_ustaz || '';
     const elKuliahDate = document.getElementById('inputKuliahDate');
     if (elKuliahDate) elKuliahDate.value = s.kuliah_date || '';
+
+    // Mosque Administration: Duty Roster (Imam, Bilal, Siak)
+    const elRosterImam = document.getElementById('inputRosterImam');
+    if (elRosterImam) elRosterImam.value = s.roster_imam || '';
+    const elRosterBilal = document.getElementById('inputRosterBilal');
+    if (elRosterBilal) elRosterBilal.value = s.roster_bilal || '';
+    const elRosterSiak = document.getElementById('inputRosterSiak');
+    if (elRosterSiak) elRosterSiak.value = s.roster_siak || '';
+
+    // Mosque Administration: Tabung & Kewangan
+    const elTabungJumaat = document.getElementById('inputTabungJumaat');
+    if (elTabungJumaat) elTabungJumaat.value = s.tabung_jumaat || '';
+    const elTabungSubuh = document.getElementById('inputTabungSubuh');
+    if (elTabungSubuh) elTabungSubuh.value = s.tabung_infaq_subuh || '';
+    const elTabungPb = document.getElementById('inputTabungPembangunan');
+    if (elTabungPb) elTabungPb.value = s.tabung_pembangunan || '';
+    const elTabungTarikh = document.getElementById('inputTabungTarikh');
+    if (elTabungTarikh) elTabungTarikh.value = s.tabung_tarikh || '';
+
+    // Mosque Administration: Hadith of the Day
+    const elHadithText = document.getElementById('inputHadithText');
+    if (elHadithText) elHadithText.value = s.hadith_text || '';
+    const elHadithSource = document.getElementById('inputHadithSource');
+    if (elHadithSource) elHadithSource.value = s.hadith_source || '';
 
     // Fullscreen Media Toggle & Kiosk Layout Mode
     const checkMediaFs = document.getElementById('checkMediaFullscreen');
@@ -458,57 +524,123 @@ async function loadSettings() {
       if (document.getElementById('valAzanVolume')) document.getElementById('valAzanVolume').textContent = `${azanVol}%`;
     }
 
+    // Theme Selector (Multi-Theme Engine)
+    let activeTheme = (s.selected_theme || s.kiosk_theme || 'emerald').toLowerCase().trim().replace(/_/g, '-');
+    if (activeTheme === 'emerald-nabawi') activeTheme = 'emerald';
+    if (activeTheme === 'royal-sapphire') activeTheme = 'navy-gold';
+    if (activeTheme === 'midnight-oled' || activeTheme === 'clean-minimalist') activeTheme = 'onyx-dark';
+    if (activeTheme === 'al-aqsa-teal') activeTheme = 'ottoman-cyan';
+    if (activeTheme === 'ivory') activeTheme = 'clean-ivory';
+
+    let themeRadio = document.querySelector(`input[name="kiosk_theme"][value="${activeTheme}"]`);
+    if (!themeRadio) {
+      themeRadio = document.querySelector(`input[name="kiosk_theme"][value="emerald"]`);
+    }
+    if (themeRadio) themeRadio.checked = true;
+
+    // Instant Janazah Notice
+    const swJanazah = document.getElementById('switchJanazahNotice');
+    const boxJanazah = document.getElementById('boxJanazahDetails');
+    const isJanazahActive = (s.janazah_enabled === '1' || s.janazah_enabled === 1 || s.janazah_enabled === true);
+    if (swJanazah) swJanazah.checked = isJanazahActive;
+    if (boxJanazah) boxJanazah.style.display = isJanazahActive ? 'block' : 'none';
+
+    const inputJanazahName = document.getElementById('inputJanazahName');
+    if (inputJanazahName) inputJanazahName.value = s.janazah_arwah_name || '';
+    const inputJanazahTime = document.getElementById('inputJanazahSolatTime');
+    if (inputJanazahTime) inputJanazahTime.value = s.janazah_solat_time || '';
+    const inputJanazahLoc = document.getElementById('inputJanazahSolatLoc');
+    if (inputJanazahLoc) inputJanazahLoc.value = s.janazah_solat_loc || '';
+    const inputJanazahKubur = document.getElementById('inputJanazahKuburLoc');
+    if (inputJanazahKubur) inputJanazahKubur.value = s.janazah_kubur_loc || '';
+
+    // Friday Khutbah Title
+    const inputJumaatKhutbah = document.getElementById('inputJumaatKhutbahTitle');
+    if (inputJumaatKhutbah) inputJumaatKhutbah.value = s.jumaat_khutbah_title || '';
+
   } catch (err) {
     console.error('Error loading settings:', err);
   }
 }
 
 // ==================== GPS ZONE DETECTION ====================
-document.getElementById('btnDetectGps').addEventListener('click', () => {
-  const statusEl = document.getElementById('gpsStatus');
-  if (!navigator.geolocation) {
-    statusEl.innerHTML = '<span style="color:#ef4444;">Pelayar ini tidak menyokong pengesanan GPS.</span>';
-    return;
+function initGpsSecurityCheck() {
+  const gpsBox = document.querySelector('.gps-box') || document.getElementById('btnDetectGps')?.closest('.gps-box');
+  const isSecure = (window.isSecureContext === true) || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+  if (gpsBox && !isSecure) {
+    gpsBox.style.display = 'none';
   }
+}
 
-  statusEl.innerHTML = '<span style="color:#fbbf24;">Sedang mengesan koordinat GPS telefon anda...</span>';
-
-  navigator.geolocation.getCurrentPosition(
-    async (pos) => {
-      const lat = pos.coords.latitude;
-      const lon = pos.coords.longitude;
-
-      try {
-        const res = await apiRequest('/api/zones/match_gps', 'POST', { lat, lon });
-        const matched = res.matched_zone;
-        const dist = res.distance_km;
-
-        statusEl.innerHTML = `
-          <div style="background: rgba(2, 44, 34, 0.8); border: 1px solid #10b981; padding: 0.75rem; border-radius: 8px; margin-top: 0.5rem;">
-            <div style="font-weight:700; color:#34d399;">✓ Zon Dipadankan: ${matched.code} (${matched.state})</div>
-            <div style="font-size:0.8rem; color:#cbd5e1;">Kawasan: ${matched.location} (~${dist} km)</div>
-          </div>
-        `;
-
-        document.getElementById('selectJakimZone').value = matched.code;
-
-        // Auto prompt to apply and sync
-        if (confirm(`Zon ${matched.code} (${matched.location}) dikesan melalui GPS. Tetapkan zon ini dan segerakkan takwim sekarang?`)) {
-          await apiRequest('/api/settings', 'POST', { jakim_zone: matched.code });
-          await triggerTakwimSync(matched.code);
-          await loadSettings();
-        }
-
-      } catch (err) {
-        statusEl.innerHTML = `<span style="color:#ef4444;">Ralat padanan: ${err.message}</span>`;
+const btnGps = document.getElementById('btnDetectGps');
+if (btnGps) {
+  btnGps.addEventListener('click', () => {
+    const statusEl = document.getElementById('gpsStatus');
+    const isSecure = (window.isSecureContext === true) || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    if (!isSecure) {
+      if (statusEl) {
+        statusEl.innerHTML = '<span style="color:#94a3b8; font-size:0.85rem;">💡 Pengesanan GPS memerlukan sambungan HTTPS. Sila pilih zon dari senarai di bawah.</span>';
       }
-    },
-    (err) => {
-      statusEl.innerHTML = `<span style="color:#ef4444;">Akses GPS ditolak / gagal: ${err.message}</span>`;
-    },
-    { enableHighAccuracy: true, timeout: 10000 }
-  );
-});
+      document.getElementById('selectJakimZone')?.focus();
+      return;
+    }
+
+    if (!navigator.geolocation) {
+      if (statusEl) {
+        statusEl.innerHTML = '<span style="color:#94a3b8; font-size:0.85rem;">Pelayar ini tidak menyokong pengesanan GPS. Sila pilih zon secara manual di bawah.</span>';
+      }
+      document.getElementById('selectJakimZone')?.focus();
+      return;
+    }
+
+    if (statusEl) {
+      statusEl.innerHTML = '<span style="color:#fbbf24;">Sedang mengesan koordinat GPS telefon anda...</span>';
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+
+        try {
+          const res = await apiRequest('/api/zones/match_gps', 'POST', { lat, lon });
+          const matched = res.matched_zone;
+          const dist = res.distance_km;
+
+          if (statusEl) {
+            statusEl.innerHTML = `
+              <div style="background: rgba(2, 44, 34, 0.8); border: 1px solid #10b981; padding: 0.75rem; border-radius: 8px; margin-top: 0.5rem;">
+                <div style="font-weight:700; color:#34d399;">✓ Zon Dipadankan: ${matched.code} (${matched.state})</div>
+                <div style="font-size:0.8rem; color:#cbd5e1;">Kawasan: ${matched.location} (~${dist} km)</div>
+              </div>
+            `;
+          }
+
+          const selZone = document.getElementById('selectJakimZone');
+          if (selZone) selZone.value = matched.code;
+
+          // Auto prompt to apply and sync
+          if (confirm(`Zon ${matched.code} (${matched.location}) dikesan melalui GPS. Tetapkan zon ini dan segerakkan takwim sekarang?`)) {
+            await apiRequest('/api/settings', 'POST', { jakim_zone: matched.code });
+            await triggerTakwimSync(matched.code);
+            await loadSettings();
+          }
+
+        } catch (err) {
+          if (statusEl) statusEl.innerHTML = `<span style="color:#94a3b8; font-size:0.85rem;">Sila pilih zon secara manual di bawah.</span>`;
+        }
+      },
+      (err) => {
+        console.warn('[GPS] Geolocation notice:', err.message);
+        if (statusEl) {
+          statusEl.innerHTML = '<span style="color:#94a3b8; font-size:0.85rem;">Akses GPS tidak tersedia. Sila pilih zon secara manual di bawah.</span>';
+        }
+        document.getElementById('selectJakimZone')?.focus();
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  });
+}
 
 // Manual Zone Sync
 document.getElementById('btnSyncJakim').addEventListener('click', async () => {
@@ -520,19 +652,44 @@ document.getElementById('btnSyncJakim').addEventListener('click', async () => {
 
 async function triggerTakwimSync(zone) {
   const fb = document.getElementById('syncFeedback');
-  fb.innerHTML = '<span style="color:#fbbf24;">Memuat turun takwim dari JAKIM...</span>';
+  if (fb) fb.innerHTML = '<span style="color:#fbbf24;">Memuat turun takwim dari JAKIM...</span>';
   try {
+    localStorage.setItem('esolat_zone', zone);
     const res = await apiRequest('/api/jakim/sync', 'POST', { zone, period: 'month' });
-    if (res.success) {
-      fb.innerHTML = `<span style="color:#34d399;">✓ ${res.message}</span>`;
+    if (res && res.success) {
+      if (fb) fb.innerHTML = `<span style="color:#34d399;">✓ ${res.message}</span>`;
       showToast(res.message);
+      broadcastAdminSync('TAKWIM_UPDATED', { zone });
+      await syncAdminStatePoller();
+      updateAdminRealTimeStatus();
+      return;
     } else {
-      fb.innerHTML = `<span style="color:#ef4444;">${res.message}</span>`;
-      showToast(res.message, true);
+      throw new Error(res?.message || 'Gagal memuat turun data');
     }
   } catch (err) {
-    fb.innerHTML = `<span style="color:#ef4444;">${err.message}</span>`;
-    showToast(err.message, true);
+    console.warn('[Takwim] Local API unavailable, attempting public CORS / web simulation fallback:', err);
+    try {
+      if (fb) fb.innerHTML = '<span style="color:#38bdf8;">Menghubungi pelayan takwim sandaran...</span>';
+      const fallbackUrl = `https://api.waktusolat.app/v2/solat/${encodeURIComponent(zone)}`;
+      const res2 = await fetch(fallbackUrl, { cache: 'no-cache' }).then(r => r.json());
+      if (res2 && (res2.prayers || res2.prayerTime)) {
+        localStorage.setItem(`cached_takwim_${zone}`, JSON.stringify(res2));
+        localStorage.setItem('esolat_zone', zone);
+        const msg = `✓ Takwim zon ${zone} berjaya disegerakkan (Mod Web/Simulasi)!`;
+        if (fb) fb.innerHTML = `<span style="color:#34d399;">${msg}</span>`;
+        showToast(msg);
+        broadcastAdminSync('TAKWIM_UPDATED', { zone });
+        await syncAdminStatePoller();
+        updateAdminRealTimeStatus();
+        return;
+      }
+    } catch (fallbackErr) {
+      console.warn('[Takwim] Alternative API fallback failed:', fallbackErr);
+    }
+
+    const errMsg = err.message || 'Gagal menyegerakkan takwim';
+    if (fb) fb.innerHTML = `<span style="color:#ef4444;">${errMsg}</span>`;
+    showToast(errMsg, true);
   }
 }
 
@@ -546,6 +703,8 @@ document.getElementById('btnSaveOffsets').addEventListener('click', async () => 
   try {
     await apiRequest('/api/settings', 'POST', updates);
     showToast('Pelarasan waktu solat berjaya disimpan!');
+    await syncAdminStatePoller();
+    updateAdminRealTimeStatus();
   } catch (err) {
     showToast(err.message, true);
   }
@@ -1258,7 +1417,10 @@ document.getElementById('btnSaveAdhanConfig').addEventListener('click', async ()
   const updates = {};
   ['subuh', 'zohor', 'asar', 'maghrib', 'isyak'].forEach(p => {
     updates[`adhan_mode_${p}`] = document.getElementById(`adhan_mode_${p}`).value;
-    updates[`iqamah_${p}`] = parseInt(document.getElementById(`iqamah_${p}`).value) || 10;
+  });
+  ['subuh', 'zohor', 'asar', 'maghrib', 'isyak', 'jumaat'].forEach(p => {
+    const el = document.getElementById(`iqamah_${p}`);
+    if (el) updates[`iqamah_${p}`] = parseInt(el.value) || 0;
   });
   updates['solat_duration'] = parseInt(document.getElementById('solat_duration').value) || 12;
 
@@ -1269,6 +1431,26 @@ document.getElementById('btnSaveAdhanConfig').addEventListener('click', async ()
     showToast(err.message, true);
   }
 });
+
+// ==================== FAST ACTION: TERUS IQAMAH SEKARANG ====================
+async function triggerImmediateIqamahNow() {
+  if (!confirm('Adakah anda pasti mahu membatalkan detik undur dan terus menukar skrin TV ke Mod Solat (Rapatkan Saf) sekarang?')) {
+    return;
+  }
+  try {
+    const res = await apiRequest('/api/iqamah/now', 'POST', {});
+    showToast('⚡ Skrin TV telah beralih ke Mod Solat (Rapatkan Saf) serta-merta!');
+    if (typeof fetchState === 'function') fetchState();
+  } catch (err) {
+    showToast(`Ralat mencetuskan mod solat: ${err.message}`, true);
+  }
+}
+
+const btnFastDash = document.getElementById('btnFastIqamahNowDashboard');
+if (btnFastDash) btnFastDash.addEventListener('click', triggerImmediateIqamahNow);
+
+const btnFastTab3 = document.getElementById('btnFastIqamahNowTab3');
+if (btnFastTab3) btnFastTab3.addEventListener('click', triggerImmediateIqamahNow);
 
 // ==================== MEDIA & SLIDES ====================
 async function loadSlides() {
@@ -1285,11 +1467,12 @@ async function loadSlides() {
     res.slides.forEach(slide => {
       const card = document.createElement('div');
       card.className = 'slide-card';
+      const dayLabel = (slide.days_active && slide.days_active !== 'all') ? ` | 📅 ${slide.days_active}` : '';
       card.innerHTML = `
         <img class="slide-thumb" src="${slide.file_url}" alt="${slide.title}">
         <div class="slide-info">
           <div class="slide-title-text">${slide.title}</div>
-          <div class="slide-meta">Tempoh: ${slide.duration}s | Susunan: ${slide.sort_order}</div>
+          <div class="slide-meta">Tempoh: ${slide.duration}s | Susunan: ${slide.sort_order}${dayLabel}</div>
         </div>
         <button class="slide-del-btn" onclick="deleteSlide(${slide.id})">🗑️</button>
       `;
@@ -1316,6 +1499,7 @@ document.getElementById('uploadSlideForm').addEventListener('submit', async (e) 
   const title = document.getElementById('slideTitle').value.trim();
   const duration = parseInt(document.getElementById('slideDuration').value) || 12;
   const sort_order = parseInt(document.getElementById('slideOrder').value) || 1;
+  const days_active = document.getElementById('slideDaysActive') ? document.getElementById('slideDaysActive').value : 'all';
   const fileInput = document.getElementById('slideFileInput');
 
   if (!fileInput.files || fileInput.files.length === 0) {
@@ -1337,6 +1521,7 @@ document.getElementById('uploadSlideForm').addEventListener('submit', async (e) 
         title,
         duration,
         sort_order,
+        days_active,
         media_type,
         file_base64: base64Data,
         file_name: file.name
@@ -1363,47 +1548,106 @@ if (rangeVideoVol) {
   });
 }
 
-// 2. Preset stream links
-window.setPresetMedia = function(type) {
+// 2. Preset stream links & Auto Sync
+window.setPresetMedia = async function(type) {
   const mediaSourceSelect = document.getElementById('selectMediaSourceType');
   const typeSelect = document.getElementById('selectVideoType');
   const urlInput = document.getElementById('inputVideoUrl');
-  if (mediaSourceSelect) mediaSourceSelect.value = 'stream';
 
-  if (type === 'phone_cam') {
-    if (typeSelect) typeSelect.value = 'hls';
-    if (urlInput) {
-      urlInput.value = 'http://192.168.1.50:8080/video';
+  let media_source_type = 'stream';
+  let video_source_type = 'youtube';
+  let media_stream_url = '';
+  let toastMsg = '';
+
+  if (type === 'makkah') {
+    media_source_type = 'stream';
+    video_source_type = 'hls';
+    media_stream_url = 'https://cdn-globecast.akamaized.net/live/eds/saudi_quran/hls_roku/index.m3u8';
+    toastMsg = '🕋 Siaran Langsung Makkah Live 24/7 (HLS) diaktifkan di TV Kiosk!';
+  } else if (type === 'madinah') {
+    media_source_type = 'stream';
+    video_source_type = 'hls';
+    media_stream_url = 'https://cdn-globecast.akamaized.net/live/eds/saudi_sunnah/hls_roku/index.m3u8';
+    toastMsg = '🕌 Siaran Langsung Madinah Live 24/7 (HLS) diaktifkan di TV Kiosk!';
+  } else if (type === 'alhijrah') {
+    media_source_type = 'stream';
+    video_source_type = 'hls';
+    media_stream_url = 'https://d25tgymtnqzu8s.cloudfront.net/smil:berita/playlist.m3u8?id=5';
+    toastMsg = '📺 Siaran Langsung TV Al-Hijrah / Berita (HLS) diaktifkan di TV Kiosk!';
+  } else if (type === 'phone_cam') {
+    media_source_type = 'stream';
+    video_source_type = 'hls';
+    media_stream_url = 'http://192.168.1.50:8080/video';
+    toastMsg = '📱 Pautan Kamera Telefon ditetapkan. Sila sahkan alamat IP telefon anda.';
+  } else if (type === 'hls_sample') {
+    media_source_type = 'stream';
+    video_source_type = 'hls';
+    media_stream_url = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
+    toastMsg = '🌊 Strim Ujian HLS Mux dimuatkan!';
+  } else if (type === 'clear' || type === 'default' || type === 'slides') {
+    media_source_type = 'slides';
+    video_source_type = 'mp4';
+    media_stream_url = '';
+    toastMsg = '📋 Pemain media dikosongkan. Slaid poster dipaparkan sebagai lalai.';
+  }
+
+  // Update UI form inputs
+  if (mediaSourceSelect) mediaSourceSelect.value = media_source_type;
+  if (typeSelect) typeSelect.value = video_source_type;
+  if (urlInput) {
+    urlInput.value = media_stream_url;
+    if (type === 'phone_cam') {
       urlInput.focus();
       urlInput.select();
     }
-  } else if (type === 'youtube') {
-    if (typeSelect) typeSelect.value = 'youtube';
-    if (urlInput) {
-      urlInput.value = 'https://www.youtube.com/watch?v=';
-      urlInput.focus();
+  }
+
+  // Save to localStorage for instant cross-tab kiosk sync
+  const mediaConfig = {
+    media_source_type,
+    video_source_type,
+    media_stream_url,
+    timestamp: Date.now()
+  };
+  try {
+    localStorage.setItem('kiosk_media_config', JSON.stringify(mediaConfig));
+  } catch (_) {}
+
+  // Broadcast sync signal to TV Kiosk
+  broadcastAdminSync('kiosk_media_config', { media_config: mediaConfig });
+  broadcastAdminSync('SETTINGS_UPDATED');
+
+  // Persist settings to backend
+  try {
+    await apiRequest('/api/settings', 'POST', {
+      media_source_type,
+      video_source_type,
+      video_source_url: media_stream_url,
+      media_stream_url
+    });
+    if (toastMsg) showToast(toastMsg);
+    // Refresh preview frame if open
+    const frame = document.getElementById('adminKioskPreviewFrame');
+    if (frame) {
+      setTimeout(() => { frame.src = '/kiosk?t=' + Date.now(); }, 500);
     }
-  } else if (type === 'alhijrah') {
-    if (typeSelect) typeSelect.value = 'youtube';
-    if (urlInput) urlInput.value = 'https://www.youtube.com/watch?v=live_stream';
-  } else if (type === 'hls_sample') {
-    if (typeSelect) typeSelect.value = 'hls';
-    if (urlInput) urlInput.value = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
-  } else if (type === 'clear') {
-    if (urlInput) urlInput.value = '';
+  } catch (err) {
+    showToast(`Ralat menyimpan praset: ${err.message}`, true);
   }
 };
 
+const btnPresetMakkahMedia = document.getElementById('btnPresetMakkah');
+if (btnPresetMakkahMedia) btnPresetMakkahMedia.addEventListener('click', () => setPresetMedia('makkah'));
+const btnPresetMadinahMedia = document.getElementById('btnPresetMadinah');
+if (btnPresetMadinahMedia) btnPresetMadinahMedia.addEventListener('click', () => setPresetMedia('madinah'));
+const btnPresetAlhijrahMedia = document.getElementById('btnPresetAlhijrah');
+if (btnPresetAlhijrahMedia) btnPresetAlhijrahMedia.addEventListener('click', () => setPresetMedia('alhijrah'));
+const btnClearPresetMedia = document.getElementById('btnPresetClear');
+if (btnClearPresetMedia) btnClearPresetMedia.addEventListener('click', () => setPresetMedia('clear'));
 const btnPhoneCam = document.getElementById('btnPresetPhoneCam');
 if (btnPhoneCam) btnPhoneCam.addEventListener('click', () => setPresetMedia('phone_cam'));
-const btnYouTube = document.getElementById('btnPresetYouTube');
-if (btnYouTube) btnYouTube.addEventListener('click', () => setPresetMedia('youtube'));
-const btnAlhijrah = document.getElementById('btnPresetAlhijrah');
-if (btnAlhijrah) btnAlhijrah.addEventListener('click', () => setPresetMedia('alhijrah'));
 const btnSampleHls = document.getElementById('btnPresetSampleHls');
 if (btnSampleHls) btnSampleHls.addEventListener('click', () => setPresetMedia('hls_sample'));
-const btnClearPreset = document.getElementById('btnPresetClear');
-if (btnClearPreset) btnClearPreset.addEventListener('click', () => setPresetMedia('clear'));
 
 // 3. Layout Selector Cards Click Interaction
 document.querySelectorAll('#multiLayoutSelectorGrid .layout-option, #dashLayoutSelectorGrid .layout-option').forEach(opt => {
@@ -1528,10 +1772,31 @@ async function handleSaveDisplaySettings() {
   const media_stream_url = video_source_url;
   const video_audio_enabled = (document.getElementById('checkVideoAudio') && document.getElementById('checkVideoAudio').checked) ? '1' : '0';
   const video_volume = document.getElementById('rangeVideoVolume') ? document.getElementById('rangeVideoVolume').value : '80';
+  const kiosk_layout_preset = document.getElementById('selectKioskLayoutPreset') ? document.getElementById('selectKioskLayoutPreset').value : 'horizontal_glass';
   const kiosk_layout = document.getElementById('selectKioskSubLayout') ? document.getElementById('selectKioskSubLayout').value : 'full';
+
+  const lower_third_enabled = (document.getElementById('switchLowerThird') && document.getElementById('switchLowerThird').checked) ? '1' : '0';
+  const lower_third_speaker = document.getElementById('inputLowerThirdSpeaker') ? document.getElementById('inputLowerThirdSpeaker').value.trim() : '';
+  const lower_third_topic = document.getElementById('inputLowerThirdTopic') ? document.getElementById('inputLowerThirdTopic').value.trim() : '';
+  const lower_third_kitab = document.getElementById('inputLowerThirdKitab') ? document.getElementById('inputLowerThirdKitab').value.trim() : '';
+
   const kuliah_title = document.getElementById('inputKuliahTitle') ? document.getElementById('inputKuliahTitle').value.trim() : '';
   const kuliah_ustaz = document.getElementById('inputKuliahUstaz') ? document.getElementById('inputKuliahUstaz').value.trim() : '';
   const kuliah_date = document.getElementById('inputKuliahDate') ? document.getElementById('inputKuliahDate').value.trim() : '';
+
+  // Mosque Administration (Duty Roster, Tabung, Hadith)
+  const roster_imam = document.getElementById('inputRosterImam') ? document.getElementById('inputRosterImam').value.trim() : '';
+  const roster_bilal = document.getElementById('inputRosterBilal') ? document.getElementById('inputRosterBilal').value.trim() : '';
+  const roster_siak = document.getElementById('inputRosterSiak') ? document.getElementById('inputRosterSiak').value.trim() : '';
+
+  const tabung_jumaat = document.getElementById('inputTabungJumaat') ? document.getElementById('inputTabungJumaat').value.trim() : '';
+  const tabung_infaq_subuh = document.getElementById('inputTabungSubuh') ? document.getElementById('inputTabungSubuh').value.trim() : '';
+  const tabung_pembangunan = document.getElementById('inputTabungPembangunan') ? document.getElementById('inputTabungPembangunan').value.trim() : '';
+  const tabung_tarikh = document.getElementById('inputTabungTarikh') ? document.getElementById('inputTabungTarikh').value.trim() : '';
+
+  const hadith_text = document.getElementById('inputHadithText') ? document.getElementById('inputHadithText').value.trim() : '';
+  const hadith_source = document.getElementById('inputHadithSource') ? document.getElementById('inputHadithSource').value.trim() : '';
+
   const media_fullscreen_enabled = (kiosk_layout_mode === 'fullscreen' || (document.getElementById('checkMediaFullscreen') && document.getElementById('checkMediaFullscreen').checked)) ? '1' : '0';
 
   const selectedRadio = document.querySelector('input[name="active_layout_mode"]:checked');
@@ -1540,6 +1805,7 @@ async function handleSaveDisplaySettings() {
   try {
     await apiRequest('/api/settings', 'POST', {
       kiosk_layout_mode,
+      kiosk_layout_preset,
       pip_mode,
       media_source_type,
       media_stream_url,
@@ -1549,9 +1815,22 @@ async function handleSaveDisplaySettings() {
       video_audio_enabled,
       video_volume,
       kiosk_layout,
+      lower_third_enabled,
+      lower_third_speaker,
+      lower_third_topic,
+      lower_third_kitab,
       kuliah_title,
       kuliah_ustaz,
       kuliah_date,
+      roster_imam,
+      roster_bilal,
+      roster_siak,
+      tabung_jumaat,
+      tabung_infaq_subuh,
+      tabung_pembangunan,
+      tabung_tarikh,
+      hadith_text,
+      hadith_source,
       media_fullscreen_enabled
     });
     showToast('Tetapan paparan berjaya dikemaskini!');
@@ -1657,6 +1936,84 @@ if (btnResetCustomLayoutEl) {
   });
 }
 
+// ==================== AUTO-DISCOVERY PTZ / IP CAMERA ====================
+const btnDiscoverCamerasEl = document.getElementById('btnDiscoverCameras');
+if (btnDiscoverCamerasEl) {
+  btnDiscoverCamerasEl.addEventListener('click', async () => {
+    const container = document.getElementById('discoveredCamerasContainer');
+    const statusMsg = document.getElementById('discoverStatusMsg');
+    const listEl = document.getElementById('discoveredCamerasList');
+    if (!container || !statusMsg || !listEl) return;
+
+    container.style.display = 'block';
+    statusMsg.innerHTML = '<span class="loading-spinner">⏳</span> Sedang mengimbas kamera ONVIF &amp; RTSP dalam rangkaian...';
+    listEl.innerHTML = '';
+    btnDiscoverCamerasEl.disabled = true;
+
+    try {
+      const res = await apiRequest('/api/ptz/discover');
+      const cameras = res.cameras || [];
+
+      if (cameras.length === 0) {
+        statusMsg.innerHTML = '❌ Tiada kamera IP / ONVIF ditemui dalam rangkaian semasa.';
+        listEl.innerHTML = '<div style="font-size:0.75rem; color:#94a3b8; padding:0.4rem;">Pastikan kamera PTZ/IP dihidupkan dan disambungkan ke Wi-Fi atau port LAN surau yang sama.</div>';
+      } else {
+        statusMsg.innerHTML = `✅ Ditemui <b>${cameras.length}</b> peranti kamera dalam rangkaian:`;
+        listEl.innerHTML = '';
+
+        cameras.forEach(cam => {
+          const card = document.createElement('div');
+          card.style.cssText = 'background:rgba(15,23,42,0.9); border:1px solid rgba(52,211,153,0.3); border-radius:8px; padding:0.6rem 0.75rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;';
+
+          const infoDiv = document.createElement('div');
+          infoDiv.innerHTML = `
+            <div style="font-weight:700; color:#f8fafc; font-size:0.85rem;">📹 ${cam.vendor || 'IP Camera'} (${cam.ip})</div>
+            <div style="font-size:0.72rem; color:#94a3b8;">Jenis: ${cam.type || 'RTSP'} &bull; Kaedah: ${cam.discovery_method || 'LAN'}</div>
+            <div style="font-size:0.72rem; color:#38bdf8; font-family:monospace; word-break:break-all;">${cam.rtsp_url}</div>
+          `;
+
+          const btnUse = document.createElement('button');
+          btnUse.type = 'button';
+          btnUse.className = 'btn btn-sm btn-primary';
+          btnUse.style.cssText = 'font-size:0.75rem; padding:0.3rem 0.65rem; white-space:nowrap; font-weight:700;';
+          btnUse.textContent = '✔️ Guna Kamera Ini';
+          btnUse.onclick = async () => {
+            const urlInput = document.getElementById('inputVideoUrl');
+            const mediaType = document.getElementById('selectMediaSourceType');
+            const videoType = document.getElementById('selectVideoType');
+
+            if (urlInput) urlInput.value = cam.rtsp_url;
+            if (mediaType) mediaType.value = 'stream';
+            if (videoType) videoType.value = 'hls';
+
+            try {
+              await apiRequest('/api/settings', 'POST', {
+                media_source_type: 'stream',
+                video_source_type: 'hls',
+                video_source_url: cam.rtsp_url,
+                media_stream_url: cam.rtsp_url,
+                camera_rtsp_url: cam.rtsp_url
+              });
+              showToast(`🎥 Kamera ${cam.vendor || cam.ip} berjaya dipilih & disimpan!`);
+              await loadSettings();
+            } catch (err) {
+              showToast('Gagal menyimpan kamera: ' + err.message, true);
+            }
+          };
+
+          card.appendChild(infoDiv);
+          card.appendChild(btnUse);
+          listEl.appendChild(card);
+        });
+      }
+    } catch (err) {
+      statusMsg.innerHTML = '⚠️ Ralat semasa mengimbas kamera: ' + err.message;
+    } finally {
+      btnDiscoverCamerasEl.disabled = false;
+    }
+  });
+}
+
 // ==================== FONT TYPOGRAPHY SAVE ====================
 const btnSaveFontEl = document.getElementById('btnSaveFontFamily');
 if (btnSaveFontEl) {
@@ -1669,6 +2026,82 @@ if (btnSaveFontEl) {
       await loadSettings();
     } catch (err) {
       showToast('Gagal menyimpan fon: ' + err.message, true);
+    }
+  });
+}
+
+// ==================== THEME SELECTION SAVE ====================
+const btnSaveThemeEl = document.getElementById('btnSaveTheme');
+if (btnSaveThemeEl) {
+  btnSaveThemeEl.addEventListener('click', async () => {
+    const selected = document.querySelector('input[name="kiosk_theme"]:checked');
+    const themeVal = selected ? selected.value : 'emerald';
+    try {
+      await apiRequest('/api/settings', 'POST', { 
+        selected_theme: themeVal,
+        kiosk_theme: themeVal 
+      });
+      try {
+        const ch = new BroadcastChannel('esolat_sync');
+        ch.postMessage({ 
+          type: 'THEME_CHANGED', 
+          theme: themeVal,
+          selected_theme: themeVal,
+          kiosk_theme: themeVal 
+        });
+      } catch (_) {}
+      showToast('🎭 Tema visual TV Kiosk berjaya dikemas kini!');
+      await loadSettings();
+    } catch (err) {
+      showToast('Gagal menyimpan tema: ' + err.message, true);
+    }
+  });
+}
+
+// ==================== INSTANT JANAZAH & JUMAAT SAVE ====================
+const swJanazahEl = document.getElementById('switchJanazahNotice');
+if (swJanazahEl) {
+  swJanazahEl.addEventListener('change', () => {
+    const box = document.getElementById('boxJanazahDetails');
+    if (box) box.style.display = swJanazahEl.checked ? 'block' : 'none';
+  });
+}
+
+const btnSaveJanazahEl = document.getElementById('btnSaveJanazahJumaat');
+if (btnSaveJanazahEl) {
+  btnSaveJanazahEl.addEventListener('click', async () => {
+    const swJanazah = document.getElementById('switchJanazahNotice');
+    const janazah_enabled = (swJanazah && swJanazah.checked) ? '1' : '0';
+    const janazah_arwah_name = document.getElementById('inputJanazahName') ? document.getElementById('inputJanazahName').value.trim() : '';
+    const janazah_solat_time = document.getElementById('inputJanazahSolatTime') ? document.getElementById('inputJanazahSolatTime').value.trim() : '';
+    const janazah_solat_loc = document.getElementById('inputJanazahSolatLoc') ? document.getElementById('inputJanazahSolatLoc').value.trim() : '';
+    const janazah_kubur_loc = document.getElementById('inputJanazahKuburLoc') ? document.getElementById('inputJanazahKuburLoc').value.trim() : '';
+    const jumaat_khutbah_title = document.getElementById('inputJumaatKhutbahTitle') ? document.getElementById('inputJumaatKhutbahTitle').value.trim() : '';
+
+    const payload = {
+      janazah_enabled,
+      janazah_arwah_name,
+      janazah_solat_time,
+      janazah_solat_loc,
+      janazah_kubur_loc,
+      jumaat_khutbah_title
+    };
+
+    try {
+      await apiRequest('/api/settings', 'POST', payload);
+      try {
+        const cached = JSON.parse(localStorage.getItem('esolat_admin_settings') || '{}');
+        Object.assign(cached, payload);
+        localStorage.setItem('esolat_admin_settings', JSON.stringify(cached));
+      } catch (_) {}
+
+      broadcastAdminSync('SETTINGS_UPDATED', payload);
+      broadcastAdminSync('UPDATE_DEATH_NOTICE', payload);
+
+      showToast(janazah_enabled === '1' ? '🕊️ Papan tanda takziah diaktifkan di skrin TV!' : 'Tetapan takziah & khutbah disimpan.');
+      await loadSettings();
+    } catch (err) {
+      showToast('Gagal menyimpan: ' + err.message, true);
     }
   });
 }
@@ -1687,6 +2120,32 @@ document.getElementById('btnSaveBranding').addEventListener('click', async () =>
     showToast(err.message, true);
   }
 });
+
+// ==================== HIJRI COUNTDOWN TOGGLE HANDLER ====================
+async function handleHijriCountdownToggle(enabled) {
+  const val = enabled ? '1' : '0';
+  const sw1 = document.getElementById('switchHijriCountdown');
+  const sw2 = document.getElementById('switchHijriCountdownTicker');
+  if (sw1) sw1.checked = enabled;
+  if (sw2) sw2.checked = enabled;
+
+  try {
+    await apiRequest('/api/settings', 'POST', { hijri_countdown_enabled: val });
+    showToast(enabled ? '⏳ Detik undur Hari Kebesaran Islam diaktifkan!' : 'Detik undur Hari Kebesaran Islam dinyahaktifkan.');
+  } catch (err) {
+    showToast('Gagal menyimpan tetapan: ' + err.message, true);
+  }
+}
+
+const swCountdownEl = document.getElementById('switchHijriCountdown');
+if (swCountdownEl) {
+  swCountdownEl.addEventListener('change', (e) => handleHijriCountdownToggle(e.target.checked));
+}
+
+const swCountdownTickerEl = document.getElementById('switchHijriCountdownTicker');
+if (swCountdownTickerEl) {
+  swCountdownTickerEl.addEventListener('change', (e) => handleHijriCountdownToggle(e.target.checked));
+}
 
 // Bank QR Code Preview & File Selection
 const inputBankQrFile = document.getElementById('inputBankQrFile');
@@ -2100,15 +2559,112 @@ if (btnRescanStorage) {
   });
 }
 
-// ==================== LIVE STATUS POLLER ====================
+// ==================== LIVE STATUS POLLER & REAL-TIME ADMIN CLOCK ====================
+let adminPrayerTimes = null;
+let adminClockInterval = null;
+
+// Initialize cached ribbon times from local storage if available
+try {
+  const cachedTimes = localStorage.getItem('esolat_admin_ribbon_times');
+  if (cachedTimes) {
+    adminPrayerTimes = JSON.parse(cachedTimes);
+  }
+} catch (_) {}
+
+function calculateNextPrayerFromTimes(now, times) {
+  if (!times) return null;
+  // Fardhu prayers only (Syuruk & Imsak are marker times, not prayer times)
+  const prayerOrder = [
+    { name: 'Subuh', time: times.Subuh },
+    { name: 'Zohor', time: times.Zohor },
+    { name: 'Asar', time: times.Asar },
+    { name: 'Maghrib', time: times.Maghrib },
+    { name: 'Isyak', time: times.Isyak }
+  ];
+
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+  for (const p of prayerOrder) {
+    if (!p.time || p.time === '--:--') continue;
+    const parts = p.time.split(':');
+    if (parts.length >= 2) {
+      const pMinutes = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+      if (pMinutes > currentMinutes) {
+        return { name: p.name.toUpperCase(), time: p.time };
+      }
+    }
+  }
+
+  // If passed Isyak, next prayer is tomorrow's Subuh
+  const subuhTime = times.Subuh || '--:--';
+  return { name: 'SUBUH', time: subuhTime };
+}
+
+function updateAdminRealTimeStatus() {
+  const now = new Date();
+  
+  // 1. Update Real-Time Clock
+  const clockEl = document.getElementById('statClock') || document.getElementById('adminCurrentTime');
+  if (clockEl) {
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    clockEl.textContent = `${hours}:${minutes}:${seconds}`;
+  }
+
+  // 2. Update Next Prayer Display
+  const nextEl = document.getElementById('statNextPrayer');
+  if (nextEl) {
+    const next = calculateNextPrayerFromTimes(now, adminPrayerTimes);
+    if (next && next.time && next.time !== '--:--') {
+      nextEl.textContent = `${next.name} (${next.time})`;
+    }
+  }
+}
+
+function startAdminClock() {
+  if (adminClockInterval) clearInterval(adminClockInterval);
+  updateAdminRealTimeStatus();
+  adminClockInterval = setInterval(updateAdminRealTimeStatus, 1000);
+}
+
+async function syncAdminStatePoller() {
+  try {
+    const s = await fetch('/api/state', { cache: 'no-store' }).then(r => r.json());
+    if (s) {
+      if (s.ribbon_times) {
+        adminPrayerTimes = s.ribbon_times;
+        try {
+          localStorage.setItem('esolat_admin_ribbon_times', JSON.stringify(s.ribbon_times));
+        } catch (_) {}
+      }
+
+      const nextEl = document.getElementById('statNextPrayer');
+      if (nextEl) {
+        if (s.next_prayer && s.ribbon_times && s.ribbon_times[s.next_prayer]) {
+          nextEl.textContent = `${s.next_prayer.toUpperCase()} (${s.ribbon_times[s.next_prayer]})`;
+        } else if (s.next_prayer) {
+          const m = Math.floor((s.time_to_next_seconds || 0) / 60);
+          nextEl.textContent = `${s.next_prayer.toUpperCase()} (${m}m)`;
+        }
+      }
+
+      if (s.settings && s.settings.jakim_zone) {
+        const zoneEl = document.getElementById('statZone');
+        if (zoneEl && (zoneEl.textContent === '--' || !zoneEl.textContent)) {
+          zoneEl.textContent = s.settings.jakim_zone;
+        }
+      }
+    }
+  } catch (e) {
+    // Silent fail for polling errors
+  }
+}
+
 function startStatusPoller() {
-  setInterval(async () => {
-    try {
-      const s = await fetch('/api/state').then(r => r.json());
-      document.getElementById('statClock').textContent = s.current_time || '--:--:--';
-      document.getElementById('statNextPrayer').textContent = `${(s.next_prayer || '--').toUpperCase()} (${Math.floor((s.time_to_next_seconds || 0) / 60)}m)`;
-    } catch (e) {}
-  }, 2000);
+  startAdminClock();
+  syncAdminStatePoller();
+  setInterval(syncAdminStatePoller, 2000);
 }
 
 // ==================== PWA WEBAPK / SERVICE WORKER REGISTRATION ====================
@@ -2128,7 +2684,8 @@ function setupPWA() {
     }).catch(() => {});
 
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/admin/sw.js', { scope: '/admin/' })
+      const swUrl = new URL('sw.js', window.location.href).href;
+      navigator.serviceWorker.register(swUrl)
         .then((reg) => {
           console.log('[PWA] Service Worker registered successfully with scope:', reg.scope);
         })
@@ -2145,8 +2702,10 @@ function setupPWA() {
 
     const btnTopInstall = document.getElementById('btnInstallPwa');
     const pwaBanner = document.getElementById('pwaInstallBanner');
+    const loginPwaCard = document.getElementById('loginPwaInstallCard');
 
     if (btnTopInstall) btnTopInstall.style.display = 'inline-flex';
+    if (loginPwaCard) loginPwaCard.style.display = 'block';
     if (pwaBanner && !sessionStorage.getItem('dismissedPwaBanner')) {
       pwaBanner.style.display = 'block';
     }
@@ -2173,16 +2732,20 @@ function setupPWA() {
     deferredInstallPrompt = null;
     const btnTopInstall = document.getElementById('btnInstallPwa');
     const pwaBanner = document.getElementById('pwaInstallBanner');
+    const loginPwaCard = document.getElementById('loginPwaInstallCard');
     if (btnTopInstall) btnTopInstall.style.display = 'none';
     if (pwaBanner) pwaBanner.style.display = 'none';
+    if (loginPwaCard) loginPwaCard.style.display = 'none';
   };
 
   const btnTopInstall = document.getElementById('btnInstallPwa');
   const btnTrigger = document.getElementById('btnTriggerInstallPwa');
+  const btnLoginTrigger = document.getElementById('btnLoginTriggerInstall');
   const btnDismiss = document.getElementById('btnDismissPwaBanner');
 
   if (btnTopInstall) btnTopInstall.addEventListener('click', triggerInstall);
   if (btnTrigger) btnTrigger.addEventListener('click', triggerInstall);
+  if (btnLoginTrigger) btnLoginTrigger.addEventListener('click', triggerInstall);
   if (btnDismiss) {
     btnDismiss.addEventListener('click', () => {
       const pwaBanner = document.getElementById('pwaInstallBanner');
@@ -2197,9 +2760,30 @@ let cachedNetworkInfo = null;
 
 async function updateNetworkInfo() {
   try {
-    const net = await fetch('/api/system/network').then(r => r.json());
+    let net = null;
+    try {
+      const res = await fetch('/api/system/network-info', { cache: 'no-store' });
+      if (res.ok) net = await res.json();
+    } catch (_) {}
+    if (!net) {
+      net = await fetch('/api/system/network', { cache: 'no-store' }).then(r => r.json());
+    }
     cachedNetworkInfo = net;
     renderNetworkInfo(net);
+
+    // Cache paired network settings in localStorage
+    if (net) {
+      const pIp = net.ip || net.primary_ip;
+      const port = net.port || '8080';
+      const adminUrl = net.admin_url || `http://${pIp}:${port}/admin/`;
+      try {
+        if (pIp && pIp !== '127.0.0.1' && pIp !== 'localhost') {
+          localStorage.setItem('last_connected_ip', `${pIp}:${port}`);
+          localStorage.setItem('esolat_base_url', `http://${pIp}:${port}`);
+          localStorage.setItem('esolat_admin_url', adminUrl);
+        }
+      } catch (_) {}
+    }
   } catch (err) {
     console.warn('[NETWORK] Could not fetch network info:', err);
   }
@@ -2211,17 +2795,18 @@ function renderNetworkInfo(net) {
   const primaryIp = net.primary_ip || (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' ? window.location.hostname : '127.0.0.1');
   const port = net.port || window.location.port || '8080';
   const hostname = net.hostname ? `${net.hostname}.local` : `${window.location.hostname}`;
-  const adminUrl = net.admin_url || `http://${primaryIp}:${port}/admin`;
+  const mdnsUrl = net.mdns_url || `http://esolat.local:${port}/admin/`;
+  const adminUrl = net.admin_url || `http://${primaryIp}:${port}/admin/`;
 
   // 1. Update Login Modal broadcast
   const loginUrlEl = document.getElementById('loginNetUrl');
   const loginHostEl = document.getElementById('loginNetHostname');
-  if (loginUrlEl) loginUrlEl.textContent = adminUrl;
-  if (loginHostEl) loginHostEl.textContent = `Hostname: ${hostname}`;
+  if (loginUrlEl) loginUrlEl.textContent = mdnsUrl;
+  if (loginHostEl) loginHostEl.textContent = `Hostname: ${hostname} (IP: ${primaryIp})`;
 
   // 2. Update Top Nav bar badge
   const topNavIp = document.getElementById('topNavIpText');
-  if (topNavIp) topNavIp.textContent = primaryIp;
+  if (topNavIp) topNavIp.textContent = `${hostname} (${primaryIp})`;
 
   // 3. Update Dashboard Network Card
   const netHostEl = document.getElementById('netHostname');
@@ -2231,14 +2816,36 @@ function renderNetworkInfo(net) {
 
   if (netHostEl) netHostEl.textContent = hostname;
   if (netIpEl) netIpEl.textContent = primaryIp;
-  if (netAdminInput) netAdminInput.value = adminUrl;
-  if (netQrLabel) netQrLabel.textContent = adminUrl;
+  if (netAdminInput) netAdminInput.value = mdnsUrl;
+  if (netQrLabel) netQrLabel.textContent = mdnsUrl;
 
-  // Update QR image src
+  // Update QR display (Local Canvas Generator with Fallback)
+  const netQrCanvas = document.getElementById('netQrCanvasContainer');
   const netQrImg = document.getElementById('netQrImg');
-  if (netQrImg) {
-    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(adminUrl)}`;
-    netQrImg.src = qrApiUrl;
+  if (netQrCanvas) {
+    netQrCanvas.innerHTML = '';
+    if (typeof QRCode !== 'undefined') {
+      try {
+        new QRCode(netQrCanvas, {
+          text: adminUrl,
+          width: 260,
+          height: 260,
+          colorDark: "#022c22",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.M
+        });
+        if (netQrImg) netQrImg.style.display = 'none';
+      } catch (e) {
+        console.warn('Local QRCode error, falling back to API:', e);
+        if (netQrImg) {
+          netQrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(adminUrl)}`;
+          netQrImg.style.display = 'block';
+        }
+      }
+    } else if (netQrImg) {
+      netQrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(adminUrl)}`;
+      netQrImg.style.display = 'block';
+    }
   }
 }
 
@@ -2259,6 +2866,21 @@ function setupNetworkBroadcastUI() {
         showToast('📋 Pautan Admin disalin! Buka pautan ini pada telefon pintar AJK.');
       } catch (err) {
         showToast(`Pautan: ${urlToCopy}`);
+      }
+    });
+  }
+
+  // Direct Copy URL button inside QR modal
+  const btnCopyDirect = document.getElementById('btnCopyQrUrlDirect');
+  if (btnCopyDirect) {
+    btnCopyDirect.addEventListener('click', async () => {
+      const label = document.getElementById('netQrUrlLabel');
+      const textToCopy = label ? label.textContent : (cachedNetworkInfo ? cachedNetworkInfo.admin_url : window.location.href);
+      try {
+        if (navigator.clipboard) await navigator.clipboard.writeText(textToCopy);
+        showToast('📋 Pautan Admin disalin!');
+      } catch (e) {
+        showToast(`Pautan: ${textToCopy}`);
       }
     });
   }
@@ -2296,6 +2918,526 @@ function setupNetworkBroadcastUI() {
       }
       showToast(`📡 IP Sistem: ${cachedNetworkInfo?.primary_ip || window.location.hostname} | Port: ${cachedNetworkInfo?.port || '8080'}`);
     });
+  }
+}
+
+// ==================== SMART PAIRING & 1-CLICK RECONNECT ====================
+function setupSmartPairingUI() {
+  const lastConnectedCard = document.getElementById('lastConnectedCard');
+  const lastConnectedHostText = document.getElementById('lastConnectedHostText');
+  const btnQuickReconnect = document.getElementById('btnQuickReconnectLast');
+  const btnToggleManual = document.getElementById('btnToggleManualIp');
+  const manualAccordion = document.getElementById('manualIpAccordionContent');
+  const manualChevron = document.getElementById('manualIpChevron');
+  const manualIpInput = document.getElementById('inputManualKioskIp');
+  const btnConnect = document.getElementById('btnConnectManualIp');
+
+  // Auto-cache base URL upon opening link from QR scan for the first time
+  const currentHost = window.location.hostname;
+  const currentPort = window.location.port || '8080';
+  const currentOrigin = window.location.origin;
+  if (currentHost && currentHost !== 'localhost' && currentHost !== '127.0.0.1') {
+    try {
+      const targetStr = `${currentHost}:${currentPort}`;
+      localStorage.setItem('last_connected_ip', targetStr);
+      localStorage.setItem('esolat_base_url', currentOrigin);
+      localStorage.setItem('esolat_admin_url', window.location.href);
+    } catch (_) {}
+  }
+
+  // Check localStorage for previous connection
+  const lastIp = localStorage.getItem('last_connected_ip');
+  if (lastIp) {
+    if (lastConnectedCard && lastConnectedHostText) {
+      lastConnectedHostText.textContent = lastIp;
+      lastConnectedCard.style.display = 'block';
+    }
+    if (manualIpInput) {
+      manualIpInput.value = lastIp;
+    }
+  }
+
+  // 1-Click Reconnect button
+  if (btnQuickReconnect && lastIp) {
+    btnQuickReconnect.addEventListener('click', () => {
+      connectToKioskTarget(lastIp);
+    });
+  }
+
+  // Toggle manual IP accordion
+  if (btnToggleManual && manualAccordion) {
+    btnToggleManual.addEventListener('click', () => {
+      const isHidden = manualAccordion.style.display === 'none';
+      manualAccordion.style.display = isHidden ? 'block' : 'none';
+      if (manualChevron) manualChevron.textContent = isHidden ? '▲' : '▼';
+    });
+  }
+
+  // Connect manual IP button
+  if (btnConnect && manualIpInput) {
+    btnConnect.addEventListener('click', () => {
+      const rawVal = manualIpInput.value.trim();
+      if (!rawVal) {
+        showToast('Sila masukkan alamat IP atau Hostname Kiosk.', true);
+        return;
+      }
+      connectToKioskTarget(rawVal);
+    });
+
+    manualIpInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        btnConnect.click();
+      }
+    });
+  }
+}
+
+// ==================== QUICK ACTION CONTROLS (DASHBOARD) ====================
+let isSolatModeActive = false;
+
+function setupQuickControlsUI() {
+  const btnForceIqamah = document.getElementById('btnQuickForceIqamah');
+  const btnToggleSolat = document.getElementById('btnQuickToggleSolatMode');
+  const btnTestAudio = document.getElementById('btnQuickTestAudio');
+  const btnSendTicker = document.getElementById('btnQuickSendTicker');
+  const inputQuickTicker = document.getElementById('inputQuickTickerMsg');
+  const btnPresetMakkah = document.getElementById('btnQuickPresetMakkah');
+  const btnPresetMadinah = document.getElementById('btnQuickPresetMadinah');
+  const btnPresetAlhijrah = document.getElementById('btnQuickPresetAlhijrah');
+  const btnPresetDefault = document.getElementById('btnQuickPresetDefault');
+
+  // 1. Force Iqamah Now (Emergency Trigger for Bilal/Imam)
+  if (btnForceIqamah) {
+    btnForceIqamah.addEventListener('click', async () => {
+      if (!confirm('Langkau kiraan undur dan laksanakan Iqamah / Mod Solat sekarang?')) return;
+      try {
+        if (navigator.vibrate) navigator.vibrate(200);
+        await fetch('/api/iqamah/now', { method: 'POST' });
+        showToast('⏱️ Iqamah diaktifkan! Paparan TV beralih ke mod solat serta-merta.');
+      } catch (err) {
+        showToast(`Ralat mencetuskan Iqamah: ${err.message}`, true);
+      }
+    });
+  }
+
+  // 2. Blackout / Khusyuk Prayer Mode Toggle
+  if (btnToggleSolat) {
+    btnToggleSolat.addEventListener('click', async () => {
+      try {
+        if (!isSolatModeActive) {
+          await fetch('/api/system/test_state', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ state: 'SOLAT', duration: 900 })
+          });
+          isSolatModeActive = true;
+          btnToggleSolat.style.background = '#ef4444';
+          btnToggleSolat.style.color = '#ffffff';
+          btnToggleSolat.style.borderColor = '#ef4444';
+          btnToggleSolat.innerHTML = '<span>☀️</span><span>Kembalikan Skrin TV</span>';
+          showToast('🌙 Mod Khusyuk / Skrin Gelap diaktifkan pada TV.');
+        } else {
+          await fetch('/api/system/clear_test_state', { method: 'POST' });
+          isSolatModeActive = false;
+          btnToggleSolat.style.background = 'rgba(251,191,36,0.08)';
+          btnToggleSolat.style.color = '#fbbf24';
+          btnToggleSolat.style.borderColor = '#fbbf24';
+          btnToggleSolat.innerHTML = '<span>🌙</span><span>Matikan Skrin / Mod Khusyuk</span>';
+          showToast('☀️ Skrin TV dikembalikan ke mod biasa.');
+        }
+      } catch (err) {
+        showToast(`Ralat mod khusyuk: ${err.message}`, true);
+      }
+    });
+  }
+
+  // 3. Audio Test Chime
+  if (btnTestAudio) {
+    btnTestAudio.addEventListener('click', async () => {
+      try {
+        await fetch('/api/audio/test_kiosk', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sound: 'pre_adhan' })
+        });
+        showToast('🔔 Isyarat audio ujian dimainkan pada pembesar suara TV.');
+      } catch (err) {
+        showToast(`Ralat ujian audio: ${err.message}`, true);
+      }
+    });
+  }
+
+  // 4. Quick Ticker Sender
+  if (btnSendTicker && inputQuickTicker) {
+    btnSendTicker.addEventListener('click', async () => {
+      const text = inputQuickTicker.value.trim();
+      if (!text) {
+        showToast('Sila masukkan teks ticker pengumuman.', true);
+        return;
+      }
+      try {
+        await apiRequest('/api/settings', 'POST', { ticker_text: text });
+        showToast('📢 Ticker berjaya dihantar dan dipaparkan di TV!');
+      } catch (err) {
+        showToast(`Ralat menghantar ticker: ${err.message}`, true);
+      }
+    });
+  }
+
+  // 5. Quick Stage Presets
+  const setPreset = async (presetType, btnActive) => {
+    [btnPresetMakkah, btnPresetMadinah, btnPresetAlhijrah, btnPresetDefault].forEach(b => {
+      if (b) {
+        b.classList.remove('active');
+        b.style.borderColor = 'rgba(255,255,255,0.2)';
+        b.style.color = '#cbd5e1';
+      }
+    });
+    if (btnActive) {
+      btnActive.classList.add('active');
+      btnActive.style.borderColor = '#34d399';
+      btnActive.style.color = '#34d399';
+    }
+
+    if (window.setPresetMedia) {
+      await window.setPresetMedia(presetType);
+    }
+  };
+
+  if (btnPresetMakkah) btnPresetMakkah.addEventListener('click', () => setPreset('makkah', btnPresetMakkah));
+  if (btnPresetMadinah) btnPresetMadinah.addEventListener('click', () => setPreset('madinah', btnPresetMadinah));
+  if (btnPresetAlhijrah) btnPresetAlhijrah.addEventListener('click', () => setPreset('alhijrah', btnPresetAlhijrah));
+  if (btnPresetDefault) btnPresetDefault.addEventListener('click', () => setPreset('clear', btnPresetDefault));
+
+  // 6. Kuliah Live Surau Toggle & Source Selector
+  const btnToggleLectureLive = document.getElementById('btnToggleLectureLive');
+  const btnToggleLectureText = document.getElementById('btnToggleLectureText');
+  const badgeLectureLiveStatus = document.getElementById('badgeLectureLiveStatus');
+  const selectLectureSource = document.getElementById('selectLectureSource');
+  const customLectureUrlGroup = document.getElementById('customLectureUrlGroup');
+  const inputCustomLectureUrl = document.getElementById('inputCustomLectureUrl');
+
+  let isLectureLiveActive = false;
+
+  if (selectLectureSource) {
+    selectLectureSource.addEventListener('change', () => {
+      if (selectLectureSource.value === 'custom') {
+        if (customLectureUrlGroup) customLectureUrlGroup.style.display = 'block';
+      } else {
+        if (customLectureUrlGroup) customLectureUrlGroup.style.display = 'none';
+      }
+    });
+  }
+
+  if (btnToggleLectureLive) {
+    btnToggleLectureLive.addEventListener('click', async () => {
+      if (!isLectureLiveActive) {
+        // START KULIAH
+        let activeLectureUrl = selectLectureSource ? selectLectureSource.value : 'http://10.91.129.177:8888/live.m3u8';
+        if (activeLectureUrl === 'custom' && inputCustomLectureUrl) {
+          activeLectureUrl = inputCustomLectureUrl.value.trim() || 'http://10.91.129.177:8888/live.m3u8';
+        }
+
+        isLectureLiveActive = true;
+        btnToggleLectureLive.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+        btnToggleLectureLive.style.boxShadow = '0 4px 15px rgba(16, 185, 129, 0.4)';
+        if (btnToggleLectureText) btnToggleLectureText.textContent = '⏹ TAMATKAN KULIAH (KEMBALI KE MAKKAH)';
+        if (badgeLectureLiveStatus) {
+          badgeLectureLiveStatus.textContent = 'SEDANG BERSIARAN';
+          badgeLectureLiveStatus.style.background = 'rgba(16, 185, 129, 0.2)';
+          badgeLectureLiveStatus.style.color = '#34d399';
+          badgeLectureLiveStatus.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+        }
+
+        const payload = {
+          action: 'SWITCH_MEDIA',
+          mode: 'KULIAH',
+          sourceUrl: activeLectureUrl,
+          type: 'hls',
+          timestamp: Date.now()
+        };
+
+        try {
+          localStorage.setItem('kiosk_media_config', JSON.stringify(payload));
+        } catch (_) {}
+
+        broadcastAdminSync('SWITCH_MEDIA', payload);
+        broadcastAdminSync('kiosk_media_config', { media_config: { media_source_type: 'stream', video_source_type: 'hls', media_stream_url: activeLectureUrl } });
+
+        try {
+          await apiRequest('/api/settings', 'POST', {
+            media_source_type: 'stream',
+            video_source_type: 'hls',
+            video_source_url: activeLectureUrl,
+            media_stream_url: activeLectureUrl
+          });
+        } catch (_) {}
+
+        showToast('🔴 Siaran Langsung Kuliah Surau diaktifkan di TV Kiosk!');
+      } else {
+        // STOP KULIAH -> RETURN TO MAKKAH LIVE
+        isLectureLiveActive = false;
+        btnToggleLectureLive.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+        btnToggleLectureLive.style.boxShadow = '0 4px 15px rgba(239, 68, 68, 0.4)';
+        if (btnToggleLectureText) btnToggleLectureText.textContent = 'MULAKAN SIARAN KULIAH LIVE SURAU';
+        if (badgeLectureLiveStatus) {
+          badgeLectureLiveStatus.textContent = 'STANDBY';
+          badgeLectureLiveStatus.style.background = 'rgba(239,68,68,0.2)';
+          badgeLectureLiveStatus.style.color = '#fca5a5';
+          badgeLectureLiveStatus.style.borderColor = 'rgba(239,68,68,0.4)';
+        }
+
+        const payload = {
+          action: 'SWITCH_MEDIA',
+          mode: 'DEFAULT',
+          timestamp: Date.now()
+        };
+
+        try {
+          localStorage.setItem('kiosk_media_config', JSON.stringify(payload));
+        } catch (_) {}
+
+        broadcastAdminSync('SWITCH_MEDIA', payload);
+
+        try {
+          await apiRequest('/api/settings', 'POST', {
+            media_source_type: 'stream',
+            video_source_type: 'hls',
+            video_source_url: 'https://cdn-globecast.akamaized.net/live/eds/saudi_quran/hls_roku/index.m3u8',
+            media_stream_url: 'https://cdn-globecast.akamaized.net/live/eds/saudi_quran/hls_roku/index.m3u8'
+          });
+        } catch (_) {}
+
+        showToast('🕋 Siaran Kuliah ditamatkan. TV Kiosk kembali ke Makkah Live 24/7.');
+      }
+    });
+  }
+}
+
+function normalizeKioskUrl(target) {
+  let url = target.trim();
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    url = 'http://' + url;
+  }
+  try {
+    const parsed = new URL(url);
+    if (!parsed.port && !target.includes(':')) {
+      parsed.port = '8080';
+    }
+    if (!parsed.pathname || parsed.pathname === '/') {
+      parsed.pathname = '/admin';
+    }
+    return parsed.toString();
+  } catch (err) {
+    if (!url.includes(':8080')) {
+      url = url.replace(/\/+$/, '') + ':8080/admin';
+    }
+    return url;
+  }
+}
+
+function connectToKioskTarget(target) {
+  const finalUrl = normalizeKioskUrl(target);
+  localStorage.setItem('last_connected_ip', target);
+  showToast(`📡 Menyambung ke TV Kiosk: ${finalUrl}`);
+
+  try {
+    const targetObj = new URL(finalUrl);
+    if (targetObj.host !== window.location.host) {
+      setTimeout(() => {
+        window.location.href = finalUrl;
+      }, 500);
+      return;
+    }
+  } catch (e) {}
+
+  showToast(`✅ Anda sudah berada pada pelayan ${target}!`);
+}
+
+// ==================== CAMERA QR SCANNER ENGINE ====================
+let html5QrScanner = null;
+let currentCameraFacing = 'environment';
+let availableCamerasList = [];
+
+function setupQrScannerUI() {
+  const btnOpenScanner = document.getElementById('btnOpenQrScanner');
+  const btnCloseScanner = document.getElementById('btnCloseQrScanner');
+  const scannerModal = document.getElementById('qrScannerModal');
+  const btnSwitchFacing = document.getElementById('btnSwitchCameraFacing');
+  const cameraSelect = document.getElementById('cameraSelectDropdown');
+  const fileScanInput = document.getElementById('inputQrFileScan');
+
+  if (btnOpenScanner && scannerModal) {
+    btnOpenScanner.addEventListener('click', async () => {
+      scannerModal.style.display = 'flex';
+      await startCameraScanner();
+    });
+  }
+
+  if (btnCloseScanner && scannerModal) {
+    btnCloseScanner.addEventListener('click', async () => {
+      await stopCameraScanner();
+      scannerModal.style.display = 'none';
+    });
+  }
+
+  if (btnSwitchFacing) {
+    btnSwitchFacing.addEventListener('click', async () => {
+      currentCameraFacing = (currentCameraFacing === 'environment') ? 'user' : 'environment';
+      await startCameraScanner();
+    });
+  }
+
+  if (cameraSelect) {
+    cameraSelect.addEventListener('change', async () => {
+      const selectedCamId = cameraSelect.value;
+      await startCameraScanner(selectedCamId);
+    });
+  }
+
+  if (fileScanInput) {
+    fileScanInput.addEventListener('change', async (e) => {
+      if (e.target.files && e.target.files.length > 0) {
+        const imageFile = e.target.files[0];
+        await scanQrFromImageFile(imageFile);
+      }
+    });
+  }
+}
+
+async function startCameraScanner(specificCameraId = null) {
+  const statusMsg = document.getElementById('qrScanStatusMsg');
+  if (statusMsg) {
+    statusMsg.style.display = 'block';
+    statusMsg.style.background = 'rgba(59,130,246,0.15)';
+    statusMsg.style.color = '#93c5fd';
+    statusMsg.style.border = '1px solid rgba(59,130,246,0.3)';
+    statusMsg.innerHTML = 'Memulakan kamera... Sila berikan kebenaran jika diminta.';
+  }
+
+  await stopCameraScanner();
+
+  if (typeof Html5Qrcode === 'undefined') {
+    if (statusMsg) {
+      statusMsg.style.background = 'rgba(239,68,68,0.15)';
+      statusMsg.style.color = '#fca5a5';
+      statusMsg.innerHTML = 'Enjin pengimbas QR (Html5Qrcode) tidak dapat dimuatkan.';
+    }
+    return;
+  }
+
+  try {
+    html5QrScanner = new Html5Qrcode("qrCameraReader");
+
+    try {
+      const devices = await Html5Qrcode.getCameras();
+      availableCamerasList = devices || [];
+      const camSelect = document.getElementById('cameraSelectDropdown');
+      if (camSelect && availableCamerasList.length > 0) {
+        camSelect.innerHTML = availableCamerasList.map(c => 
+          `<option value="${c.id}" ${c.id === specificCameraId ? 'selected' : ''}>${c.label || 'Kamera ' + c.id}</option>`
+        ).join('');
+      }
+    } catch (e) {
+      console.warn('Unable to enumerate cameras:', e);
+    }
+
+    const cameraConfig = specificCameraId ? specificCameraId : { facingMode: currentCameraFacing };
+    const scanConfig = {
+      fps: 15,
+      qrbox: { width: 210, height: 210 },
+      aspectRatio: 1.0
+    };
+
+    await html5QrScanner.start(
+      cameraConfig,
+      scanConfig,
+      onQrCodeSuccess,
+      (errorMessage) => { /* Ignore per-frame decode errors */ }
+    );
+
+    if (statusMsg) {
+      statusMsg.style.display = 'none';
+    }
+  } catch (err) {
+    console.error('Camera Scanner Error:', err);
+    if (statusMsg) {
+      statusMsg.style.display = 'block';
+      statusMsg.style.background = 'rgba(239,68,68,0.15)';
+      statusMsg.style.color = '#fca5a5';
+      statusMsg.style.border = '1px solid rgba(239,68,68,0.3)';
+
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        statusMsg.innerHTML = '❌ <b>Izin Kamera Ditolak</b><br>Sila benarkan akses kamera dalam tetapan kebenaran pelayar anda.';
+      } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+        statusMsg.innerHTML = '❌ <b>Tiada Kamera Dikesan</b><br>Peranti anda tidak mempunyai perkakasan kamera yang aktif.';
+      } else if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && !window.location.hostname.endsWith('.local')) {
+        statusMsg.innerHTML = '⚠️ <b>Sekatan Keselamatan Pelayar (HTTP)</b><br>Pelayar mudah alih menyekat kamera pada persekitaran HTTP tanpa sijil keselamatan. Sila gunakan <b>🖼️ Pilih Fail Imej</b> atau taip IP secara manual.';
+      } else {
+        statusMsg.innerHTML = `⚠️ Ralat kamera: ${err.message || err}`;
+      }
+    }
+  }
+}
+
+async function onQrCodeSuccess(decodedText, decodedResult) {
+  if (!decodedText) return;
+
+  if (navigator.vibrate) {
+    try { navigator.vibrate(150); } catch(e){}
+  }
+
+  await stopCameraScanner();
+
+  const scannerModal = document.getElementById('qrScannerModal');
+  if (scannerModal) scannerModal.style.display = 'none';
+
+  let target = decodedText.trim();
+  const manualIpInput = document.getElementById('inputManualKioskIp');
+  if (manualIpInput) manualIpInput.value = target;
+
+  showToast(`✅ Kod QR Dikesan: ${target}`);
+  connectToKioskTarget(target);
+}
+
+async function scanQrFromImageFile(imageFile) {
+  const statusMsg = document.getElementById('qrScanStatusMsg');
+  if (statusMsg) {
+    statusMsg.style.display = 'block';
+    statusMsg.style.background = 'rgba(59,130,246,0.15)';
+    statusMsg.style.color = '#93c5fd';
+    statusMsg.innerHTML = 'Menganalisis gambar QR...';
+  }
+
+  try {
+    if (!html5QrScanner) {
+      html5QrScanner = new Html5Qrcode("qrCameraReader");
+    }
+    const decodedText = await html5QrScanner.scanFile(imageFile, true);
+    await onQrCodeSuccess(decodedText, null);
+  } catch (err) {
+    if (statusMsg) {
+      statusMsg.style.background = 'rgba(239,68,68,0.15)';
+      statusMsg.style.color = '#fca5a5';
+      statusMsg.innerHTML = '❌ Kod QR tidak dapat dikesan dalam gambar yang dipilih. Sila pastikan gambar jelas dan tidak kabur.';
+    }
+  }
+}
+
+async function stopCameraScanner() {
+  if (html5QrScanner) {
+    try {
+      if (html5QrScanner.isScanning) {
+        await html5QrScanner.stop();
+      }
+    } catch (e) {
+      console.warn('Error stopping scanner:', e);
+    }
+    try {
+      html5QrScanner.clear();
+    } catch(e){}
+    html5QrScanner = null;
   }
 }
 
@@ -2540,11 +3682,473 @@ function setupDiagnosticsUI() {
   }
 }
 
+// ==================== IP PTZ CAMERA & KULIAH LIVE MANAGER ====================
+let isKuliahLiveActive = false;
+let camPreviewHls = null;
+
+function generateRtspUrl() {
+  const ip = document.getElementById('inputCamIp')?.value.trim() || '192.168.1.108';
+  const port = document.getElementById('inputCamPort')?.value.trim() || '554';
+  const user = document.getElementById('inputCamUser')?.value.trim() || 'admin';
+  const pass = document.getElementById('inputCamPass')?.value.trim() || '';
+  const subtype = document.getElementById('selectCamSubtype')?.value || '1';
+  
+  const authPart = pass ? `${user}:${pass}@` : `${user}@`;
+  return `rtsp://${authPart}${ip}:${port}/cam/realmonitor?channel=1&subtype=${subtype}`;
+}
+
+function updateRtspInputIfDefault() {
+  const rtspInput = document.getElementById('inputCamRtspUrl');
+  if (rtspInput) {
+    rtspInput.value = generateRtspUrl();
+  }
+}
+
+async function loadKuliahCameraStatus() {
+  try {
+    const res = await apiRequest('/api/camera/bridge/status');
+    if (res) {
+      isKuliahLiveActive = Boolean(res.kuliah_live_active);
+      updateKuliahLiveUI(isKuliahLiveActive);
+
+      if (res.camera_ip && document.getElementById('inputCamIp')) document.getElementById('inputCamIp').value = res.camera_ip;
+      if (res.camera_port && document.getElementById('inputCamPort')) document.getElementById('inputCamPort').value = res.camera_port;
+      if (res.camera_user && document.getElementById('inputCamUser')) document.getElementById('inputCamUser').value = res.camera_user;
+      if (res.camera_pass && document.getElementById('inputCamPass')) document.getElementById('inputCamPass').value = res.camera_pass;
+      if (res.camera_subtype && document.getElementById('selectCamSubtype')) document.getElementById('selectCamSubtype').value = res.camera_subtype;
+      if (res.camera_rtsp_url && document.getElementById('inputCamRtspUrl')) document.getElementById('inputCamRtspUrl').value = res.camera_rtsp_url;
+      if (res.kuliah_title && document.getElementById('inputCamKuliahTitle')) document.getElementById('inputCamKuliahTitle').value = res.kuliah_title;
+      if (res.kuliah_ustaz && document.getElementById('inputCamKuliahUstaz')) document.getElementById('inputCamKuliahUstaz').value = res.kuliah_ustaz;
+      if (res.kuliah_kitab && document.getElementById('inputCamKuliahKitab')) document.getElementById('inputCamKuliahKitab').value = res.kuliah_kitab;
+      if (res.kuliah_fullscreen !== undefined && document.getElementById('switchKuliahFullscreen')) {
+        document.getElementById('switchKuliahFullscreen').checked = Boolean(res.kuliah_fullscreen);
+      }
+
+      if (res.engine && document.getElementById('camPreviewEngineText')) {
+        document.getElementById('camPreviewEngineText').textContent = `Enjin: ${res.engine} (Latensi < 0.5s)`;
+      }
+    }
+  } catch (_) {}
+}
+
+function updateKuliahLiveUI(active) {
+  isKuliahLiveActive = active;
+  const badge = document.getElementById('kuliahLiveStatusBadge');
+  const dot = document.getElementById('kuliahLiveStatusDot');
+  const text = document.getElementById('kuliahLiveStatusText');
+  const btn = document.getElementById('btnMasterToggleKuliahLive');
+  const btnText = document.getElementById('btnMasterToggleKuliahLiveText');
+
+  if (active) {
+    if (badge) {
+      badge.style.background = 'rgba(239, 68, 68, 0.25)';
+      badge.style.borderColor = 'rgba(239, 68, 68, 0.6)';
+      badge.style.color = '#fca5a5';
+    }
+    if (dot) dot.textContent = '🔴';
+    if (text) text.textContent = 'SEDANG TAYANG LIVE DI TV';
+
+    if (btn) {
+      btn.style.background = 'linear-gradient(135deg, #dc2626, #b91c1c)';
+      btn.style.boxShadow = '0 4px 14px rgba(220,38,38,0.45)';
+    }
+    if (btnText) btnText.textContent = 'HENTIKAN TAYANGAN LIVE DI TV';
+  } else {
+    if (badge) {
+      badge.style.background = 'rgba(148,163,184,0.2)';
+      badge.style.borderColor = 'rgba(255,255,255,0.1)';
+      badge.style.color = '#cbd5e1';
+    }
+    if (dot) dot.textContent = '⚪';
+    if (text) text.textContent = 'MOD STANDBY (MAKKAH/SLAID)';
+
+    if (btn) {
+      btn.style.background = 'linear-gradient(135deg, #059669, #047857)';
+      btn.style.boxShadow = '0 4px 14px rgba(5,150,105,0.4)';
+    }
+    if (btnText) btnText.textContent = 'TAYANG KULIAH LIVE KE TV (HIDUPKAN)';
+  }
+}
+
+function setupKuliahCameraLiveUI() {
+  const inputsToWatch = ['inputCamIp', 'inputCamPort', 'inputCamUser', 'inputCamPass', 'selectCamSubtype'];
+  inputsToWatch.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', updateRtspInputIfDefault);
+  });
+
+  // Presets
+  const btnDahua = document.getElementById('btnPresetBrandDahua');
+  const btnHik = document.getElementById('btnPresetBrandHikvision');
+  const btnOnvif = document.getElementById('btnPresetBrandOnvif');
+
+  if (btnDahua) {
+    btnDahua.addEventListener('click', () => {
+      const ip = document.getElementById('inputCamIp')?.value.trim() || '192.168.1.108';
+      const port = document.getElementById('inputCamPort')?.value.trim() || '554';
+      const user = document.getElementById('inputCamUser')?.value.trim() || 'admin';
+      const pass = document.getElementById('inputCamPass')?.value.trim() || '';
+      const auth = pass ? `${user}:${pass}@` : `${user}@`;
+      document.getElementById('inputCamRtspUrl').value = `rtsp://${auth}${ip}:${port}/cam/realmonitor?channel=1&subtype=1`;
+      showToast('Praset Dahua PTZ dipilih.');
+    });
+  }
+
+  if (btnHik) {
+    btnHik.addEventListener('click', () => {
+      const ip = document.getElementById('inputCamIp')?.value.trim() || '192.168.1.108';
+      const port = document.getElementById('inputCamPort')?.value.trim() || '554';
+      const user = document.getElementById('inputCamUser')?.value.trim() || 'admin';
+      const pass = document.getElementById('inputCamPass')?.value.trim() || '';
+      const auth = pass ? `${user}:${pass}@` : `${user}@`;
+      document.getElementById('inputCamRtspUrl').value = `rtsp://${auth}${ip}:${port}/Streaming/Channels/102`;
+      showToast('Praset Hikvision IP dipilih.');
+    });
+  }
+
+  if (btnOnvif) {
+    btnOnvif.addEventListener('click', () => {
+      const ip = document.getElementById('inputCamIp')?.value.trim() || '192.168.1.108';
+      const port = document.getElementById('inputCamPort')?.value.trim() || '554';
+      const user = document.getElementById('inputCamUser')?.value.trim() || 'admin';
+      const pass = document.getElementById('inputCamPass')?.value.trim() || '';
+      const auth = pass ? `${user}:${pass}@` : `${user}@`;
+      document.getElementById('inputCamRtspUrl').value = `rtsp://${auth}${ip}:${port}/onvif1`;
+      showToast('Praset Generic ONVIF dipilih.');
+    });
+  }
+
+  // Test Camera
+  const btnTest = document.getElementById('btnTestCamConn');
+  const alertBox = document.getElementById('camTestResultAlert');
+  if (btnTest) {
+    btnTest.addEventListener('click', async () => {
+      const ip = document.getElementById('inputCamIp')?.value.trim();
+      const port = document.getElementById('inputCamPort')?.value.trim() || '554';
+      if (!ip) {
+        showToast('Sila masukkan alamat IP kamera.', true);
+        return;
+      }
+      btnTest.disabled = true;
+      btnTest.textContent = '⏳ Menguji port 554...';
+      if (alertBox) alertBox.style.display = 'none';
+
+      try {
+        const res = await apiRequest('/api/camera/bridge/test', 'POST', { ip, port: parseInt(port, 10) });
+        if (alertBox) {
+          alertBox.style.display = 'block';
+          if (res.success && res.reachable) {
+            alertBox.style.background = 'rgba(5, 150, 105, 0.2)';
+            alertBox.style.border = '1px solid rgba(52, 211, 153, 0.5)';
+            alertBox.style.color = '#6ee7b7';
+            alertBox.innerHTML = `✅ <b>Sambungan Berjaya:</b> Port ${port} pada kamera ${ip} sedia dan beroperasi!`;
+          } else {
+            alertBox.style.background = 'rgba(239, 68, 68, 0.2)';
+            alertBox.style.border = '1px solid rgba(239, 68, 68, 0.5)';
+            alertBox.style.color = '#fca5a5';
+            alertBox.innerHTML = `❌ <b>Gagal Menyambung:</b> ${res.message || 'Kamera tidak membalas.'}`;
+          }
+        }
+      } catch (err) {
+        if (alertBox) {
+          alertBox.style.display = 'block';
+          alertBox.style.background = 'rgba(239, 68, 68, 0.2)';
+          alertBox.style.border = '1px solid rgba(239, 68, 68, 0.5)';
+          alertBox.style.color = '#fca5a5';
+          alertBox.innerHTML = `❌ <b>Ralat:</b> ${err.message}`;
+        }
+      } finally {
+        btnTest.disabled = false;
+        btnTest.textContent = '🔍 Uji Sambungan';
+      }
+    });
+  }
+
+  // Save Camera Config
+  const btnSave = document.getElementById('btnSaveCamConfig');
+  if (btnSave) {
+    btnSave.addEventListener('click', async () => {
+      const payload = {
+        camera_ip: document.getElementById('inputCamIp')?.value.trim(),
+        camera_port: document.getElementById('inputCamPort')?.value.trim(),
+        camera_user: document.getElementById('inputCamUser')?.value.trim(),
+        camera_pass: document.getElementById('inputCamPass')?.value.trim(),
+        camera_subtype: document.getElementById('selectCamSubtype')?.value,
+        camera_rtsp_url: document.getElementById('inputCamRtspUrl')?.value.trim(),
+        enable: isKuliahLiveActive
+      };
+
+      try {
+        await apiRequest('/api/camera/toggle_live_display', 'POST', payload);
+        showToast('Tetapan kamera IP PTZ berjaya disimpan!');
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    });
+  }
+
+  // Save Kuliah Info
+  const btnSaveKuliah = document.getElementById('btnSaveCamKuliahInfo');
+  if (btnSaveKuliah) {
+    btnSaveKuliah.addEventListener('click', async () => {
+      const payload = {
+        kuliah_title: document.getElementById('inputCamKuliahTitle')?.value.trim(),
+        kuliah_ustaz: document.getElementById('inputCamKuliahUstaz')?.value.trim(),
+        kuliah_kitab: document.getElementById('inputCamKuliahKitab')?.value.trim(),
+        enable: isKuliahLiveActive
+      };
+      try {
+        await apiRequest('/api/camera/toggle_live_display', 'POST', payload);
+        showToast('Maklumat penceramah & tajuk kuliah dikemas kini!');
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    });
+  }
+
+  // Master Toggle Button
+  const btnMaster = document.getElementById('btnMasterToggleKuliahLive');
+  if (btnMaster) {
+    btnMaster.addEventListener('click', async () => {
+      const nextState = !isKuliahLiveActive;
+      btnMaster.disabled = true;
+
+      const payload = {
+        enable: nextState,
+        camera_ip: document.getElementById('inputCamIp')?.value.trim(),
+        camera_port: document.getElementById('inputCamPort')?.value.trim(),
+        camera_user: document.getElementById('inputCamUser')?.value.trim(),
+        camera_pass: document.getElementById('inputCamPass')?.value.trim(),
+        camera_subtype: document.getElementById('selectCamSubtype')?.value,
+        camera_rtsp_url: document.getElementById('inputCamRtspUrl')?.value.trim(),
+        kuliah_title: document.getElementById('inputCamKuliahTitle')?.value.trim(),
+        kuliah_ustaz: document.getElementById('inputCamKuliahUstaz')?.value.trim(),
+        kuliah_kitab: document.getElementById('inputCamKuliahKitab')?.value.trim()
+      };
+
+      try {
+        const res = await apiRequest('/api/kuliah/toggle_live', 'POST', payload);
+        updateKuliahLiveUI(nextState);
+        showToast(res.message || (nextState ? 'Siaran Kuliah LIVE diaktifkan!' : 'Siaran Kuliah LIVE ditutup.'));
+
+        // Broadcast to all open tabs / TV kiosk
+        if (window.BroadcastChannel) {
+          const bc = new BroadcastChannel('esolat_media_channel');
+          bc.postMessage({
+            type: 'kiosk_media_config',
+            mode: nextState ? 'KULIAH' : 'DEFAULT',
+            sourceUrl: res.stream_url || '/stream/live.m3u8',
+            streamType: 'hls',
+            speaker: payload.kuliah_ustaz,
+            title: payload.kuliah_title,
+            kitab: payload.kuliah_kitab
+          });
+        }
+      } catch (err) {
+        showToast(err.message, true);
+      } finally {
+        btnMaster.disabled = false;
+      }
+    });
+  }
+
+  // Kuliah Fullscreen Switch Handler
+  const swKuliahFs = document.getElementById('switchKuliahFullscreen');
+  if (swKuliahFs) {
+    swKuliahFs.addEventListener('change', async () => {
+      const val = swKuliahFs.checked;
+      try {
+        await apiRequest('/api/settings', 'POST', { kuliah_fullscreen: val });
+        broadcastAdminSync('TOGGLE_KULIAH_FULLSCREEN', { value: val });
+        try {
+          const ch = new BroadcastChannel('esolat_sync');
+          ch.postMessage({ type: 'TOGGLE_KULIAH_FULLSCREEN', value: val });
+        } catch (_) {}
+        showToast(val ? '🖥️ Mod Kuliah Skrin Penuh diaktifkan di TV' : '📺 Mod Kuliah kembali ke saiz piawai');
+      } catch (err) {
+        showToast('Gagal menukar mod skrin penuh: ' + err.message, true);
+      }
+    });
+  }
+
+  // Phone Preview Video
+  const btnPreview = document.getElementById('btnPreviewCamPhone');
+  const previewCard = document.getElementById('camPreviewCard');
+  const btnClosePreview = document.getElementById('btnCloseCamPreview');
+  const previewVideo = document.getElementById('camPreviewVideo');
+  const previewLoading = document.getElementById('camPreviewLoading');
+
+  if (btnPreview) {
+    btnPreview.addEventListener('click', async () => {
+      if (previewCard) previewCard.style.display = 'block';
+      if (previewLoading) previewLoading.style.display = 'flex';
+
+      const rtspUrl = document.getElementById('inputCamRtspUrl')?.value.trim();
+      try {
+        // Start bridge if not running
+        const startRes = await apiRequest('/api/camera/bridge/start', 'POST', { rtsp_url: rtspUrl });
+        const streamUrl = (startRes.engine === 'go2rtc')
+          ? `http://${window.location.hostname}:1984/stream.html?src=kuliah`
+          : '/stream/live.m3u8';
+
+        setTimeout(() => {
+          if (previewLoading) previewLoading.style.display = 'none';
+          if (previewVideo) {
+            if (window.Hls && Hls.isSupported()) {
+              if (camPreviewHls) camPreviewHls.destroy();
+              camPreviewHls = new Hls({ lowLatencyMode: true });
+              camPreviewHls.loadSource(streamUrl);
+              camPreviewHls.attachMedia(previewVideo);
+              camPreviewHls.on(Hls.Events.MANIFEST_PARSED, () => {
+                previewVideo.play().catch(() => {});
+              });
+            } else {
+              previewVideo.src = streamUrl;
+              previewVideo.play().catch(() => {});
+            }
+          }
+        }, 1000);
+      } catch (err) {
+        if (previewLoading) previewLoading.style.display = 'none';
+        showToast(`Ralat pra-tonton: ${err.message}`, true);
+      }
+    });
+  }
+
+  if (btnClosePreview) {
+    btnClosePreview.addEventListener('click', () => {
+      if (previewCard) previewCard.style.display = 'none';
+      if (previewVideo) {
+        previewVideo.pause();
+        previewVideo.src = '';
+      }
+      if (camPreviewHls) {
+        camPreviewHls.destroy();
+        camPreviewHls = null;
+      }
+    });
+  }
+
+  // Auto load when tabCameraLive is clicked
+  const camNavBtn = document.querySelector('.nav-item[data-tab="tabCameraLive"]');
+  if (camNavBtn) {
+    camNavBtn.addEventListener('click', () => {
+      loadKuliahCameraStatus();
+      updatePhoneStreamerQR();
+    });
+  }
+}
+
+// ==================== WEBRTC PHONE STREAMER UI ====================
+let phoneStreamerPoller = null;
+
+function updatePhoneStreamerQR() {
+  const host = (cachedNetworkInfo && cachedNetworkInfo.primary_ip) ? cachedNetworkInfo.primary_ip : window.location.hostname;
+  const port = (cachedNetworkInfo && cachedNetworkInfo.port) ? cachedNetworkInfo.port : (window.location.port || '8080');
+  const streamerUrl = `${window.location.protocol}//${host}:${port}/streamer?room=kuliah`;
+
+  const inputEl = document.getElementById('inputPhoneStreamerUrl');
+  if (inputEl) inputEl.value = streamerUrl;
+
+  const qrBox = document.getElementById('phoneStreamerQrBox');
+  if (qrBox) {
+    qrBox.innerHTML = '';
+    if (typeof QRCode !== 'undefined') {
+      try {
+        new QRCode(qrBox, {
+          text: streamerUrl,
+          width: 160,
+          height: 160,
+          colorDark: "#022c22",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      } catch (err) {
+        qrBox.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(streamerUrl)}" style="width:160px; height:160px; border-radius:8px;">`;
+      }
+    } else {
+      qrBox.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(streamerUrl)}" style="width:160px; height:160px; border-radius:8px;">`;
+    }
+  }
+}
+
+function setupPhoneStreamerUI() {
+  updatePhoneStreamerQR();
+
+  const btnCopy = document.getElementById('btnCopyStreamerUrl');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', async () => {
+      const inputEl = document.getElementById('inputPhoneStreamerUrl');
+      const textToCopy = inputEl ? inputEl.value : window.location.origin + '/streamer?room=kuliah';
+      try {
+        if (navigator.clipboard) {
+          await navigator.clipboard.writeText(textToCopy);
+        } else if (inputEl) {
+          inputEl.select();
+          document.execCommand('copy');
+        }
+        showToast('Pautan WebRTC Streamer telah disalin!');
+      } catch (_) {
+        showToast(`Pautan: ${textToCopy}`);
+      }
+    });
+  }
+
+  // Poll phone streamer connection status
+  if (!phoneStreamerPoller) {
+    phoneStreamerPoller = setInterval(async () => {
+      const tabCam = document.getElementById('tabCameraLive');
+      if (!tabCam || !tabCam.classList.contains('active')) return;
+
+      try {
+        const res = await apiRequest('/api/webrtc/status?room=kuliah');
+        const badge = document.getElementById('phoneStreamerStatusBadge');
+        const dot = document.getElementById('phoneStreamerStatusDot');
+        const text = document.getElementById('phoneStreamerStatusText');
+
+        if (res && res.is_streaming) {
+          if (badge) {
+            badge.style.background = 'rgba(5, 150, 105, 0.25)';
+            badge.style.borderColor = '#10b981';
+            badge.style.color = '#34d399';
+          }
+          if (dot) dot.textContent = '🟢';
+          if (text) text.textContent = 'KAMERA TELEFON BERSIARAN (LIVE)';
+        } else if (res && res.has_offer) {
+          if (badge) {
+            badge.style.background = 'rgba(217, 119, 6, 0.25)';
+            badge.style.borderColor = '#f59e0b';
+            badge.style.color = '#fbbf24';
+          }
+          if (dot) dot.textContent = '🟡';
+          if (text) text.textContent = 'TELEFON BERSEDIA (MENYAMBUNG)';
+        } else {
+          if (badge) {
+            badge.style.background = 'rgba(15, 23, 42, 0.8)';
+            badge.style.borderColor = 'rgba(251, 191, 36, 0.4)';
+            badge.style.color = '#fbbf24';
+          }
+          if (dot) dot.textContent = '⚪';
+          if (text) text.textContent = 'MENUNGGU IMBASAN TELEFON';
+        }
+      } catch (_) {}
+    }, 2500);
+  }
+}
+
 // Initialize on DOM load
 window.addEventListener('DOMContentLoaded', () => {
+  startAdminClock();
+  syncAdminStatePoller();
   setupPWA();
+  initGpsSecurityCheck();
   setupNetworkBroadcastUI();
+  setupSmartPairingUI();
+  setupQuickControlsUI();
+  setupQrScannerUI();
   setupDiagnosticsUI();
+  setupKuliahCameraLiveUI();
+  setupPhoneStreamerUI();
   updateNetworkInfo();
   checkAuth();
 });

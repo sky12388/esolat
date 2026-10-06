@@ -361,9 +361,12 @@
               </div>
 
               <div style="margin-top:0.85rem; background:rgba(15,23,42,0.9); border-radius:10px; padding:0.75rem; border:1px solid rgba(255,255,255,0.1);">
-                <div style="font-size:0.78rem; color:#94a3b8; margin-bottom:0.4rem; font-weight:600;">Pautan Akses Telefon Pintar (AJK / Admin):</div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem; flex-wrap:wrap; gap:0.25rem;">
+                  <div style="font-size:0.78rem; color:#94a3b8; font-weight:600;">Pautan Akses Telefon Pintar (AJK / Admin):</div>
+                  <div style="font-size:0.72rem; color:#34d399;">🌐 Disyorkan: esolat.local</div>
+                </div>
                 <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
-                  <input type="text" id="netAdminUrlInput" readonly style="flex:1; min-width:200px; background:#0f172a; border:1px solid #334155; color:#38bdf8; font-family:monospace; padding:0.45rem 0.65rem; border-radius:6px; font-size:0.85rem;" value="http://192.168.1.xxx:8080/admin">
+                  <input type="text" id="netAdminUrlInput" readonly style="flex:1; min-width:200px; background:#0f172a; border:1px solid #334155; color:#38bdf8; font-family:monospace; padding:0.45rem 0.65rem; border-radius:6px; font-size:0.85rem;" value="http://esolat.local:8080/admin/">
                   <button type="button" class="btn btn-sm btn-primary" id="btnCopyAdminUrl" style="padding:0.45rem 0.85rem; font-size:0.8rem; white-space:nowrap;">📋 Salin Pautan</button>
                   <button type="button" class="btn btn-sm btn-outline" id="btnShowNetQr" style="padding:0.45rem 0.75rem; font-size:0.8rem; white-space:nowrap;">📱 Kod QR</button>
                 </div>
@@ -1439,6 +1442,7 @@
           </div>
 
           <!-- 6. Slide Sub-Layout & Kuliah Info (for Signage Viewport) -->
+          <div class="side-info-config-box mt-3">
             <!-- 3-Layout Preset Switcher -->
             <div class="form-group mt-2">
               <label style="color:#38bdf8; font-weight:700;">📐 Mod Reka Bentuk Susun Atur (Layout Switcher):</label>
@@ -2182,6 +2186,48 @@
 
           <div style="font-size:0.75rem; color:#94a3b8; margin-top:0.6rem; text-align:center;">
             Apabila dihidupkan, TV Kiosk akan serta-merta menukar kotak media utama ke siaran langsung penceramah tanpa memuat semula halaman.
+          </div>
+        </div>
+
+        <!-- WebRTC Direct Phone Streamer Card (Scan QR to Stream) -->
+        <div class="section-card" style="border: 2px solid #10b981; background: linear-gradient(135deg, rgba(6,78,59,0.7), rgba(15,23,42,0.95)); border-radius: 18px; padding: 1.25rem; box-shadow: 0 10px 25px rgba(0,0,0,0.4);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+            <div style="display:flex; align-items:center; gap:0.6rem;">
+              <span style="font-size:1.6rem;">📱</span>
+              <div>
+                <h3 style="font-size:1.15rem; font-weight:800; color:#34d399; margin:0;">Imbas QR Kamera Telefon (WebRTC Direct)</h3>
+                <div style="font-size:0.85rem; color:#cbd5e1;">Strim langsung video &amp; audio penceramah terus dari pelayar telefon tanpa pasang aplikasi.</div>
+              </div>
+            </div>
+            <div id="phoneStreamerStatusBadge" style="font-size:0.82rem; font-weight:800; padding:0.35rem 0.85rem; border-radius:9999px; background:rgba(15,23,42,0.8); color:#fbbf24; border:1px solid rgba(251,191,36,0.4); display:flex; align-items:center; gap:0.4rem;">
+              <span id="phoneStreamerStatusDot">⚪</span>
+              <span id="phoneStreamerStatusText">MENUNGGU IMBASAN TELEFON</span>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:auto 1fr; gap:1.25rem; align-items:center; background:rgba(0,0,0,0.3); padding:1rem; border-radius:14px; border:1px solid rgba(255,255,255,0.1); margin-top:0.75rem;">
+            <!-- Dynamic QR Code Box -->
+            <div style="background:#ffffff; padding:8px; border-radius:12px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 15px rgba(0,0,0,0.5);">
+              <div id="phoneStreamerQrBox" style="width:160px; height:160px; display:flex; align-items:center; justify-content:center;"></div>
+            </div>
+
+            <!-- Instructions & Action Buttons -->
+            <div>
+              <div style="font-weight:700; color:#f8fafc; font-size:0.95rem; margin-bottom:0.35rem;">Langkah Penggunaan Pantas:</div>
+              <ol style="font-size:0.88rem; color:#cbd5e1; line-height:1.5; padding-left:1.2rem; margin-bottom:0.75rem;">
+                <li>Buka kamera telefon AJK / penceramah dan <strong>imbas kod QR di sebelah</strong>.</li>
+                <li>Tekan butang <strong>"Benarkan &amp; Buka Kamera"</strong> pada telefon.</li>
+                <li>Tekan <strong>"Mula Siaran ke TV"</strong> — video penceramah akan terus terpapar di TV Masjid secara langsung!</li>
+              </ol>
+
+              <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+                <input type="text" id="inputPhoneStreamerUrl" readonly style="flex:1; min-width:180px; font-family:monospace; font-size:0.85rem; color:#38bdf8; background:#0f172a; border:1px solid #334155; padding:0.45rem 0.65rem; border-radius:8px;" value="http://esolat.local:8080/streamer?room=kuliah">
+                <button type="button" class="btn btn-sm btn-primary" id="btnCopyStreamerUrl" style="padding:0.45rem 0.85rem; font-size:0.85rem; font-weight:700;">📋 Salin Pautan</button>
+                <a href="/streamer?room=kuliah" target="_blank" class="btn btn-sm btn-outline" style="text-decoration:none; padding:0.45rem 0.85rem; font-size:0.85rem; font-weight:700; border-color:#34d399; color:#34d399; display:inline-flex; align-items:center; gap:0.3rem;">
+                  <span>🚀</span> Buka di Telefon Ini
+                </a>
+              </div>
+            </div>
           </div>
         </div>
 

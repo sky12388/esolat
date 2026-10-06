@@ -2795,17 +2795,18 @@ function renderNetworkInfo(net) {
   const primaryIp = net.primary_ip || (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' ? window.location.hostname : '127.0.0.1');
   const port = net.port || window.location.port || '8080';
   const hostname = net.hostname ? `${net.hostname}.local` : `${window.location.hostname}`;
-  const adminUrl = net.admin_url || `http://${primaryIp}:${port}/admin`;
+  const mdnsUrl = net.mdns_url || `http://esolat.local:${port}/admin/`;
+  const adminUrl = net.admin_url || `http://${primaryIp}:${port}/admin/`;
 
   // 1. Update Login Modal broadcast
   const loginUrlEl = document.getElementById('loginNetUrl');
   const loginHostEl = document.getElementById('loginNetHostname');
-  if (loginUrlEl) loginUrlEl.textContent = adminUrl;
-  if (loginHostEl) loginHostEl.textContent = `Hostname: ${hostname}`;
+  if (loginUrlEl) loginUrlEl.textContent = mdnsUrl;
+  if (loginHostEl) loginHostEl.textContent = `Hostname: ${hostname} (IP: ${primaryIp})`;
 
   // 2. Update Top Nav bar badge
   const topNavIp = document.getElementById('topNavIpText');
-  if (topNavIp) topNavIp.textContent = primaryIp;
+  if (topNavIp) topNavIp.textContent = `${hostname} (${primaryIp})`;
 
   // 3. Update Dashboard Network Card
   const netHostEl = document.getElementById('netHostname');
@@ -2815,8 +2816,8 @@ function renderNetworkInfo(net) {
 
   if (netHostEl) netHostEl.textContent = hostname;
   if (netIpEl) netIpEl.textContent = primaryIp;
-  if (netAdminInput) netAdminInput.value = adminUrl;
-  if (netQrLabel) netQrLabel.textContent = adminUrl;
+  if (netAdminInput) netAdminInput.value = mdnsUrl;
+  if (netQrLabel) netQrLabel.textContent = mdnsUrl;
 
   // Update QR display (Local Canvas Generator with Fallback)
   const netQrCanvas = document.getElementById('netQrCanvasContainer');
@@ -4033,7 +4034,105 @@ function setupKuliahCameraLiveUI() {
   if (camNavBtn) {
     camNavBtn.addEventListener('click', () => {
       loadKuliahCameraStatus();
+      updatePhoneStreamerQR();
     });
+  }
+}
+
+// ==================== WEBRTC PHONE STREAMER UI ====================
+let phoneStreamerPoller = null;
+
+function updatePhoneStreamerQR() {
+  const host = (cachedNetworkInfo && cachedNetworkInfo.primary_ip) ? cachedNetworkInfo.primary_ip : window.location.hostname;
+  const port = (cachedNetworkInfo && cachedNetworkInfo.port) ? cachedNetworkInfo.port : (window.location.port || '8080');
+  const streamerUrl = `${window.location.protocol}//${host}:${port}/streamer?room=kuliah`;
+
+  const inputEl = document.getElementById('inputPhoneStreamerUrl');
+  if (inputEl) inputEl.value = streamerUrl;
+
+  const qrBox = document.getElementById('phoneStreamerQrBox');
+  if (qrBox) {
+    qrBox.innerHTML = '';
+    if (typeof QRCode !== 'undefined') {
+      try {
+        new QRCode(qrBox, {
+          text: streamerUrl,
+          width: 160,
+          height: 160,
+          colorDark: "#022c22",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      } catch (err) {
+        qrBox.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(streamerUrl)}" style="width:160px; height:160px; border-radius:8px;">`;
+      }
+    } else {
+      qrBox.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(streamerUrl)}" style="width:160px; height:160px; border-radius:8px;">`;
+    }
+  }
+}
+
+function setupPhoneStreamerUI() {
+  updatePhoneStreamerQR();
+
+  const btnCopy = document.getElementById('btnCopyStreamerUrl');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', async () => {
+      const inputEl = document.getElementById('inputPhoneStreamerUrl');
+      const textToCopy = inputEl ? inputEl.value : window.location.origin + '/streamer?room=kuliah';
+      try {
+        if (navigator.clipboard) {
+          await navigator.clipboard.writeText(textToCopy);
+        } else if (inputEl) {
+          inputEl.select();
+          document.execCommand('copy');
+        }
+        showToast('Pautan WebRTC Streamer telah disalin!');
+      } catch (_) {
+        showToast(`Pautan: ${textToCopy}`);
+      }
+    });
+  }
+
+  // Poll phone streamer connection status
+  if (!phoneStreamerPoller) {
+    phoneStreamerPoller = setInterval(async () => {
+      const tabCam = document.getElementById('tabCameraLive');
+      if (!tabCam || !tabCam.classList.contains('active')) return;
+
+      try {
+        const res = await apiRequest('/api/webrtc/status?room=kuliah');
+        const badge = document.getElementById('phoneStreamerStatusBadge');
+        const dot = document.getElementById('phoneStreamerStatusDot');
+        const text = document.getElementById('phoneStreamerStatusText');
+
+        if (res && res.is_streaming) {
+          if (badge) {
+            badge.style.background = 'rgba(5, 150, 105, 0.25)';
+            badge.style.borderColor = '#10b981';
+            badge.style.color = '#34d399';
+          }
+          if (dot) dot.textContent = '🟢';
+          if (text) text.textContent = 'KAMERA TELEFON BERSIARAN (LIVE)';
+        } else if (res && res.has_offer) {
+          if (badge) {
+            badge.style.background = 'rgba(217, 119, 6, 0.25)';
+            badge.style.borderColor = '#f59e0b';
+            badge.style.color = '#fbbf24';
+          }
+          if (dot) dot.textContent = '🟡';
+          if (text) text.textContent = 'TELEFON BERSEDIA (MENYAMBUNG)';
+        } else {
+          if (badge) {
+            badge.style.background = 'rgba(15, 23, 42, 0.8)';
+            badge.style.borderColor = 'rgba(251, 191, 36, 0.4)';
+            badge.style.color = '#fbbf24';
+          }
+          if (dot) dot.textContent = '⚪';
+          if (text) text.textContent = 'MENUNGGU IMBASAN TELEFON';
+        }
+      } catch (_) {}
+    }, 2500);
   }
 }
 
@@ -4049,6 +4148,7 @@ window.addEventListener('DOMContentLoaded', () => {
   setupQrScannerUI();
   setupDiagnosticsUI();
   setupKuliahCameraLiveUI();
+  setupPhoneStreamerUI();
   updateNetworkInfo();
   checkAuth();
 });

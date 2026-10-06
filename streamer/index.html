@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Kamera Kuliah Langsung — e-Solat WebRTC Streamer</title>
+  <link rel="icon" type="image/png" href="/admin/icons/icon-192.png">
+  <meta name="theme-color" content="#061e16">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background: #02110c;
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Video Viewfinder Container */
+    .viewfinder-wrapper {
+      position: relative;
+      flex: 1;
+      width: 100vw;
+      background: #000000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    #localVideo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Top Live HUD Header */
+    .streamer-header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(180deg, rgba(2, 17, 12, 0.9) 0%, rgba(2, 17, 12, 0) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 20;
+    }
+
+    .brand-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      backdrop-filter: blur(8px);
+    }
+
+    .brand-pill span {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #34d399;
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease;
+    }
+
+    .status-badge.live {
+      background: #dc2626;
+      color: #ffffff;
+      border-color: #ef4444;
+      box-shadow: 0 0 14px rgba(239, 68, 68, 0.6);
+      animation: pulse-red 2s infinite;
+    }
+
+    .status-badge.connecting {
+      background: #d97706;
+      color: #ffffff;
+      border-color: #f59e0b;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    @keyframes pulse-red {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.85; transform: scale(0.95); }
+    }
+
+    /* Floating Timer HUD */
+    .stream-timer-hud {
+      position: absolute;
+      top: 4.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 0.3rem 0.9rem;
+      border-radius: 20px;
+      font-family: 'Space Grotesk', monospace;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fbbf24;
+      display: none;
+      z-index: 20;
+    }
+
+    /* Bottom Control Dashboard */
+    .streamer-controls {
+      background: #061e16;
+      border-top: 2px solid rgba(251, 191, 36, 0.3);
+      padding: 1.25rem 1rem 1.75rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      z-index: 30;
+      box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.6);
+    }
+
+    .control-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      gap: 0.75rem;
+    }
+
+    .btn-circle {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1.5px solid rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      font-size: 1.35rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-circle:active {
+      transform: scale(0.92);
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-circle.active-muted {
+      background: #dc2626 !important;
+      border-color: #ef4444 !important;
+      color: #ffffff !important;
+    }
+
+    .btn-main-stream {
+      flex: 1;
+      min-height: 56px;
+      background: linear-gradient(135deg, #059669, #047857);
+      border: 2px solid #34d399;
+      border-radius: 28px;
+      color: #ffffff;
+      font-size: 1.15rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(5, 150, 105, 0.4);
+      transition: all 0.2s ease;
+    }
+
+    .btn-main-stream:active {
+      transform: scale(0.96);
+    }
+
+    .btn-main-stream.streaming {
+      background: linear-gradient(135deg, #dc2626, #991b1b);
+      border-color: #f87171;
+      box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+    }
+
+    /* Diagnostics Banner */
+    .streamer-info-box {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 0.6rem 0.85rem;
+      font-size: 0.82rem;
+      color: #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .room-name {
+      color: #fbbf24;
+      font-weight: 700;
+      font-family: monospace;
+    }
+
+    /* Permission Prompt Modal */
+    .prompt-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(2, 17, 12, 0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      z-index: 100;
+    }
+
+    .prompt-card {
+      background: #0f172a;
+      border: 1.5px solid #34d399;
+      border-radius: 20px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+    }
+
+    .prompt-icon {
+      font-size: 3rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .prompt-card h2 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 0.5rem;
+    }
+
+    .prompt-card p {
+      font-size: 0.9rem;
+      color: #94a3b8;
+      line-height: 1.4;
+      margin-bottom: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Permission Modal -->
+  <div id="permissionModal" class="prompt-overlay">
+    <div class="prompt-card">
+      <div class="prompt-icon">📹</div>
+      <h2>Kamera Langsung Kuliah</h2>
+      <p>Sila benarkan akses kamera dan mikrofon telefon untuk menyiarkan video ceramah terus ke TV Kiosk dewan solat.</p>
+      <button type="button" class="btn-main-stream" id="btnGrantPermission" style="width: 100%;">
+        <span>📷</span>
+        <span>Benarkan &amp; Buka Kamera</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Viewfinder -->
+  <div class="viewfinder-wrapper">
+    <video id="localVideo" autoplay playsinline muted></video>
+
+    <!-- Top Header -->
+    <div class="streamer-header">
+      <div class="brand-pill">
+        <span>🕌</span>
+        <span>e-Solat WebRTC Live</span>
+      </div>
+      <div id="liveBadge" class="status-badge">
+        <span class="status-dot"></span>
+        <span id="liveBadgeText">BERSEDIA</span>
+      </div>
+    </div>
+
+    <!-- Timer HUD -->
+    <div id="streamTimerHud" class="stream-timer-hud">00:00:00</div>
+  </div>
+
+  <!-- Bottom Controls -->
+  <div class="streamer-controls">
+    <div class="streamer-info-box">
+      <div>Bilik Strim: <span class="room-name" id="roomNameText">kuliah</span></div>
+      <div id="connectionHealthText" style="color: #34d399;">Rangkaian Baik 🟢</div>
+    </div>
+
+    <div class="control-row">
+      <!-- Mute Mic -->
+      <button type="button" class="btn-circle" id="btnToggleMic" title="Bisu Mikrofon">
+        <span id="micIcon">🎙️</span>
+      </button>
+
+      <!-- Main Stream Button -->
+      <button type="button" class="btn-main-stream" id="btnMainStream">
+        <span id="streamBtnIcon">📡</span>
+        <span id="streamBtnText">Mula Siaran ke TV</span>
+      </button>
+
+      <!-- Flip Camera -->
+      <button type="button" class="btn-circle" id="btnFlipCam" title="Tukar Kamera Depan/Belakang">
+        🔄
+      </button>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const room = urlParams.get('room') || 'kuliah';
+      document.getElementById('roomNameText').textContent = room;
+
+      let localStream = null;
+      let peerConnection = null;
+      let isStreaming = false;
+      let facingMode = 'environment';
+      let isMuted = false;
+      let streamStartTime = null;
+      let timerInterval = null;
+      let signalPollInterval = null;
+
+      const localVideo = document.getElementById('localVideo');
+      const liveBadge = document.getElementById('liveBadge');
+      const liveBadgeText = document.getElementById('liveBadgeText');
+      const btnMainStream = document.getElementById('btnMainStream');
+      const streamBtnIcon = document.getElementById('streamBtnIcon');
+      const streamBtnText = document.getElementById('streamBtnText');
+      const btnToggleMic = document.getElementById('btnToggleMic');
+      const micIcon = document.getElementById('micIcon');
+      const btnFlipCam = document.getElementById('btnFlipCam');
+      const streamTimerHud = document.getElementById('streamTimerHud');
+      const permissionModal = document.getElementById('permissionModal');
+      const btnGrantPermission = document.getElementById('btnGrantPermission');
+
+      const rtcConfig = {
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:stun1.l.google.com:19302' }
+        ]
+      };
+
+      async function initCamera() {
+        if (localStream) {
+          localStream.getTracks().forEach(t => t.stop());
+        }
+
+        try {
+          localStream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: facingMode,
+              width: { ideal: 1280, max: 1920 },
+              height: { ideal: 720, max: 1080 },
+              frameRate: { ideal: 30, max: 30 }
+            },
+            audio: {
+              echoCancellation: true,
+              noiseSuppression: true
+            }
+          });
+
+          localVideo.srcObject = localStream;
+          permissionModal.style.display = 'none';
+        } catch (err) {
+          console.error('getUserMedia error:', err);
+          alert('Gagal mengakses kamera: ' + err.message + '\nSila pastikan izin kamera dibenarkan pada pelayar.');
+        }
+      }
+
+      btnGrantPermission.addEventListener('click', initCamera);
+
+      // Camera switch
+      btnFlipCam.addEventListener('click', async () => {
+        facingMode = (facingMode === 'environment') ? 'user' : 'environment';
+        await initCamera();
+        if (isStreaming && peerConnection) {
+          const videoTrack = localStream.getVideoTracks()[0];
+          const senders = peerConnection.getSenders();
+          const videoSender = senders.find(s => s.track && s.track.kind === 'video');
+          if (videoSender && videoTrack) {
+            videoSender.replaceTrack(videoTrack);
+          }
+        }
+      });
+
+      // Mic toggle
+      btnToggleMic.addEventListener('click', () => {
+        if (!localStream) return;
+        isMuted = !isMuted;
+        localStream.getAudioTracks().forEach(t => t.enabled = !isMuted);
+        if (isMuted) {
+          btnToggleMic.classList.add('active-muted');
+          micIcon.textContent = '🔇';
+        } else {
+          btnToggleMic.classList.remove('active-muted');
+          micIcon.textContent = '🎙️';
+        }
+      });
+
+      async function startStreaming() {
+        if (!localStream) await initCamera();
+        if (!localStream) return;
+
+        setLiveStatus('connecting', 'MENYAMBUNG...');
+
+        // Reset server room state first
+        try {
+          await fetch(`/api/webrtc/reset?room=${encodeURIComponent(room)}`, { method: 'POST' });
+        } catch (_) {}
+
+        peerConnection = new RTCPeerConnection(rtcConfig);
+
+        localStream.getTracks().forEach(track => {
+          peerConnection.addTrack(track, localStream);
+        });
+
+        peerConnection.onicecandidate = async (event) => {
+          if (event.candidate) {
+            try {
+              await fetch(`/api/webrtc/ice?room=${encodeURIComponent(room)}&role=streamer`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(event.candidate)
+              });
+            } catch (e) {
+              console.warn('ICE send error:', e);
+            }
+          }
+        };
+
+        peerConnection.onconnectionstatechange = () => {
+          const state = peerConnection.connectionState;
+          console.log('[WebRTC Streamer] Connection state:', state);
+          if (state === 'connected') {
+            setLiveStatus('live', '🔴 BERSIARAN LANGSUNG');
+          } else if (state === 'disconnected' || state === 'failed') {
+            setLiveStatus('connecting', 'MENYAMBUNG SEMULA...');
+          }
+        };
+
+        // Create and send SDP offer
+        const offer = await peerConnection.createOffer({
+          offerToReceiveAudio: false,
+          offerToReceiveVideo: false
+        });
+        await peerConnection.setLocalDescription(offer);
+
+        await fetch(`/api/webrtc/offer?room=${encodeURIComponent(room)}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sdp: offer.sdp,
+            type: offer.type,
+            room: room,
+            timestamp: Date.now()
+          })
+        });
+
+        // Broadcast active status
+        await fetch(`/api/webrtc/status?room=${encodeURIComponent(room)}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ is_streaming: true, room: room })
+        });
+
+        // Poll for SDP Answer from Kiosk
+        signalPollInterval = setInterval(async () => {
+          if (!isStreaming) return;
+          try {
+            const res = await fetch(`/api/webrtc/answer?room=${encodeURIComponent(room)}`);
+            if (res.ok) {
+              const data = await res.json();
+              if (data && data.sdp && (!peerConnection.currentRemoteDescription || peerConnection.currentRemoteDescription.sdp !== data.sdp)) {
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(data));
+                console.log('[WebRTC Streamer] Remote description (answer) set successfully!');
+                setLiveStatus('live', '🔴 BERSIARAN LANGSUNG');
+              }
+            }
+
+            // Fetch remote ICE candidates
+            const iceRes = await fetch(`/api/webrtc/ice?room=${encodeURIComponent(room)}&role=receiver`);
+            if (iceRes.ok) {
+              const candidates = await iceRes.json();
+              if (Array.isArray(candidates)) {
+                for (const c of candidates) {
+                  try {
+                    await peerConnection.addIceCandidate(new RTCIceCandidate(c));
+                  } catch (_) {}
+                }
+              }
+            }
+          } catch (err) {
+            console.warn('Signaling poll error:', err);
+          }
+        }, 1000);
+
+        isStreaming = true;
+        btnMainStream.classList.add('streaming');
+        streamBtnIcon.textContent = '⏹️';
+        streamBtnText.textContent = 'Tamatkan Siaran';
+        startTimer();
+      }
+
+      async function stopStreaming() {
+        isStreaming = false;
+        clearInterval(signalPollInterval);
+        stopTimer();
+
+        if (peerConnection) {
+          peerConnection.close();
+          peerConnection = null;
+        }
+
+        try {
+          await fetch(`/api/webrtc/reset?room=${encodeURIComponent(room)}`, { method: 'POST' });
+          await fetch(`/api/webrtc/status?room=${encodeURIComponent(room)}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ is_streaming: false, room: room })
+          });
+        } catch (_) {}
+
+        setLiveStatus('idle', 'BERSEDIA');
+        btnMainStream.classList.remove('streaming');
+        streamBtnIcon.textContent = '📡';
+        streamBtnText.textContent = 'Mula Siaran ke TV';
+      }
+
+      btnMainStream.addEventListener('click', () => {
+        if (!isStreaming) {
+          startStreaming();
+        } else {
+          stopStreaming();
+        }
+      });
+
+      function setLiveStatus(type, text) {
+        liveBadge.className = 'status-badge ' + (type === 'live' ? 'live' : (type === 'connecting' ? 'connecting' : ''));
+        liveBadgeText.textContent = text;
+      }
+
+      function startTimer() {
+        streamStartTime = Date.now();
+        streamTimerHud.style.display = 'block';
+        timerInterval = setInterval(() => {
+          const diff = Math.floor((Date.now() - streamStartTime) / 1000);
+          const hrs = String(Math.floor(diff / 3600)).padStart(2, '0');
+          const mins = String(Math.floor((diff % 3600) / 60)).padStart(2, '0');
+          const secs = String(diff % 60).padStart(2, '0');
+          streamTimerHud.textContent = `${hrs}:${mins}:${secs}`;
+        }, 1000);
+      }
+
+      function stopTimer() {
+        clearInterval(timerInterval);
+        streamTimerHud.style.display = 'none';
+        streamTimerHud.textContent = '00:00:00';
+      }
+
+      // Auto-check permission on load
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        initCamera();
+      }
+    })();
+  </script>
+</body>
+</html>

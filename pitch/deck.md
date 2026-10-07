@@ -105,7 +105,7 @@ style: |
 * 💬 **Tukar Teks Hebahan Serta-merta:** Taip mesej pengumuman di telefon, teks terus berjalan di skrin TV dewan solat.
 * 🖼️ **Muat Naik Poster Tanpa Pendrive:** Pilih gambar dari galeri telefon AJK dan muat naik terus ke TV jemaah.
 * 🔒 **Akses Rangkaian Tempatan Selamat:** Dilindungi kata laluan pentadbir melalui Wi-Fi surau. Menyokong Android, iOS, iPad, & Laptop.
-* ✨ **Teknologi PWA:** Boleh dipasang terus ke Home Screen telefon pintar tanpa perlu muat turun dari App Store.
+* ✨ **Pelayar Web Mudah:** Boleh dibuka terus melalui pelayar web telefon pintar tanpa perlu muat turun aplikasi tambahan.
 
 ---
 

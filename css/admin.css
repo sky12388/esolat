@@ -97,7 +97,7 @@ body {
 .app-layout {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
   max-width: 720px;
   margin: 0 auto;
   width: 100%;
@@ -105,42 +105,57 @@ body {
   background: #0b1120;
   box-shadow: 0 0 35px rgba(0, 0, 0, 0.6);
   transition: max-width 0.3s ease, margin 0.3s ease, border-radius 0.3s ease;
+  box-sizing: border-box;
 }
 
-.top-nav {
-  height: 72px;
+header, .top-header, .manager-bar, .top-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 72px;
   background: linear-gradient(135deg, var(--primary-dark), #065f46);
   border-bottom: 2px solid var(--accent);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 1.25rem;
-  position: sticky;
-  top: 0;
-  z-index: 50;
+  padding: 0.5rem 1rem;
 }
 
 .top-brand {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.6rem;
+  min-width: 0;
+  flex: 1;
 }
 
 .logo-emoji {
   font-size: 2rem;
+  flex-shrink: 0;
 }
 
 .top-brand h1 {
-  font-size: 1.25rem;
+  font-size: clamp(0.95rem, 3.2vw, 1.25rem);
   font-weight: 800;
   color: #ffffff;
   line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .app-subtitle {
-  font-size: 0.88rem;
+  font-size: clamp(0.72rem, 2.4vw, 0.88rem);
   color: #a7f3d0;
   font-weight: 600;
+  display: block;
+  line-height: 1.3;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .top-actions {
@@ -208,10 +223,15 @@ body {
 }
 
 /* Body Content */
-.content-body {
+main, .content-container, .admin-body, .content-body {
   flex: 1;
   overflow-y: auto;
-  padding: 1.25rem 1rem 5rem 1rem;
+  padding-top: 15px !important;
+  padding-bottom: 90px !important; /* Ruang selamat untuk bottom navigation */
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden;
 }
 
 .tab-pane {
@@ -580,11 +600,12 @@ textarea {
 
 /* ==================== BOTTOM NAVIGATION (100% FULL WIDTH FIT) ==================== */
 .bottom-nav {
-  position: absolute;
+  position: fixed;
   bottom: 0;
-  left: 0;
+  left: 50%;
+  transform: translateX(-50%);
   width: 100% !important;
-  max-width: 100% !important;
+  max-width: 720px !important;
   min-height: 80px;
   height: 80px;
   background: #090e1a;
@@ -592,7 +613,7 @@ textarea {
   display: flex !important;
   align-items: center !important;
   justify-content: space-around !important;
-  z-index: 50;
+  z-index: 100;
   box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.7);
   box-sizing: border-box !important;
   padding: 8px 4px 12px 4px !important;

@@ -4,13 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Skywalker e-Solat Keygen — Penjana Lesen</title>
-  <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#f59e0b">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="e-Solat Keygen">
-  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
   <link rel="icon" type="image/png" sizes="64x64" href="./icons/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -109,9 +103,6 @@
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <button id="btnInstallPwa" class="hidden px-2.5 py-1.5 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold items-center gap-1">
-          <span>📲</span><span>Pasang</span>
-        </button>
         <button id="btnLockApp" title="Kunci Semula" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 flex items-center justify-center text-sm transition">
           🔒
         </button>
@@ -120,20 +111,6 @@
 
     <!-- Main Content -->
     <main class="flex-1 p-4 space-y-4">
-
-      <!-- PWA Install Banner -->
-      <div id="pwaBanner" class="hidden p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-emerald-500/10 to-slate-900 border border-amber-500/30 flex items-center justify-between gap-3">
-        <div class="flex items-center gap-3">
-          <img src="./icons/icon-192.png" alt="App Icon" class="w-10 h-10 rounded-xl border border-amber-500/40">
-          <div>
-            <div class="text-xs font-extrabold text-amber-300">Pasang Aplikasi di Skrin Telefon</div>
-            <div class="text-[10px] text-slate-400">Jana kod lesen secara terus tanpa buka web</div>
-          </div>
-        </div>
-        <button id="btnTriggerPwa" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 hover:bg-amber-400 transition whitespace-nowrap">
-          Pasang
-        </button>
-      </div>
 
       <!-- Generator Card -->
       <section class="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-4">
@@ -674,37 +651,6 @@ Sekian, terima kasih.
         alert('Master PIN berjaya ditukar!');
       }
     });
-
-    // --- PWA / SERVICE WORKER REGISTRATION ---
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW fail:', err));
-      });
-    }
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      document.getElementById('btnInstallPwa').classList.remove('hidden');
-      document.getElementById('btnInstallPwa').classList.add('flex');
-      document.getElementById('pwaBanner').classList.remove('hidden');
-    });
-
-    function triggerPwaInstall() {
-      if (!deferredPrompt) {
-        alert('Untuk memasang di iPhone/iPad: Tekan butang Share pelayar dan pilih "Add to Home Screen".\nUntuk Android: Tekan 3-titik di pelayar dan pilih "Install App".');
-        return;
-      }
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then(() => {
-        deferredPrompt = null;
-        document.getElementById('btnInstallPwa').classList.add('hidden');
-        document.getElementById('pwaBanner').classList.add('hidden');
-      });
-    }
-
-    document.getElementById('btnInstallPwa').addEventListener('click', triggerPwaInstall);
-    document.getElementById('btnTriggerPwa').addEventListener('click', triggerPwaInstall);
 
     // Initial render
     renderHistory();

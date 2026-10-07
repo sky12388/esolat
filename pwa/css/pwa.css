@@ -1,6 +1,6 @@
 /**
  * Skywalker e-Solat Remote Controller - Stylesheet
- * Optimized for Mobile PWA Experience
+ * 100% Mobile Standalone SPA Experience
  */
 
 :root {
@@ -38,7 +38,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1rem;
+  padding: 1rem 0.75rem 2rem 0.75rem;
   overflow-x: hidden;
 }
 
@@ -48,31 +48,31 @@ body {
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.15rem;
 }
 
 /* App Header */
 .app-header {
   text-align: center;
-  padding: 1.25rem 0 0.5rem 0;
+  padding: 0.75rem 0 0.25rem 0;
 }
 
 .logo-badge {
-  width: 64px;
-  height: 64px;
-  border-radius: 20px;
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
   background: linear-gradient(135deg, #059669, #022c22);
   border: 2px solid var(--text-emerald);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
-  margin: 0 auto 0.75rem auto;
+  font-size: 1.85rem;
+  margin: 0 auto 0.6rem auto;
   box-shadow: 0 8px 24px var(--primary-glow);
 }
 
 .app-title {
-  font-size: 1.5rem;
+  font-size: 1.45rem;
   font-weight: 900;
   letter-spacing: -0.02em;
   color: #ffffff;
@@ -83,9 +83,9 @@ body {
 }
 
 .app-subtitle {
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
-  margin-top: 0.25rem;
+  margin-top: 0.15rem;
 }
 
 /* Glass Cards */
@@ -95,7 +95,7 @@ body {
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--bg-card-border);
   border-radius: var(--radius);
-  padding: 1.25rem;
+  padding: 1.15rem;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
   transition: var(--transition);
 }
@@ -105,7 +105,7 @@ body {
 }
 
 .card-title {
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 800;
   display: flex;
   align-items: center;
@@ -126,15 +126,62 @@ body {
   border: 1px solid rgba(52, 211, 153, 0.3);
 }
 
-.badge-gold {
-  background: rgba(245, 158, 11, 0.2);
-  color: var(--accent);
-  border-color: rgba(245, 158, 11, 0.4);
+.live-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #34d399;
+  display: inline-block;
+  box-shadow: 0 0 10px #34d399;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Mini Ribbon Grid */
+.mini-ribbon-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.25rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(52, 211, 153, 0.2);
+}
+
+.mini-ribbon-item {
+  text-align: center;
+  background: rgba(2, 44, 34, 0.7);
+  padding: 0.35rem 0.15rem;
+  border-radius: 8px;
+  border: 1px solid rgba(52, 211, 153, 0.15);
+}
+
+.mini-ribbon-item .lbl {
+  display: block;
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+.mini-ribbon-item .val {
+  display: block;
+  font-size: 0.72rem;
+  font-family: 'Space Grotesk', monospace;
+  font-weight: 800;
+  color: #ffffff;
+  margin-top: 0.1rem;
 }
 
 /* Form Elements */
 .input-group {
-  margin-bottom: 1rem;
+  margin-bottom: 0.85rem;
 }
 
 .input-label {
@@ -147,7 +194,7 @@ body {
 
 .input-field {
   width: 100%;
-  padding: 0.85rem 1rem;
+  padding: 0.8rem 1rem;
   background: rgba(2, 44, 34, 0.9);
   border: 1.5px solid rgba(52, 211, 153, 0.35);
   border-radius: 12px;
@@ -169,6 +216,71 @@ body {
   font-weight: 400;
 }
 
+/* Volume Slider */
+.volume-slider {
+  width: 100%;
+  height: 8px;
+  border-radius: 5px;
+  background: #022c22;
+  outline: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #34d399;
+  cursor: pointer;
+  box-shadow: 0 0 10px var(--primary-glow);
+}
+
+/* Toggle Switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: #334155;
+  transition: .3s;
+  border-radius: 24px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #10b981;
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
 /* Buttons */
 .btn {
   display: inline-flex;
@@ -176,9 +288,9 @@ body {
   justify-content: center;
   gap: 0.5rem;
   width: 100%;
-  padding: 0.85rem 1.25rem;
+  padding: 0.85rem 1.15rem;
   font-family: inherit;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 800;
   border-radius: 14px;
   border: none;
@@ -195,7 +307,6 @@ body {
 
 .btn-primary:hover, .btn-primary:active {
   transform: translateY(-1px);
-  box-shadow: 0 8px 24px var(--primary-glow);
   background: linear-gradient(135deg, #34d399, #10b981);
 }
 
@@ -207,7 +318,6 @@ body {
 
 .btn-accent:hover, .btn-accent:active {
   transform: translateY(-1px);
-  box-shadow: 0 8px 24px var(--accent-glow);
 }
 
 .btn-outline {
@@ -219,6 +329,15 @@ body {
 .btn-outline:hover, .btn-outline:active {
   background: rgba(30, 41, 59, 0.8);
   border-color: var(--text-emerald);
+}
+
+.btn-remote-action {
+  padding: 0.75rem 0.5rem;
+  font-size: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  text-align: center;
 }
 
 .btn-sm {
@@ -240,17 +359,6 @@ body {
   box-shadow: 0 8px 25px var(--primary-glow);
   position: relative;
   overflow: hidden;
-}
-
-.install-card::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  right: -20%;
-  width: 140px;
-  height: 140px;
-  background: radial-gradient(circle, rgba(52, 211, 153, 0.3), transparent 70%);
-  pointer-events: none;
 }
 
 /* Saved History List */
@@ -339,10 +447,17 @@ body {
   box-shadow: 0 10px 30px rgba(0,0,0,0.5);
   transition: transform 0.3s ease;
   z-index: 2000;
+  max-width: 90%;
+  text-align: center;
 }
 
 .toast-msg.show {
   transform: translateX(-50%) translateY(0);
+}
+
+.toast-msg.error {
+  background: #7f1d1d;
+  border-color: #f87171;
 }
 
 /* Quick Tips Accordion */
@@ -370,5 +485,5 @@ body {
   text-align: center;
   font-size: 0.72rem;
   color: #64748b;
-  padding: 1.5rem 0 1rem 0;
+  padding: 1rem 0 0.5rem 0;
 }

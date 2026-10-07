@@ -35,12 +35,13 @@
   <!-- Custom Stylesheet -->
   <link rel="stylesheet" href="./css/style.css">
 
-  <!-- Favicons & App Icons -->
-  <meta name="theme-color" content="#064e3b">
+  <!-- PWA Manifest & App Icons -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#16a34a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="e-Solat">
+  <meta name="apple-mobile-web-app-title" content="e-Solat Admin">
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png">
@@ -1061,15 +1062,16 @@
   <!-- Scripts -->
   <script src="./js/main.js"></script>
   <script>
-    // Clean up any accidental root service workers so only /pwa/, /admin/, and /keygen/ operate as PWAs
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then((registrations) => {
-        for (const reg of registrations) {
-          if (!reg.scope.includes('/pwa/') && !reg.scope.includes('/admin/') && !reg.scope.includes('/keygen/')) {
-            reg.unregister();
-          }
-        }
-      }).catch(() => {});
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/esolat/sw.js')
+          .then((reg) => console.log('SW Registered!', reg))
+          .catch((err) => {
+            navigator.serviceWorker.register('./sw.js')
+              .then((reg) => console.log('SW Registered (relative)!', reg))
+              .catch((e) => console.error('SW Fail:', e));
+          });
+      });
     }
   </script>
 </body>

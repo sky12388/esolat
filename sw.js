@@ -1,20 +1,19 @@
 /**
- * Skywalker e-Solat - Root Service Worker Uninstaller / Cache Cleaner
- * Retires root SW in favor of dedicated /admin/ and /keygen/ PWAs.
+ * Skywalker e-Solat - PWA Service Worker
  */
+const CACHE_NAME = 'esolat-pwa-v1.3.16';
 
-self.addEventListener('install', (event) => {
+self.addEventListener('install', (e) => {
   self.skipWaiting();
 });
 
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys.filter(k => !k.startsWith('esolat-admin-')).map(k => caches.delete(k))
-      );
-    }).then(() => {
-      return self.registration.unregister();
-    })
+self.addEventListener('activate', (e) => {
+  e.waitUntil(clients.claim());
+});
+
+self.addEventListener('fetch', (e) => {
+  // Minimum fetch handler required by Chrome PWA engine
+  e.respondWith(
+    fetch(e.request).catch(() => caches.match(e.request))
   );
 });

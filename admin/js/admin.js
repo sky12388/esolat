@@ -86,10 +86,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const btn = document.createElement('button');
       btn.type = 'button';
       const isActive = ip === targetIp;
-      btn.className = `px-3 py-1.5 rounded-xl text-xs font-mono transition border ${
+      btn.className = `px-3.5 py-2 rounded-xl text-xs sm:text-sm font-mono transition border-2 ${
         isActive 
-          ? 'bg-emerald-950 text-emerald-300 border-emerald-500 font-bold shadow-sm' 
-          : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white hover:border-slate-700'
+          ? 'bg-emerald-900 text-amber-300 border-amber-400 font-black shadow-md' 
+          : 'bg-slate-950 text-slate-200 border-slate-700 hover:text-white hover:border-emerald-400 font-bold'
       }`;
       btn.textContent = ip;
       btn.onclick = () => updateTargetIp(ip, true);

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>e-Solat Admin — Kawalan Mudah Alih Surau</title>
+  
+  <!-- PWA Manifest & App Icons -->
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#064e3b">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="e-Solat Admin">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png">
+
+  <!-- Google Fonts & Tailwind CSS -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./css/admin.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            emerald: { 850: '#064e3b', 900: '#022c22', 950: '#011c15' },
+            amber: { 450: '#f59e0b' }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen antialiased flex flex-col selection:bg-emerald-500 selection:text-white pb-16">
+
+  <!-- Top App Navigation Bar -->
+  <header class="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-4 py-3 shadow-lg">
+    <div class="max-w-xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="../" class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-900 border border-emerald-400/30 flex items-center justify-center text-xl shadow-md">
+          🕌
+        </a>
+        <div>
+          <h1 class="text-base font-black text-white leading-tight flex items-center gap-2">
+            <span>e-Solat</span>
+            <span class="text-amber-400 font-extrabold text-xs px-2 py-0.5 rounded-full bg-amber-400/10 border border-amber-400/30">Admin Remote</span>
+          </h1>
+          <p id="topConnectionLabel" class="text-[11px] text-slate-400 font-medium flex items-center gap-1.5 mt-0.5">
+            <span id="topStatusDot" class="w-2 h-2 rounded-full bg-rose-500 inline-block animate-pulse"></span>
+            <span id="topStatusText">Belum Bersambung</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button id="btnHeaderInstall" type="button" class="hidden px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-extrabold text-xs items-center gap-1 shadow-md hover:scale-105 transition">
+          <span>📥</span><span>Pasang</span>
+        </button>
+        <a href="../manual/" title="Panduan Pengguna" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 transition flex items-center justify-center">
+          📖
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-xl w-full mx-auto p-4 space-y-5">
+
+    <!-- Standalone Install Prompt Card (Visible when app is not installed) -->
+    <div id="installCard" class="hidden p-4 rounded-2xl bg-gradient-to-r from-emerald-950 via-slate-900 to-emerald-950 border border-emerald-500/40 shadow-xl flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-xl shrink-0">
+          📱
+        </div>
+        <div>
+          <h3 class="text-xs font-black text-white">Pasang Aplikasi di Skrin Telefon</h3>
+          <p class="text-[11px] text-slate-300">Buka terus e-Solat Remote tanpa perlu menaip URL setiap kali.</p>
+        </div>
+      </div>
+      <button id="btnCardInstall" type="button" class="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black text-xs shrink-0 hover:scale-105 transition shadow-md">
+        PASANG
+      </button>
+    </div>
+
+    <!-- CONNECTION CARD -->
+    <section class="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">📡</span>
+          <h2 class="text-sm font-black text-white">Sambungan TV Kiosk Surau</h2>
+        </div>
+        <span id="badgeCurrentIp" class="text-[11px] font-mono text-emerald-400 font-bold bg-emerald-950 px-2.5 py-1 rounded-lg border border-emerald-800">
+          192.168.1.104
+        </span>
+      </div>
+
+      <!-- Tab Switcher: QR Code / Auto Scan / Manual IP -->
+      <div class="grid grid-cols-3 gap-1.5 p-1 bg-slate-950 rounded-2xl border border-slate-800 text-xs font-bold">
+        <button id="tabBtnQr" type="button" class="tab-btn active py-2 rounded-xl text-center bg-emerald-600 text-white transition flex items-center justify-center gap-1.5">
+          <span>📷</span><span>Imbas QR</span>
+        </button>
+        <button id="tabBtnScan" type="button" class="tab-btn py-2 rounded-xl text-center text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5">
+          <span>🔍</span><span>Imbas IP</span>
+        </button>
+        <button id="tabBtnManual" type="button" class="tab-btn py-2 rounded-xl text-center text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5">
+          <span>⌨️</span><span>Manual</span>
+        </button>
+      </div>
+
+      <!-- Tab Content: QR Scanner -->
+      <div id="tabContentQr" class="tab-pane space-y-3">
+        <p class="text-xs text-slate-300">
+          Halakan kamera telefon anda ke <b>Kod QR Sambungan</b> yang terpapar di skrin TV Surau:
+        </p>
+        <div id="qrReaderContainer" class="relative bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 min-h-[200px] flex items-center justify-center">
+          <div id="qrReader" class="w-full"></div>
+        </div>
+        <div class="flex gap-2">
+          <button id="btnStartQr" type="button" class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-xs text-white transition flex items-center justify-center gap-1.5">
+            <span>📷 Buka Kamera QR</span>
+          </button>
+          <button id="btnStopQr" type="button" class="hidden px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 font-bold text-xs text-slate-300 transition">
+            Tutup
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab Content: Auto Subnet Scanner -->
+      <div id="tabContentScan" class="tab-pane hidden space-y-3">
+        <p class="text-xs text-slate-300">
+          Sistem akan mencari komputer TV e-Solat di rangkaian Wi-Fi surau anda secara automatik:
+        </p>
+        <div class="flex gap-2">
+          <input type="text" id="inputSubnetPrefix" value="192.168.1" placeholder="192.168.1" class="w-32 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-center text-white focus:outline-none focus:border-emerald-500">
+          <button id="btnStartSubnetScan" type="button" class="flex-1 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 font-bold text-xs text-white transition flex items-center justify-center gap-2">
+            <span>🔍 Mula Imbas Rangkaian</span>
+          </button>
+        </div>
+        <div id="scanProgressBar" class="hidden w-full bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-800">
+          <div id="scanProgressFill" class="bg-emerald-500 h-full w-0 transition-all duration-150"></div>
+        </div>
+        <div id="scanResultsList" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
+      </div>
+
+      <!-- Tab Content: Manual Input -->
+      <div id="tabContentManual" class="tab-pane hidden space-y-3">
+        <p class="text-xs text-slate-300">
+          Masukkan alamat IP komputer surau yang tertera pada skrin TV dewan solat:
+        </p>
+        <div class="flex gap-2">
+          <input type="text" id="inputManualIp" placeholder="cth: 192.168.1.104" class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm font-mono text-white focus:outline-none focus:border-emerald-500">
+          <button id="btnConnectManual" type="button" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-xs text-white transition">
+            Sambung
+          </button>
+        </div>
+      </div>
+
+      <!-- Recent Surau List -->
+      <div id="recentConnectionsBox" class="border-t border-slate-800/80 pt-3 space-y-2">
+        <div class="flex items-center justify-between text-[11px] text-slate-400">
+          <span>Surau / IP Tersimpan:</span>
+          <button id="btnClearHistory" type="button" class="text-rose-400 hover:underline">Kosongkan</button>
+        </div>
+        <div id="recentList" class="flex flex-wrap gap-2"></div>
+      </div>
+    </section>
+
+    <!-- QUICK ACTIONS & REMOTE CONTROLS -->
+    <section class="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-2xl space-y-5">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">🎮</span>
+          <h2 class="text-sm font-black text-white">Panel Kawalan Pantas TV</h2>
+        </div>
+        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Aksi Pantas</span>
+      </div>
+
+      <!-- Action Grid -->
+      <div class="grid grid-cols-2 gap-3">
+        
+        <!-- 1. Azan Test -->
+        <button id="btnActionAzan" type="button" class="p-4 rounded-2xl bg-gradient-to-br from-emerald-950 to-slate-900 border border-emerald-500/40 hover:border-emerald-400 text-left transition group active:scale-95 shadow-md">
+          <div class="text-2xl mb-1 group-hover:scale-110 transition">🔊</div>
+          <div class="text-xs font-black text-white">Uji Azan TV</div>
+          <div class="text-[10px] text-slate-400 mt-0.5">Uji audio pembesar suara</div>
+        </button>
+
+        <!-- 2. Pentas Kuliah -->
+        <button id="btnActionKuliah" type="button" class="p-4 rounded-2xl bg-gradient-to-br from-amber-950 to-slate-900 border border-amber-500/40 hover:border-amber-400 text-left transition group active:scale-95 shadow-md">
+          <div class="text-2xl mb-1 group-hover:scale-110 transition">📹</div>
+          <div class="text-xs font-black text-white">Mod Kuliah</div>
+          <div class="text-[10px] text-slate-400 mt-0.5">Tukar TV ke mod pentas</div>
+        </button>
+
+        <!-- 3. Rapatkan Saf -->
+        <button id="btnActionSaf" type="button" class="p-4 rounded-2xl bg-gradient-to-br from-teal-950 to-slate-900 border border-teal-500/40 hover:border-teal-400 text-left transition group active:scale-95 shadow-md">
+          <div class="text-2xl mb-1 group-hover:scale-110 transition">🕋</div>
+          <div class="text-xs font-black text-white">Rapatkan Saf</div>
+          <div class="text-[10px] text-slate-400 mt-0.5">Skrin peringatan solat</div>
+        </button>
+
+        <!-- 4. Mod Normal TV -->
+        <button id="btnActionNormal" type="button" class="p-4 rounded-2xl bg-gradient-to-br from-slate-950 to-slate-900 border border-slate-700 hover:border-slate-500 text-left transition group active:scale-95 shadow-md">
+          <div class="text-2xl mb-1 group-hover:scale-110 transition">📺</div>
+          <div class="text-xs font-black text-white">Mod Normal</div>
+          <div class="text-[10px] text-slate-400 mt-0.5">Kembali ke takwim solat</div>
+        </button>
+
+      </div>
+
+      <!-- Quick Ticker Text Update -->
+      <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2.5">
+        <label class="text-xs font-bold text-slate-300 flex items-center justify-between">
+          <span class="flex items-center gap-1.5"><span>📢</span><span>Teks Hebahan Bergerak TV:</span></span>
+          <span class="text-[10px] text-amber-400">Kemaskini Serta-Merta</span>
+        </label>
+        <div class="flex gap-2">
+          <input type="text" id="inputQuickTicker" placeholder="Masukkan teks hebahan untuk dipaparkan di TV..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+          <button id="btnUpdateTicker" type="button" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 font-bold text-xs text-slate-950 transition shrink-0">
+            Kemas Kini
+          </button>
+        </div>
+      </div>
+
+      <!-- Direct Full Panel Open Button -->
+      <div class="pt-2">
+        <a id="btnOpenFullAdmin" href="http://192.168.1.104:8080/admin" target="_blank" class="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-emerald-950/80 hover:scale-[1.02] transition duration-200">
+          <span>🚀</span>
+          <span>BUKA PANEL PENTADBIR PENUH (WEB)</span>
+          <span>&rarr;</span>
+        </a>
+        <p class="text-center text-[10px] text-slate-400 mt-2">
+          Membuka panel pengurusan penuh (jadual azan, muat naik poster, kiraan iqamah) di pelayar telefon anda.
+        </p>
+      </div>
+
+    </section>
+
+    <!-- Camera Streamer Shortcut Card -->
+    <section class="p-4 rounded-2xl bg-gradient-to-r from-emerald-950/60 to-slate-900 border border-emerald-800/40 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="text-2xl">📹</div>
+        <div>
+          <h4 class="text-xs font-bold text-white">Siaran Kamera Telefon Langsung</h4>
+          <p class="text-[11px] text-slate-400">Gunakan kamera telefon ini sebagai pemancar video kuliah ke TV.</p>
+        </div>
+      </div>
+      <a id="btnOpenStreamer" href="../streamer/" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs whitespace-nowrap transition">
+        Buka Kamera &rarr;
+      </a>
+    </section>
+
+  </main>
+
+  <!-- Notification Toast -->
+  <div id="toastNotification" class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-slate-900/95 border border-emerald-500/60 text-emerald-300 px-4 py-2.5 rounded-2xl text-xs font-bold shadow-2xl transition-all duration-300 opacity-0 pointer-events-none translate-y-4 z-50 flex items-center gap-2">
+    <span id="toastIcon">✅</span>
+    <span id="toastText">Berjaya disambungkan!</span>
+  </div>
+
+  <!-- Scripts -->
+  <script src="./js/html5-qrcode.min.js"></script>
+  <script src="./js/qrcode.min.js"></script>
+  <script src="./js/admin.js"></script>
+  <script>
+    // Service worker registration
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js', { scope: './' })
+          .then((reg) => console.log('[Admin PWA] SW registered on', reg.scope))
+          .catch((err) => console.warn('[Admin PWA] SW fail:', err));
+      });
+    }
+  </script>
+</body>
+</html>

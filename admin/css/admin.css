@@ -227,7 +227,7 @@ main, .content-container, .admin-body, .content-body {
   flex: 1;
   overflow-y: auto;
   padding-top: 15px !important;
-  padding-bottom: 95px !important; /* Ruang selamat untuk bottom navigation */
+  padding-bottom: 90px !important; /* Ruang selamat untuk bottom navigation */
   padding-left: 1rem !important;
   padding-right: 1rem !important;
   box-sizing: border-box !important;

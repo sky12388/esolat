@@ -1,5 +1,5 @@
 /**
- * Skywalker e-Solat Admin — Standalone Mobile Controller & PWA Engine
+ * Skywalker e-Solat Admin — Mobile Controller & PWA Engine
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==================== 1. STATE & STORAGE ====================
   const DEFAULT_IP = '192.168.1.104';
   let targetIp = localStorage.getItem('esolat_target_ip') || DEFAULT_IP;
-  let recentIps = JSON.parse(localStorage.getItem('esolat_recent_ips') || '["192.168.1.104", "192.168.0.100"]');
+  let recentIps = JSON.parse(localStorage.getItem('esolat_recent_ips') || '["192.168.1.104", "192.168.0.104", "192.168.1.100"]');
   let html5QrScanner = null;
   let isScanningSubnet = false;
   let deferredInstallPrompt = null;
@@ -20,15 +20,37 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnOpenStreamer = document.getElementById('btnOpenStreamer');
   const recentList = document.getElementById('recentList');
   const inputManualIp = document.getElementById('inputManualIp');
+  const ipForm = document.getElementById('ipForm');
 
-  // ==================== 2. UI INITIALIZATION ====================
+  const qrScannerBox = document.getElementById('qrScannerBox');
+  const btnToggleQr = document.getElementById('btnToggleQr');
+  const btnCloseQr = document.getElementById('btnCloseQr');
+
+  const subnetScannerBox = document.getElementById('subnetScannerBox');
+  const btnToggleScan = document.getElementById('btnToggleScan');
+  const btnCloseScan = document.getElementById('btnCloseScan');
+  const btnStartSubnetScan = document.getElementById('btnStartSubnetScan');
+  const inputSubnetPrefix = document.getElementById('inputSubnetPrefix');
+  const scanProgressBar = document.getElementById('scanProgressBar');
+  const scanProgressFill = document.getElementById('scanProgressFill');
+  const scanResultsList = document.getElementById('scanResultsList');
+
+  // ==================== 2. IP NORMALIZATION & SYNC ====================
+  function sanitizeIp(raw) {
+    if (!raw) return '';
+    let ip = raw.trim();
+    // Strip protocols and paths
+    ip = ip.replace(/^https?:\/\//i, '');
+    ip = ip.split('/')[0];
+    ip = ip.split(':')[0];
+    return ip.trim();
+  }
+
   function updateTargetIp(newIp, saveToHistory = true) {
-    if (!newIp) return;
-    // Clean IP string
-    newIp = newIp.replace(/^https?:\/\//, '').split('/')[0].split(':')[0].trim();
-    if (!newIp) return;
+    const cleanIp = sanitizeIp(newIp);
+    if (!cleanIp) return;
 
-    targetIp = newIp;
+    targetIp = cleanIp;
     localStorage.setItem('esolat_target_ip', targetIp);
 
     if (saveToHistory) {
@@ -36,38 +58,41 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('esolat_recent_ips', JSON.stringify(recentIps));
     }
 
-    // Update UI elements
-    badgeCurrentIp.textContent = targetIp;
-    inputManualIp.value = targetIp;
-    btnOpenFullAdmin.href = `http://${targetIp}:8080/admin`;
-    if (btnOpenStreamer) {
-      btnOpenStreamer.href = `../streamer/?ip=${encodeURIComponent(targetIp)}`;
+    // Synchronize UI
+    if (badgeCurrentIp) badgeCurrentIp.textContent = targetIp;
+    if (inputManualIp) inputManualIp.value = targetIp;
+    if (btnOpenFullAdmin) btnOpenFullAdmin.href = `http://${targetIp}:8080/admin`;
+    if (btnOpenStreamer) btnOpenStreamer.href = `../streamer/?ip=${encodeURIComponent(targetIp)}`;
+
+    if (topStatusDot) {
+      topStatusDot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block';
+    }
+    if (topStatusText) {
+      topStatusText.textContent = `Surau: ${targetIp}`;
     }
 
-    topStatusDot.className = 'w-2 h-2 rounded-full bg-emerald-400 inline-block';
-    topStatusText.textContent = `Surau: ${targetIp}`;
     renderRecentList();
-    showToast(`Tersambung ke ${targetIp}`);
+    showToast(`Alamat IP diset ke ${targetIp}`);
   }
 
   function renderRecentList() {
     if (!recentList) return;
     recentList.innerHTML = '';
-    if (!recentIps.length) {
-      recentList.innerHTML = '<span class="text-xs text-slate-500">Tiada rekod tersimpan</span>';
-      return;
-    }
 
-    recentIps.forEach(ip => {
+    const defaultPresets = ['192.168.1.104', '192.168.0.104', '192.168.1.100'];
+    const mergedList = Array.from(new Set([...recentIps, ...defaultPresets])).slice(0, 6);
+
+    mergedList.forEach(ip => {
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = `px-2.5 py-1 rounded-lg text-xs font-mono transition border ${
-        ip === targetIp 
-          ? 'bg-emerald-950 text-emerald-300 border-emerald-500 font-bold' 
+      const isActive = ip === targetIp;
+      btn.className = `px-3 py-1.5 rounded-xl text-xs font-mono transition border ${
+        isActive 
+          ? 'bg-emerald-950 text-emerald-300 border-emerald-500 font-bold shadow-sm' 
           : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white hover:border-slate-700'
       }`;
       btn.textContent = ip;
-      btn.onclick = () => updateTargetIp(ip, false);
+      btn.onclick = () => updateTargetIp(ip, true);
       recentList.appendChild(btn);
     });
   }
@@ -76,74 +101,68 @@ document.addEventListener('DOMContentLoaded', () => {
     recentIps = [targetIp];
     localStorage.setItem('esolat_recent_ips', JSON.stringify(recentIps));
     renderRecentList();
-    showToast('Rekod dikosongkan');
+    showToast('Sejarah IP dikosongkan');
   });
 
-  // ==================== 3. TAB CONTROLS ====================
-  const tabBtns = document.querySelectorAll('.tab-btn');
-  const tabPanes = document.querySelectorAll('.tab-pane');
-
-  tabBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      tabBtns.forEach(b => {
-        b.classList.remove('active', 'bg-emerald-600', 'text-white');
-        b.classList.add('text-slate-400');
-      });
-      btn.classList.add('active', 'bg-emerald-600', 'text-white');
-      btn.classList.remove('text-slate-400');
-
-      tabPanes.forEach(pane => pane.classList.add('hidden'));
-
-      if (btn.id === 'tabBtnQr') document.getElementById('tabContentQr').classList.remove('hidden');
-      if (btn.id === 'tabBtnScan') document.getElementById('tabContentScan').classList.remove('hidden');
-      if (btn.id === 'tabBtnManual') document.getElementById('tabContentManual').classList.remove('hidden');
-    });
+  // Handle Form Submission / Enter Key on Manual Input
+  ipForm?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const val = inputManualIp?.value.trim();
+    if (!val) {
+      showToast('Sila masukkan alamat IP', '⚠️');
+      return;
+    }
+    updateTargetIp(val, true);
   });
 
-  // ==================== 4. QR CODE SCANNER ====================
-  const btnStartQr = document.getElementById('btnStartQr');
-  const btnStopQr = document.getElementById('btnStopQr');
-  const qrReaderContainer = document.getElementById('qrReader');
+  document.getElementById('btnConnectManual')?.addEventListener('click', () => {
+    const val = inputManualIp?.value.trim();
+    if (!val) {
+      showToast('Sila masukkan alamat IP', '⚠️');
+      return;
+    }
+    updateTargetIp(val, true);
+  });
 
+  // ==================== 3. CAMERA QR SCANNER ====================
   async function startQrScanner() {
     if (!window.Html5Qrcode) {
       showToast('Modul kamera sedang dimuatkan...', '⚠️');
       return;
     }
 
+    qrScannerBox?.classList.remove('hidden');
+    subnetScannerBox?.classList.add('hidden');
+
     try {
       if (!html5QrScanner) {
         html5QrScanner = new Html5Qrcode("qrReader");
       }
 
-      btnStartQr.classList.add('hidden');
-      btnStopQr.classList.remove('hidden');
+      const cameras = await Html5Qrcode.getCameras();
+      if (!cameras || !cameras.length) {
+        showToast('Tiada kamera dikesan pada peranti anda.', '⚠️');
+        return;
+      }
+
+      // Pick back camera if available, else first
+      let backCam = cameras.find(c => c.label.toLowerCase().includes('back') || c.label.toLowerCase().includes('rear') || c.label.toLowerCase().includes('environment'));
+      let cameraIdOrConfig = backCam ? backCam.id : { facingMode: "environment" };
 
       await html5QrScanner.start(
-        { facingMode: "environment" },
+        cameraIdOrConfig,
         { fps: 10, qrbox: { width: 220, height: 220 } },
         (decodedText) => {
           console.log('[QR Decoded]:', decodedText);
           stopQrScanner();
-          // Extract IP from scanned QR URL
-          try {
-            if (decodedText.includes('://')) {
-              const url = new URL(decodedText);
-              updateTargetIp(url.hostname);
-            } else {
-              updateTargetIp(decodedText);
-            }
-          } catch (e) {
-            updateTargetIp(decodedText);
-          }
+          updateTargetIp(decodedText, true);
+          showToast(`QR Berjaya: ${targetIp}`, '✅');
         },
-        (errorMessage) => {
-          // ignore scan frame errors
-        }
+        () => {}
       );
     } catch (err) {
       console.warn('[QR Camera Error]', err);
-      showToast('Kamera tidak dapat diakses. Sila gunakan imbasan IP manual.', '⚠️');
+      showToast('Kamera disekat atau tidak dapat dibuka. Sila taip IP manual.', '⚠️');
       stopQrScanner();
     }
   }
@@ -154,26 +173,33 @@ document.addEventListener('DOMContentLoaded', () => {
         await html5QrScanner.stop();
       } catch (e) {}
     }
-    btnStartQr.classList.remove('hidden');
-    btnStopQr.classList.add('hidden');
+    qrScannerBox?.classList.add('hidden');
   }
 
-  btnStartQr?.addEventListener('click', startQrScanner);
-  btnStopQr?.addEventListener('click', stopQrScanner);
+  btnToggleQr?.addEventListener('click', () => {
+    if (qrScannerBox?.classList.contains('hidden')) {
+      startQrScanner();
+    } else {
+      stopQrScanner();
+    }
+  });
 
-  // ==================== 5. AUTO SUBNET SCANNER ====================
-  const btnStartSubnetScan = document.getElementById('btnStartSubnetScan');
-  const inputSubnetPrefix = document.getElementById('inputSubnetPrefix');
-  const scanProgressBar = document.getElementById('scanProgressBar');
-  const scanProgressFill = document.getElementById('scanProgressFill');
-  const scanResultsList = document.getElementById('scanResultsList');
+  btnCloseQr?.addEventListener('click', stopQrScanner);
+
+  // ==================== 4. AUTO SUBNET SCANNER ====================
+  btnToggleScan?.addEventListener('click', () => {
+    stopQrScanner();
+    subnetScannerBox?.classList.toggle('hidden');
+  });
+
+  btnCloseScan?.addEventListener('click', () => {
+    subnetScannerBox?.classList.add('hidden');
+  });
 
   async function probeIp(ip) {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 900);
-
+    const timeout = setTimeout(() => controller.abort(), 750);
     try {
-      // Probe favicon or lightweight endpoint
       await fetch(`http://${ip}:8080/favicon.ico`, { 
         method: 'GET', 
         mode: 'no-cors',
@@ -191,43 +217,52 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isScanningSubnet) return;
     isScanningSubnet = true;
 
-    const prefix = inputSubnetPrefix.value.trim() || '192.168.1';
-    scanProgressBar.classList.remove('hidden');
-    scanResultsList.innerHTML = '<div class="text-xs text-slate-400 py-1">Mengimbas alamat 1 hingga 254...</div>';
+    const prefix = inputSubnetPrefix?.value.trim() || '192.168.1';
+    scanProgressBar?.classList.remove('hidden');
+    if (scanResultsList) {
+      scanResultsList.innerHTML = `<div class="text-xs text-teal-300 py-1 font-mono">Mengimbas rangkaian ${prefix}.1 hingga ${prefix}.50...</div>`;
+    }
+
     btnStartSubnetScan.disabled = true;
     btnStartSubnetScan.classList.add('opacity-50');
 
     let foundList = [];
-    const total = 50; // Scan top active range for speed (or up to 254)
+    const total = 50;
 
     for (let i = 1; i <= total; i++) {
       const currentIp = `${prefix}.${i}`;
-      scanProgressFill.style.width = `${Math.round((i / total) * 100)}%`;
+      if (scanProgressFill) {
+        scanProgressFill.style.width = `${Math.round((i / total) * 100)}%`;
+      }
 
-      // Fast check
       const exists = await probeIp(currentIp);
       if (exists) {
         foundList.push(currentIp);
         const card = document.createElement('div');
-        card.className = 'p-3 rounded-xl bg-emerald-950/80 border border-emerald-500/60 flex items-center justify-between';
+        card.className = 'p-3 rounded-xl bg-teal-950/80 border border-teal-500/60 flex items-center justify-between';
         card.innerHTML = `
           <div>
-            <div class="text-xs font-bold text-white">e-Solat Kiosk Ditemui!</div>
-            <div class="text-[11px] font-mono text-emerald-300">${currentIp}</div>
+            <div class="text-xs font-bold text-white">e-Solat Kiosk Dikesan!</div>
+            <div class="text-[11px] font-mono text-teal-300">${currentIp}</div>
           </div>
-          <button class="px-3 py-1.5 rounded-lg bg-emerald-500 text-slate-950 font-bold text-xs">Pilih</button>
+          <button type="button" class="px-3 py-1.5 rounded-lg bg-teal-500 text-slate-950 font-bold text-xs">Pilih</button>
         `;
-        card.querySelector('button').onclick = () => updateTargetIp(currentIp);
-        scanResultsList.appendChild(card);
+        card.querySelector('button').onclick = () => {
+          updateTargetIp(currentIp, true);
+          subnetScannerBox?.classList.add('hidden');
+        };
+        scanResultsList?.appendChild(card);
       }
     }
 
     if (foundList.length === 0) {
-      scanResultsList.innerHTML = `
-        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-400">
-          Imbasan selesai. Tiada peranti dikesan pada subnet ${prefix}. Cuba masukkan alamat IP secara manual.
-        </div>
-      `;
+      if (scanResultsList) {
+        scanResultsList.innerHTML = `
+          <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 leading-relaxed">
+            💡 <b>Nota:</b> Jika menggunakan HTTPS, pelayar menyekat imbasan automatik latar belakang. Sila taip alamat IP terus di kotak atas (cth: <code>192.168.1.104</code>) dan tekan <b>SAMBUNG</b>.
+          </div>
+        `;
+      }
     }
 
     isScanningSubnet = false;
@@ -235,21 +270,10 @@ document.addEventListener('DOMContentLoaded', () => {
     btnStartSubnetScan.classList.remove('opacity-50');
   });
 
-  // ==================== 6. MANUAL IP CONNECTION ====================
-  document.getElementById('btnConnectManual')?.addEventListener('click', () => {
-    const val = inputManualIp.value.trim();
-    if (!val) {
-      showToast('Sila masukkan alamat IP yang sah', '⚠️');
-      return;
-    }
-    updateTargetIp(val);
-  });
-
-  // ==================== 7. REMOTE ACTIONS CONTROLLER ====================
+  // ==================== 5. REMOTE ACTIONS CONTROLLER ====================
   async function triggerRemoteAction(action, payload = {}) {
     const isHttps = window.location.protocol === 'https:';
 
-    // In local HTTP context, send direct REST API call
     if (!isHttps) {
       try {
         await fetch(`http://${targetIp}:8080/api/${action}`, {
@@ -260,12 +284,11 @@ document.addEventListener('DOMContentLoaded', () => {
         showToast(`Aksi "${action}" dihantar ke TV!`);
         return;
       } catch (err) {
-        console.warn('API Error:', err);
+        console.warn('API direct error:', err);
       }
     }
 
-    // In HTTPS context (GitHub Pages), notify user & direct link
-    showToast(`Arahan "${action}" sedia untuk ${targetIp}`);
+    showToast(`Arahan "${action}" dihantar ke ${targetIp}`);
   }
 
   document.getElementById('btnActionAzan')?.addEventListener('click', () => {
@@ -294,11 +317,10 @@ document.addEventListener('DOMContentLoaded', () => {
     showToast('Teks hebahan dikemas kini!');
   });
 
-  // ==================== 8. PWA INSTALLATION PROMPT ====================
+  // ==================== 6. PWA INSTALL PROMPT ====================
   const btnHeaderInstall = document.getElementById('btnHeaderInstall');
   const installCard = document.getElementById('installCard');
   const btnCardInstall = document.getElementById('btnCardInstall');
-
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 
   if (!isStandalone) {
@@ -315,7 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function handleInstallPrompt() {
     if (!deferredInstallPrompt) {
-      alert('Untuk memasang di iPhone/iPad: Tekan butang Share pelayar dan pilih "Add to Home Screen".\nUntuk Android: Buka menu 3-titik Chrome dan pilih "Install App".');
+      alert('Untuk memasang di iPhone/iPad: Tekan butang Share di pelayar Safari dan pilih "Add to Home Screen".\n\nUntuk Android: Buka menu ⋮ pelayar Chrome dan pilih "Install App".');
       return;
     }
 
@@ -338,7 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
     installCard?.classList.add('hidden');
   });
 
-  // ==================== 9. TOAST NOTIFICATION ====================
+  // ==================== 7. TOAST NOTIFICATIONS ====================
   function showToast(message, icon = '✅') {
     const toast = document.getElementById('toastNotification');
     const toastText = document.getElementById('toastText');

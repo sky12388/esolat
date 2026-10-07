@@ -6,6 +6,8 @@
   "start_url": "/esolat/admin/index.html",
   "scope": "/esolat/admin/",
   "display": "standalone",
+  "display_override": ["standalone", "window-controls-overlay"],
+  "prefer_related_applications": false,
   "orientation": "portrait-primary",
   "background_color": "#0d1b2a",
   "theme_color": "#16a34a",

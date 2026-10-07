@@ -1,10 +1,18 @@
 /**
  * e-Solat Mobile Admin Service Worker
- * Version: 1.3.16
+ * Version: 1.3.16-pwa2
  * Provides ultra-reliable offline caching and PWA WebAPK installability.
  */
 
-const CACHE_NAME = 'esolat-admin-v1.3.16';
+const CACHE_NAME = 'esolat-admin-v1.3.16-pwa2';
+const ALLOWED_ORIGINS = [
+  'localhost',
+  '127.0.0.1',
+  '192.168.0.5',
+  'esolat.local',
+  'sky12388.github.io'
+];
+
 const ASSETS_TO_PRECACHE = [
   './',
   './index.html',
@@ -36,6 +44,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         keys.map((key) => {
           if (key !== CACHE_NAME) {
+            console.log('[SW] Purging old cache:', key);
             return caches.delete(key);
           }
         })
@@ -61,7 +70,7 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+        if (networkResponse && networkResponse.status === 200 && (networkResponse.type === 'basic' || ALLOWED_ORIGINS.some(o => url.hostname.includes(o)))) {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, responseToCache);
@@ -75,7 +84,7 @@ self.addEventListener('fetch', (event) => {
             return cachedResponse;
           }
           if (event.request.headers.get('accept')?.includes('text/html')) {
-            return caches.match('./index.html');
+            return caches.match('./index.html') || caches.match('./');
           }
         });
       })

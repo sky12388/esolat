@@ -2,7 +2,7 @@
  * Skywalker e-Solat Admin - Offline Service Worker
  */
 
-const CACHE_NAME = 'esolat-admin-v5';
+const CACHE_NAME = 'esolat-admin-v6';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',

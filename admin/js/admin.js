@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const topStatusDot = document.getElementById('topStatusDot');
   const topStatusText = document.getElementById('topStatusText');
   const badgeCurrentIp = document.getElementById('badgeCurrentIp');
-  const btnOpenFullAdmin = document.getElementById('btnOpenFullAdmin');
   const btnOpenStreamer = document.getElementById('btnOpenStreamer');
   const recentList = document.getElementById('recentList');
   const inputManualIp = document.getElementById('inputManualIp');
@@ -61,7 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Synchronize UI
     if (badgeCurrentIp) badgeCurrentIp.textContent = targetIp;
     if (inputManualIp) inputManualIp.value = targetIp;
-    if (btnOpenFullAdmin) btnOpenFullAdmin.href = `http://${targetIp}:8080/admin`;
     if (btnOpenStreamer) btnOpenStreamer.href = `../streamer/?ip=${encodeURIComponent(targetIp)}`;
 
     if (topStatusDot) {

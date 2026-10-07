@@ -1,8 +1,9 @@
 {
   "name": "Skywalker e-Solat Admin",
   "short_name": "e-Solat Admin",
-  "start_url": "/esolat/",
-  "scope": "/esolat/",
+  "id": "esolat-main-pwa",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#0d1b2a",
   "theme_color": "#16a34a",

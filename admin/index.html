@@ -20,6 +20,14 @@
   <!-- Local Offline QR Engine & HTML5 Camera Scanner -->
   <script src="js/qrcode.min.js"></script>
   <script src="js/html5-qrcode.min.js"></script>
+  <script>
+    window.__deferredInstallPrompt = null;
+    window.addEventListener('beforeinstallprompt', function(e) {
+      e.preventDefault();
+      window.__deferredInstallPrompt = e;
+      window.dispatchEvent(new CustomEvent('pwa-prompt-ready'));
+    });
+  </script>
 </head>
 <body>
 

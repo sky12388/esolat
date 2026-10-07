@@ -2668,38 +2668,50 @@ function startStatusPoller() {
 }
 
 // ==================== PWA WEBAPK / SERVICE WORKER REGISTRATION ====================
-let deferredInstallPrompt = null;
+let deferredInstallPrompt = window.__deferredInstallPrompt || null;
 
 function setupPWA() {
-  if ('serviceWorker' in navigator) {
-    // Unregister any legacy root-scoped service workers
-    navigator.serviceWorker.getRegistrations().then((registrations) => {
-      for (const reg of registrations) {
-        if (reg.scope.endsWith(':8080/') || reg.scope.endsWith('/')) {
-          if (!reg.scope.includes('/admin/')) {
-            reg.unregister();
-          }
-        }
-      }
-    }).catch(() => {});
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 
-    window.addEventListener('load', () => {
-      const swUrl = new URL('sw.js', window.location.href).href;
-      navigator.serviceWorker.register(swUrl)
-        .then((reg) => {
-          console.log('[PWA] Service Worker registered successfully with scope:', reg.scope);
-        })
-        .catch((err) => {
-          console.warn('[PWA] Service Worker registration failed:', err);
-        });
-    });
+  const registerServiceWorker = () => {
+    try {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          for (const reg of registrations) {
+            if (reg.scope.endsWith(':8080/') || reg.scope.endsWith('/')) {
+              if (!reg.scope.includes('/admin/')) {
+                reg.unregister();
+              }
+            }
+          }
+        }).catch(() => {});
+
+        const swUrl = new URL('sw.js', window.location.href).href;
+        navigator.serviceWorker.register(swUrl)
+          .then((reg) => {
+            console.log('[PWA] Service Worker registered successfully with scope:', reg.scope);
+          })
+          .catch((err) => {
+            console.warn('[PWA] Service Worker registration skipped or failed (non-fatal):', err);
+          });
+      }
+    } catch (e) {
+      console.warn('[PWA] Service Worker initialization error caught (non-fatal):', e);
+    }
+  };
+
+  try {
+    if (document.readyState === 'complete') {
+      registerServiceWorker();
+    } else {
+      window.addEventListener('load', registerServiceWorker);
+    }
+  } catch (e) {
+    console.warn('[PWA] SW register hook error:', e);
   }
 
-  // Handle Chrome / Android WebAPK install prompt
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredInstallPrompt = e;
-
+  const updateInstallUI = () => {
+    if (isStandalone) return;
     const btnTopInstall = document.getElementById('btnInstallPwa');
     const pwaBanner = document.getElementById('pwaInstallBanner');
     const loginPwaCard = document.getElementById('loginPwaInstallCard');
@@ -2709,33 +2721,55 @@ function setupPWA() {
     if (pwaBanner && !sessionStorage.getItem('dismissedPwaBanner')) {
       pwaBanner.style.display = 'block';
     }
+  };
+
+  // Check if prompt was already captured
+  if (window.__deferredInstallPrompt) {
+    deferredInstallPrompt = window.__deferredInstallPrompt;
+    updateInstallUI();
+  } else if (!isStandalone) {
+    // In browser mode, display install entry point
+    updateInstallUI();
+  }
+
+  window.addEventListener('pwa-prompt-ready', () => {
+    deferredInstallPrompt = window.__deferredInstallPrompt;
+    updateInstallUI();
+  });
+
+  // Handle Chrome / Android WebAPK install prompt
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    window.__deferredInstallPrompt = e;
+    updateInstallUI();
   });
 
   const triggerInstall = async () => {
-    if (!deferredInstallPrompt) {
-      // Fallback advice if already installed or on iOS
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-      if (isIOS) {
-        alert('Untuk memasang di iPhone/iPad:\n1. Tekan butang Share (Kongsi) di bawah pelayar Safari\n2. Pilih "Add to Home Screen" (Tambah ke Skrin Utama)');
-      } else {
-        alert('Untuk memasang aplikasi:\nTekan menu 3 titik di penjuru kanan atas pelayar Chrome anda dan pilih "Pasang aplikasi" (Install app) atau "Tambah ke Skrin Utama".');
+    const promptObj = deferredInstallPrompt || window.__deferredInstallPrompt;
+    if (promptObj) {
+      try {
+        promptObj.prompt();
+        const choiceResult = await promptObj.userChoice;
+        if (choiceResult.outcome === 'accepted') {
+          console.log('[PWA] User accepted the install prompt');
+          showToast('Aplikasi e-Solat Admin sedang dipasang ke skrin telefon anda!');
+        }
+        deferredInstallPrompt = null;
+        window.__deferredInstallPrompt = null;
+        return;
+      } catch (e) {
+        console.warn('[PWA] Prompt trigger error:', e);
       }
-      return;
     }
 
-    deferredInstallPrompt.prompt();
-    const choiceResult = await deferredInstallPrompt.userChoice;
-    if (choiceResult.outcome === 'accepted') {
-      console.log('[PWA] User accepted the install prompt');
-      showToast('Aplikasi e-Solat Admin sedang dipasang ke skrin telefon anda!');
+    // Fallback advice if browser does not support or throttles automatic prompt
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    if (isIOS) {
+      alert('📱 CARA MEMASANG DI iPHONE/iPAD:\n\n1. Tekan butang Share (Kongsi / Simbol Petak Beranak Panah) di bar bawah Safari.\n2. Skrol ke bawah dan pilih "Add to Home Screen" (Tambah ke Skrin Utama).\n3. Tekan "Add".');
+    } else {
+      alert('📱 CARA MEMASANG DI ANDROID / CHROME:\n\n1. Tekan butang menu 3-titik (⋮) di penjuru atas kanan pelayar.\n2. Pilih "Pasang aplikasi" (Install app) atau "Tambah ke Skrin Utama" (Add to Home screen).\n3. Sahkan untuk memasang ikon aplikasi e-Solat.');
     }
-    deferredInstallPrompt = null;
-    const btnTopInstall = document.getElementById('btnInstallPwa');
-    const pwaBanner = document.getElementById('pwaInstallBanner');
-    const loginPwaCard = document.getElementById('loginPwaInstallCard');
-    if (btnTopInstall) btnTopInstall.style.display = 'none';
-    if (pwaBanner) pwaBanner.style.display = 'none';
-    if (loginPwaCard) loginPwaCard.style.display = 'none';
   };
 
   const btnTopInstall = document.getElementById('btnInstallPwa');

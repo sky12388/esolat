@@ -2970,7 +2970,7 @@ function setupSmartPairingUI() {
   const currentHost = window.location.hostname;
   const currentPort = window.location.port || '8080';
   const currentOrigin = window.location.origin;
-  if (currentHost && currentHost !== 'localhost' && currentHost !== '127.0.0.1') {
+  if (currentHost && currentHost !== 'localhost' && currentHost !== '127.0.0.1' && !currentHost.includes('github.io')) {
     try {
       const targetStr = `${currentHost}:${currentPort}`;
       localStorage.setItem('last_connected_ip', targetStr);
@@ -3303,16 +3303,18 @@ function normalizeKioskUrl(target) {
   }
   try {
     const parsed = new URL(url);
-    if (!parsed.port && !target.includes(':')) {
+    if (!parsed.port && !target.includes(':') && !parsed.hostname.includes('github.io')) {
       parsed.port = '8080';
     }
-    if (!parsed.pathname || parsed.pathname === '/') {
-      parsed.pathname = '/admin';
+    if (!parsed.pathname || parsed.pathname === '/' || parsed.pathname === '') {
+      parsed.pathname = '/admin/';
+    } else if (!parsed.pathname.endsWith('/')) {
+      parsed.pathname = parsed.pathname + '/';
     }
     return parsed.toString();
   } catch (err) {
     if (!url.includes(':8080')) {
-      url = url.replace(/\/+$/, '') + ':8080/admin';
+      url = url.replace(/\/+$/, '') + ':8080/admin/';
     }
     return url;
   }
@@ -3323,15 +3325,19 @@ function connectToKioskTarget(target) {
   localStorage.setItem('last_connected_ip', target);
   showToast(`📡 Menyambung ke TV Kiosk: ${finalUrl}`);
 
+  // Direct top-level browser navigation to escape HTTPS boundary and avoid Mixed Content blocking
   try {
     const targetObj = new URL(finalUrl);
-    if (targetObj.host !== window.location.host) {
+    if (targetObj.host !== window.location.host || window.location.protocol === 'https:') {
       setTimeout(() => {
         window.location.href = finalUrl;
-      }, 500);
+      }, 300);
       return;
     }
-  } catch (e) {}
+  } catch (e) {
+    window.location.href = finalUrl;
+    return;
+  }
 
   showToast(`✅ Anda sudah berada pada pelayan ${target}!`);
 }

@@ -1065,13 +1065,9 @@
     // 1. Service Worker Registration
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/esolat/sw.js')
-          .then((reg) => console.log('SW Registered!', reg))
-          .catch((err) => {
-            navigator.serviceWorker.register('./sw.js')
-              .then((reg) => console.log('SW Registered (relative)!', reg))
-              .catch((e) => console.error('SW Fail:', e));
-          });
+        navigator.serviceWorker.register('./sw.js', { scope: './' })
+          .then((reg) => console.log('SW Registered!', reg.scope))
+          .catch((err) => console.error('SW Fail:', err));
       });
     }
 

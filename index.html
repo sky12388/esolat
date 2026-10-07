@@ -194,10 +194,10 @@
                 </p>
               </div>
             </div>
-            <a href="./pwa/" class="btn-pwa w-full sm:w-auto px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-950 flex items-center justify-center gap-2 shrink-0 hover:scale-105 transition duration-200">
-              <span>🚀</span>
-              <span>BUKA ADMIN APP</span>
-            </a>
+            <button id="btn-install-pwa" type="button" class="btn-pwa w-full sm:w-auto px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-950 flex items-center justify-center gap-2 shrink-0 hover:scale-105 transition duration-200 cursor-pointer">
+              <span>📥</span>
+              <span id="btn-install-pwa-text">PASANG ADMIN APP</span>
+            </button>
           </div>
         </div>
 
@@ -1062,6 +1062,7 @@
   <!-- Scripts -->
   <script src="./js/main.js"></script>
   <script>
+    // 1. Service Worker Registration
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/esolat/sw.js')
@@ -1073,6 +1074,66 @@
           });
       });
     }
+
+    // 2. PWA Install / Launch Button Logic
+    let deferredPrompt = null;
+    const installBtn = document.getElementById('btn-install-pwa');
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+    function updateInstallState() {
+      if (!installBtn) return;
+      if (isStandalone) {
+        installBtn.innerHTML = '<span>🚀</span> <span>BUKA ADMIN APP</span>';
+        installBtn.onclick = () => { window.location.href = './admin/'; };
+      } else {
+        installBtn.innerHTML = '<span>📥</span> <span>PASANG ADMIN APP</span>';
+      }
+    }
+
+    // Check standalone state immediately on load
+    updateInstallState();
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      if (installBtn && !isStandalone) {
+        installBtn.innerHTML = '<span>📥</span> <span>PASANG ADMIN APP</span>';
+      }
+    });
+
+    if (installBtn) {
+      installBtn.addEventListener('click', async () => {
+        if (isStandalone) {
+          window.location.href = './admin/';
+          return;
+        }
+
+        if (deferredPrompt) {
+          try {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+              console.log('PWA dipasang oleh pengguna');
+            }
+            deferredPrompt = null;
+          } catch (err) {
+            console.warn('[PWA] Prompt error:', err);
+            window.location.href = './admin/';
+          }
+        } else {
+          // Fallback jika pelayar tidak menyokong direct prompt (buka panel admin terus)
+          window.location.href = './admin/';
+        }
+      });
+    }
+
+    window.addEventListener('appinstalled', () => {
+      console.log('PWA berjaya dipasang');
+      if (installBtn) {
+        installBtn.innerHTML = '<span>🚀</span> <span>BUKA ADMIN APP</span>';
+        installBtn.onclick = () => { window.location.href = './admin/'; };
+      }
+    });
   </script>
 </body>
 </html>

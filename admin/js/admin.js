@@ -6,6 +6,15 @@
 
 let authToken = localStorage.getItem('esolat_token') || '';
 let apiBaseUrl = localStorage.getItem('esolat_api_base_url') || '';
+if (!apiBaseUrl) {
+  const lastIp = localStorage.getItem('last_connected_ip');
+  if (lastIp && !lastIp.includes('github.io')) {
+    let host = lastIp.trim().replace(/^https?:\/\//i, '').split('/')[0];
+    if (!host.includes(':')) host = `${host}:8080`;
+    apiBaseUrl = `http://${host}`;
+    localStorage.setItem('esolat_api_base_url', apiBaseUrl);
+  }
+}
 let currentSettings = {};
 let availableZones = [];
 
@@ -2637,7 +2646,7 @@ function startAdminClock() {
 
 async function syncAdminStatePoller() {
   try {
-    const s = await fetch('/api/state', { cache: 'no-store' }).then(r => r.json());
+    const s = await apiRequest('/api/state').catch(() => null);
     if (s) {
       if (s.ribbon_times) {
         adminPrayerTimes = s.ribbon_times;
@@ -2803,11 +2812,10 @@ async function updateNetworkInfo() {
   try {
     let net = null;
     try {
-      const res = await fetch('/api/system/network-info', { cache: 'no-store' });
-      if (res.ok) net = await res.json();
+      net = await apiRequest('/api/system/network-info').catch(() => null);
     } catch (_) {}
     if (!net) {
-      net = await fetch('/api/system/network', { cache: 'no-store' }).then(r => r.json());
+      net = await apiRequest('/api/system/network').catch(() => null);
     }
     cachedNetworkInfo = net;
     renderNetworkInfo(net);
@@ -3054,7 +3062,7 @@ function setupQuickControlsUI() {
       if (!confirm('Langkau kiraan undur dan laksanakan Iqamah / Mod Solat sekarang?')) return;
       try {
         if (navigator.vibrate) navigator.vibrate(200);
-        await fetch('/api/iqamah/now', { method: 'POST' });
+        await apiRequest('/api/iqamah/now', 'POST');
         showToast('⏱️ Iqamah diaktifkan! Paparan TV beralih ke mod solat serta-merta.');
       } catch (err) {
         showToast(`Ralat mencetuskan Iqamah: ${err.message}`, true);
@@ -3067,11 +3075,7 @@ function setupQuickControlsUI() {
     btnToggleSolat.addEventListener('click', async () => {
       try {
         if (!isSolatModeActive) {
-          await fetch('/api/system/test_state', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ state: 'SOLAT', duration: 900 })
-          });
+          await apiRequest('/api/system/test_state', 'POST', { state: 'SOLAT', duration: 900 });
           isSolatModeActive = true;
           btnToggleSolat.style.background = '#ef4444';
           btnToggleSolat.style.color = '#ffffff';
@@ -3079,7 +3083,7 @@ function setupQuickControlsUI() {
           btnToggleSolat.innerHTML = '<span>☀️</span><span>Kembalikan Skrin TV</span>';
           showToast('🌙 Mod Khusyuk / Skrin Gelap diaktifkan pada TV.');
         } else {
-          await fetch('/api/system/clear_test_state', { method: 'POST' });
+          await apiRequest('/api/system/clear_test_state', 'POST');
           isSolatModeActive = false;
           btnToggleSolat.style.background = 'rgba(251,191,36,0.08)';
           btnToggleSolat.style.color = '#fbbf24';
@@ -3097,11 +3101,7 @@ function setupQuickControlsUI() {
   if (btnTestAudio) {
     btnTestAudio.addEventListener('click', async () => {
       try {
-        await fetch('/api/audio/test_kiosk', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sound: 'pre_adhan' })
-        });
+        await apiRequest('/api/audio/test_kiosk', 'POST', { sound: 'pre_adhan' });
         showToast('🔔 Isyarat audio ujian dimainkan pada pembesar suara TV.');
       } catch (err) {
         showToast(`Ralat ujian audio: ${err.message}`, true);
@@ -3270,19 +3270,8 @@ function setupInstantTestModeUI() {
       btn.style.opacity = '0.6';
 
       try {
-        const headers = { 'Content-Type': 'application/json' };
-        if (authToken) {
-          headers['Authorization'] = `Bearer ${authToken}`;
-        }
-
-        const res = await fetch('/api/simulate-trigger', {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({ action: action, prayer: 'Zohor' })
-        });
-
-        const data = await res.json();
-        if (data.success) {
+        const data = await apiRequest('/api/simulate-trigger', 'POST', { action: action, prayer: 'Zohor' });
+        if (data && data.success) {
           showToast(data.message || `Ujian '${action}' berjaya dihantar ke TV.`);
           // Inter-tab BroadcastChannel and storage sync
           broadcastAdminSync('SIMULATE_TRIGGER', { action });
@@ -3290,7 +3279,7 @@ function setupInstantTestModeUI() {
             localStorage.setItem('esolat_sim_trigger', JSON.stringify({ action, ts: Date.now() }));
           } catch (_) {}
         } else {
-          showToast(data.message || 'Gagal menghantar arahan simulasi.', true);
+          showToast(data?.message || 'Gagal menghantar arahan simulasi.', true);
         }
       } catch (err) {
         showToast(`Ralat komunikasi simulasi: ${err.message}`, true);
@@ -3558,7 +3547,7 @@ async function loadHardwareDiagnostics(fullScan = false) {
 
   try {
     const endpoint = fullScan ? '/api/system/diagnostics/all' : '/api/system/diagnostics/hardware';
-    const res = await fetch(endpoint).then(r => r.json());
+    const res = await apiRequest(endpoint);
     renderDiagnostics(res);
     diagnosticsLoaded = true;
     if (fullScan) {
@@ -3586,9 +3575,9 @@ async function scanNetworkOnly() {
   }
 
   try {
-    const res = await fetch('/api/system/diagnostics/network').then(r => r.json());
-    renderNetworkScan(res.network_devices || []);
-    showToast(`✅ Imbasan selesai: ${res.total_found || 0} peranti dikesan.`);
+    const res = await apiRequest('/api/system/diagnostics/network');
+    renderNetworkScan(res?.network_devices || []);
+    showToast(`✅ Imbasan selesai: ${res?.total_found || 0} peranti dikesan.`);
   } catch (err) {
     showToast(`Ralat imbasan IP: ${err.message}`, true);
   } finally {
@@ -3742,14 +3731,10 @@ function renderNetworkScan(devices) {
 window.applyCameraIp = async function(ip) {
   const rtspUrl = `rtsp://admin:password@${ip}:554/live/ch0`;
   try {
-    const res = await fetch('/api/settings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        camera_source_type: 'rtsp',
-        camera_rtsp_url: rtspUrl
-      })
-    }).then(r => r.json());
+    await apiRequest('/api/settings', 'POST', {
+      camera_source_type: 'rtsp',
+      camera_rtsp_url: rtspUrl
+    });
     showToast(`🎥 Kamera RTSP (${ip}) berjaya ditetapkan untuk rakaman e-Solat!`);
   } catch (err) {
     showToast(`Ralat menetapkan kamera: ${err.message}`, true);

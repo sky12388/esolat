@@ -5,8 +5,17 @@
  */
 
 let authToken = localStorage.getItem('esolat_token') || '';
+let apiBaseUrl = localStorage.getItem('esolat_api_base_url') || '';
 let currentSettings = {};
 let availableZones = [];
+
+function resolveApiUrl(endpoint) {
+  if (endpoint.startsWith('http://') || endpoint.startsWith('https://')) {
+    return endpoint;
+  }
+  const base = apiBaseUrl || '';
+  return `${base}${endpoint}`;
+}
 
 // ==================== UTILS & TOASTS ====================
 function showToast(message, isError = false) {
@@ -28,9 +37,6 @@ function broadcastAdminSync(type = 'SETTINGS_UPDATED', payload = {}) {
 }
 
 function formatNetworkErrorMessage(err) {
-  if (window.location.protocol === 'https:') {
-    return 'Pelayar menyekat sambungan HTTP tempatan (Mixed Content / HTTPS-ke-HTTP). Sila buka terus URL Tempatan LAN: http://[IP_PC]:8080/admin pada peranti anda.';
-  }
   return `Gagal berhubung ke pelayan e-Solat (${err.message || 'Network Error'}). Sila pastikan PC Kiosk hidup dan peranti berada dalam satu rangkaian Wi-Fi yang sama (Port 8080).`;
 }
 
@@ -40,13 +46,15 @@ async function apiRequest(endpoint, method = 'GET', body = null) {
     headers['Authorization'] = `Bearer ${authToken}`;
   }
 
-  const options = { method, headers };
+  const options = { method, headers, mode: 'cors' };
   if (body) {
     options.body = JSON.stringify(body);
   }
 
+  const fullUrl = resolveApiUrl(endpoint);
+
   try {
-    const res = await fetch(endpoint, options);
+    const res = await fetch(fullUrl, options);
     const data = await res.json();
     if (!res.ok) {
       if (res.status === 401) {
@@ -56,9 +64,6 @@ async function apiRequest(endpoint, method = 'GET', body = null) {
     }
     return data;
   } catch (err) {
-    if (window.location.protocol === 'https:') {
-      console.warn('Mixed Content Warning: Direct HTTP fetch from HTTPS origin is blocked by modern browsers.');
-    }
     throw err;
   }
 }
@@ -103,8 +108,10 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   if (alertEl) alertEl.style.display = 'none';
 
   try {
-    const res = await fetch('/api/auth/login', {
+    const loginUrl = resolveApiUrl('/api/auth/login');
+    const res = await fetch(loginUrl, {
       method: 'POST',
+      mode: 'cors',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
     });
@@ -3320,26 +3327,33 @@ function normalizeKioskUrl(target) {
   }
 }
 
-function connectToKioskTarget(target) {
-  const finalUrl = normalizeKioskUrl(target);
-  localStorage.setItem('last_connected_ip', target);
-  showToast(`📡 Menyambung ke TV Kiosk: ${finalUrl}`);
+async function connectToKioskTarget(target) {
+  let host = target.trim().replace(/^https?:\/\//i, '').split('/')[0];
+  if (!host.includes(':')) host = `${host}:8080`;
+  const base = `http://${host}`;
 
-  // Direct top-level browser navigation to escape HTTPS boundary and avoid Mixed Content blocking
+  showToast(`📡 Menyambung ke TV Kiosk (${host})...`);
+  apiBaseUrl = base;
+  localStorage.setItem('esolat_api_base_url', base);
+  localStorage.setItem('last_connected_ip', host);
+
   try {
-    const targetObj = new URL(finalUrl);
-    if (targetObj.host !== window.location.host || window.location.protocol === 'https:') {
-      setTimeout(() => {
-        window.location.href = finalUrl;
-      }, 300);
+    const res = await fetch(`${base}/api/state`, { method: 'GET', mode: 'cors' });
+    if (res.ok) {
+      showToast(`✅ Berjaya disambung ke TV Surau (${host})!`);
+      const me = await apiRequest('/api/auth/me').catch(() => null);
+      if (me && me.authenticated) {
+        document.getElementById('loginModal').style.display = 'none';
+        document.getElementById('appContainer').style.display = 'flex';
+        initApp();
+      }
       return;
     }
-  } catch (e) {
-    window.location.href = finalUrl;
-    return;
+  } catch (err) {
+    console.warn('[Connect warning]', err);
   }
 
-  showToast(`✅ Anda sudah berada pada pelayan ${target}!`);
+  showToast(`📡 Sasaran TV ditetapkan ke ${host}. Sila log masuk.`);
 }
 
 // ==================== CAMERA QR SCANNER ENGINE ====================

@@ -53,7 +53,7 @@
     <div class="max-w-7xl mx-auto flex items-center justify-center gap-3 flex-wrap">
       <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-black bg-amber-400 text-slate-950">📲 ADMIN APP</span>
       <span><b>Admin App (PWA):</b> Imbas IP Surau &amp; kawal TV terus dari telefon anda!</span>
-      <a href="./pwa/" class="btn-pwa font-black text-amber-300 underline hover:text-white transition">🚀 Buka Admin App &rarr;</a>
+      <a href="./admin/" class="btn-pwa font-black text-amber-300 underline hover:text-white transition">🚀 Buka Admin App &rarr;</a>
       <span class="hidden md:inline text-emerald-600">|</span>
       <a href="./manual/" class="text-amber-300 font-bold hover:text-white transition flex items-center gap-1">📖 Panduan Pengguna AJK</a>
       <span class="hidden md:inline text-emerald-600">|</span>
@@ -96,7 +96,7 @@
 
       <!-- Desktop CTA -->
       <div class="hidden lg:flex items-center gap-3">
-        <a href="./pwa/" class="btn-pwa inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-xs bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 border border-emerald-300 shadow-lg shadow-emerald-950/80 hover:scale-105 transition duration-200">
+        <a href="./admin/" class="btn-pwa inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-xs bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 border border-emerald-300 shadow-lg shadow-emerald-950/80 hover:scale-105 transition duration-200">
           <span>📲</span>
           <span>Admin App (PWA)</span>
         </a>
@@ -121,7 +121,7 @@
 
     <!-- Mobile Nav Menu (Hidden by default) -->
     <div id="mobileNavMenu" class="hidden md:hidden px-4 pt-2 pb-6 bg-slate-900/95 border-b border-slate-800 space-y-3">
-      <a href="./pwa/" class="btn-pwa block w-full text-center py-3 rounded-xl font-black bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 shadow-lg text-sm">
+      <a href="./admin/" class="btn-pwa block w-full text-center py-3 rounded-xl font-black bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 shadow-lg text-sm">
         📲 Buka &amp; Pasang Admin App (PWA)
       </a>
       <a href="./manual/" class="block w-full text-center py-2.5 rounded-xl font-bold bg-amber-500/20 text-amber-300 border border-amber-400/40 text-sm">
@@ -1080,7 +1080,7 @@
       if (!installBtn) return;
       if (isStandalone) {
         installBtn.innerHTML = '<span>🚀</span> <span>BUKA ADMIN REMOTE</span>';
-        installBtn.onclick = () => { window.location.href = './pwa/'; };
+        installBtn.onclick = () => { window.location.href = './admin/'; };
       } else {
         installBtn.innerHTML = '<span>📥</span> <span>PASANG ADMIN APP</span>';
       }
@@ -1100,7 +1100,7 @@
     if (installBtn) {
       installBtn.addEventListener('click', async () => {
         if (isStandalone) {
-          window.location.href = './pwa/';
+          window.location.href = './admin/';
           return;
         }
 
@@ -1114,10 +1114,10 @@
             deferredPrompt = null;
           } catch (err) {
             console.warn('[PWA] Prompt error:', err);
-            window.location.href = './pwa/';
+            window.location.href = './admin/';
           }
         } else {
-          window.location.href = './pwa/';
+          window.location.href = './admin/';
         }
       });
     }
@@ -1126,7 +1126,7 @@
       console.log('PWA berjaya dipasang');
       if (installBtn) {
         installBtn.innerHTML = '<span>🚀</span> <span>BUKA ADMIN REMOTE</span>';
-        installBtn.onclick = () => { window.location.href = './pwa/'; };
+        installBtn.onclick = () => { window.location.href = './admin/'; };
       }
     });
   </script>

@@ -255,6 +255,69 @@
             </div>
           </div>
 
+          <!-- ==================== ALAT UJIAN PAPARAN & AUDIO TV (SIMULASI INSTANT TEST MODE) ==================== -->
+          <div class="section-card simulation-test-card" style="margin-top: 1rem; background: linear-gradient(135deg, rgba(30,58,138,0.25), rgba(15,23,42,0.95)); border: 1px solid rgba(59,130,246,0.4); border-radius: 14px; padding: 1rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-size: 1.25rem;">🛠️</span>
+                <h3 style="font-size: 0.95rem; font-weight: 800; color: #60a5fa; margin: 0;">Alat Ujian Paparan &amp; Audio TV (Simulasi)</h3>
+              </div>
+              <span class="badge" style="background: rgba(59,130,246,0.2); color: #60a5fa; border: 1px solid rgba(59,130,246,0.4); padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.72rem; font-weight: 700;">
+                INSTANT TEST MODE
+              </span>
+            </div>
+            <p class="card-desc" style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 0.75rem;">
+              Uji keseluruhan skrin paparan TV dan jujukan audio (notifikasi beep, azan penuh, skrin doa, iqamah pantas, dan beep saf) secara langsung dari telefon pintar tanpa menunggu waktu solat sebenar.
+            </p>
+
+            <!-- Action Buttons Grid (2-Column Mobile Friendly) -->
+            <div class="sim-buttons-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.6rem;">
+              <!-- 1. Beep 7s -->
+              <button type="button" class="btn btn-outline btn-sim-action" data-action="beep_warning" style="min-height: 50px; padding: 0.6rem 0.75rem; font-size: 0.82rem; font-weight: 700; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 0.4rem; text-align: center; border-color: #f59e0b; color: #fbbf24; background: rgba(245,158,11,0.08);">
+                <span style="font-size: 1.15rem;">🔔</span>
+                <span>Uji Beep Masuk Waktu (7s)</span>
+              </button>
+
+              <!-- 2. Azan MP3 -->
+              <button type="button" class="btn btn-outline btn-sim-action" data-action="adhan" style="min-height: 50px; padding: 0.6rem 0.75rem; font-size: 0.82rem; font-weight: 700; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 0.4rem; text-align: center; border-color: #10b981; color: #34d399; background: rgba(16,185,129,0.08);">
+                <span style="font-size: 1.15rem;">📢</span>
+                <span>Uji Azan MP3 (Penuh)</span>
+              </button>
+
+              <!-- 3. Skrin Doa -->
+              <button type="button" class="btn btn-outline btn-sim-action" data-action="doa" style="min-height: 50px; padding: 0.6rem 0.75rem; font-size: 0.82rem; font-weight: 700; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 0.4rem; text-align: center; border-color: #38bdf8; color: #38bdf8; background: rgba(56,189,248,0.08);">
+                <span style="font-size: 1.15rem;">🤲</span>
+                <span>Uji Skrin Doa Azan</span>
+              </button>
+
+              <!-- 4. Iqamah Pantas 10s -->
+              <button type="button" class="btn btn-outline btn-sim-action" data-action="iqamah_fast" style="min-height: 50px; padding: 0.6rem 0.75rem; font-size: 0.82rem; font-weight: 700; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 0.4rem; text-align: center; border-color: #a855f7; color: #c084fc; background: rgba(168,85,247,0.08);">
+                <span style="font-size: 1.15rem;">⏳</span>
+                <span>Uji Iqamah Cepat (10s)</span>
+              </button>
+
+              <!-- 5. Beep Saf 3x -->
+              <button type="button" class="btn btn-outline btn-sim-action" data-action="saf_beep" style="min-height: 50px; padding: 0.6rem 0.75rem; font-size: 0.82rem; font-weight: 700; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 0.4rem; text-align: center; border-color: #ec4899; color: #f472b6; background: rgba(236,72,153,0.08);">
+                <span style="font-size: 1.15rem;">📐</span>
+                <span>Uji Saf (Beep 3x)</span>
+              </button>
+
+              <!-- 6. Demo Penuh 30s -->
+              <button type="button" class="btn btn-primary btn-sim-action" data-action="demo_full" style="min-height: 50px; padding: 0.6rem 0.75rem; font-size: 0.82rem; font-weight: 800; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 0.4rem; text-align: center; background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 12px rgba(37,99,235,0.3);">
+                <span style="font-size: 1.15rem;">▶️</span>
+                <span>Jalankan Demo Penuh (30s)</span>
+              </button>
+            </div>
+
+            <!-- Reset / Cancel button (Red Warning Button across full width) -->
+            <div style="margin-top: 0.75rem;">
+              <button type="button" class="btn btn-danger btn-sim-action" data-action="stop" style="width: 100%; min-height: 46px; padding: 0.6rem 1rem; font-size: 0.85rem; font-weight: 800; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: linear-gradient(135deg, #dc2626, #991b1b); border: 1px solid #ef4444; color: #ffffff; box-shadow: 0 4px 14px rgba(220,38,38,0.35);">
+                <span style="font-size: 1.1rem;">⏹️</span>
+                <span>HENTIKAN UJIAN / RESET SKRIN TV</span>
+              </button>
+            </div>
+          </div>
+
           <!-- ==================== MOD SIARAN KULIAH LIVE SURAU ==================== -->
           <div class="section-card lecture-live-card" style="margin-top: 1rem; border: 1px solid rgba(239, 68, 68, 0.4); background: linear-gradient(135deg, rgba(127, 29, 29, 0.25), rgba(15, 23, 42, 0.95)); border-radius: 14px; padding: 1rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;">
@@ -2004,6 +2067,56 @@
           </div>
         </div>
 
+        <!-- ==================== ALAT UJIAN PAPARAN & AUDIO TV (SIMULASI INSTANT TEST MODE) ==================== -->
+        <div class="section-card simulation-test-card" style="background: linear-gradient(135deg, rgba(30,58,138,0.25), rgba(15,23,42,0.95)); border: 1px solid rgba(59,130,246,0.4); border-radius: 14px; padding: 1rem; margin-bottom: 1.25rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="font-size: 1.25rem;">🛠️</span>
+              <h3 style="font-size: 0.95rem; font-weight: 800; color: #60a5fa; margin: 0;">Ujian Simulasi Jujukan Waktu Solat</h3>
+            </div>
+            <span class="badge" style="background: rgba(59,130,246,0.2); color: #60a5fa; border: 1px solid rgba(59,130,246,0.4); padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.72rem; font-weight: 700;">
+              INSTANT TEST MODE
+            </span>
+          </div>
+          <p class="card-desc" style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 0.75rem;">
+            Uji keseluruhan transisi paparan dan bunyi notifikasi TV Kiosk secara terus:
+          </p>
+
+          <div class="sim-buttons-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.6rem;">
+            <button type="button" class="btn btn-outline btn-sim-action" data-action="beep_warning" style="min-height: 50px; padding: 0.6rem 0.75rem; font-size: 0.82rem; font-weight: 700; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 0.4rem; text-align: center; border-color: #f59e0b; color: #fbbf24; background: rgba(245,158,11,0.08);">
+              <span style="font-size: 1.15rem;">🔔</span>
+              <span>Uji Beep Masuk Waktu (7s)</span>
+            </button>
+            <button type="button" class="btn btn-outline btn-sim-action" data-action="adhan" style="min-height: 50px; padding: 0.6rem 0.75rem; font-size: 0.82rem; font-weight: 700; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 0.4rem; text-align: center; border-color: #10b981; color: #34d399; background: rgba(16,185,129,0.08);">
+              <span style="font-size: 1.15rem;">📢</span>
+              <span>Uji Main Azan Penuh</span>
+            </button>
+            <button type="button" class="btn btn-outline btn-sim-action" data-action="doa" style="min-height: 50px; padding: 0.6rem 0.75rem; font-size: 0.82rem; font-weight: 700; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 0.4rem; text-align: center; border-color: #38bdf8; color: #38bdf8; background: rgba(56,189,248,0.08);">
+              <span style="font-size: 1.15rem;">🤲</span>
+              <span>Uji Skrin Doa Azan</span>
+            </button>
+            <button type="button" class="btn btn-outline btn-sim-action" data-action="iqamah_fast" style="min-height: 50px; padding: 0.6rem 0.75rem; font-size: 0.82rem; font-weight: 700; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 0.4rem; text-align: center; border-color: #a855f7; color: #c084fc; background: rgba(168,85,247,0.08);">
+              <span style="font-size: 1.15rem;">⏳</span>
+              <span>Uji Iqamah Cepat (10s)</span>
+            </button>
+            <button type="button" class="btn btn-outline btn-sim-action" data-action="saf_beep" style="min-height: 50px; padding: 0.6rem 0.75rem; font-size: 0.82rem; font-weight: 700; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 0.4rem; text-align: center; border-color: #ec4899; color: #f472b6; background: rgba(236,72,153,0.08);">
+              <span style="font-size: 1.15rem;">📐</span>
+              <span>Uji Saf (Beep 3x)</span>
+            </button>
+            <button type="button" class="btn btn-primary btn-sim-action" data-action="demo_full" style="min-height: 50px; padding: 0.6rem 0.75rem; font-size: 0.82rem; font-weight: 800; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 0.4rem; text-align: center; background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 12px rgba(37,99,235,0.3);">
+              <span style="font-size: 1.15rem;">▶️</span>
+              <span>Jalankan Demo Penuh (30s)</span>
+            </button>
+          </div>
+
+          <div style="margin-top: 0.75rem;">
+            <button type="button" class="btn btn-danger btn-sim-action" data-action="stop" style="width: 100%; min-height: 46px; padding: 0.6rem 1rem; font-size: 0.85rem; font-weight: 800; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: linear-gradient(135deg, #dc2626, #991b1b); border: 1px solid #ef4444; color: #ffffff; box-shadow: 0 4px 14px rgba(220,38,38,0.35);">
+              <span style="font-size: 1.1rem;">⏹️</span>
+              <span>HENTIKAN UJIAN / RESET SKRIN TV</span>
+            </button>
+          </div>
+        </div>
+
         <!-- 1. Network IP & RTSP Camera Scanner Card -->
         <div class="section-card">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
@@ -2457,6 +2570,6 @@
   <!-- Toast Notification Container -->
   <div id="toastContainer" class="toast-container"></div>
 
-  <script src="js/admin.js?v=1.3.15"></script>
+  <script src="js/admin.js?v=1.3.16"></script>
 </body>
 </html>

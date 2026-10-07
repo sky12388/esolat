@@ -1,9 +1,9 @@
 /**
  * Skywalker e-Solat Remote Controller - Service Worker
- * Version: 1.3.15
+ * Version: 1.3.16
  */
 
-const CACHE_NAME = 'esolat-remote-pwa-v1.3.15';
+const CACHE_NAME = 'esolat-remote-pwa-v1.3.16';
 const ASSETS_TO_PRECACHE = [
   './',
   './index.html',

@@ -1,20 +1,22 @@
 /**
  * e-Solat Mobile Admin Service Worker
- * Version: 1.3.15
+ * Version: 1.3.16
  * Provides ultra-reliable offline caching and PWA WebAPK installability.
  */
 
-const CACHE_NAME = 'esolat-admin-v1.3.15';
+const CACHE_NAME = 'esolat-admin-v1.3.16';
 const ASSETS_TO_PRECACHE = [
   './',
   './index.html',
   './css/admin.css',
-  './js/admin.js?v=1.3.15',
+  './js/admin.js?v=1.3.16',
   './js/qrcode.min.js',
   './js/html5-qrcode.min.js',
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png',
+  './icons/icon-maskable-512.png',
+  './icons/apple-touch-icon.png',
   './icons/favicon.png'
 ];
 

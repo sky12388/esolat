@@ -3215,6 +3215,53 @@ function setupQuickControlsUI() {
   }
 }
 
+// ==================== INSTANT TEST MODE & SIMULATOR UI ====================
+function setupInstantTestModeUI() {
+  document.querySelectorAll('.btn-sim-action').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const action = btn.getAttribute('data-action');
+      if (!action) return;
+
+      if (navigator.vibrate) navigator.vibrate(50);
+
+      const originalOpacity = btn.style.opacity || '1';
+      btn.style.opacity = '0.6';
+
+      try {
+        const headers = { 'Content-Type': 'application/json' };
+        if (authToken) {
+          headers['Authorization'] = `Bearer ${authToken}`;
+        }
+
+        const res = await fetch('/api/simulate-trigger', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ action: action, prayer: 'Zohor' })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message || `Ujian '${action}' berjaya dihantar ke TV.`);
+          // Inter-tab BroadcastChannel and storage sync
+          broadcastAdminSync('SIMULATE_TRIGGER', { action });
+          try {
+            localStorage.setItem('esolat_sim_trigger', JSON.stringify({ action, ts: Date.now() }));
+          } catch (_) {}
+        } else {
+          showToast(data.message || 'Gagal menghantar arahan simulasi.', true);
+        }
+      } catch (err) {
+        showToast(`Ralat komunikasi simulasi: ${err.message}`, true);
+      } finally {
+        setTimeout(() => {
+          btn.style.opacity = originalOpacity;
+        }, 350);
+      }
+    });
+  });
+}
+
 function normalizeKioskUrl(target) {
   let url = target.trim();
   if (!url.startsWith('http://') && !url.startsWith('https://')) {
@@ -4145,6 +4192,7 @@ window.addEventListener('DOMContentLoaded', () => {
   setupNetworkBroadcastUI();
   setupSmartPairingUI();
   setupQuickControlsUI();
+  setupInstantTestModeUI();
   setupQrScannerUI();
   setupDiagnosticsUI();
   setupKuliahCameraLiveUI();

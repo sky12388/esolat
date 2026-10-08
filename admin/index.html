@@ -16,10 +16,13 @@
   <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png">
 
-  <!-- Google Fonts & Tailwind CSS -->
+  <!-- Self-Contained Stylesheet -->
+  <link rel="stylesheet" href="./css/admin.css">
+
+  <!-- Google Fonts & Tailwind CSS (CDN Enhanced) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
 
   <script>
@@ -27,7 +30,7 @@
       theme: {
         extend: {
           fontFamily: {
-            sans: ['Outfit', 'sans-serif'],
+            sans: ['Outfit', 'Inter', 'sans-serif'],
             mono: ['Space Grotesk', 'monospace']
           },
           colors: {
@@ -40,6 +43,11 @@
   </script>
 
   <style>
+    body {
+      background: radial-gradient(circle at center, #0f2027, #081216, #020608) !important;
+      color: #ffffff !important;
+      min-height: 100vh !important;
+    }
     .btn-connect-fix {
       white-space: nowrap !important;
       flex-shrink: 0 !important;

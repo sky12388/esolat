@@ -1,6 +1,8 @@
 {
+  "id": "skywalker-esolat-gateway",
   "name": "Skywalker e-Solat Remote",
   "short_name": "e-Solat Remote",
+  "version": "1.3.17",
   "description": "Panel Kawalan & Pengurusan Kiosk e-Solat Surau & Masjid Tanpa Wayar",
   "start_url": "./index.html?mode=standalone",
   "scope": "./",

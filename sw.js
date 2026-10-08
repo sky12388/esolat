@@ -1,9 +1,9 @@
 /**
  * Skywalker e-Solat Landing Page & PWA Gateway Service Worker
- * Version: 1.3.16-gateway
+ * Version: 1.3.17-gateway
  */
 
-const CACHE_NAME = 'esolat-gateway-v1.3.16';
+const CACHE_NAME = 'esolat-gateway-v1.3.17';
 const ASSETS_TO_PRECACHE = [
   './',
   './index.html',
@@ -13,6 +13,12 @@ const ASSETS_TO_PRECACHE = [
   './icons/icon-512.png',
   './icons/apple-touch-icon.png'
 ];
+
+self.addEventListener('message', (event) => {
+  if (event.data && (event.data.type === 'SKIP_WAITING' || event.data === 'skipWaiting')) {
+    self.skipWaiting();
+  }
+});
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

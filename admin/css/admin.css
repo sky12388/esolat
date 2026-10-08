@@ -581,88 +581,94 @@ textarea {
   font-weight: 600;
 }
 
-/* ==================== BOTTOM NAVIGATION (100% FULL WIDTH FIT) ==================== */
+/* ==================== STICKY BOTTOM NAVIGATION BAR ==================== */
+.bottom-nav-bar,
 .bottom-nav {
-  position: absolute;
-  bottom: 0;
-  left: 0;
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
   width: 100% !important;
   max-width: 100% !important;
-  min-height: 76px;
-  height: calc(76px + var(--safe-bottom));
-  background: #090e1a;
-  border-top: 2px solid rgba(251, 191, 36, 0.35);
+  height: 65px !important;
+  min-height: 65px !important;
+  background: #09141c !important;
+  border-top: 1px solid rgba(22, 163, 74, 0.3) !important;
   display: flex !important;
-  align-items: center !important;
   justify-content: space-around !important;
-  z-index: 50;
-  box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.7);
+  align-items: center !important;
+  z-index: 9999 !important;
+  box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.5) !important;
+  padding-bottom: env(safe-area-inset-bottom) !important;
   box-sizing: border-box !important;
-  padding: 6px 4px max(8px, var(--safe-bottom)) 4px !important;
-  overflow: hidden;
 }
 
 .nav-item {
-  background: none;
-  border: none;
-  border-top: 3px solid transparent;
-  color: #fbbf24;
-  flex: 1 1 0 !important;
-  width: auto !important;
-  min-width: 0 !important;
-  height: 100%;
+  background: none !important;
+  border: none !important;
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
   justify-content: center !important;
-  text-align: center !important;
-  padding: 4px 2px !important;
-  cursor: pointer;
-  transition: all 0.15s ease-in-out;
-  text-decoration: none;
-  box-sizing: border-box;
+  color: #94a3b8 !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  flex: 1 !important;
+  padding: 6px 0 !important;
+  transition: all 0.2s !important;
+  text-decoration: none !important;
+  box-sizing: border-box !important;
 }
 
-.nav-icon {
-  font-size: 1.55rem !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  margin-bottom: 4px !important;
+.nav-item .nav-icon {
+  font-size: 18px !important;
+  margin-bottom: 2px !important;
+  transition: transform 0.2s ease !important;
 }
 
-.nav-text {
-  font-size: clamp(0.72rem, 1.8vw, 0.95rem) !important;
-  font-weight: 700 !important;
-  color: #fbbf24 !important;
-  letter-spacing: -0.2px;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  width: 100% !important;
-  line-height: 1.15;
-}
-
-.nav-item:hover {
-  background: rgba(251, 191, 36, 0.08);
+.nav-item .nav-label,
+.nav-item .nav-text {
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  color: inherit !important;
+  line-height: 1.1 !important;
 }
 
 .nav-item.active {
-  color: #fef08a !important;
-  border-top: 3px solid #facc15 !important;
-  background: rgba(250, 204, 21, 0.12) !important;
+  color: #22c55e !important;
+  font-weight: 700 !important;
 }
 
 .nav-item.active .nav-icon {
-  transform: translateY(-2px);
-  filter: drop-shadow(0 0 8px rgba(250, 204, 21, 0.7));
+  transform: scale(1.15) !important;
 }
 
+.nav-item.active .nav-label,
 .nav-item.active .nav-text {
-  color: #fef08a !important;
-  font-weight: 800 !important;
-  text-shadow: 0 0 10px rgba(254, 240, 138, 0.6) !important;
+  color: #22c55e !important;
+  font-weight: 700 !important;
+}
+
+.nav-item:hover {
+  background: rgba(34, 197, 94, 0.08) !important;
+}
+
+.nav-item.active {
+  color: #22c55e !important;
+  background: rgba(34, 197, 94, 0.12) !important;
+  border-radius: 8px;
+}
+
+.nav-item.active .nav-icon {
+  transform: scale(1.15) !important;
+  filter: drop-shadow(0 0 6px rgba(34, 197, 94, 0.5));
+}
+
+.nav-item.active .nav-label,
+.nav-item.active .nav-text {
+  color: #22c55e !important;
+  font-weight: 700 !important;
 }
 
 /* ==================== TOASTS ==================== */

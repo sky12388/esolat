@@ -67,35 +67,116 @@ function handleUnauthorized() {
   authToken = '';
   localStorage.removeItem('esolat_token');
   document.getElementById('appContainer').style.display = 'none';
-  document.getElementById('loginModal').style.display = 'flex';
+  checkPwaWorkflowMode();
   initLandingPageInputs();
+}
+
+// ==================== WORKFLOW: ALIRAN 1 (BROWSER) VS ALIRAN 2 (PWA STANDALONE) ====================
+let deferredInstallPrompt = null;
+
+function checkPwaWorkflowMode() {
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                       window.navigator.standalone === true ||
+                       document.referrer.includes('android-app://');
+  const isOnlineHub = (window.location.hostname === 'sky12388.github.io');
+  const browserInstallModal = document.getElementById('browserInstallModal');
+  const loginModal = document.getElementById('loginModal');
+  const appContainer = document.getElementById('appContainer');
+
+  if (isOnlineHub && !isStandalone) {
+    // ALIRAN 1: LAMAN WEB PELAYAR (BUKAN MOD STANDALONE)
+    if (browserInstallModal) browserInstallModal.style.display = 'flex';
+    if (loginModal) loginModal.style.display = 'none';
+    if (appContainer) appContainer.style.display = 'none';
+    setupBrowserInstallCard();
+    return false;
+  } else {
+    // ALIRAN 2: NATIVE PWA / STANDALONE / PERSEKITARAN TEMPATAN
+    if (browserInstallModal) browserInstallModal.style.display = 'none';
+    return true;
+  }
+}
+
+function setupBrowserInstallCard() {
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    const btnBig = document.getElementById('btnPwaBigInstall');
+    if (btnBig) btnBig.style.display = 'flex';
+  });
+
+  const btnBig = document.getElementById('btnPwaBigInstall');
+  if (btnBig && !btnBig._bound) {
+    btnBig._bound = true;
+    btnBig.addEventListener('click', async () => {
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        const choice = await deferredInstallPrompt.userChoice;
+        if (choice && choice.outcome === 'accepted') {
+          showPwaInstalledGuide();
+        }
+        deferredInstallPrompt = null;
+      } else {
+        showToast('Untuk memasang PWA: Tekan menu pelayar (⋮) -> Pasang Aplikasi / Tambah ke Skrin Utama');
+      }
+    });
+  }
+
+  window.addEventListener('appinstalled', () => {
+    showPwaInstalledGuide();
+  });
+
+  const skipBtn = document.getElementById('btnSkipToDirectConnect');
+  if (skipBtn && !skipBtn._bound) {
+    skipBtn._bound = true;
+    skipBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const browserModal = document.getElementById('browserInstallModal');
+      const loginModal = document.getElementById('loginModal');
+      if (browserModal) browserModal.style.display = 'none';
+      if (loginModal) loginModal.style.display = 'flex';
+      initLandingPageInputs();
+    });
+  }
+}
+
+function showPwaInstalledGuide() {
+  const guideEl = document.getElementById('pwaInstalledGuideMsg');
+  if (guideEl) guideEl.style.display = 'block';
+  const btnBig = document.getElementById('btnPwaBigInstall');
+  if (btnBig) btnBig.style.display = 'none';
 }
 
 // ==================== AUTHENTICATION & DIRECT CONNECT ====================
 function initLandingPageInputs() {
   const ipInput = document.getElementById('inputLandingIp');
-  const portInput = document.getElementById('inputLandingPort');
+  const userInput = document.getElementById('inputLandingUser');
   if (!ipInput) return;
 
   const saved = localStorage.getItem('last_connected_ip') || '';
   if (saved) {
-    const parts = saved.split(':');
-    ipInput.value = parts[0] || '';
-    if (portInput && parts[1]) portInput.value = parts[1];
+    ipInput.value = saved;
   } else if (window.location.hostname && window.location.hostname !== 'sky12388.github.io') {
-    ipInput.value = window.location.hostname;
-    if (portInput) portInput.value = window.location.port || '8080';
+    ipInput.value = window.location.host || '192.168.0.5:8080';
   } else {
     ipInput.value = '192.168.0.5';
-    if (portInput) portInput.value = '8080';
+  }
+
+  if (userInput && !userInput.value) {
+    userInput.value = 'admin';
   }
 }
 
 async function checkAuth() {
+  const canProceed = checkPwaWorkflowMode();
   initLandingPageInputs();
 
+  if (!canProceed) {
+    return;
+  }
+
   if (!authToken) {
-    // If already on local server (same origin), automatically connect
+    // If running directly on local server, auto-login with default credentials
     const isLocal = window.location.hostname && window.location.hostname !== 'sky12388.github.io' && window.location.hostname !== '';
     if (isLocal) {
       try {
@@ -108,22 +189,29 @@ async function checkAuth() {
         if (res.ok && data.success) {
           authToken = data.token;
           localStorage.setItem('esolat_token', authToken);
-          document.getElementById('loginModal').style.display = 'none';
-          document.getElementById('appContainer').style.display = 'flex';
+          const loginModal = document.getElementById('loginModal');
+          const appContainer = document.getElementById('appContainer');
+          if (loginModal) loginModal.style.display = 'none';
+          if (appContainer) appContainer.style.display = 'flex';
+          switchActiveTab('tab-utama');
           initApp();
           return;
         }
       } catch (_) {}
     }
-    document.getElementById('loginModal').style.display = 'flex';
+    const loginModal = document.getElementById('loginModal');
+    if (loginModal) loginModal.style.display = 'flex';
     return;
   }
 
   try {
     const me = await apiRequest('/api/auth/me');
     if (me.authenticated) {
-      document.getElementById('loginModal').style.display = 'none';
-      document.getElementById('appContainer').style.display = 'flex';
+      const loginModal = document.getElementById('loginModal');
+      const appContainer = document.getElementById('appContainer');
+      if (loginModal) loginModal.style.display = 'none';
+      if (appContainer) appContainer.style.display = 'flex';
+      switchActiveTab('tab-utama');
       initApp();
     } else {
       handleUnauthorized();
@@ -138,41 +226,53 @@ const connectForm = document.getElementById('connectKioskForm');
 if (connectForm) {
   connectForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const rawIp = (document.getElementById('inputLandingIp')?.value || '').trim().replace(/^https?:\/\//i, '').replace(/\/.*$/, '');
-    const rawPort = (document.getElementById('inputLandingPort')?.value || '8080').trim();
+    let rawIp = (document.getElementById('inputLandingIp')?.value || '').trim().replace(/^https?:\/\//i, '').replace(/\/.*$/, '');
+    const rawUser = (document.getElementById('inputLandingUser')?.value || 'admin').trim();
+    const rawPass = (document.getElementById('inputLandingPass')?.value || '');
     const alertEl = document.getElementById('loginConnectionAlert');
     if (alertEl) alertEl.style.display = 'none';
 
     if (!rawIp) {
-      showToast('Sila masukkan alamat IP TV Kiosk!', true);
+      showToast('Sila masukkan alamat IP TV / Surau!', true);
       return;
     }
 
-    const targetHost = `${rawIp}:${rawPort}`;
-    localStorage.setItem('last_connected_ip', targetHost);
+    // Auto append :8080 if port not specified
+    if (!rawIp.includes(':')) {
+      rawIp = `${rawIp}:8080`;
+    }
+
+    localStorage.setItem('last_connected_ip', rawIp);
 
     const currentHost = window.location.host;
-    const isLocalSame = (targetHost === currentHost) || 
-      ((rawIp === '127.0.0.1' || rawIp === 'localhost') && (currentHost.startsWith('127.0.0.1') || currentHost.startsWith('localhost')));
+    const isLocalSame = (rawIp === currentHost) || 
+      ((rawIp.startsWith('127.0.0.1') || rawIp.startsWith('localhost')) && (currentHost.startsWith('127.0.0.1') || currentHost.startsWith('localhost')));
 
     if (isLocalSame) {
-      showToast(`📡 Menyambung ke TV Kiosk (${targetHost})...`);
+      showToast(`📡 Menyambung ke TV Kiosk (${rawIp})...`);
       try {
         const res = await fetch('/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: 'admin', password: '' })
+          body: JSON.stringify({ username: rawUser, password: rawPass })
         });
         const data = await res.json();
         if (res.ok && data.success) {
           authToken = data.token;
           localStorage.setItem('esolat_token', authToken);
-          document.getElementById('loginModal').style.display = 'none';
-          document.getElementById('appContainer').style.display = 'flex';
+          const loginModal = document.getElementById('loginModal');
+          const appContainer = document.getElementById('appContainer');
+          if (loginModal) loginModal.style.display = 'none';
+          if (appContainer) appContainer.style.display = 'flex';
+          switchActiveTab('tab-utama');
           showToast('✅ Berjaya disambung ke TV Kiosk!');
           initApp();
         } else {
-          showToast('Gagal menyambung: ' + (data.message || 'Ralat komunikasi'), true);
+          showToast('Gagal log masuk: ' + (data.message || 'Kata laluan atau nama pengguna tidak tepat'), true);
+          if (alertEl) {
+            alertEl.style.display = 'block';
+            alertEl.innerHTML = `<strong>⚠️ Ralat Log Masuk:</strong> ${data.message || 'Sila semak kata laluan anda'}`;
+          }
         }
       } catch (err) {
         const errorMsg = formatNetworkErrorMessage(err);
@@ -183,8 +283,8 @@ if (connectForm) {
         }
       }
     } else {
-      const targetUrl = `http://${rawIp}:${rawPort}/admin/`;
-      showToast(`📡 Menyambung & membuka dashboard: ${targetUrl}`);
+      const targetUrl = `http://${rawIp}/admin/`;
+      showToast(`📡 Menyambung ke TV: ${targetUrl}`);
       setTimeout(() => {
         window.location.href = targetUrl;
       }, 300);
@@ -290,22 +390,78 @@ document.getElementById('btnLogout').addEventListener('click', () => {
   }
 });
 
-// ==================== TAB NAVIGATION ====================
-document.querySelectorAll('.nav-item').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const targetTabId = btn.dataset.tab;
-    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+// ==================== STICKY BOTTOM TAB NAVIGATION (SINGLE CLICK VIEW) ====================
+const TAB_MAP = {
+  'tab-utama': 'tab-utama',
+  'tabDashboard': 'tab-utama',
+  'tab-takwim': 'tab-takwim',
+  'tabPrayer': 'tab-takwim',
+  'tab-audio': 'tab-audio',
+  'tabAdhan': 'tab-audio',
+  'tab-poster': 'tab-poster',
+  'tabMedia': 'tab-poster',
+  'tab-kamera': 'tab-kamera',
+  'tabCameraLive': 'tab-kamera',
+  'tab-sistem': 'tab-sistem',
+  'tabSystem': 'tab-sistem',
+  'tabTicker': 'tab-sistem',
+  'tabDiagnostics': 'tab-sistem',
+  'tabLicense': 'tab-sistem',
+  'tabSupport': 'tab-sistem'
+};
 
-    btn.classList.add('active');
-    const targetPane = document.getElementById(targetTabId);
-    if (targetPane) targetPane.classList.add('active');
+function switchActiveTab(targetTabId) {
+  const mappedId = TAB_MAP[targetTabId] || targetTabId;
+
+  // Update Nav Button Active States
+  document.querySelectorAll('.bottom-nav-bar .nav-item, .bottom-nav .nav-item').forEach(b => {
+    const bTarget = b.getAttribute('data-tab');
+    if (bTarget === targetTabId || bTarget === mappedId || TAB_MAP[bTarget] === mappedId) {
+      b.classList.add('active');
+    } else {
+      b.classList.remove('active');
+    }
+  });
+
+  // Toggle View Panes
+  document.querySelectorAll('.tab-pane').forEach(p => {
+    if (p.id === mappedId || p.id === targetTabId) {
+      p.classList.add('active');
+      p.style.display = 'block';
+    } else {
+      p.classList.remove('active');
+      p.style.display = 'none';
+    }
+  });
+
+  // Trigger on-demand module initializations
+  if (mappedId === 'tab-kamera') {
+    if (typeof loadKuliahCameraStatus === 'function') loadKuliahCameraStatus();
+    if (typeof updatePhoneStreamerQR === 'function') updatePhoneStreamerQR();
+  } else if (mappedId === 'tab-sistem') {
+    if (typeof loadHardwareDiagnostics === 'function' && !diagnosticsLoaded) {
+      loadHardwareDiagnostics(false);
+    }
+  }
+
+  // Scroll to top of content container
+  const contentBody = document.querySelector('.content-body');
+  if (contentBody) contentBody.scrollTop = 0;
+}
+
+document.querySelectorAll('.bottom-nav-bar .nav-item, .bottom-nav .nav-item').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const targetTabId = btn.getAttribute('data-tab');
+    switchActiveTab(targetTabId);
   });
 });
 
-document.getElementById('btnGoToLicense').addEventListener('click', () => {
-  document.querySelector('.nav-item[data-tab="tabLicense"]').click();
-});
+const btnGoToLic = document.getElementById('btnGoToLicense');
+if (btnGoToLic) {
+  btnGoToLic.addEventListener('click', () => {
+    switchActiveTab('tab-sistem');
+  });
+}
 
 // ==================== INITIALIZATION & DATA LOADING ====================
 async function initApp() {

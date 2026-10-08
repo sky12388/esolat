@@ -2,10 +2,10 @@
 <html lang="ms">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Admin e-Solat — Panel Pengurusan Surau</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#064e3b">
+  <meta name="theme-color" content="#059669">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -23,77 +23,92 @@
 </head>
 <body>
 
-  <!-- ==================== ALIRAN 1: LAMAN WEB PELAYAR (PASANG PWA) ==================== -->
-  <div id="browserInstallModal" class="auth-modal" style="display: none;">
-    <div class="auth-card" style="max-width: 440px; width: 94%; text-align: center; padding: 2rem 1.5rem;">
-      <div class="auth-logo" style="font-size: 3.2rem; margin-bottom: 0.5rem;">🕌</div>
-      <h2 style="font-size: 1.5rem; font-weight: 800; color: #ffffff; margin-bottom: 0.5rem;">Skywalker e-Solat Remote</h2>
-      <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 1.5rem;">
-        Sila pasang aplikasi ini pada telefon pintar anda untuk kawalan penuh tanpa wayar.
-      </p>
-
-      <button type="button" class="btn btn-primary btn-block" id="btnPwaBigInstall" style="min-height: 54px; font-size: 1.05rem; font-weight: 800; border-radius: 14px; box-shadow: 0 6px 20px rgba(5,150,105,0.4); display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-        <span>📥</span> <span>PASANG APLIKASI (PWA)</span>
-      </button>
-
-      <!-- PWA Installed Success Guide Message -->
-      <div id="pwaInstalledGuideMsg" style="display: none; margin-top: 1.25rem; padding: 0.85rem; background: rgba(5,150,105,0.2); border: 1px solid #34d399; border-radius: 12px; font-size: 0.85rem; color: #34d399; font-weight: 600; line-height: 1.4;">
-        ✅ Pemasangan berjaya! Sila tutup halaman pelayar ini dan buka ikon <b>'e-Solat Remote'</b> pada skrin utama telefon anda.
-      </div>
-
-      <div style="margin-top: 1.5rem;">
-        <button type="button" id="btnSkipToDirectConnect" style="background: none; border: none; font-size: 0.8rem; color: #94a3b8; text-decoration: underline; cursor: pointer;">
-          Atau sambung terus melalui pelayar ➔
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==================== ALIRAN 2: NATIVE PWA / GERBANG LOG MASUK SAMBUNGAN ==================== -->
-  <div id="loginModal" class="auth-modal" style="display: none;">
+  <!-- ==================== SMART PAIRING & LOGIN MODAL ==================== -->
+  <div id="loginModal" class="auth-modal">
     <div class="auth-card" style="max-width: 440px; width: 94%;">
-      <div class="auth-header" style="margin-bottom: 1.25rem; text-align: center;">
-        <div class="auth-logo" style="font-size: 2.8rem; margin-bottom: 0.35rem;">🕌</div>
-        <h2 style="font-size: 1.4rem; font-weight: 800; color: #ffffff;">Skywalker e-Solat Remote</h2>
-        <p style="font-size: 0.85rem; color: #a7f3d0; margin-top: 0.2rem;">Gerbang Sambungan TV Kiosk Surau &amp; Masjid</p>
+      <div class="auth-header" style="margin-bottom: 1.25rem;">
+        <div class="auth-logo" style="font-size: 2.6rem; margin-bottom: 0.35rem;">🕌</div>
+        <h2 style="font-size: 1.35rem; font-weight: 800; color: #ffffff;">Mobile Admin e-Solat</h2>
+        <p style="font-size: 0.82rem; color: #94a3b8; margin-top: 0.2rem;">Panel Kawalan Tanpa Wayar &bull; Surau &amp; Masjid</p>
       </div>
 
-      <!-- IP Address, Username & Password Form -->
-      <form id="connectKioskForm">
-        <div class="form-group" style="margin-bottom: 0.85rem;">
-          <label style="font-size: 0.85rem; font-weight: 700; color: #f8fafc; display: flex; align-items: center; gap: 0.35rem;">
-            <span>🌐</span> <span>Alamat IP TV / Surau</span>
-          </label>
-          <input type="text" id="inputLandingIp" placeholder="cth: 192.168.0.5" required autocomplete="off" style="min-height: 48px; border-radius: 12px; font-size: 0.95rem; font-family: monospace; color: #38bdf8; background: #0f172a; border: 1.5px solid #334155; padding: 0.6rem 0.85rem;">
-          <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 0.25rem;">*Port :8080 ditambah secara automatik di latar belakang jika tidak ditaip.</div>
-        </div>
-
-        <div class="form-group" style="margin-bottom: 0.85rem;">
-          <label style="font-size: 0.85rem; font-weight: 700; color: #f8fafc; display: flex; align-items: center; gap: 0.35rem;">
-            <span>👤</span> <span>Nama Pengguna (Username)</span>
-          </label>
-          <input type="text" id="inputLandingUser" value="admin" required autocomplete="username" style="min-height: 48px; border-radius: 12px; font-size: 0.95rem; font-family: monospace; color: #f8fafc; background: #0f172a; border: 1.5px solid #334155; padding: 0.6rem 0.85rem;">
-        </div>
-
-        <div class="form-group" style="margin-bottom: 1.2rem;">
-          <label style="font-size: 0.85rem; font-weight: 700; color: #f8fafc; display: flex; align-items: center; gap: 0.35rem;">
-            <span>🔑</span> <span>Kata Laluan (Password)</span>
-          </label>
-          <input type="password" id="inputLandingPass" placeholder="Kosongkan jika tiada kata laluan" autocomplete="current-password" style="min-height: 48px; border-radius: 12px; font-size: 0.95rem; color: #f8fafc; background: #0f172a; border: 1.5px solid #334155; padding: 0.6rem 0.85rem;">
-        </div>
-
-        <button type="submit" class="btn btn-primary btn-block" id="btnConnectToDashboard" style="min-height: 52px; font-size: 1.05rem; font-weight: 800; border-radius: 14px; box-shadow: 0 6px 20px rgba(5,150,105,0.4); display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-          <span>⚡</span> <span>SAMBUNG KE TV</span>
-        </button>
-
-        <div style="margin-top: 0.85rem;">
-          <button type="button" class="btn btn-block" id="btnOpenQrScanner" style="min-height: 46px; background: rgba(30,41,59,0.8); border: 1px solid rgba(52,211,153,0.4); color: #34d399; font-weight: 700; font-size: 0.88rem; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 0.5rem; cursor: pointer;">
-            <span>📷</span> <span>Imbas Kod QR TV</span>
+      <!-- 0. PWA WebAPK / Install Card on Login Screen -->
+      <div id="loginPwaInstallCard" style="display: none; margin-bottom: 1.1rem; padding: 0.85rem 1rem; background: linear-gradient(135deg, rgba(5,150,105,0.25), rgba(15,23,42,0.9)); border: 1px solid #34d399; border-radius: 14px; box-shadow: 0 4px 15px rgba(5,150,105,0.25);">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
+          <div style="display: flex; align-items: center; gap: 0.6rem;">
+            <img src="./icons/icon-192.png" alt="Icon" style="width: 36px; height: 36px; border-radius: 8px;">
+            <div>
+              <div style="font-size: 0.85rem; font-weight: 800; color: #ffffff;">Pasang Aplikasi AJK</div>
+              <div style="font-size: 0.72rem; color: #a7f3d0;">Akses skrin penuh tanpa bar URL</div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-sm btn-primary" id="btnLoginTriggerInstall" style="padding: 0.4rem 0.75rem; font-size: 0.78rem; font-weight: 800; white-space: nowrap;">
+            📲 Pasang
           </button>
         </div>
+      </div>
 
-        <!-- Connection Status & Diagnostic Alert -->
-        <div id="loginConnectionAlert" style="display: none; margin-top: 0.85rem; padding: 0.65rem 0.85rem; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); border-radius: 10px; font-size: 0.78rem; color: #fca5a5; text-align: center; line-height: 1.4;"></div>
+      <!-- 1. Last Connected Device Card (1-Click Reconnect) -->
+      <div id="lastConnectedCard" style="display: none; margin-bottom: 1rem; padding: 0.85rem 1rem; background: linear-gradient(135deg, rgba(6,78,59,0.7), rgba(15,23,42,0.9)); border: 1px solid #10b981; border-radius: 14px; box-shadow: 0 4px 15px rgba(16,185,129,0.2);">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.35rem;">
+          <span style="font-size: 0.75rem; font-weight: 700; color: #34d399; text-transform: uppercase; letter-spacing: 0.05em;">🟢 TV Kiosk Terakhir</span>
+          <span style="font-size: 0.7rem; color: #94a3b8;" id="lastConnectedTime">Tersimpan</span>
+        </div>
+        <div style="font-family: monospace; font-size: 0.95rem; font-weight: 800; color: #ffffff; word-break: break-all; margin-bottom: 0.5rem;" id="lastConnectedHostText">
+          192.168.1.100:8080
+        </div>
+        <button type="button" class="btn btn-sm btn-primary btn-block" id="btnQuickReconnectLast" style="min-height: 42px; font-weight: 700; font-size: 0.85rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.4rem;">
+          <span>⚡</span>
+          <span>Sambung Semula Sekarang</span>
+        </button>
+      </div>
+
+      <!-- 2. Primary Action: Camera QR Scanner Button -->
+      <div style="margin-bottom: 1rem;">
+        <button type="button" class="btn btn-block" id="btnOpenQrScanner" style="min-height: 52px; padding: 0.75rem 1rem; background: linear-gradient(135deg, #059669, #0d9488); border: 1px solid #34d399; color: #ffffff; font-weight: 800; font-size: 0.95rem; border-radius: 14px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; cursor: pointer; box-shadow: 0 6px 18px rgba(5,150,105,0.4); transition: transform 0.2s ease;">
+          <span style="font-size: 1.35rem;">📷</span>
+          <span>Imbas Kod QR TV / Kiosk</span>
+        </button>
+      </div>
+
+      <!-- 3. Secondary Dropdown / Manual IP Accordion -->
+      <div style="margin-bottom: 1.25rem;">
+        <button type="button" id="btnToggleManualIp" style="width: 100%; background: rgba(30,41,59,0.6); border: 1px solid rgba(255,255,255,0.1); color: #cbd5e1; padding: 0.5rem 0.75rem; border-radius: 10px; font-size: 0.78rem; font-weight: 600; display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
+          <span>⚙️ Pilihan Diagnostik: Masukkan IP Manual</span>
+          <span id="manualIpChevron">▼</span>
+        </button>
+        <div id="manualIpAccordionContent" style="display: none; margin-top: 0.5rem; padding: 0.75rem; background: rgba(15,23,42,0.9); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px;">
+          <div style="display: flex; gap: 0.4rem; align-items: center;">
+            <input type="text" id="inputManualKioskIp" placeholder="cth: 192.168.1.100 atau esolat.local" style="flex: 1; min-height: 42px; background: #0f172a; border: 1px solid #334155; color: #38bdf8; font-family: monospace; padding: 0.45rem 0.65rem; border-radius: 8px; font-size: 0.82rem;">
+            <button type="button" class="btn btn-sm btn-primary" id="btnConnectManualIp" style="min-height: 42px; padding: 0.45rem 0.85rem; font-size: 0.82rem; white-space: nowrap; font-weight: 700;">Sambung</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="height: 1px; background: rgba(255,255,255,0.1); margin-bottom: 1.25rem;"></div>
+
+      <!-- 4. Login Form -->
+      <form id="loginForm">
+        <div class="form-group" style="margin-bottom: 0.85rem;">
+          <label style="font-size: 0.82rem; font-weight: 600; color: #cbd5e1;">Nama Pengguna</label>
+          <input type="text" id="loginUser" value="admin" required autocomplete="username" style="min-height: 46px; border-radius: 10px; font-size: 0.9rem;">
+        </div>
+        <div class="form-group" style="margin-bottom: 1.1rem;">
+          <label style="font-size: 0.82rem; font-weight: 600; color: #cbd5e1;">Kata Laluan</label>
+          <input type="password" id="loginPass" placeholder="Kata laluan (Kosongkan jika kali pertama)" autocomplete="current-password" style="min-height: 46px; border-radius: 10px; font-size: 0.9rem;">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" style="min-height: 50px; font-size: 0.95rem; font-weight: 800; border-radius: 12px; box-shadow: 0 4px 14px rgba(5,150,105,0.35);">
+          🔐 Log Masuk ke Sistem
+        </button>
+
+        <div style="text-align: center; margin-top: 1.1rem; font-size: 0.82rem; display: flex; justify-content: center; gap: 0.85rem; flex-wrap: wrap;">
+          <a href="../manual/" target="_blank" style="color: #34d399; text-decoration: none; font-weight: 600;">
+            📖 Panduan Pengguna
+          </a>
+        </div>
+
+        <!-- Diagnostic Connection Alert for Mixed Content / LAN -->
+        <div id="loginConnectionAlert" style="display: none; margin-top: 0.85rem; padding: 0.6rem 0.8rem; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); border-radius: 8px; font-size: 0.75rem; color: #fca5a5; text-align: center;"></div>
       </form>
     </div>
   </div>
@@ -128,8 +143,8 @@
       <div class="top-brand">
         <span class="logo-emoji">🕌</span>
         <div>
-          <h1 id="appHeaderTitle">e-Solat REMOTE</h1>
-          <span class="app-subtitle" id="appZoneSubtitle">Surau &amp; Masjid &bull; Zon: SGR01</span>
+          <h1 id="appHeaderTitle">Skywalker E-Solat Manager</h1>
+          <span class="app-subtitle" id="appZoneSubtitle">Surau Darul Taqwa &bull; Zon: SGR01</span>
           <span id="appMosqueTitle" style="display:none;">Surau Darul Taqwa</span>
         </div>
       </div>
@@ -138,8 +153,9 @@
         <button class="icon-btn" id="btnTopNetInfo" title="Maklumat IP & Sambungan Rangkaian" style="background:rgba(59,130,246,0.15); border:1px solid rgba(59,130,246,0.4); color:#60a5fa; font-size:0.75rem; font-family:monospace; padding:0.3rem 0.6rem; border-radius:8px; display:inline-flex; align-items:center; gap:0.3rem;">
           <span>📡</span> <span id="topNavIpText">192.168.x.x</span>
         </button>
-        <span id="pwaOfflineBadge" class="pwa-offline-badge" style="display:none;">⚡ Luar Talian</span>
+        <button class="icon-btn" id="btnInstallPwa" title="Pasang Aplikasi di Telefon (PWA)" style="display:none; background:rgba(16,185,129,0.25); border:1px solid #34d399; color:#34d399; font-weight:bold;">📲</button>
         <button class="icon-btn" id="btnTopPassword" title="Keselamatan &amp; Tukar Kata Laluan" style="color:#34d399; font-size:1.05rem;">🔒</button>
+        <a href="../manual/" class="icon-btn" title="Panduan Pengguna (User Manual)" style="text-decoration:none; display:flex; align-items:center; justify-content:center;">📖</a>
         <button class="icon-btn" id="btnReloadKiosk" title="Muat Semula TV Kiosk">🔄</button>
         <button class="icon-btn" id="btnLogout" title="Log Keluar">🚪</button>
       </div>
@@ -174,14 +190,8 @@
     <!-- Scrollable Content View -->
     <main class="content-body">
 
-      <!-- Touch Pull-To-Refresh Indicator -->
-      <div id="pullDownIndicator" class="pull-down-indicator">
-        <span>🔄</span>
-        <span>Tarik ke bawah untuk segar semula</span>
-      </div>
-
-      <!-- ==================== TAB 1: UTAMA (DASHBOARD & QUICK ACTIONS) ==================== -->
-      <section id="tab-utama" class="tab-pane active">
+      <!-- ==================== TAB 1: DASHBOARD & QUICK ACTIONS ==================== -->
+      <section id="tabDashboard" class="tab-pane active">
 
         <!-- URGENT QUICK ACTION CARDS (AJK & BILAL EMERGENCY CONTROLS) -->
         <div class="section-card quick-controls-card" style="background: linear-gradient(135deg, rgba(6,78,59,0.5), rgba(15,23,42,0.95)); border: 1px solid rgba(52,211,153,0.4); border-radius: 16px; padding: 1.1rem; margin-bottom: 1rem; box-shadow: 0 10px 25px rgba(0,0,0,0.3);">
@@ -241,6 +251,69 @@
               </button>
               <button type="button" class="btn btn-sm btn-outline preset-tab-btn active" id="btnQuickPresetDefault" style="min-height: 42px; border-radius: 10px; font-weight: 700; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 0.35rem; border-color: #34d399; color: #34d399;">
                 <span>📋</span> Slaid Sahaja
+              </button>
+            </div>
+          </div>
+
+          <!-- ==================== ALAT UJIAN PAPARAN & AUDIO TV (SIMULASI INSTANT TEST MODE) ==================== -->
+          <div class="section-card simulation-test-card" style="margin-top: 1rem; background: linear-gradient(135deg, rgba(30,58,138,0.25), rgba(15,23,42,0.95)); border: 1px solid rgba(59,130,246,0.4); border-radius: 14px; padding: 1rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-size: 1.25rem;">🛠️</span>
+                <h3 style="font-size: 0.95rem; font-weight: 800; color: #60a5fa; margin: 0;">Alat Ujian Paparan &amp; Audio TV (Simulasi)</h3>
+              </div>
+              <span class="badge" style="background: rgba(59,130,246,0.2); color: #60a5fa; border: 1px solid rgba(59,130,246,0.4); padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.72rem; font-weight: 700;">
+                INSTANT TEST MODE
+              </span>
+            </div>
+            <p class="card-desc" style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 0.75rem;">
+              Uji keseluruhan skrin paparan TV dan jujukan audio (notifikasi beep, azan penuh, skrin doa, iqamah pantas, dan beep saf) secara langsung dari telefon pintar tanpa menunggu waktu solat sebenar.
+            </p>
+
+            <!-- Action Buttons Grid (2-Column Mobile Friendly) -->
+            <div class="sim-buttons-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.6rem;">
+              <!-- 1. Beep 7s -->
+              <button type="button" class="btn btn-outline btn-sim-action" data-action="beep_warning" style="min-height: 50px; padding: 0.6rem 0.75rem; font-size: 0.82rem; font-weight: 700; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 0.4rem; text-align: center; border-color: #f59e0b; color: #fbbf24; background: rgba(245,158,11,0.08);">
+                <span style="font-size: 1.15rem;">🔔</span>
+                <span>Uji Beep Masuk Waktu (7s)</span>
+              </button>
+
+              <!-- 2. Azan MP3 -->
+              <button type="button" class="btn btn-outline btn-sim-action" data-action="adhan" style="min-height: 50px; padding: 0.6rem 0.75rem; font-size: 0.82rem; font-weight: 700; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 0.4rem; text-align: center; border-color: #10b981; color: #34d399; background: rgba(16,185,129,0.08);">
+                <span style="font-size: 1.15rem;">📢</span>
+                <span>Uji Azan MP3 (Penuh)</span>
+              </button>
+
+              <!-- 3. Skrin Doa -->
+              <button type="button" class="btn btn-outline btn-sim-action" data-action="doa" style="min-height: 50px; padding: 0.6rem 0.75rem; font-size: 0.82rem; font-weight: 700; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 0.4rem; text-align: center; border-color: #38bdf8; color: #38bdf8; background: rgba(56,189,248,0.08);">
+                <span style="font-size: 1.15rem;">🤲</span>
+                <span>Uji Skrin Doa Azan</span>
+              </button>
+
+              <!-- 4. Iqamah Pantas 10s -->
+              <button type="button" class="btn btn-outline btn-sim-action" data-action="iqamah_fast" style="min-height: 50px; padding: 0.6rem 0.75rem; font-size: 0.82rem; font-weight: 700; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 0.4rem; text-align: center; border-color: #a855f7; color: #c084fc; background: rgba(168,85,247,0.08);">
+                <span style="font-size: 1.15rem;">⏳</span>
+                <span>Uji Iqamah Cepat (10s)</span>
+              </button>
+
+              <!-- 5. Beep Saf 3x -->
+              <button type="button" class="btn btn-outline btn-sim-action" data-action="saf_beep" style="min-height: 50px; padding: 0.6rem 0.75rem; font-size: 0.82rem; font-weight: 700; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 0.4rem; text-align: center; border-color: #ec4899; color: #f472b6; background: rgba(236,72,153,0.08);">
+                <span style="font-size: 1.15rem;">📐</span>
+                <span>Uji Saf (Beep 3x)</span>
+              </button>
+
+              <!-- 6. Demo Penuh 30s -->
+              <button type="button" class="btn btn-primary btn-sim-action" data-action="demo_full" style="min-height: 50px; padding: 0.6rem 0.75rem; font-size: 0.82rem; font-weight: 800; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 0.4rem; text-align: center; background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 12px rgba(37,99,235,0.3);">
+                <span style="font-size: 1.15rem;">▶️</span>
+                <span>Jalankan Demo Penuh (30s)</span>
+              </button>
+            </div>
+
+            <!-- Reset / Cancel button (Red Warning Button across full width) -->
+            <div style="margin-top: 0.75rem;">
+              <button type="button" class="btn btn-danger btn-sim-action" data-action="stop" style="width: 100%; min-height: 46px; padding: 0.6rem 1rem; font-size: 0.85rem; font-weight: 800; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: linear-gradient(135deg, #dc2626, #991b1b); border: 1px solid #ef4444; color: #ffffff; box-shadow: 0 4px 14px rgba(220,38,38,0.35);">
+                <span style="font-size: 1.1rem;">⏹️</span>
+                <span>HENTIKAN UJIAN / RESET SKRIN TV</span>
               </button>
             </div>
           </div>
@@ -612,8 +685,8 @@
         </div>
       </section>
 
-      <!-- ==================== TAB 2: TAKWIM & GPS ZONE SYNC ==================== -->
-      <section id="tab-takwim" class="tab-pane">
+      <!-- ==================== TAB 2: JAKIM & GPS ZONE SYNC ==================== -->
+      <section id="tabPrayer" class="tab-pane">
         <div class="section-card">
           <h2 class="card-title">Zon JAKIM &amp; Lokasi GPS</h2>
           <p class="card-desc">Sistem ini memuat turun takwim rasmi e-solat JAKIM dan menyimpannya di pangkalan data luar talian.</p>
@@ -694,7 +767,7 @@
       </section>
 
       <!-- ==================== TAB 3: AUDIO & AZAN CONFIG ==================== -->
-      <section id="tab-audio" class="tab-pane">
+      <section id="tabAdhan" class="tab-pane">
 
         <!-- 1. Azan Track Selection & Volume -->
         <div class="section-card">
@@ -1066,8 +1139,8 @@
         </div>
       </section>
 
-      <!-- ==================== TAB 4: POSTER & MEDIA SLIDESHOW ==================== -->
-      <section id="tab-poster" class="tab-pane">
+      <!-- ==================== TAB 4: MEDIA & SLIDESHOW ==================== -->
+      <section id="tabMedia" class="tab-pane">
         <div class="section-card">
           <h2 class="card-title">Muat Naik Poster / Slaid</h2>
           <p class="card-desc">Sokongan gambar (JPG, PNG) dan video (MP4) untuk putaran slaid kiosk.</p>
@@ -1120,8 +1193,8 @@
         </div>
       </section>
 
-      <!-- ==================== TAB 6: SISTEM (PAPARAN TV, TICKER, DIAGNOSTIK, LESEN) ==================== -->
-      <section id="tab-sistem" class="tab-pane">
+      <!-- ==================== TAB 5: TICKER & MOSQUE INFO ==================== -->
+      <section id="tabTicker" class="tab-pane">
         <!-- ==================== MULTI-SOURCE VIDEO & PiP CONTROLLER ==================== -->
         <div class="section-card">
           <h2 class="card-title">🎥 Media &amp; Siaran Langsung (PiP / Split)</h2>
@@ -1346,109 +1419,31 @@
             </div>
           </div>
 
-          <!-- 4. Kawalan Saiz & Skala Paparan (Resize & Scale) -->
-          <div class="side-info-config-box mt-3" style="border: 1px solid rgba(52, 211, 153, 0.35); background: rgba(6, 78, 59, 0.25); border-radius: 12px; padding: 1rem;">
-            <div style="font-weight:700; color:#34d399; font-size:1rem; display:flex; align-items:center; gap:0.4rem; margin-bottom:0.6rem;">
-              <span>📏</span>
-              <span>1. Skala &amp; Saiz Paparan (Resize &amp; Zoom):</span>
-            </div>
-
-            <!-- TV Kiosk Zoom Scale Slider -->
-            <div class="form-group mt-2">
-              <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:0.25rem;">
-                <label style="font-weight:600; color:#ffffff;">Skala Paparan Skrin TV Kiosk (Zoom)</label>
-                <span id="kioskScaleLabel" style="color:#34d399; font-weight:800; font-family:monospace;">100%</span>
-              </div>
-              <input type="range" id="rangeKioskScale" min="80" max="120" step="5" value="100" style="width:100%;">
-              <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:#94a3b8; margin-top:2px;">
-                <span>80% (Kecil)</span>
-                <span>100% (Lalai)</span>
-                <span>120% (Besar)</span>
-              </div>
-            </div>
-
-            <!-- Text & Takwim Scale -->
-            <div class="form-row-2 mt-2">
-              <div class="form-group">
-                <label>Saiz Teks Takwim &amp; Jam TV</label>
-                <select id="selectKioskTextScale">
-                  <option value="100">Standard (100%)</option>
-                  <option value="115">Besar (115%)</option>
-                  <option value="130">Ekstra Besar Senior (130%)</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Saiz Fon Panel Admin</label>
-                <select id="selectAdminFontScale">
-                  <option value="100">Standard (100%)</option>
-                  <option value="120">Besar Warga Emas (120%)</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- Brightness Slider -->
-            <div class="form-group mt-2">
-              <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:0.25rem;">
-                <label style="font-weight:600; color:#ffffff;">Kecerahan Skrin TV (Brightness)</label>
-                <span id="kioskBrightnessLabel" style="color:#fbbf24; font-weight:800; font-family:monospace;">100%</span>
-              </div>
-              <input type="range" id="rangeKioskBrightness" min="50" max="100" step="5" value="100" style="width:100%;">
-            </div>
-          </div>
-
-          <!-- 4.1. Susun Atur & Orientasi Paparan (Layout & Orientation) -->
+          <!-- 4. Mod Paparan & PiP Configuration -->
           <div class="side-info-config-box mt-3">
-            <span class="sub-label" style="color:#38bdf8; font-weight:700;">📐 2. Susun Atur &amp; Orientasi Skrin:</span>
+            <span class="sub-label">Tetapan Mod Paparan &amp; PiP:</span>
 
-            <div class="form-row-2 mt-2">
-              <div class="form-group">
-                <label>Orientasi Skrin TV</label>
-                <select id="selectKioskOrientation">
-                  <option value="landscape">Melintang / Horizontal (16:9 - Lalai)</option>
-                  <option value="portrait">Menegak / Vertical (9:16 - Kiosk Stand)</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Mod Susun Atur (Layout Preset)</label>
-                <select id="selectKioskLayoutPreset">
-                  <option value="horizontal_glass">Mod A: Horizontal Glass (Bar Melintang)</option>
-                  <option value="sidebar_elegance">Mod B: Sidebar Elegan (Jadual Sisi)</option>
-                  <option value="grid_contemporary">Mod C: Grid Kontemporari (Jam Gergasi)</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="form-row-2">
-              <div class="form-group">
-                <label>Mod Paparan Kiosk (Layout Mode)</label>
-                <select id="selectKioskLayoutMode">
-                  <option value="split">2 Kolum (Pentas Media 68% + Widget 32%)</option>
-                  <option value="fullscreen">Skrin Penuh (100% Media / Slaid)</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Kedudukan PiP (Jam &amp; Undur)</label>
-                <select id="selectPipMode">
-                  <option value="none">Tiada (None)</option>
-                  <option value="bottom_right">Sudut Kanan Bawah</option>
-                  <option value="bottom_left">Sudut Kiri Bawah</option>
-                  <option value="top_right">Sudut Kanan Atas</option>
-                  <option value="top_left">Sudut Kiri Atas</option>
-                </select>
-              </div>
+            <div class="form-group mt-2">
+              <label>Mod Paparan Kiosk (Layout Mode)</label>
+              <select id="selectKioskLayoutMode">
+                <option value="split">2 Kolum (Pentas Media 68% + Widget Kanan 32%)</option>
+                <option value="fullscreen">Skrin Penuh (100% Lebar Media / Slaid)</option>
+              </select>
             </div>
 
             <div class="form-group">
-              <label>Susunan Slaid Dalam Takwim</label>
-              <select id="selectKioskSubLayout">
-                <option value="full">Slaid Penuh (16:9)</option>
-                <option value="split_right">Belah Kanan (Slaid + Info Kanan)</option>
-                <option value="split_left">Belah Kiri (Info Kiri + Slaid)</option>
+              <label>Mod Picture-in-Picture (PiP Jam &amp; Undur Solat)</label>
+              <select id="selectPipMode">
+                <option value="none">Tiada (None)</option>
+                <option value="bottom_right">Sudut Kanan Bawah (Bottom Right)</option>
+                <option value="bottom_left">Sudut Kiri Bawah (Bottom Left)</option>
+                <option value="top_right">Sudut Kanan Atas (Top Right)</option>
+                <option value="top_left">Sudut Kiri Atas (Top Left)</option>
               </select>
             </div>
           </div>
 
-          <!-- 4.2. Interactive Drag & Resize Canvas Layout Section -->
+          <!-- 4.1. Interactive Drag & Resize Canvas Layout Section -->
           <div class="side-info-config-box mt-3" style="border: 2px solid rgba(52, 211, 153, 0.4); background: rgba(2, 44, 34, 0.45); border-radius: 12px; padding: 1rem;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <div>
@@ -1478,6 +1473,52 @@
               </span>
             </div>
           </div>
+
+          <!-- 5. Video Audio & Volume Controls -->
+          <div class="side-info-config-box mt-3">
+            <span class="sub-label">Kawalan Audio Video:</span>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.5rem;">
+              <span style="font-size:0.9rem; font-weight:600;">Suara Video di TV</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="checkVideoAudio">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="form-group mt-3">
+              <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:0.25rem;">
+                <label>Kelantangan Suara Video</label>
+                <span id="videoVolLabel" style="color:var(--accent-gold); font-weight:700;">80%</span>
+              </div>
+              <input type="range" id="rangeVideoVolume" min="0" max="100" value="80" style="width:100%;">
+            </div>
+
+            <div style="background:rgba(217,119,6,0.15); border:1px solid rgba(217,119,6,0.3); border-radius:8px; padding:0.5rem 0.75rem; font-size:0.75rem; color:#fde68a; margin-top:0.5rem;">
+              ℹ️ <b>Auto-Override:</b> Suara video akan disenyapkan secara automatik apabila sistem masuk fasa Peringatan Pra-Azan, Azan, Iqamah, dan Solat.
+            </div>
+          </div>
+
+          <!-- 6. Slide Sub-Layout & Kuliah Info (for Signage Viewport) -->
+          <div class="side-info-config-box mt-3">
+            <!-- 3-Layout Preset Switcher -->
+            <div class="form-group mt-2">
+              <label style="color:#38bdf8; font-weight:700;">📐 Mod Reka Bentuk Susun Atur (Layout Switcher):</label>
+              <select id="selectKioskLayoutPreset">
+                <option value="horizontal_glass">Mod A: Horizontal Glass (Bar Waktu Melintang Di Atas - Lalai)</option>
+                <option value="sidebar_elegance">Mod B: Sidebar Elegan (Jadual Waktu Menegak Di Sisi Kanan)</option>
+                <option value="grid_contemporary">Mod C: Grid Kontemporari (Jam Gergasi Atas + Bar Waktu Di Bawah)</option>
+              </select>
+            </div>
+
+            <span class="sub-label">Susunan Slaid Dalam Takwim:</span>
+            <div class="form-group mt-2">
+              <select id="selectKioskSubLayout">
+                <option value="full">Slaid Penuh (16:9)</option>
+                <option value="split_right">Belah Kanan (Slaid + Info/QR Kanan)</option>
+                <option value="split_left">Belah Kiri (Info/QR Kiri + Slaid)</option>
+              </select>
+            </div>
 
             <!-- Lower-Third Live Kuliah Broadcast Overlay -->
             <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.75rem; margin-top: 0.75rem;">
@@ -1650,53 +1691,8 @@
             </div>
           </div>
 
-          <!-- Format Jam, Tarikh & Penggalak Kontras -->
-          <div style="border-top:1px solid rgba(255,255,255,0.1); padding-top:0.85rem; margin-top:0.85rem;">
-            <span class="sub-label" style="color:#fbbf24; font-weight:700;">🕒 Format Jam &amp; Paparan Teks:</span>
-
-            <div class="form-row-2 mt-2">
-              <div class="form-group">
-                <label>Format Waktu Jam</label>
-                <select id="selectClockFormat">
-                  <option value="12h">12-Jam (cth: 08:30:15 PM)</option>
-                  <option value="24h">24-Jam (cth: 20:30:15)</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.4rem;">
-                  <label style="margin:0; font-weight:600; font-size:0.85rem;">Paparan Detik Jam (Saat)</label>
-                  <label class="toggle-switch">
-                    <input type="checkbox" id="switchShowSeconds" checked>
-                    <span class="toggle-slider"></span>
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            <div class="form-row-2 mt-1">
-              <div class="form-group">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                  <label style="margin:0; font-weight:600; font-size:0.85rem;">Paparan Tarikh Hijri</label>
-                  <label class="toggle-switch">
-                    <input type="checkbox" id="switchShowHijri" checked>
-                    <span class="toggle-slider"></span>
-                  </label>
-                </div>
-              </div>
-              <div class="form-group">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                  <label style="margin:0; font-weight:600; font-size:0.85rem; color:#fbbf24;">Penggalak Kontras Senior</label>
-                  <label class="toggle-switch">
-                    <input type="checkbox" id="switchHighContrast">
-                    <span class="toggle-slider"></span>
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-
           <button type="button" class="btn btn-primary btn-block mt-3" id="btnSaveFontFamily">
-            💾 Simpan Gaya Fon &amp; Paparan Teks
+            💾 Simpan Gaya Fon TV Kiosk
           </button>
         </div>
 
@@ -2071,6 +2067,56 @@
           </div>
         </div>
 
+        <!-- ==================== ALAT UJIAN PAPARAN & AUDIO TV (SIMULASI INSTANT TEST MODE) ==================== -->
+        <div class="section-card simulation-test-card" style="background: linear-gradient(135deg, rgba(30,58,138,0.25), rgba(15,23,42,0.95)); border: 1px solid rgba(59,130,246,0.4); border-radius: 14px; padding: 1rem; margin-bottom: 1.25rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="font-size: 1.25rem;">🛠️</span>
+              <h3 style="font-size: 0.95rem; font-weight: 800; color: #60a5fa; margin: 0;">Ujian Simulasi Jujukan Waktu Solat</h3>
+            </div>
+            <span class="badge" style="background: rgba(59,130,246,0.2); color: #60a5fa; border: 1px solid rgba(59,130,246,0.4); padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.72rem; font-weight: 700;">
+              INSTANT TEST MODE
+            </span>
+          </div>
+          <p class="card-desc" style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 0.75rem;">
+            Uji keseluruhan transisi paparan dan bunyi notifikasi TV Kiosk secara terus:
+          </p>
+
+          <div class="sim-buttons-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.6rem;">
+            <button type="button" class="btn btn-outline btn-sim-action" data-action="beep_warning" style="min-height: 50px; padding: 0.6rem 0.75rem; font-size: 0.82rem; font-weight: 700; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 0.4rem; text-align: center; border-color: #f59e0b; color: #fbbf24; background: rgba(245,158,11,0.08);">
+              <span style="font-size: 1.15rem;">🔔</span>
+              <span>Uji Beep Masuk Waktu (7s)</span>
+            </button>
+            <button type="button" class="btn btn-outline btn-sim-action" data-action="adhan" style="min-height: 50px; padding: 0.6rem 0.75rem; font-size: 0.82rem; font-weight: 700; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 0.4rem; text-align: center; border-color: #10b981; color: #34d399; background: rgba(16,185,129,0.08);">
+              <span style="font-size: 1.15rem;">📢</span>
+              <span>Uji Main Azan Penuh</span>
+            </button>
+            <button type="button" class="btn btn-outline btn-sim-action" data-action="doa" style="min-height: 50px; padding: 0.6rem 0.75rem; font-size: 0.82rem; font-weight: 700; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 0.4rem; text-align: center; border-color: #38bdf8; color: #38bdf8; background: rgba(56,189,248,0.08);">
+              <span style="font-size: 1.15rem;">🤲</span>
+              <span>Uji Skrin Doa Azan</span>
+            </button>
+            <button type="button" class="btn btn-outline btn-sim-action" data-action="iqamah_fast" style="min-height: 50px; padding: 0.6rem 0.75rem; font-size: 0.82rem; font-weight: 700; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 0.4rem; text-align: center; border-color: #a855f7; color: #c084fc; background: rgba(168,85,247,0.08);">
+              <span style="font-size: 1.15rem;">⏳</span>
+              <span>Uji Iqamah Cepat (10s)</span>
+            </button>
+            <button type="button" class="btn btn-outline btn-sim-action" data-action="saf_beep" style="min-height: 50px; padding: 0.6rem 0.75rem; font-size: 0.82rem; font-weight: 700; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 0.4rem; text-align: center; border-color: #ec4899; color: #f472b6; background: rgba(236,72,153,0.08);">
+              <span style="font-size: 1.15rem;">📐</span>
+              <span>Uji Saf (Beep 3x)</span>
+            </button>
+            <button type="button" class="btn btn-primary btn-sim-action" data-action="demo_full" style="min-height: 50px; padding: 0.6rem 0.75rem; font-size: 0.82rem; font-weight: 800; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 0.4rem; text-align: center; background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 12px rgba(37,99,235,0.3);">
+              <span style="font-size: 1.15rem;">▶️</span>
+              <span>Jalankan Demo Penuh (30s)</span>
+            </button>
+          </div>
+
+          <div style="margin-top: 0.75rem;">
+            <button type="button" class="btn btn-danger btn-sim-action" data-action="stop" style="width: 100%; min-height: 46px; padding: 0.6rem 1rem; font-size: 0.85rem; font-weight: 800; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: linear-gradient(135deg, #dc2626, #991b1b); border: 1px solid #ef4444; color: #ffffff; box-shadow: 0 4px 14px rgba(220,38,38,0.35);">
+              <span style="font-size: 1.1rem;">⏹️</span>
+              <span>HENTIKAN UJIAN / RESET SKRIN TV</span>
+            </button>
+          </div>
+        </div>
+
         <!-- 1. Network IP & RTSP Camera Scanner Card -->
         <div class="section-card">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
@@ -2181,8 +2227,8 @@
         </div>
       </section>
 
-      <!-- ==================== TAB 5: KAMERA & KULIAH LIVE (IP PTZ / RTSP) ==================== -->
-      <section id="tab-kamera" class="tab-pane">
+      <!-- ==================== TAB 7: KAMERA & KULIAH LIVE (IP PTZ / RTSP) ==================== -->
+      <section id="tabCameraLive" class="tab-pane">
         <!-- Master Broadcast Switch Card -->
         <div class="section-card" style="background: linear-gradient(135deg, rgba(6,78,59,0.55), rgba(15,23,42,0.95)); border: 1px solid rgba(52,211,153,0.45); border-radius: 16px; padding: 1.1rem; box-shadow: 0 10px 25px rgba(0,0,0,0.35);">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.85rem; flex-wrap:wrap; gap:0.5rem;">
@@ -2397,31 +2443,43 @@
       </footer>
     </main>
 
-    <!-- Sticky Bottom Navigation Bar (Kekal Melekat di Bawah) -->
-    <nav class="bottom-nav-bar">
-      <button class="nav-item active" data-tab="tab-utama">
+    <!-- Bottom Navigation Bar (Mobile Native Touch Feel) -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" data-tab="tabDashboard">
         <span class="nav-icon">📊</span>
-        <span class="nav-label">Utama</span>
+        <span class="nav-text">Utama</span>
       </button>
-      <button class="nav-item" data-tab="tab-takwim">
-        <span class="nav-icon">📅</span>
-        <span class="nav-label">Takwim</span>
+      <button class="nav-item" data-tab="tabPrayer">
+        <span class="nav-icon">📍</span>
+        <span class="nav-text">Takwim</span>
       </button>
-      <button class="nav-item" data-tab="tab-audio">
-        <span class="nav-icon">🔊</span>
-        <span class="nav-label">Audio</span>
+      <button class="nav-item" data-tab="tabAdhan">
+        <span class="nav-icon">🕌</span>
+        <span class="nav-text">Audio</span>
       </button>
-      <button class="nav-item" data-tab="tab-poster">
+      <button class="nav-item" data-tab="tabMedia">
         <span class="nav-icon">🖼️</span>
-        <span class="nav-label">Poster</span>
+        <span class="nav-text">Poster</span>
       </button>
-      <button class="nav-item" data-tab="tab-kamera">
+      <button class="nav-item" data-tab="tabCameraLive">
         <span class="nav-icon">📹</span>
-        <span class="nav-label">Kamera</span>
+        <span class="nav-text">Kamera</span>
       </button>
-      <button class="nav-item" data-tab="tab-sistem">
-        <span class="nav-icon">⚙️</span>
-        <span class="nav-label">Sistem</span>
+      <button class="nav-item" data-tab="tabTicker">
+        <span class="nav-icon">📺</span>
+        <span class="nav-text">Paparan</span>
+      </button>
+      <button class="nav-item" data-tab="tabDiagnostics">
+        <span class="nav-icon">🛠️</span>
+        <span class="nav-text">Diagnostik</span>
+      </button>
+      <button class="nav-item" data-tab="tabLicense">
+        <span class="nav-icon">🔑</span>
+        <span class="nav-text">Lesen</span>
+      </button>
+      <button class="nav-item" data-tab="tabSupport">
+        <span class="nav-icon">📞</span>
+        <span class="nav-text">Sokongan</span>
       </button>
     </nav>
 
@@ -2512,6 +2570,6 @@
   <!-- Toast Notification Container -->
   <div id="toastContainer" class="toast-container"></div>
 
-  <script src="js/admin.js?v=1.3.19"></script>
+  <script src="js/admin.js?v=1.3.16"></script>
 </body>
 </html>

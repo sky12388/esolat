@@ -2,12 +2,12 @@
   "name": "Skywalker e-Solat Admin",
   "short_name": "e-Solat Admin",
   "description": "Panel Pengurusan & Kawalan Digital Kiosk e-Solat Surau & Masjid",
-  "start_url": "./index.html",
-  "scope": "./",
+  "start_url": "/admin/",
+  "scope": "/admin/",
   "display": "standalone",
-  "background_color": "#0b1120",
-  "theme_color": "#064e3b",
-  "orientation": "any",
+  "background_color": "#061e16",
+  "theme_color": "#061e16",
+  "orientation": "portrait",
   "categories": ["utilities", "productivity"],
   "icons": [
     {
@@ -19,8 +19,7 @@
     {
       "src": "./icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
+      "type": "image/png"
     },
     {
       "src": "./icons/icon-maskable-512.png",

@@ -1,15 +1,15 @@
 /**
  * e-Solat Mobile Admin Service Worker
- * Version: 1.3.17-pwa
+ * Version: 1.3.16
  * Provides ultra-reliable offline caching and PWA WebAPK installability.
  */
 
-const CACHE_NAME = 'esolat-admin-v1.3.17-pwa';
+const CACHE_NAME = 'esolat-admin-v1.3.16';
 const ASSETS_TO_PRECACHE = [
   './',
   './index.html',
   './css/admin.css',
-  './js/admin.js?v=1.3.17',
+  './js/admin.js?v=1.3.16',
   './js/qrcode.min.js',
   './js/html5-qrcode.min.js',
   './manifest.json',
@@ -45,14 +45,15 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Only intercept GET requests
   if (event.request.method !== 'GET') {
     return;
   }
 
   const url = new URL(event.request.url);
 
-  // Bypass API requests to ensure real-time device control
-  if (url.pathname.includes('/api/')) {
+  // Bypass API requests to allow fresh server data
+  if (url.pathname.startsWith('/api/')) {
     return;
   }
 
@@ -60,7 +61,7 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200 && (networkResponse.type === 'basic' || networkResponse.type === 'cors')) {
+        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, responseToCache);
@@ -74,7 +75,7 @@ self.addEventListener('fetch', (event) => {
             return cachedResponse;
           }
           if (event.request.headers.get('accept')?.includes('text/html')) {
-            return caches.match('./index.html') || caches.match('./');
+            return caches.match('./index.html');
           }
         });
       })

@@ -66,152 +66,38 @@ async function apiRequest(endpoint, method = 'GET', body = null) {
 function handleUnauthorized() {
   authToken = '';
   localStorage.removeItem('esolat_token');
-  document.getElementById('appContainer').style.display = 'none';
-  checkPwaWorkflowMode();
-  initLandingPageInputs();
-}
-
-// ==================== WORKFLOW: ALIRAN 1 (BROWSER) VS ALIRAN 2 (PWA STANDALONE) ====================
-let deferredInstallPrompt = null;
-
-function checkPwaWorkflowMode() {
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
-                       window.navigator.standalone === true ||
-                       document.referrer.includes('android-app://');
-  const isOnlineHub = (window.location.hostname === 'sky12388.github.io');
-  const browserInstallModal = document.getElementById('browserInstallModal');
-  const loginModal = document.getElementById('loginModal');
-  const appContainer = document.getElementById('appContainer');
-
-  if (isOnlineHub && !isStandalone) {
-    // ALIRAN 1: LAMAN WEB PELAYAR (BUKAN MOD STANDALONE)
-    if (browserInstallModal) browserInstallModal.style.display = 'flex';
-    if (loginModal) loginModal.style.display = 'none';
-    if (appContainer) appContainer.style.display = 'none';
-    setupBrowserInstallCard();
-    return false;
-  } else {
-    // ALIRAN 2: NATIVE PWA / STANDALONE / PERSEKITARAN TEMPATAN
-    if (browserInstallModal) browserInstallModal.style.display = 'none';
-    return true;
+  if (!window.location.hostname.includes('github.io')) {
+    document.getElementById('appContainer').style.display = 'none';
+    document.getElementById('loginModal').style.display = 'flex';
   }
 }
 
-function setupBrowserInstallCard() {
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredInstallPrompt = e;
-    const btnBig = document.getElementById('btnPwaBigInstall');
-    if (btnBig) btnBig.style.display = 'flex';
-  });
-
-  const btnBig = document.getElementById('btnPwaBigInstall');
-  if (btnBig && !btnBig._bound) {
-    btnBig._bound = true;
-    btnBig.addEventListener('click', async () => {
-      if (deferredInstallPrompt) {
-        deferredInstallPrompt.prompt();
-        const choice = await deferredInstallPrompt.userChoice;
-        if (choice && choice.outcome === 'accepted') {
-          showPwaInstalledGuide();
-        }
-        deferredInstallPrompt = null;
-      } else {
-        showToast('Untuk memasang PWA: Tekan menu pelayar (⋮) -> Pasang Aplikasi / Tambah ke Skrin Utama');
-      }
-    });
-  }
-
-  window.addEventListener('appinstalled', () => {
-    showPwaInstalledGuide();
-  });
-
-  const skipBtn = document.getElementById('btnSkipToDirectConnect');
-  if (skipBtn && !skipBtn._bound) {
-    skipBtn._bound = true;
-    skipBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      const browserModal = document.getElementById('browserInstallModal');
-      const loginModal = document.getElementById('loginModal');
-      if (browserModal) browserModal.style.display = 'none';
-      if (loginModal) loginModal.style.display = 'flex';
-      initLandingPageInputs();
-    });
-  }
-}
-
-function showPwaInstalledGuide() {
-  const guideEl = document.getElementById('pwaInstalledGuideMsg');
-  if (guideEl) guideEl.style.display = 'block';
-  const btnBig = document.getElementById('btnPwaBigInstall');
-  if (btnBig) btnBig.style.display = 'none';
-}
-
-// ==================== AUTHENTICATION & DIRECT CONNECT ====================
-function initLandingPageInputs() {
-  const ipInput = document.getElementById('inputLandingIp');
-  const userInput = document.getElementById('inputLandingUser');
-  if (!ipInput) return;
-
-  const saved = localStorage.getItem('last_connected_ip') || '';
-  if (saved) {
-    ipInput.value = saved;
-  } else if (window.location.hostname && window.location.hostname !== 'sky12388.github.io') {
-    ipInput.value = window.location.host || '192.168.0.5:8080';
-  } else {
-    ipInput.value = '192.168.0.5';
-  }
-
-  if (userInput && !userInput.value) {
-    userInput.value = 'admin';
-  }
-}
-
+// ==================== AUTHENTICATION ====================
 async function checkAuth() {
-  const canProceed = checkPwaWorkflowMode();
-  initLandingPageInputs();
-
-  if (!canProceed) {
+  const isGithubPages = window.location.hostname.includes('github.io');
+  if (isGithubPages) {
+    const loginModal = document.getElementById('loginModal');
+    const appContainer = document.getElementById('appContainer');
+    if (loginModal) loginModal.style.display = 'none';
+    if (appContainer) appContainer.style.display = 'flex';
+    initApp();
     return;
   }
 
   if (!authToken) {
-    // If running directly on local server, auto-login with default credentials
-    const isLocal = window.location.hostname && window.location.hostname !== 'sky12388.github.io' && window.location.hostname !== '';
-    if (isLocal) {
-      try {
-        const res = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: 'admin', password: '' })
-        });
-        const data = await res.json();
-        if (res.ok && data.success) {
-          authToken = data.token;
-          localStorage.setItem('esolat_token', authToken);
-          const loginModal = document.getElementById('loginModal');
-          const appContainer = document.getElementById('appContainer');
-          if (loginModal) loginModal.style.display = 'none';
-          if (appContainer) appContainer.style.display = 'flex';
-          switchActiveTab('tab-utama');
-          initApp();
-          return;
-        }
-      } catch (_) {}
-    }
-    const loginModal = document.getElementById('loginModal');
-    if (loginModal) loginModal.style.display = 'flex';
+    document.getElementById('loginModal').style.display = 'flex';
     return;
   }
 
   try {
     const me = await apiRequest('/api/auth/me');
     if (me.authenticated) {
-      const loginModal = document.getElementById('loginModal');
-      const appContainer = document.getElementById('appContainer');
-      if (loginModal) loginModal.style.display = 'none';
-      if (appContainer) appContainer.style.display = 'flex';
-      switchActiveTab('tab-utama');
+      document.getElementById('loginModal').style.display = 'none';
+      document.getElementById('appContainer').style.display = 'flex';
+
+      if (me.force_password_change) {
+        document.getElementById('changePasswordModal').style.display = 'flex';
+      }
       initApp();
     } else {
       handleUnauthorized();
@@ -221,76 +107,43 @@ async function checkAuth() {
   }
 }
 
-// Landing Page: IP & Port Connection Form
-const connectForm = document.getElementById('connectKioskForm');
-if (connectForm) {
-  connectForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    let rawIp = (document.getElementById('inputLandingIp')?.value || '').trim().replace(/^https?:\/\//i, '').replace(/\/.*$/, '');
-    const rawUser = (document.getElementById('inputLandingUser')?.value || 'admin').trim();
-    const rawPass = (document.getElementById('inputLandingPass')?.value || '');
-    const alertEl = document.getElementById('loginConnectionAlert');
-    if (alertEl) alertEl.style.display = 'none';
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const username = document.getElementById('loginUser').value.trim();
+  const password = document.getElementById('loginPass').value.trim();
+  const alertEl = document.getElementById('loginConnectionAlert');
+  if (alertEl) alertEl.style.display = 'none';
 
-    if (!rawIp) {
-      showToast('Sila masukkan alamat IP TV / Surau!', true);
-      return;
-    }
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      authToken = data.token;
+      localStorage.setItem('esolat_token', authToken);
+      document.getElementById('loginModal').style.display = 'none';
+      document.getElementById('appContainer').style.display = 'flex';
 
-    // Auto append :8080 if port not specified
-    if (!rawIp.includes(':')) {
-      rawIp = `${rawIp}:8080`;
-    }
-
-    localStorage.setItem('last_connected_ip', rawIp);
-
-    const currentHost = window.location.host;
-    const isLocalSame = (rawIp === currentHost) || 
-      ((rawIp.startsWith('127.0.0.1') || rawIp.startsWith('localhost')) && (currentHost.startsWith('127.0.0.1') || currentHost.startsWith('localhost')));
-
-    if (isLocalSame) {
-      showToast(`📡 Menyambung ke TV Kiosk (${rawIp})...`);
-      try {
-        const res = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: rawUser, password: rawPass })
-        });
-        const data = await res.json();
-        if (res.ok && data.success) {
-          authToken = data.token;
-          localStorage.setItem('esolat_token', authToken);
-          const loginModal = document.getElementById('loginModal');
-          const appContainer = document.getElementById('appContainer');
-          if (loginModal) loginModal.style.display = 'none';
-          if (appContainer) appContainer.style.display = 'flex';
-          switchActiveTab('tab-utama');
-          showToast('✅ Berjaya disambung ke TV Kiosk!');
-          initApp();
-        } else {
-          showToast('Gagal log masuk: ' + (data.message || 'Kata laluan atau nama pengguna tidak tepat'), true);
-          if (alertEl) {
-            alertEl.style.display = 'block';
-            alertEl.innerHTML = `<strong>⚠️ Ralat Log Masuk:</strong> ${data.message || 'Sila semak kata laluan anda'}`;
-          }
-        }
-      } catch (err) {
-        const errorMsg = formatNetworkErrorMessage(err);
-        showToast(errorMsg, true);
-        if (alertEl) {
-          alertEl.style.display = 'block';
-          alertEl.innerHTML = `<strong>⚠️ Ralat Sambungan:</strong> ${errorMsg}`;
-        }
+      if (data.force_password_change) {
+        document.getElementById('changePasswordModal').style.display = 'flex';
       }
+      showToast('Log masuk berjaya.');
+      initApp();
     } else {
-      const targetUrl = `http://${rawIp}/admin/`;
-      showToast(`📡 Menyambung ke TV: ${targetUrl}`);
-      setTimeout(() => {
-        window.location.href = targetUrl;
-      }, 300);
+      showToast(data.message || 'Nama pengguna atau kata laluan tidak sah.', true);
     }
-  });
-}
+  } catch (err) {
+    const errorMsg = formatNetworkErrorMessage(err);
+    showToast(errorMsg, true);
+    if (alertEl) {
+      alertEl.style.display = 'block';
+      alertEl.innerHTML = `<strong>⚠️ Ralat Sambungan / Mixed Content:</strong> ${errorMsg}`;
+    }
+  }
+});
 
 document.getElementById('forcePasswordForm').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -390,78 +243,22 @@ document.getElementById('btnLogout').addEventListener('click', () => {
   }
 });
 
-// ==================== STICKY BOTTOM TAB NAVIGATION (SINGLE CLICK VIEW) ====================
-const TAB_MAP = {
-  'tab-utama': 'tab-utama',
-  'tabDashboard': 'tab-utama',
-  'tab-takwim': 'tab-takwim',
-  'tabPrayer': 'tab-takwim',
-  'tab-audio': 'tab-audio',
-  'tabAdhan': 'tab-audio',
-  'tab-poster': 'tab-poster',
-  'tabMedia': 'tab-poster',
-  'tab-kamera': 'tab-kamera',
-  'tabCameraLive': 'tab-kamera',
-  'tab-sistem': 'tab-sistem',
-  'tabSystem': 'tab-sistem',
-  'tabTicker': 'tab-sistem',
-  'tabDiagnostics': 'tab-sistem',
-  'tabLicense': 'tab-sistem',
-  'tabSupport': 'tab-sistem'
-};
-
-function switchActiveTab(targetTabId) {
-  const mappedId = TAB_MAP[targetTabId] || targetTabId;
-
-  // Update Nav Button Active States
-  document.querySelectorAll('.bottom-nav-bar .nav-item, .bottom-nav .nav-item').forEach(b => {
-    const bTarget = b.getAttribute('data-tab');
-    if (bTarget === targetTabId || bTarget === mappedId || TAB_MAP[bTarget] === mappedId) {
-      b.classList.add('active');
-    } else {
-      b.classList.remove('active');
-    }
-  });
-
-  // Toggle View Panes
-  document.querySelectorAll('.tab-pane').forEach(p => {
-    if (p.id === mappedId || p.id === targetTabId) {
-      p.classList.add('active');
-      p.style.display = 'block';
-    } else {
-      p.classList.remove('active');
-      p.style.display = 'none';
-    }
-  });
-
-  // Trigger on-demand module initializations
-  if (mappedId === 'tab-kamera') {
-    if (typeof loadKuliahCameraStatus === 'function') loadKuliahCameraStatus();
-    if (typeof updatePhoneStreamerQR === 'function') updatePhoneStreamerQR();
-  } else if (mappedId === 'tab-sistem') {
-    if (typeof loadHardwareDiagnostics === 'function' && !diagnosticsLoaded) {
-      loadHardwareDiagnostics(false);
-    }
-  }
-
-  // Scroll to top of content container
-  const contentBody = document.querySelector('.content-body');
-  if (contentBody) contentBody.scrollTop = 0;
-}
-
-document.querySelectorAll('.bottom-nav-bar .nav-item, .bottom-nav .nav-item').forEach(btn => {
+// ==================== TAB NAVIGATION ====================
+document.querySelectorAll('.nav-item').forEach(btn => {
   btn.addEventListener('click', () => {
-    const targetTabId = btn.getAttribute('data-tab');
-    switchActiveTab(targetTabId);
+    const targetTabId = btn.dataset.tab;
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+
+    btn.classList.add('active');
+    const targetPane = document.getElementById(targetTabId);
+    if (targetPane) targetPane.classList.add('active');
   });
 });
 
-const btnGoToLic = document.getElementById('btnGoToLicense');
-if (btnGoToLic) {
-  btnGoToLic.addEventListener('click', () => {
-    switchActiveTab('tab-sistem');
-  });
-}
+document.getElementById('btnGoToLicense').addEventListener('click', () => {
+  document.querySelector('.nav-item[data-tab="tabLicense"]').click();
+});
 
 // ==================== INITIALIZATION & DATA LOADING ====================
 async function initApp() {
@@ -738,67 +535,6 @@ async function loadSettings() {
       if (document.getElementById('inputAzanVolume')) document.getElementById('inputAzanVolume').value = azanVol;
       if (document.getElementById('valAzanVolume')) document.getElementById('valAzanVolume').textContent = `${azanVol}%`;
     }
-
-    // Kiosk Display Scale (Resize)
-    const elScale = document.getElementById('rangeKioskScale');
-    const elScaleLbl = document.getElementById('kioskScaleLabel');
-    if (elScale) {
-      const scaleVal = s.kiosk_scale ? Math.round(parseFloat(s.kiosk_scale) * 100) : 100;
-      elScale.value = scaleVal;
-      if (elScaleLbl) elScaleLbl.textContent = `${scaleVal}%`;
-    }
-
-    // Text & Takwim Scale
-    const elTextScale = document.getElementById('selectKioskTextScale');
-    if (elTextScale) {
-      elTextScale.value = s.kiosk_text_scale || '100';
-    }
-
-    // Admin Font Scale
-    const elAdminFontScale = document.getElementById('selectAdminFontScale');
-    if (elAdminFontScale) {
-      const adminScale = localStorage.getItem('admin_font_scale') || s.admin_font_scale || '100';
-      elAdminFontScale.value = adminScale;
-      document.documentElement.style.fontSize = adminScale === '120' ? '21px' : '18px';
-    }
-
-    // Brightness
-    const elBright = document.getElementById('rangeKioskBrightness');
-    const elBrightLbl = document.getElementById('kioskBrightnessLabel');
-    if (elBright) {
-      const bVal = s.kiosk_brightness ? parseInt(s.kiosk_brightness, 10) : 100;
-      elBright.value = bVal;
-      if (elBrightLbl) elBrightLbl.textContent = `${bVal}%`;
-    }
-
-    // Kiosk Orientation & Preset
-    const elOrient = document.getElementById('selectKioskOrientation');
-    if (elOrient) {
-      elOrient.value = s.kiosk_orientation || 'landscape';
-    }
-    const elPreset = document.getElementById('selectKioskLayoutPreset');
-    if (elPreset && s.kiosk_layout_preset) {
-      elPreset.value = s.kiosk_layout_preset;
-    }
-    const elSubLayout = document.getElementById('selectKioskSubLayout');
-    if (elSubLayout && s.kiosk_layout) {
-      elSubLayout.value = s.kiosk_layout;
-    }
-
-    // Font Family Selection
-    const fontVal = (s.kiosk_font_family || 'outfit').toLowerCase();
-    const fontRadio = document.querySelector(`input[name="kiosk_font_family"][value="${fontVal}"]`);
-    if (fontRadio) fontRadio.checked = true;
-
-    // Clock Format, Seconds, Hijri & High Contrast
-    const elClockFmt = document.getElementById('selectClockFormat');
-    if (elClockFmt) elClockFmt.value = s.clock_format || '12h';
-    const swSeconds = document.getElementById('switchShowSeconds');
-    if (swSeconds) swSeconds.checked = (s.show_seconds !== '0' && s.show_seconds !== false);
-    const swHijri = document.getElementById('switchShowHijri');
-    if (swHijri) swHijri.checked = (s.show_hijri_date !== '0' && s.show_hijri_date !== false);
-    const swContrast = document.getElementById('switchHighContrast');
-    if (swContrast) swContrast.checked = (s.high_contrast_mode === '1' || s.high_contrast_mode === 1 || s.high_contrast_mode === true);
 
     // Theme Selector (Multi-Theme Engine)
     let activeTheme = (s.selected_theme || s.kiosk_theme || 'emerald').toLowerCase().trim().replace(/_/g, '-');
@@ -2043,17 +1779,6 @@ async function handleSaveDisplaySettings() {
   const pip_mode = document.getElementById('selectPipMode') ? document.getElementById('selectPipMode').value : 'none';
   const media_source_type = document.getElementById('selectMediaSourceType') ? document.getElementById('selectMediaSourceType').value : 'slides';
   
-  const kiosk_scale = document.getElementById('rangeKioskScale') ? (parseInt(document.getElementById('rangeKioskScale').value, 10) / 100).toString() : '1.0';
-  const kiosk_text_scale = document.getElementById('selectKioskTextScale') ? document.getElementById('selectKioskTextScale').value : '100';
-  const admin_font_scale = document.getElementById('selectAdminFontScale') ? document.getElementById('selectAdminFontScale').value : '100';
-  const kiosk_brightness = document.getElementById('rangeKioskBrightness') ? document.getElementById('rangeKioskBrightness').value : '100';
-  const kiosk_orientation = document.getElementById('selectKioskOrientation') ? document.getElementById('selectKioskOrientation').value : 'landscape';
-
-  const clock_format = document.getElementById('selectClockFormat') ? document.getElementById('selectClockFormat').value : '12h';
-  const show_seconds = (document.getElementById('switchShowSeconds') && document.getElementById('switchShowSeconds').checked) ? '1' : '0';
-  const show_hijri_date = (document.getElementById('switchShowHijri') && document.getElementById('switchShowHijri').checked) ? '1' : '0';
-  const high_contrast_mode = (document.getElementById('switchHighContrast') && document.getElementById('switchHighContrast').checked) ? '1' : '0';
-
   const video_source_type = document.getElementById('selectVideoType') ? document.getElementById('selectVideoType').value : 'mp4';
   const video_source_url = document.getElementById('inputVideoUrl') ? document.getElementById('inputVideoUrl').value.trim() : '';
   const media_stream_url = video_source_url;
@@ -2089,20 +1814,8 @@ async function handleSaveDisplaySettings() {
   const selectedRadio = document.querySelector('input[name="active_layout_mode"]:checked');
   const active_layout_mode = selectedRadio ? selectedRadio.value : (kiosk_layout_mode === 'fullscreen' ? 'fullscreen_video' : 'fullscreen_signage');
 
-  localStorage.setItem('admin_font_scale', admin_font_scale);
-  document.documentElement.style.fontSize = admin_font_scale === '120' ? '21px' : '18px';
-
   try {
-    const payload = {
-      kiosk_scale,
-      kiosk_text_scale,
-      admin_font_scale,
-      kiosk_brightness,
-      kiosk_orientation,
-      clock_format,
-      show_seconds,
-      show_hijri_date,
-      high_contrast_mode,
+    await apiRequest('/api/settings', 'POST', {
       kiosk_layout_mode,
       kiosk_layout_preset,
       pip_mode,
@@ -2131,10 +1844,8 @@ async function handleSaveDisplaySettings() {
       hadith_text,
       hadith_source,
       media_fullscreen_enabled
-    };
-    await apiRequest('/api/settings', 'POST', payload);
-    broadcastAdminSync('SETTINGS_UPDATED', payload);
-    showToast('Tetapan paparan, susun atur & skala berjaya dikemaskini!');
+    });
+    showToast('Tetapan paparan berjaya dikemaskini!');
     loadSettings();
     // Prompt to set 4-digit PIN code for kiosk lock
     setTimeout(promptKioskPinSetup, 600);
@@ -2321,53 +2032,13 @@ if (btnSaveFontEl) {
   btnSaveFontEl.addEventListener('click', async () => {
     const selected = document.querySelector('input[name="kiosk_font_family"]:checked');
     const fontVal = selected ? selected.value : 'outfit';
-    const clock_format = document.getElementById('selectClockFormat') ? document.getElementById('selectClockFormat').value : '12h';
-    const show_seconds = (document.getElementById('switchShowSeconds') && document.getElementById('switchShowSeconds').checked) ? '1' : '0';
-    const show_hijri_date = (document.getElementById('switchShowHijri') && document.getElementById('switchShowHijri').checked) ? '1' : '0';
-    const high_contrast_mode = (document.getElementById('switchHighContrast') && document.getElementById('switchHighContrast').checked) ? '1' : '0';
-
     try {
-      const payload = {
-        kiosk_font_family: fontVal,
-        clock_format,
-        show_seconds,
-        show_hijri_date,
-        high_contrast_mode
-      };
-      await apiRequest('/api/settings', 'POST', payload);
-      broadcastAdminSync('SETTINGS_UPDATED', payload);
-      showToast('🎨 Gaya fon & paparan teks TV Kiosk berjaya dikemas kini!');
+      await apiRequest('/api/settings', 'POST', { kiosk_font_family: fontVal });
+      showToast('🎨 Gaya fon TV Kiosk berjaya dikemas kini!');
       await loadSettings();
     } catch (err) {
       showToast('Gagal menyimpan fon: ' + err.message, true);
     }
-  });
-}
-
-// Live range slider updates
-const rangeScaleEl = document.getElementById('rangeKioskScale');
-if (rangeScaleEl) {
-  rangeScaleEl.addEventListener('input', () => {
-    const lbl = document.getElementById('kioskScaleLabel');
-    if (lbl) lbl.textContent = `${rangeScaleEl.value}%`;
-  });
-}
-
-const rangeBrightEl = document.getElementById('rangeKioskBrightness');
-if (rangeBrightEl) {
-  rangeBrightEl.addEventListener('input', () => {
-    const lbl = document.getElementById('kioskBrightnessLabel');
-    if (lbl) lbl.textContent = `${rangeBrightEl.value}%`;
-  });
-}
-
-const selectAdminFontScaleEl = document.getElementById('selectAdminFontScale');
-if (selectAdminFontScaleEl) {
-  selectAdminFontScaleEl.addEventListener('change', () => {
-    const scale = selectAdminFontScaleEl.value;
-    localStorage.setItem('admin_font_scale', scale);
-    document.documentElement.style.fontSize = scale === '120' ? '21px' : '18px';
-    showToast(scale === '120' ? '👓 Saiz fon warga emas diaktifkan.' : 'Saiz fon standard diaktifkan.');
   });
 }
 
@@ -3052,20 +2723,9 @@ function setupPWA() {
     }
   });
 
-  // App Installed Event
-  window.addEventListener('appinstalled', () => {
-    console.log('[PWA] e-Solat Admin installed successfully');
-    showToast('🎉 Aplikasi e-Solat Admin berjaya dipasang!');
-    const btnTopInstall = document.getElementById('btnInstallPwa');
-    const pwaBanner = document.getElementById('pwaInstallBanner');
-    const loginPwaCard = document.getElementById('loginPwaInstallCard');
-    if (btnTopInstall) btnTopInstall.style.display = 'none';
-    if (pwaBanner) pwaBanner.style.display = 'none';
-    if (loginPwaCard) loginPwaCard.style.display = 'none';
-  });
-
   const triggerInstall = async () => {
     if (!deferredInstallPrompt) {
+      // Fallback advice if already installed or on iOS
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
       if (isIOS) {
         alert('Untuk memasang di iPhone/iPad:\n1. Tekan butang Share (Kongsi) di bawah pelayar Safari\n2. Pilih "Add to Home Screen" (Tambah ke Skrin Utama)');
@@ -3078,7 +2738,7 @@ function setupPWA() {
     deferredInstallPrompt.prompt();
     const choiceResult = await deferredInstallPrompt.userChoice;
     if (choiceResult.outcome === 'accepted') {
-      console.log('[PWA] User accepted install prompt');
+      console.log('[PWA] User accepted the install prompt');
       showToast('Aplikasi e-Solat Admin sedang dipasang ke skrin telefon anda!');
     }
     deferredInstallPrompt = null;
@@ -3105,66 +2765,6 @@ function setupPWA() {
       sessionStorage.setItem('dismissedPwaBanner', '1');
     });
   }
-
-  // Network Online / Offline Detection
-  const offlineBadge = document.getElementById('pwaOfflineBadge');
-  window.addEventListener('offline', () => {
-    if (offlineBadge) offlineBadge.style.display = 'inline-block';
-    showToast('⚡ Peranti kini Luar Talian (Mod Cache PWA Aktif).', true);
-  });
-  window.addEventListener('online', () => {
-    if (offlineBadge) offlineBadge.style.display = 'none';
-    showToast('🟢 Sambungan rangkaian kembali pulih!');
-    loadSettings();
-  });
-
-  // Pull-To-Refresh on Mobile Touch
-  setupPullToRefresh();
-}
-
-function setupPullToRefresh() {
-  const contentBody = document.querySelector('.content-body');
-  const indicator = document.getElementById('pullDownIndicator');
-  if (!contentBody || !indicator) return;
-
-  let startY = 0;
-  let isPulling = false;
-
-  contentBody.addEventListener('touchstart', (e) => {
-    if (contentBody.scrollTop <= 0) {
-      startY = e.touches[0].pageY;
-      isPulling = true;
-    } else {
-      isPulling = false;
-    }
-  }, { passive: true });
-
-  contentBody.addEventListener('touchmove', (e) => {
-    if (!isPulling) return;
-    const currentY = e.touches[0].pageY;
-    const distance = currentY - startY;
-    if (distance > 60 && contentBody.scrollTop <= 0) {
-      indicator.classList.add('visible');
-    } else if (distance <= 60) {
-      indicator.classList.remove('visible');
-    }
-  }, { passive: true });
-
-  contentBody.addEventListener('touchend', async () => {
-    if (!isPulling) return;
-    isPulling = false;
-    if (indicator.classList.contains('visible')) {
-      indicator.innerHTML = '<span>⏳</span><span>Mengemas kini data...</span>';
-      try {
-        await Promise.all([loadSettings(), updateNetworkInfo()]);
-        showToast('✅ Data e-Solat berjaya dikemas kini!');
-      } catch (_) {}
-      setTimeout(() => {
-        indicator.classList.remove('visible');
-        indicator.innerHTML = '<span>🔄</span><span>Tarik ke bawah untuk segar semula</span>';
-      }, 500);
-    }
-  }, { passive: true });
 }
 
 // ==================== NETWORK BROADCAST & PHONE CONNECTIVITY ====================
@@ -3627,6 +3227,53 @@ function setupQuickControlsUI() {
   }
 }
 
+// ==================== INSTANT TEST MODE & SIMULATOR UI ====================
+function setupInstantTestModeUI() {
+  document.querySelectorAll('.btn-sim-action').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const action = btn.getAttribute('data-action');
+      if (!action) return;
+
+      if (navigator.vibrate) navigator.vibrate(50);
+
+      const originalOpacity = btn.style.opacity || '1';
+      btn.style.opacity = '0.6';
+
+      try {
+        const headers = { 'Content-Type': 'application/json' };
+        if (authToken) {
+          headers['Authorization'] = `Bearer ${authToken}`;
+        }
+
+        const res = await fetch('/api/simulate-trigger', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ action: action, prayer: 'Zohor' })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message || `Ujian '${action}' berjaya dihantar ke TV.`);
+          // Inter-tab BroadcastChannel and storage sync
+          broadcastAdminSync('SIMULATE_TRIGGER', { action });
+          try {
+            localStorage.setItem('esolat_sim_trigger', JSON.stringify({ action, ts: Date.now() }));
+          } catch (_) {}
+        } else {
+          showToast(data.message || 'Gagal menghantar arahan simulasi.', true);
+        }
+      } catch (err) {
+        showToast(`Ralat komunikasi simulasi: ${err.message}`, true);
+      } finally {
+        setTimeout(() => {
+          btn.style.opacity = originalOpacity;
+        }, 350);
+      }
+    });
+  });
+}
+
 function normalizeKioskUrl(target) {
   let url = target.trim();
   if (!url.startsWith('http://') && !url.startsWith('https://')) {
@@ -3649,7 +3296,7 @@ function normalizeKioskUrl(target) {
   }
 }
 
-async function connectToKioskTarget(target) {
+function connectToKioskTarget(target) {
   const finalUrl = normalizeKioskUrl(target);
   localStorage.setItem('last_connected_ip', target);
   showToast(`📡 Menyambung ke TV Kiosk: ${finalUrl}`);
@@ -3659,31 +3306,10 @@ async function connectToKioskTarget(target) {
     if (targetObj.host !== window.location.host) {
       setTimeout(() => {
         window.location.href = finalUrl;
-      }, 400);
+      }, 500);
       return;
     }
   } catch (e) {}
-
-  // If on local host, auto-authenticate and enter dashboard
-  try {
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: 'admin', password: '' })
-    });
-    const data = await res.json();
-    if (res.ok && data.success) {
-      authToken = data.token;
-      localStorage.setItem('esolat_token', authToken);
-      const loginModal = document.getElementById('loginModal');
-      const appContainer = document.getElementById('appContainer');
-      if (loginModal) loginModal.style.display = 'none';
-      if (appContainer) appContainer.style.display = 'flex';
-      showToast('✅ Berjaya disambung ke TV Kiosk!');
-      initApp();
-      return;
-    }
-  } catch (err) {}
 
   showToast(`✅ Anda sudah berada pada pelayan ${target}!`);
 }
@@ -3827,23 +3453,11 @@ async function onQrCodeSuccess(decodedText, decodedResult) {
   if (scannerModal) scannerModal.style.display = 'none';
 
   let target = decodedText.trim();
-  const landingIpInput = document.getElementById('inputLandingIp');
-  const landingPortInput = document.getElementById('inputLandingPort');
-  if (landingIpInput) {
-    try {
-      const cleanTarget = target.replace(/^https?:\/\//i, '').replace(/\/.*$/, '');
-      const parts = cleanTarget.split(':');
-      landingIpInput.value = parts[0] || cleanTarget;
-      if (landingPortInput && parts[1]) {
-        landingPortInput.value = parts[1];
-      }
-    } catch (e) {
-      landingIpInput.value = target;
-    }
-  }
+  const manualIpInput = document.getElementById('inputManualKioskIp');
+  if (manualIpInput) manualIpInput.value = target;
 
   showToast(`✅ Kod QR Dikesan: ${target}`);
-  await connectToKioskTarget(target);
+  connectToKioskTarget(target);
 }
 
 async function scanQrFromImageFile(imageFile) {
@@ -4590,6 +4204,7 @@ window.addEventListener('DOMContentLoaded', () => {
   setupNetworkBroadcastUI();
   setupSmartPairingUI();
   setupQuickControlsUI();
+  setupInstantTestModeUI();
   setupQrScannerUI();
   setupDiagnosticsUI();
   setupKuliahCameraLiveUI();

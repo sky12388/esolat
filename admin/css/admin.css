@@ -37,8 +37,7 @@ body {
   min-height: 100vh;
   margin: 0;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
   overflow-x: hidden;
   font-size: 1rem;
   line-height: 1.5;
@@ -1731,14 +1730,58 @@ textarea {
   .app-layout {
     max-width: 100%;
     width: 100%;
-    height: 100vh;
+    min-height: 100vh;
+    height: auto;
     border-radius: 0;
     margin: 0;
     box-shadow: none;
   }
 
+  .top-nav {
+    padding: 0.5rem 0.75rem;
+    min-height: 60px;
+  }
+
+  .top-brand {
+    gap: 0.4rem;
+  }
+
+  .logo-emoji {
+    font-size: 1.6rem;
+  }
+
+  #appHeaderTitle {
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+  }
+
+  #appZoneSubtitle {
+    font-size: 0.72rem !important;
+  }
+
+  .top-actions {
+    gap: 0.3rem;
+  }
+
+  .top-actions .icon-btn {
+    width: 36px;
+    height: 36px;
+    min-height: 36px;
+    font-size: 0.85rem;
+    padding: 0.2rem;
+  }
+
+  #btnTopNetInfo {
+    padding: 0.25rem 0.4rem !important;
+    font-size: 0.7rem !important;
+    height: 36px;
+  }
+
   .content-body {
-    padding: 1.25rem 1rem 5rem 1rem;
+    padding: 1rem 0.75rem 6rem 0.75rem;
   }
 
   .admin-desktop-grid {
@@ -1753,6 +1796,27 @@ textarea {
     flex-direction: column;
     gap: 1rem;
     width: 100%;
+  }
+
+  .tab-pane-two-col {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .quick-action-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.6rem !important;
+  }
+
+  .quick-action-grid button,
+  .quick-action-grid .btn,
+  .btn-quick-action {
+    min-height: 48px !important;
+  }
+
+  .btn {
+    min-height: 48px !important;
   }
 }
 

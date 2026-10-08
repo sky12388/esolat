@@ -68,11 +68,53 @@ function handleUnauthorized() {
   localStorage.removeItem('esolat_token');
   document.getElementById('appContainer').style.display = 'none';
   document.getElementById('loginModal').style.display = 'flex';
+  initLandingPageInputs();
 }
 
-// ==================== AUTHENTICATION ====================
+// ==================== AUTHENTICATION & DIRECT CONNECT ====================
+function initLandingPageInputs() {
+  const ipInput = document.getElementById('inputLandingIp');
+  const portInput = document.getElementById('inputLandingPort');
+  if (!ipInput) return;
+
+  const saved = localStorage.getItem('last_connected_ip') || '';
+  if (saved) {
+    const parts = saved.split(':');
+    ipInput.value = parts[0] || '';
+    if (portInput && parts[1]) portInput.value = parts[1];
+  } else if (window.location.hostname && window.location.hostname !== 'sky12388.github.io') {
+    ipInput.value = window.location.hostname;
+    if (portInput) portInput.value = window.location.port || '8080';
+  } else {
+    ipInput.value = '192.168.0.5';
+    if (portInput) portInput.value = '8080';
+  }
+}
+
 async function checkAuth() {
+  initLandingPageInputs();
+
   if (!authToken) {
+    // If already on local server (same origin), automatically connect
+    const isLocal = window.location.hostname && window.location.hostname !== 'sky12388.github.io' && window.location.hostname !== '';
+    if (isLocal) {
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: 'admin', password: '' })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          authToken = data.token;
+          localStorage.setItem('esolat_token', authToken);
+          document.getElementById('loginModal').style.display = 'none';
+          document.getElementById('appContainer').style.display = 'flex';
+          initApp();
+          return;
+        }
+      } catch (_) {}
+    }
     document.getElementById('loginModal').style.display = 'flex';
     return;
   }
@@ -82,10 +124,6 @@ async function checkAuth() {
     if (me.authenticated) {
       document.getElementById('loginModal').style.display = 'none';
       document.getElementById('appContainer').style.display = 'flex';
-
-      if (me.force_password_change) {
-        document.getElementById('changePasswordModal').style.display = 'flex';
-      }
       initApp();
     } else {
       handleUnauthorized();
@@ -95,43 +133,64 @@ async function checkAuth() {
   }
 }
 
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const username = document.getElementById('loginUser').value.trim();
-  const password = document.getElementById('loginPass').value.trim();
-  const alertEl = document.getElementById('loginConnectionAlert');
-  if (alertEl) alertEl.style.display = 'none';
+// Landing Page: IP & Port Connection Form
+const connectForm = document.getElementById('connectKioskForm');
+if (connectForm) {
+  connectForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const rawIp = (document.getElementById('inputLandingIp')?.value || '').trim().replace(/^https?:\/\//i, '').replace(/\/.*$/, '');
+    const rawPort = (document.getElementById('inputLandingPort')?.value || '8080').trim();
+    const alertEl = document.getElementById('loginConnectionAlert');
+    if (alertEl) alertEl.style.display = 'none';
 
-  try {
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password })
-    });
-    const data = await res.json();
-    if (res.ok && data.success) {
-      authToken = data.token;
-      localStorage.setItem('esolat_token', authToken);
-      document.getElementById('loginModal').style.display = 'none';
-      document.getElementById('appContainer').style.display = 'flex';
+    if (!rawIp) {
+      showToast('Sila masukkan alamat IP TV Kiosk!', true);
+      return;
+    }
 
-      if (data.force_password_change) {
-        document.getElementById('changePasswordModal').style.display = 'flex';
+    const targetHost = `${rawIp}:${rawPort}`;
+    localStorage.setItem('last_connected_ip', targetHost);
+
+    const currentHost = window.location.host;
+    const isLocalSame = (targetHost === currentHost) || 
+      ((rawIp === '127.0.0.1' || rawIp === 'localhost') && (currentHost.startsWith('127.0.0.1') || currentHost.startsWith('localhost')));
+
+    if (isLocalSame) {
+      showToast(`📡 Menyambung ke TV Kiosk (${targetHost})...`);
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: 'admin', password: '' })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          authToken = data.token;
+          localStorage.setItem('esolat_token', authToken);
+          document.getElementById('loginModal').style.display = 'none';
+          document.getElementById('appContainer').style.display = 'flex';
+          showToast('✅ Berjaya disambung ke TV Kiosk!');
+          initApp();
+        } else {
+          showToast('Gagal menyambung: ' + (data.message || 'Ralat komunikasi'), true);
+        }
+      } catch (err) {
+        const errorMsg = formatNetworkErrorMessage(err);
+        showToast(errorMsg, true);
+        if (alertEl) {
+          alertEl.style.display = 'block';
+          alertEl.innerHTML = `<strong>⚠️ Ralat Sambungan:</strong> ${errorMsg}`;
+        }
       }
-      showToast('Log masuk berjaya.');
-      initApp();
     } else {
-      showToast(data.message || 'Nama pengguna atau kata laluan tidak sah.', true);
+      const targetUrl = `http://${rawIp}:${rawPort}/admin/`;
+      showToast(`📡 Menyambung & membuka dashboard: ${targetUrl}`);
+      setTimeout(() => {
+        window.location.href = targetUrl;
+      }, 300);
     }
-  } catch (err) {
-    const errorMsg = formatNetworkErrorMessage(err);
-    showToast(errorMsg, true);
-    if (alertEl) {
-      alertEl.style.display = 'block';
-      alertEl.innerHTML = `<strong>⚠️ Ralat Sambungan / Mixed Content:</strong> ${errorMsg}`;
-    }
-  }
-});
+  });
+}
 
 document.getElementById('forcePasswordForm').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -3434,7 +3493,7 @@ function normalizeKioskUrl(target) {
   }
 }
 
-function connectToKioskTarget(target) {
+async function connectToKioskTarget(target) {
   const finalUrl = normalizeKioskUrl(target);
   localStorage.setItem('last_connected_ip', target);
   showToast(`📡 Menyambung ke TV Kiosk: ${finalUrl}`);
@@ -3444,10 +3503,31 @@ function connectToKioskTarget(target) {
     if (targetObj.host !== window.location.host) {
       setTimeout(() => {
         window.location.href = finalUrl;
-      }, 500);
+      }, 400);
       return;
     }
   } catch (e) {}
+
+  // If on local host, auto-authenticate and enter dashboard
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: 'admin', password: '' })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      authToken = data.token;
+      localStorage.setItem('esolat_token', authToken);
+      const loginModal = document.getElementById('loginModal');
+      const appContainer = document.getElementById('appContainer');
+      if (loginModal) loginModal.style.display = 'none';
+      if (appContainer) appContainer.style.display = 'flex';
+      showToast('✅ Berjaya disambung ke TV Kiosk!');
+      initApp();
+      return;
+    }
+  } catch (err) {}
 
   showToast(`✅ Anda sudah berada pada pelayan ${target}!`);
 }
@@ -3591,11 +3671,23 @@ async function onQrCodeSuccess(decodedText, decodedResult) {
   if (scannerModal) scannerModal.style.display = 'none';
 
   let target = decodedText.trim();
-  const manualIpInput = document.getElementById('inputManualKioskIp');
-  if (manualIpInput) manualIpInput.value = target;
+  const landingIpInput = document.getElementById('inputLandingIp');
+  const landingPortInput = document.getElementById('inputLandingPort');
+  if (landingIpInput) {
+    try {
+      const cleanTarget = target.replace(/^https?:\/\//i, '').replace(/\/.*$/, '');
+      const parts = cleanTarget.split(':');
+      landingIpInput.value = parts[0] || cleanTarget;
+      if (landingPortInput && parts[1]) {
+        landingPortInput.value = parts[1];
+      }
+    } catch (e) {
+      landingIpInput.value = target;
+    }
+  }
 
   showToast(`✅ Kod QR Dikesan: ${target}`);
-  connectToKioskTarget(target);
+  await connectToKioskTarget(target);
 }
 
 async function scanQrFromImageFile(imageFile) {

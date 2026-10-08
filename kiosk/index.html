@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <script>
+    // Critical Device Redirection Guard: Stop loading TV Kiosk on Mobile devices
+    if (/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) && !window.location.pathname.includes('/admin')) {
+      var params = new URLSearchParams(window.location.search);
+      if (!params.has('kiosk_force') && !params.has('preview')) {
+        window.location.replace('/admin/');
+      }
+    }
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>e-Solat Mosque Digital Signage</title>
+  <link rel="stylesheet" href="/kiosk/css/kiosk.css">
+  <link rel="stylesheet" href="/kiosk/css/themes.css">
+  <script src="/kiosk/js/theme-manager.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&family=Reem+Kufi:wght@500;600;700&family=Scheherazade+New:wght@400;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <!-- HLS.js Library for Live Stream Playback (.m3u8) - Offline Local with CDN Fallback -->
+  <script src="/kiosk/js/hls.min.js"></script>
+  <script>
+    if (typeof Hls === 'undefined') {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"><\\/script>');
+    }
+  </script>
+</head>
+<body class="theme-emerald" data-theme="emerald">
+  <!-- AUDIO ELEMENTS -->
+  <audio id="audioAdhan" preload="auto" src="/assets/audio/adhan.mp3"></audio>
+  <audio id="audioSubuh" preload="auto" src="/assets/audio/adhan_subuh.mp3"></audio>
+  <audio id="audioBeep" preload="auto" src="/assets/audio/beep.wav"></audio>
+  <audio id="audioPreAdhan" preload="auto" src="/assets/audio/pre_adhan.wav"></audio>
+
+  <!-- MAIN KIOSK CONTAINER (16:9 TV RATIO) -->
+  <div id="kioskContainer" class="kiosk-container mode-fullscreen-signage">
+
+    <!-- VIEWPORT 1: PRAYER & SIGNAGE (CLOCK, RIBBON, SLIDES, TICKER) -->
+    <div id="viewportSignage" class="viewport-signage">
+
+      <!-- 1. TOP HEADER SECTION (3-COLUMN PROMINENT CENTER CLOCK LAYOUT) -->
+      <header class="kiosk-header">
+        <!-- KIRI: Logo Surau + Nama Surau & Zon -->
+        <div class="mosque-branding">
+          <div class="mosque-logo">
+            <svg viewBox="0 0 100 100" class="dome-icon">
+              <path d="M50 10 C50 10 32 30 32 50 C32 55 35 60 40 60 L60 60 C65 60 68 55 68 50 C68 30 50 10 50 10 Z" fill="#fbbf24"/>
+              <path d="M25 60 L75 60 L75 88 L25 88 Z" fill="#059669"/>
+              <path d="M42 88 L42 70 C42 66 58 66 58 70 L58 88 Z" fill="#022c22"/>
+              <circle cx="50" cy="8" r="3" fill="#fbbf24"/>
+            </svg>
+          </div>
+          <div class="mosque-titles">
+            <h1 id="mosqueName">SURAU DARUL TAQWA</h1>
+            <p id="mosqueLocation">Seksyen 7, Shah Alam, Selangor</p>
+            <div class="mosque-ip-row" id="mosqueIpRow" title="Alamat IP Semasa (Akses Panel Pentadbir)">
+              <span class="ip-pulse-dot"></span>
+              <span class="ip-label">IP:</span>
+              <span class="ip-val" id="kioskLanIpDisplay">--</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- TENGAH: Jam Digital Utama (Gergasi & Berdetik Jelas) + Status Masuk Waktu -->
+        <div class="header-center-clock">
+          <div class="digital-clock" id="digitalClock">00:00:00</div>
+          <div class="clock-prayer-status" id="clockPrayerStatus" style="display: none;"></div>
+        </div>
+
+        <!-- KANAN: Tarikh Masihi (BM) + Tarikh Hijriah + Badge Detik Undur Peristiwa Islam -->
+        <div class="header-date-section">
+          <div class="date-container">
+            <div class="gregorian-date" id="gregorianDate">Ahad, 4 Oktober 2026</div>
+            <div class="hijri-date" id="hijriDate">23 Rabiulakhir 1448H</div>
+            <div id="hijri-countdown-badge" class="countdown-tag" style="display: none;"></div>
+          </div>
+        </div>
+      </header>
+
+    <!-- 2. PRAYER TIMES RIBBON -->
+    <section class="prayer-ribbon">
+      <div class="prayer-card" data-prayer="Imsak">
+        <span class="p-arabic">الإمساك</span>
+        <span class="p-name">IMSAK</span>
+        <span class="p-time" id="timeImsak">--:--</span>
+      </div>
+      <div class="prayer-card" data-prayer="Subuh">
+        <span class="p-arabic">الفجر</span>
+        <span class="p-name">SUBUH</span>
+        <span class="p-time" id="timeSubuh">--:--</span>
+      </div>
+      <div class="prayer-card" data-prayer="Syuruk">
+        <span class="p-arabic">الشروق</span>
+        <span class="p-name">SYURUK</span>
+        <span class="p-time" id="timeSyuruk">--:--</span>
+      </div>
+      <div class="prayer-card active" data-prayer="Zohor">
+        <span class="p-arabic">الظهر</span>
+        <span class="p-name">ZOHOR</span>
+        <span class="p-time" id="timeZohor">--:--</span>
+      </div>
+      <div class="prayer-card" data-prayer="Asar">
+        <span class="p-arabic">العصر</span>
+        <span class="p-name">ASAR</span>
+        <span class="p-time" id="timeAsar">--:--</span>
+      </div>
+      <div class="prayer-card" data-prayer="Maghrib">
+        <span class="p-arabic">المغرب</span>
+        <span class="p-name">MAGHRIB</span>
+        <span class="p-time" id="timeMaghrib">--:--</span>
+      </div>
+      <div class="prayer-card" data-prayer="Isyak">
+        <span class="p-arabic">العشاء</span>
+        <span class="p-name">ISYAK</span>
+        <span class="p-time" id="timeIsyak">--:--</span>
+      </div>
+    </section>
+
+    <!-- 3. MAIN 2-COLUMN DISPLAY (LEFT: 68% STAGE, RIGHT: 32% WIDGET STACK) -->
+    <main class="kiosk-main-body" id="main-container">
+
+      <!-- LEFT COLUMN: MAIN STAGE (~68% WIDTH, 16:9 WIDESCREEN) [ZONE 1] -->
+      <section class="kiosk-left-column main-stage" id="kioskLeftColumn" data-zone="media_stage" data-zone-name="Zon 1: Media Stage">
+        <div class="main-stage-16x9" id="mainStage16x9">
+
+          <!-- Instant Janazah / Takziah Notice Board Layer -->
+          <div class="stage-janazah-layer" id="stageJanazahLayer" style="display: none;">
+            <div class="janazah-card">
+              <div class="janazah-arabic-title">إِنَّا لِلَّٰهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ</div>
+              <div class="janazah-badge">MAKLUMAN KEMATIAN &amp; SOLAT JENAZAH</div>
+              <div class="janazah-subtitle">Telah kembali ke rahmatullah:</div>
+              <div class="janazah-arwah-name" id="janazahArwahName">Allahyarham / Allahyarhamah</div>
+              <div class="janazah-details-grid">
+                <div class="janazah-detail-item">
+                  <span class="j-label">WAKTU SOLAT JENAZAH</span>
+                  <span class="j-val gold" id="janazahSolatTime">Selepas Solat Zohor</span>
+                </div>
+                <div class="janazah-detail-item">
+                  <span class="j-label">TEMPAT SOLAT</span>
+                  <span class="j-val" id="janazahSolatLoc">Surau Darul Taqwa</span>
+                </div>
+                <div class="janazah-detail-item full-w">
+                  <span class="j-label">LOKASI PENGEBUMIAN</span>
+                  <span class="j-val green" id="janazahKuburLoc">Tanah Perkuburan Islam Seksyen 21, Shah Alam</span>
+                </div>
+              </div>
+              <div class="janazah-doa-text">"Semoga rohnya dicucuri rahmat dan ditempatkan bersama orang-orang yang beriman &amp; beramal soleh."</div>
+            </div>
+          </div>
+
+          <!-- Friday Solat Jumaat & Khutbah Notice Layer -->
+          <div class="stage-jumaat-layer" id="stageJumaatLayer" style="display: none;">
+            <div class="jumaat-card">
+              <div class="jumaat-header-badge">
+                <span class="live-dot pulse-red"></span>
+                <span>KHUTBAH JUMAAT - SEDANG BERLANGSUNG</span>
+              </div>
+              <div class="jumaat-main-title">SELAMAT MENUNAIKAN SOLAT FARDHU JUMAAT</div>
+              <div class="jumaat-khutbah-box">
+                <span class="khutbah-tag">TAJUK KHUTBAH HARI INI</span>
+                <div class="khutbah-title-text" id="jumaatKhutbahTitle">Membina Ummah MADANI Berteraskan Taqwa</div>
+              </div>
+              <div class="jumaat-hadith-box">
+                <span class="hadith-pill">⚠️ PERINGATAN HADIS SAHIH</span>
+                <div class="jumaat-hadith-text">
+                  "Jika engkau berkata kepada sahabatmu pada hari Jumaat: 'Diamlah!', sewaktu imam sedang berkhutbah, maka sesungguhnya engkau telah lagha (pahalanya sia-sia)."
+                </div>
+                <div class="jumaat-hadith-ref">HR. Al-Bukhari &amp; Muslim</div>
+              </div>
+              <div class="jumaat-etiquette-row">
+                <div class="etiquette-pill">🔇 Matikan Telefon Bimbit</div>
+                <div class="etiquette-pill">👂 Dengar Khutbah Khusyuk</div>
+                <div class="etiquette-pill">🤝 Rapatkan Saf Hadapan</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Video / Live Stream Player Layer (Persistent Stream Container) -->
+          <div class="stage-media-layer" id="persistent-stream-container" style="display: none; width: 100%; height: 100%;">
+            <video id="hls-video" class="media-player-video" autoplay muted playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
+            <iframe id="kioskIframePlayer" class="media-player-iframe" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="display: none;"></iframe>
+            <div class="media-live-badge" id="mediaLiveBadge">
+              <span class="live-dot"></span>
+              <span id="mediaBadgeText">SIARAN LANGSUNG KULIAH</span>
+            </div>
+
+            <!-- Lower-Third Broadcast Overlay for Live Kuliah -->
+            <div class="kiosk-lower-third" id="kioskLowerThird" style="display: none;">
+              <div class="lt-badge-row">
+                <span class="lt-live-tag">🔴 SIARAN LANGSUNG KULIAH</span>
+                <span class="lt-kitab-tag" id="ltKitabName">📖 Kitab: Bahrul Mazi</span>
+              </div>
+              <div class="lt-speaker-row">
+                <span class="lt-speaker-avatar">🎙️</span>
+                <div class="lt-speaker-info">
+                  <div class="lt-speaker-name" id="ltSpeakerName">Ustaz Hj. Ahmad Fauzi</div>
+                  <div class="lt-topic-title" id="ltTopicTitle">Kuliah Maghrib: Menghayati Rahsia Al-Quran</div>
+                </div>
+              </div>
+              <div class="lt-silent-bar">🔇 Sila pastikan telefon bimbit diletakkan dalam mod senyap</div>
+            </div>
+          </div>
+
+          <!-- Clean Fallback Notification Layer when Stream/Video is empty or fails -->
+          <div class="media-fallback-layer" id="mediaFallbackLayer" style="display: none;">
+            <div class="fallback-card">
+              <span class="fallback-icon">⚠️</span>
+              <div class="fallback-title" id="fallbackTitle">Punca Media Tiada / Tidak Sah</div>
+              <div class="fallback-desc" id="fallbackDesc">Sila tetapkan fail video atau pautan strim yang sah di Panel Pentadbir. Slaid poster dipaparkan sebagai sandaran.</div>
+            </div>
+          </div>
+
+          <!-- Slideshow Carousel Layer (Fallback when idle / default) -->
+          <div class="stage-slides-layer" id="stageSlidesLayer">
+            <div class="slides-container" id="slidesContainer">
+              <!-- Dynamically rendered slides -->
+            </div>
+            <div class="slide-indicators" id="slideIndicators"></div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- RIGHT COLUMN: WIDGET STACK (~32% WIDTH, VERTICALLY SPLIT INTO 2 CARDS) [ZONE 2] -->
+      <aside class="kiosk-right-column widget-stack" id="kioskRightColumn" data-zone="sidebar_takwim" data-zone-name="Zon 2: Sidebar Takwim">
+
+        <!-- TOP CARD: GIANT PRAYER COUNTDOWN WIDGET -->
+        <div class="widget-card giant-countdown-card" id="cardGiantCountdown">
+          <div class="cd-header-row">
+            <span class="cd-badge">PANGGILAN SOLAT SETERUSNYA</span>
+            <span class="cd-azan-time" id="cdTargetTime">AZAN --:--</span>
+          </div>
+          <div class="cd-prayer-row">
+            <span class="cd-prayer-name" id="giantNextPrayer">ZOHOR</span>
+          </div>
+          <div class="cd-countdown-display" id="giantCountdown">- 00:00:00</div>
+          <div class="cd-footer-status">
+            <span class="cd-dot-pulse"></span>
+            <span class="cd-status-text" id="cdStatusText">Kiraan tepat waktu solat JAKIM</span>
+          </div>
+        </div>
+
+        <!-- BOTTOM CARD: MOSQUE INFO & INFAQ WIDGET (CYCLES DUITNOW QR & MINI SLIDES) -->
+        <div class="widget-card cycle-widget-card" id="cardBottomCycle">
+
+          <!-- Cycle Slide 1: Infaq DuitNow QR & Bank Details -->
+          <div class="cycle-slide active" id="cycleSlideInfaq">
+            <div class="cycle-header">
+              <span class="widget-badge infaq-badge">INFAQ &amp; WAKAF</span>
+              <span class="widget-subtitle">DuitNow QR</span>
+            </div>
+            <div class="cycle-qr-content">
+              <div class="bank-details-box">
+                <div class="bank-title" id="sideBankName">Bank Islam Malaysia Berhad</div>
+                <div class="bank-account-num" id="sideBankAcc">1202-9010-0456-78</div>
+                <div class="bank-holder-name" id="sideBankHolder">Tabung Pembangunan Surau Darul Taqwa</div>
+              </div>
+              <div class="qr-frame-box" id="infaqQrFrameBox">
+                <svg viewBox="0 0 160 160" class="duitnow-qr-svg" xmlns="http://www.w3.org/2000/svg">
+                  <!-- White QR background -->
+                  <rect width="160" height="160" rx="10" fill="#ffffff"/>
+                  <!-- Top-Left Finder -->
+                  <rect x="15" y="15" width="40" height="40" rx="6" fill="#022c22"/>
+                  <rect x="23" y="23" width="24" height="24" rx="3" fill="#ffffff"/>
+                  <rect x="29" y="29" width="12" height="12" rx="2" fill="#059669"/>
+                  <!-- Top-Right Finder -->
+                  <rect x="105" y="15" width="40" height="40" rx="6" fill="#022c22"/>
+                  <rect x="113" y="23" width="24" height="24" rx="3" fill="#ffffff"/>
+                  <rect x="119" y="29" width="12" height="12" rx="2" fill="#059669"/>
+                  <!-- Bottom-Left Finder -->
+                  <rect x="15" y="105" width="40" height="40" rx="6" fill="#022c22"/>
+                  <rect x="23" y="113" width="24" height="24" rx="3" fill="#ffffff"/>
+                  <rect x="29" y="119" width="12" height="12" rx="2" fill="#059669"/>
+                  <!-- QR Grid Elements -->
+                  <rect x="65" y="18" width="10" height="10" fill="#022c22"/>
+                  <rect x="85" y="22" width="10" height="10" fill="#022c22"/>
+                  <rect x="65" y="38" width="14" height="10" fill="#059669"/>
+                  <rect x="85" y="42" width="8" height="8" fill="#022c22"/>
+                  <rect x="20" y="65" width="10" height="10" fill="#022c22"/>
+                  <rect x="38" y="70" width="16" height="8" fill="#022c22"/>
+                  <rect x="105" y="65" width="12" height="12" fill="#022c22"/>
+                  <rect x="125" y="75" width="16" height="10" fill="#022c22"/>
+                  <rect x="65" y="105" width="12" height="14" fill="#022c22"/>
+                  <rect x="85" y="115" width="10" height="10" fill="#022c22"/>
+                  <rect x="105" y="105" width="35" height="10" fill="#022c22"/>
+                  <rect x="120" y="125" width="20" height="14" fill="#059669"/>
+                  <!-- Center DuitNow Logo Badge -->
+                  <circle cx="80" cy="80" r="18" fill="#e11d48"/>
+                  <text x="80" y="85" font-family="'Outfit', sans-serif" font-size="11" font-weight="900" fill="#ffffff" text-anchor="middle">QR</text>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cycle Slide 2: Mini Info / Next Kuliah / Announcement -->
+          <div class="cycle-slide" id="cycleSlideKuliah">
+            <div class="cycle-header">
+              <span class="widget-badge kuliah-badge">KULIAH AKAN DATANG</span>
+              <span class="widget-time-pill" id="sideKuliahDate">Rabu Ini (Lepas Maghrib)</span>
+            </div>
+            <div class="kuliah-body-content">
+              <div class="kuliah-topic-title" id="sideKuliahTitle">Kuliah Maghrib Perdana: Menghayati Al-Quran</div>
+              <div class="kuliah-speaker-row">
+                <span class="speaker-avatar">🎙️</span>
+                <div class="speaker-meta">
+                  <span class="speaker-role">Penceramah / Ustaz</span>
+                  <span class="speaker-name" id="sideKuliahUstaz">Ustaz Hj. Ahmad Fauzi</span>
+                </div>
+              </div>
+              <div class="announcement-hint" id="cycleAnnouncementHint">Semua muslimin dan muslimat dijemput hadir mengimarahkan majlis ilmu.</div>
+            </div>
+          </div>
+
+          <!-- Cycle Slide 3: Detik Undur Hari Kebesaran Islam -->
+          <div class="cycle-slide" id="cycleSlideHijriEvent">
+            <div class="cycle-header">
+              <span class="widget-badge hijri-badge">TAKWIM ISLAM</span>
+              <span class="widget-time-pill" id="sideHijriEventPill">JAKIM</span>
+            </div>
+            <div class="hijri-event-body-content">
+              <div class="hijri-event-icon">🌙</div>
+              <div class="hijri-event-name" id="sideHijriEventName">Awal Ramadhan Al-Mubarak</div>
+              <div class="hijri-event-days-box">
+                <span class="hijri-event-days-num" id="sideHijriEventDays">--</span>
+                <span class="hijri-event-days-label">HARI LAGI</span>
+              </div>
+              <div class="hijri-event-desc" id="sideHijriEventDesc">Kiraan tepat takwim rasmi JAKIM Malaysia.</div>
+            </div>
+          </div>
+
+          <!-- Cycle Slide 4: Hadis Sahih Pilihan Harian -->
+          <div class="cycle-slide" id="cycleSlideHadith">
+            <div class="cycle-header">
+              <span class="widget-badge hadith-badge">MUTIARA HADIS</span>
+              <span class="widget-time-pill" id="sideHadithRef">Riwayat Muslim</span>
+            </div>
+            <div class="hadith-body-content">
+              <div class="hadith-text-quote" id="sideHadithText">"Sebaik-baik amalan adalah solat pada awal waktunya."</div>
+              <div class="hadith-source-tag" id="sideHadithSource">HR. Al-Bukhari &amp; Muslim</div>
+            </div>
+          </div>
+
+          <!-- Cycle Slide 5: Jadual Tugasan Petugas (Duty Roster: Imam, Bilal, Siak) -->
+          <div class="cycle-slide" id="cycleSlideRoster">
+            <div class="cycle-header">
+              <span class="widget-badge roster-badge">PETUGAS HARI INI</span>
+              <span class="widget-time-pill" id="sideRosterDate">TUGASAN</span>
+            </div>
+            <div class="roster-body-content">
+              <div class="roster-item-row">
+                <span class="roster-role-badge badge-imam">IMAM</span>
+                <span class="roster-person-name" id="sideRosterImam">Ustaz Hj. Wan Ahmad</span>
+              </div>
+              <div class="roster-item-row">
+                <span class="roster-role-badge badge-bilal">BILAL</span>
+                <span class="roster-person-name" id="sideRosterBilal">En. Roslan Ismail</span>
+              </div>
+              <div class="roster-item-row">
+                <span class="roster-role-badge badge-siak">SIAK</span>
+                <span class="roster-person-name" id="sideRosterSiak">En. Mohd Khairi</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cycle Slide 6: Penyata Ringkas Kewangan & Tabung Infaq -->
+          <div class="cycle-slide" id="cycleSlideTabung">
+            <div class="cycle-header">
+              <span class="widget-badge tabung-badge">TABUNG &amp; KEWANGAN</span>
+              <span class="widget-time-pill" id="sideTabungDate">Jumaat Lepas</span>
+            </div>
+            <div class="tabung-body-content">
+              <div class="tabung-summary-grid">
+                <div class="tabung-card-mini">
+                  <span class="tabung-mini-title">Kutipan Jumaat</span>
+                  <span class="tabung-amt-val gold" id="sideTabungJumaat">RM 3,450.00</span>
+                </div>
+                <div class="tabung-card-mini">
+                  <span class="tabung-mini-title">Infaq Subuh</span>
+                  <span class="tabung-amt-val green" id="sideTabungSubuh">RM 820.00</span>
+                </div>
+              </div>
+              <div class="tabung-pembangunan-row">
+                <span class="tabung-pb-title">Tabung Pembangunan:</span>
+                <span class="tabung-pb-amt" id="sideTabungPembangunan">RM 45,200.00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mini Dots for Bottom Card -->
+          <div class="cycle-dots-container">
+            <span class="cycle-dot active" id="dotCycle0"></span>
+            <span class="cycle-dot" id="dotCycle1"></span>
+            <span class="cycle-dot" id="dotCycle2"></span>
+            <span class="cycle-dot" id="dotCycle3"></span>
+            <span class="cycle-dot" id="dotCycle4"></span>
+            <span class="cycle-dot" id="dotCycle5"></span>
+          </div>
+
+        </div>
+
+      </aside>
+    </main>
+
+    <!-- 4. BOTTOM RUNNING TICKER / MARQUEE -->
+    <footer class="kiosk-footer">
+      <div class="ticker-badge">PENGUMUMAN</div>
+      <div class="ticker-wrapper" id="tickerWrapper">
+        <div class="ticker-content" id="tickerContent">
+          Selamat Datang ke Rumah Allah. Sila pastikan telefon bimbit diletakkan dalam mod senyap.
+        </div>
+      </div>
+      <div class="kiosk-watermark" id="kioskWatermark" style="opacity: 0.3;">
+        Powered by Skywalker Consortium (AS0463209-A)
+      </div>
+      <div class="system-status-pill" id="trialPill" style="display: none;">
+        PERCUBAAN
+      </div>
+    </footer>
+    </div>
+    <!-- END VIEWPORT 1: PRAYER & SIGNAGE -->
+
+    <!-- FLOATING MINI PIP PRAYER WIDGET (Active during 'pip_signage' mode) [ZONE 3] -->
+    <div id="pipSignageWidget" class="pip-signage-widget" data-zone="pip_overlay" data-zone-name="Zon 3: PiP Overlay" style="display: none;">
+      <div class="pip-header">
+        <span class="pip-logo">🕌</span>
+        <span class="pip-title" id="pipMosqueName">SURAU DARUL TAQWA</span>
+      </div>
+      <div class="pip-clock" id="pipClock">00:00:00</div>
+      <div class="pip-date" id="pipDate">Ahad, 4 Oktober 2026</div>
+      <div class="pip-prayer-row">
+        <span class="pip-label">MENUJU <b id="pipNextPrayer">ZOHOR</b></span>
+        <span class="pip-timer" id="pipCountdown">- 00:00:00</span>
+      </div>
+    </div>
+
+    <!-- FLOATING LIVE COORDINATES HUD (Active during Layout Edit Mode) -->
+    <div id="canvasLayoutHudBadge" class="canvas-layout-hud-badge" style="display: none;">
+      <span class="hud-icon">📐</span>
+      <span class="hud-text" id="canvasLayoutHudText">X: 0px | Y: 0px | W: 0px | H: 0px</span>
+    </div>
+
+    <!-- ==================== FULLSCREEN OVERLAYS ==================== -->
+
+    <!-- OVERLAY 1: PRE-ADHAN ALERT -->
+    <div id="overlayPreAdhan" class="kiosk-overlay overlay-pre-adhan">
+      <div class="overlay-box">
+        <div class="chime-icon-pulse">🔔</div>
+        <h2>PERINGATAN MASUK WAKTU</h2>
+        <div class="pre-prayer-name" id="preAdhanPrayer">ZOHOR</div>
+        <div class="pre-counter" id="preAdhanCounter">03:00</div>
+        <p>Bersedia untuk solat fardu berjemaah. Ambil wuduk &amp; safkan diri.</p>
+      </div>
+    </div>
+
+    <!-- OVERLAY 2: FULLSCREEN ADHAN -->
+    <div id="overlayAdhan" class="kiosk-overlay overlay-adhan">
+      <div class="adhan-calligraphy">اللَّهُ أَكْبَرُ اللَّهُ أَكْبَرُ</div>
+      <div class="adhan-banner">AZAN <span id="adhanPrayerName">ZOHOR</span></div>
+      <div class="adhan-sub">TELAH MASUK WAKTU SOLAT BERJEMAAH</div>
+      <div class="adhan-pulse-ring"></div>
+      <div class="adhan-timer" id="adhanTimer">03:00</div>
+    </div>
+
+    <!-- OVERLAY 3: DOA SELEPAS ADHAN -->
+    <div id="overlayDoa" class="kiosk-overlay overlay-doa">
+      <div class="doa-card">
+        <h3>DOA SELEPAS AZAN</h3>
+        <p class="doa-arabic">
+          اللَّهُمَّ رَبَّ هَذِهِ الدَّعْوَةِ التَّامَّةِ، وَالصَّلَاةِ الْقَائِمَةِ، آتِ مُحَمَّدًا الْوَسِيلَةَ وَالْفَضِيلَةَ، وَابْعَثْهُ مَقَامًا مَحْمُودًا الَّذِي وَعَدْتَهُ
+        </p>
+        <p class="doa-rumi">
+          "Ya Allah, Tuhan yang memiliki seruan yang sempurna ini dan solat yang didirikan, kurniakanlah kepada Nabi Muhammad saw kedudukan yang mulia lagi tinggi..."
+        </p>
+      </div>
+    </div>
+
+    <!-- OVERLAY 4: IQAMAH COUNTDOWN -->
+    <div id="overlayIqamah" class="kiosk-overlay overlay-iqamah">
+      <div class="iqamah-card">
+        <div class="iqamah-badge">COUNTDOWN IQAMAH</div>
+        <h2 id="iqamahPrayerName">SOLAT ZOHOR</h2>
+        <div class="iqamah-digits" id="iqamahDigits">10:00</div>
+        <p class="iqamah-instruction">Sila bersedia dan ambil tempat di saf hadapan</p>
+      </div>
+    </div>
+
+    <!-- OVERLAY 5: SOLAT IN PROGRESS (SAF & PHONE REMINDER) -->
+    <div id="overlaySolat" class="kiosk-overlay overlay-solat">
+      <div class="solat-container">
+        <div class="saf-arabic">سَوُّوا صُفُوفَكُمْ وَتَرَاحَمُوا</div>
+        <div class="solat-main-title">RAPAT &amp; LURUSKAN SAF</div>
+        <div class="solat-phone-box">
+          <div class="phone-silent-icon">🔕</div>
+          <p>SILA MATIKAN NADA DERING TELEFON BIMBIT ANDA</p>
+        </div>
+        <div class="solat-peaceful-text">Solat Berjemaah Sedang Berlangsung</div>
+      </div>
+    </div>
+
+    <!-- OVERLAY 6: TRIAL EXPIRED LOCK SCREEN -->
+    <div id="overlayLocked" class="kiosk-overlay overlay-locked">
+      <div class="lock-modal">
+        <div class="lock-icon">🔒</div>
+        <h1>TEMPOH PERCUBAAN TAMAT</h1>
+        <p class="lock-subtitle">Sila aktifkan lesen komersial untuk meneruskan paparan e-Solat ini.</p>
+        
+        <div class="hwid-box">
+          <span class="hwid-label">MACHINE ID ANDA:</span>
+          <span class="hwid-val" id="lockedHwid">ESOLAT-XXXX-XXXX-XXXX</span>
+        </div>
+
+        <div class="lock-instructions">
+          <div style="display: flex; align-items: center; justify-content: center; gap: 1.5rem; margin: 1.25rem 0; background: rgba(0, 0, 0, 0.35); padding: 1rem; border-radius: 12px; border: 1px solid rgba(251, 191, 36, 0.3);">
+            <div id="lockedAdminQrBox" style="background: #ffffff; padding: 6px; border-radius: 8px; min-width: 140px; min-height: 140px; display: flex; align-items: center; justify-content: center;"></div>
+            <div style="text-align: left;">
+              <div style="color: #34d399; font-weight: 700; font-size: 1rem; margin-bottom: 4px;">Imbas untuk Urus e-Solat (Admin Mobile)</div>
+              <p style="margin: 0; font-size: 0.88rem; color: #cbd5e1;">1. Imbas kod QR di sebelah atau layari: <br><strong style="color: #fbbf24;"><span id="lockedAdminUrl">http://127.0.0.1:8080/admin/</span></strong></p>
+              <p style="margin: 4px 0 0; font-size: 0.8rem; color: #94a3b8;">Alamat sandaran: <strong>http://esolat.local:8080/admin/</strong></p>
+            </div>
+          </div>
+          <p>2. Dapatkan PIN / Kunci Lesen daripada pembekal dengan memberikan Machine ID di atas:<br>
+            <strong style="color: #fbbf24;">Sila hubungi sokongan teknikal Skywalker Consortium (+6011-1871 2388) untuk pengaktifan lesen.</strong>
+          </p>
+          <p>3. Masukkan PIN pada menu Pengaktifan Lesen untuk membuka sistem secara serta-merta.</p>
+        </div>
+
+        <div class="support-footer">
+          Skywalker Consortium (AS0463209-A) &bull; Emel: skywalker.co@proton.me &bull; Tel: +6011-1871 2388
+        </div>
+      </div>
+    </div>
+
+    <!-- OVERLAY 7: LIVE CAMERA BROADCAST -->
+    <div id="overlayLiveCam" class="kiosk-overlay overlay-live-cam">
+      <video id="liveCamVideo" autoplay playsinline muted></video>
+      <div class="live-cam-badge">🔴 SIARAN LANGSUNG KULIAH</div>
+      <div class="live-cam-footer">
+        <div class="live-cam-mosque" id="liveCamMosque">SURAU DARUL TAQWA</div>
+        <div class="live-cam-prayer" id="liveCamPrayer">Waktu Solat Seterusnya</div>
+      </div>
+    </div>
+
+    <!-- DISCREET MAINTENANCE / EXIT TRIGGER BUTTON -->
+    <button type="button" id="btnMaintenanceTrigger" class="btn-maintenance-trigger" title="Mod Penyelenggaraan" aria-label="Buka Mod Penyelenggaraan Kiosk">
+      <svg viewBox="0 0 24 24" class="maint-shield-icon" width="20" height="20" fill="currentColor">
+        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+      </svg>
+    </button>
+
+    <!-- MAINTENANCE PIN & ACTION MODAL -->
+    <div id="maintenanceModal" class="maintenance-modal-backdrop" style="display: none;">
+      <div class="maintenance-modal-box" id="maintenanceModalBox">
+        
+        <!-- STEP 1: 4-DIGIT PIN AUTHENTICATION -->
+        <div id="maintenancePinStep" class="maintenance-step-view">
+          <div class="maint-modal-header">
+            <div class="maint-modal-badge">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="#fbbf24">
+                <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+              </svg>
+            </div>
+            <h3 class="maint-title">MOD PENYELENGGARAAN</h3>
+            <p class="maint-subtitle">Sila masukkan 4-digit PIN pentadbir</p>
+          </div>
+
+          <!-- MASKED PIN DOTS DISPLAY -->
+          <div class="pin-display-wrapper">
+            <div class="pin-dots" id="pinDots">
+              <span class="pin-dot" id="pinDot0"></span>
+              <span class="pin-dot" id="pinDot1"></span>
+              <span class="pin-dot" id="pinDot2"></span>
+              <span class="pin-dot" id="pinDot3"></span>
+            </div>
+            <div class="pin-msg-area">
+              <div class="pin-error-msg" id="pinErrorMsg" style="display: none;">PIN tidak tepat. Sila cuba lagi.</div>
+              <div class="pin-lockout-msg" id="pinLockoutMsg" style="display: none;">
+                ⏳ Akses dikunci sementara.<br>Sila tunggu <span id="lockoutCountdown">30</span> saat.
+              </div>
+            </div>
+          </div>
+
+          <!-- ON-SCREEN NUMERIC KEYPAD -->
+          <div class="maint-keypad" id="maintKeypad">
+            <button type="button" class="kp-btn" data-key="1">1</button>
+            <button type="button" class="kp-btn" data-key="2">2</button>
+            <button type="button" class="kp-btn" data-key="3">3</button>
+            <button type="button" class="kp-btn" data-key="4">4</button>
+            <button type="button" class="kp-btn" data-key="5">5</button>
+            <button type="button" class="kp-btn" data-key="6">6</button>
+            <button type="button" class="kp-btn" data-key="7">7</button>
+            <button type="button" class="kp-btn" data-key="8">8</button>
+            <button type="button" class="kp-btn" data-key="9">9</button>
+            <button type="button" class="kp-btn kp-clear" id="kpBtnClear" title="Padam Semua">C</button>
+            <button type="button" class="kp-btn" data-key="0">0</button>
+            <button type="button" class="kp-btn kp-backspace" id="kpBtnBack" title="Padam Satu">⌫</button>
+          </div>
+
+          <div class="maint-footer-actions">
+            <button type="button" class="maint-btn-cancel" id="btnCancelMaintPin">✕ Batal / Tutup</button>
+          </div>
+        </div>
+
+        <!-- STEP 2: MAINTENANCE ACTIONS MENU -->
+        <div id="maintenanceMenuStep" class="maintenance-step-view" style="display: none;">
+          <div class="maint-modal-header">
+            <div class="maint-modal-badge maint-badge-success">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="#34d399">
+                <path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/>
+              </svg>
+            </div>
+            <h3 class="maint-title">KAWALAN PENYELENGGARAAN</h3>
+            <p class="maint-subtitle">Pilih tindakan operasi skrin atau sistem:</p>
+          </div>
+
+          <div class="maint-action-list">
+            <!-- Action 1: Minimize / Switch to Desktop -->
+            <button type="button" class="maint-action-item" id="btnActionMinimize">
+              <div class="action-item-icon">🖥️</div>
+              <div class="action-item-body">
+                <div class="action-item-title">Kecilkan Skrin / Tukar ke Desktop</div>
+                <div class="action-item-desc">Tukar ke Debian Workspace 2 atau kecilkan pelayar untuk akses desktop</div>
+              </div>
+              <div class="action-item-arrow">➔</div>
+            </button>
+
+            <!-- Action 2: Exit Kiosk Loop -->
+            <button type="button" class="maint-action-item maint-action-danger" id="btnActionExitLoop">
+              <div class="action-item-icon">⏹️</div>
+              <div class="action-item-body">
+                <div class="action-item-title">Hentikan Gelung Kiosk (Exit Kiosk Loop)</div>
+                <div class="action-item-desc">Aktifkan flag /tmp/esolat-maintenance.flag &amp; tutup pelayar tanpa respawn</div>
+              </div>
+              <div class="action-item-arrow">➔</div>
+            </button>
+
+            <!-- Action 3: Reload Kiosk Display -->
+            <button type="button" class="maint-action-item" id="btnActionReload">
+              <div class="action-item-icon">🔄</div>
+              <div class="action-item-body">
+                <div class="action-item-title">Muat Semula Paparan Kiosk</div>
+                <div class="action-item-desc">Segarkan semula konfigurasi dan antara muka skrin serta-merta</div>
+              </div>
+              <div class="action-item-arrow">➔</div>
+            </button>
+          </div>
+
+          <div class="maint-status-banner" id="maintStatusBanner" style="display: none;"></div>
+
+          <div class="maint-footer-actions">
+            <button type="button" class="maint-btn-cancel" id="btnCloseMaintMenu">✕ Selesai &amp; Tutup</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- FLOATING MINIMAL HUD FOR FULLSCREEN KULIAH MODE -->
+    <div id="floatingKuliahHud">
+      <div class="hud-live-tag">
+        <span class="live-dot" style="background: #ffffff;"></span>
+        <span>KULIAH LIVE</span>
+      </div>
+      <div class="hud-clock" id="hudClock">00:00:00</div>
+      <div class="hud-next-prayer" id="hudNextPrayer">--:--</div>
+    </div>
+
+    <!-- OFFLINE STATUS BADGE (PULSING TOP-RIGHT PILL) -->
+    <div id="tvOfflineBadge">
+      <span>📡</span>
+      <span>MOD LUAR TALIAN (OFFLINE)</span>
+    </div>
+
+    <!-- MODAL 1: TV QUICK SETTINGS (REMOTE CONTROL / 'M' KEY) -->
+    <div id="modalTvSettings" class="tv-modal-overlay">
+      <div class="tv-modal-card">
+        <div class="tv-modal-header">
+          <div class="tv-modal-icon">⚙️</div>
+          <div>
+            <div class="tv-modal-title">TETAPAN PANTAS SKRIN TV</div>
+            <div class="tv-modal-subtitle">Kawalan pantas alat kawalan jauh (Remote Control / D-Pad)</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 0.75rem; font-weight: 700; color: #94a3b8; font-size: 0.85rem;">
+          PILIH TEMA PAPARAN TV:
+        </div>
+        <div class="tv-theme-grid">
+          <button type="button" class="tv-theme-btn" data-theme="emerald_nabawi">
+            <div class="tv-theme-color-dot" style="background: #059669;"></div>
+            <div class="tv-theme-name">Emerald Nabawi</div>
+          </button>
+          <button type="button" class="tv-theme-btn" data-theme="royal_sapphire">
+            <div class="tv-theme-color-dot" style="background: #0284c7;"></div>
+            <div class="tv-theme-name">Royal Sapphire</div>
+          </button>
+          <button type="button" class="tv-theme-btn" data-theme="midnight_oled">
+            <div class="tv-theme-color-dot" style="background: #111827;"></div>
+            <div class="tv-theme-name">Midnight OLED</div>
+          </button>
+          <button type="button" class="tv-theme-btn" data-theme="madinah_bronze">
+            <div class="tv-theme-color-dot" style="background: #d97706;"></div>
+            <div class="tv-theme-name">Madinah Bronze</div>
+          </button>
+          <button type="button" class="tv-theme-btn" data-theme="al_aqsa_teal">
+            <div class="tv-theme-color-dot" style="background: #0d9488;"></div>
+            <div class="tv-theme-name">Al-Aqsa Teal</div>
+          </button>
+          <button type="button" class="tv-theme-btn" data-theme="dark_glass">
+            <div class="tv-theme-color-dot" style="background: #6366f1;"></div>
+            <div class="tv-theme-name">Modern Glass</div>
+          </button>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; margin-top: 1.25rem;">
+          <button type="button" class="maint-action-item" id="btnTvToggleAudio" style="flex: 1; padding: 0.75rem;">
+            <div class="action-item-icon">🔊</div>
+            <div class="action-item-body">
+              <div class="action-item-title" id="tvAudioStatusText">Audio Azan: AKTIF</div>
+            </div>
+          </button>
+          <button type="button" class="maint-action-item" id="btnTvReload" style="flex: 1; padding: 0.75rem;">
+            <div class="action-item-icon">🔄</div>
+            <div class="action-item-body">
+              <div class="action-item-title">Muat Semula Skrin</div>
+            </div>
+          </button>
+        </div>
+
+        <!-- Dynamic LAN IP & Admin QR Pairing Card -->
+        <div class="tv-admin-qr-card" style="margin-top: 1.25rem; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(52, 211, 153, 0.3); border-radius: 14px; padding: 1rem; display: flex; align-items: center; gap: 1.25rem;">
+          <div id="tvAdminQrBox" class="tv-qr-box" style="background: #ffffff; padding: 8px; border-radius: 10px; min-width: 140px; min-height: 140px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.4);"></div>
+          <div style="flex: 1; text-align: left;">
+            <div style="color: #34d399; font-weight: 800; font-size: 1.05rem; margin-bottom: 0.25rem;">Imbas untuk Urus e-Solat (Admin Mobile)</div>
+            <div style="color: #cbd5e1; font-size: 0.85rem; margin-bottom: 0.5rem;">Imbas kod QR di atas menggunakan telefon bimbit AJK surau untuk akses panel kawalan segera.</div>
+            <div style="font-size: 0.82rem; color: #94a3b8; font-family: monospace; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 6px; word-break: break-all;">
+              IP: <span id="tvSettingsIpText" style="color: #fbbf24; font-weight: bold;">--</span> &bull; URL: <span id="tvSettingsAdminUrlText" style="color: #60a5fa;">--</span>
+            </div>
+            <div style="font-size: 0.75rem; color: #64748b; margin-top: 4px;">
+              Sandaran mDNS: <span id="tvSettingsMdnsText" style="color: #a78bfa;">http://esolat.local:8080/admin/</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="maint-footer-actions" style="margin-top: 1.25rem;">
+          <button type="button" class="maint-btn-cancel" id="btnCloseTvSettings">✕ Tutup Tetapan (Esc / Back)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 2: DUITNOW QR DONATION POP-UP (REMOTE 'OK' / SPACE KEY) -->
+    <div id="modalDonationQr" class="tv-modal-overlay">
+      <div class="tv-modal-card tv-donation-card">
+        <div class="tv-modal-header" style="justify-content: center; border-bottom: none; margin-bottom: 0.5rem;">
+          <div class="tv-modal-icon" style="background: rgba(251, 191, 36, 0.2);">💳</div>
+          <div>
+            <div class="tv-modal-title" style="color: #fbbf24;">INFAQ &amp; TABUNG MASJID</div>
+            <div class="tv-modal-subtitle">Imbas Kod QR DuitNow Menggunakan Aplikasi Perbankan Anda</div>
+          </div>
+        </div>
+
+        <div class="tv-qr-wrapper">
+          <img src="/admin/icons/icon-512.png" alt="DuitNow QR" class="tv-qr-image" id="tvDonationQrImg" onerror="this.src='/admin/icons/icon-512.png'">
+        </div>
+
+        <div class="tv-bank-details" id="tvDonationBankName">BANK ISLAM MALAYSIA BERHAD</div>
+        <div class="tv-bank-acc" id="tvDonationBankAcc">1203 8010 0988 21</div>
+        <div style="font-size: 0.9rem; color: #94a3b8; margin-top: 0.35rem;" id="tvDonationAccountHolder">SURAU DARUL TAQWA SHAH ALAM</div>
+
+        <div class="maint-footer-actions" style="margin-top: 1.25rem;">
+          <button type="button" class="maint-btn-cancel" id="btnCloseDonationQr">✕ Tutup Paparan (OK / Esc)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 3: ACCIDENTAL EXIT CONFIRMATION DIALOG -->
+    <div id="modalExitConfirm" class="tv-modal-overlay">
+      <div class="tv-modal-card" style="max-width: 480px; text-align: center;">
+        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🚪</div>
+        <div class="tv-modal-title" style="color: #f87171; font-size: 1.25rem;">Keluar dari Paparan TV?</div>
+        <p style="color: #cbd5e1; font-size: 0.9rem; margin: 0.75rem 0 1.25rem;">
+          Adakah anda pasti mahu keluar dari paparan waktu solat &amp; kiosk digital masjid?
+        </p>
+        <div style="display: flex; gap: 0.75rem;">
+          <button type="button" class="maint-btn-cancel" id="btnCancelExitConfirm" style="flex: 1; background: rgba(255,255,255,0.1);">
+            ✕ Batal (Kekal)
+          </button>
+          <button type="button" class="maint-btn-cancel" id="btnProceedExit" style="flex: 1; background: #dc2626; color: #fff;">
+            ✓ Ya, Keluar
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="/kiosk/js/qrcode.min.js"></script>
+  <script src="/kiosk/js/network-qr.js"></script>
+  <script src="/kiosk/js/media.js"></script>
+  <script src="/kiosk/js/hijri-countdown.js"></script>
+  <script src="/kiosk/js/kiosk.js"></script>
+</body>
+</html>

@@ -46,62 +46,100 @@
       min-width: 110px !important;
       padding: 0 18px !important;
     }
+    .nav-tab-btn.active {
+      background: linear-gradient(135deg, #059669, #047857);
+      color: #ffffff;
+      border-color: #34d399;
+      box-shadow: 0 4px 14px rgba(5, 150, 105, 0.4);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      height: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #059669;
+      border-radius: 4px;
+    }
   </style>
 </head>
-<body class="bg-slate-950 text-white min-h-screen antialiased flex flex-col selection:bg-emerald-500 selection:text-white pb-20 font-sans text-base">
+<body class="bg-slate-950 text-white min-h-screen antialiased flex flex-col selection:bg-emerald-500 selection:text-white pb-24 font-sans text-base">
 
   <!-- ==================== TOP APP HEADER ==================== -->
-  <header class="sticky top-0 z-40 bg-slate-900/98 backdrop-blur-md border-b-2 border-emerald-500/40 px-4 py-3.5 shadow-2xl">
-    <div class="max-w-xl mx-auto flex items-center justify-between">
-      <div class="flex items-center gap-3.5">
-        <a href="../" class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-850 border-2 border-emerald-300/60 flex items-center justify-center text-2xl shadow-lg hover:scale-105 transition">
+  <header class="sticky top-0 z-40 bg-slate-900/98 backdrop-blur-md border-b-2 border-emerald-500/40 px-4 py-3 shadow-2xl">
+    <div class="max-w-2xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="../" class="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-850 border-2 border-emerald-300/60 flex items-center justify-center text-xl shadow-lg hover:scale-105 transition">
           🕌
         </a>
         <div>
           <div class="flex items-center gap-2">
-            <span class="text-xl font-black tracking-tight text-white">e-Solat</span>
-            <span class="text-slate-950 font-black text-xs px-2.5 py-0.5 rounded-full bg-amber-400 border border-amber-300 shadow-sm">
-              REMOTE
+            <span class="text-lg font-black tracking-tight text-white">e-Solat</span>
+            <span class="text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full bg-amber-400 border border-amber-300 shadow-sm">
+              ADMIN PWA
             </span>
           </div>
-          <p id="topConnectionLabel" class="text-xs font-bold text-emerald-300 flex items-center gap-2 mt-0.5">
-            <span id="topStatusDot" class="w-3 h-3 rounded-full bg-emerald-400 inline-block shadow-md shadow-emerald-400 animate-pulse"></span>
+          <p id="topConnectionLabel" class="text-xs font-bold text-emerald-300 flex items-center gap-1.5 mt-0.5">
+            <span id="topStatusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block shadow-md shadow-emerald-400 animate-pulse"></span>
             <span id="topStatusText">Surau: 192.168.1.104:8080</span>
           </p>
         </div>
       </div>
 
-      <div class="flex items-center gap-2.5">
-        <button id="btnHeaderInstall" type="button" class="hidden px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-400 to-teal-300 text-slate-950 font-black text-xs items-center gap-1.5 shadow-lg hover:scale-105 transition">
+      <div class="flex items-center gap-2">
+        <button id="btnHeaderInstall" type="button" class="hidden px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-400 to-teal-300 text-slate-950 font-black text-xs items-center gap-1 shadow-lg hover:scale-105 transition">
           <span>📥</span><span>PASANG</span>
         </button>
-        <a href="../manual/" title="Panduan Pengguna" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border-2 border-amber-400/40 font-bold text-sm transition flex items-center justify-center gap-1">
-          <span>📖</span><span class="text-xs hidden sm:inline">Panduan</span>
+        <button id="btnToggleSectionConn" type="button" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border-2 border-amber-400/40 font-bold text-xs transition flex items-center gap-1">
+          <span>📡</span><span class="hidden sm:inline">Tukar IP</span>
+        </button>
+        <a href="../manual/" title="Panduan Pengguna" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 transition flex items-center justify-center text-xs">
+          📖
         </a>
       </div>
+    </div>
+
+    <!-- Top Module Navigation Scrollable Tabs -->
+    <div class="max-w-2xl mx-auto mt-2.5 pt-2 border-t border-slate-800/80 flex items-center gap-2 overflow-x-auto custom-scrollbar pb-1 text-xs font-bold whitespace-nowrap">
+      <button type="button" data-module="dashboard" class="nav-tab-btn active px-3.5 py-2 rounded-xl border border-slate-700 text-slate-300 hover:text-white transition flex items-center gap-1.5">
+        <span>🎮</span><span>Utama</span>
+      </button>
+      <button type="button" data-module="takwim" class="nav-tab-btn px-3.5 py-2 rounded-xl border border-slate-700 text-slate-300 hover:text-white transition flex items-center gap-1.5">
+        <span>🕌</span><span>Takwim &amp; Iqamah</span>
+      </button>
+      <button type="button" data-module="audio" class="nav-tab-btn px-3.5 py-2 rounded-xl border border-slate-700 text-slate-300 hover:text-white transition flex items-center gap-1.5">
+        <span>🔊</span><span>Audio &amp; Azan</span>
+      </button>
+      <button type="button" data-module="media" class="nav-tab-btn px-3.5 py-2 rounded-xl border border-slate-700 text-slate-300 hover:text-white transition flex items-center gap-1.5">
+        <span>🖼️</span><span>Poster &amp; Infaq</span>
+      </button>
+      <button type="button" data-module="camera" class="nav-tab-btn px-3.5 py-2 rounded-xl border border-slate-700 text-slate-300 hover:text-white transition flex items-center gap-1.5">
+        <span>📹</span><span>Kamera Kuliah</span>
+      </button>
+      <button type="button" data-module="diagnostics" class="nav-tab-btn px-3.5 py-2 rounded-xl border border-slate-700 text-slate-300 hover:text-white transition flex items-center gap-1.5">
+        <span>⚙️</span><span>Sistem TV</span>
+      </button>
     </div>
   </header>
 
   <!-- ==================== MAIN CONTENT CONTAINER ==================== -->
-  <main class="flex-1 max-w-xl w-full mx-auto p-4 sm:p-5 space-y-6">
+  <main class="flex-1 max-w-2xl w-full mx-auto p-4 sm:p-5 space-y-6">
 
     <!-- Standalone Install Prompt Card -->
-    <div id="installCard" class="hidden p-5 rounded-3xl bg-gradient-to-r from-emerald-950 via-slate-900 to-emerald-950 border-2 border-emerald-400/60 shadow-2xl flex items-center justify-between gap-4">
+    <div id="installCard" class="hidden p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-emerald-950 via-slate-900 to-emerald-950 border-2 border-emerald-400/60 shadow-2xl flex items-center justify-between gap-4">
       <div class="flex items-center gap-3.5">
-        <div class="w-12 h-12 rounded-2xl bg-emerald-500/30 border-2 border-emerald-400 flex items-center justify-center text-2xl shrink-0">
+        <div class="w-11 h-11 rounded-2xl bg-emerald-500/30 border-2 border-emerald-400 flex items-center justify-center text-xl shrink-0">
           📱
         </div>
         <div>
-          <h3 class="text-sm font-black text-white">Pasang Aplikasi di Skrin Telefon</h3>
-          <p class="text-xs text-emerald-200 mt-0.5">Buka terus remote ini tanpa perlu taip URL setiap kali.</p>
+          <h3 class="text-xs sm:text-sm font-black text-white">Pasang Aplikasi di Skrin Telefon</h3>
+          <p class="text-[11px] sm:text-xs text-emerald-200 mt-0.5">Buka terus remote ini tanpa perlu taip URL setiap kali.</p>
         </div>
       </div>
-      <button id="btnCardInstall" type="button" class="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black text-xs shrink-0 hover:scale-105 transition shadow-lg">
-        PASANG APP
+      <button id="btnCardInstall" type="button" class="px-3.5 py-2 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black text-xs shrink-0 hover:scale-105 transition shadow-lg">
+        PASANG
       </button>
     </div>
 
-    <!-- ==================== SECTION 1: SAMBUNGAN IP SURAU ==================== -->
+    <!-- ==================== 0. SAMBUNGAN IP CARD ==================== -->
     <section id="section-connection" class="bg-slate-900 border-2 border-emerald-500/50 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-5">
       
       <div class="flex items-center justify-between border-b-2 border-slate-800 pb-3.5">
@@ -109,7 +147,7 @@
           <span class="text-2xl">📡</span>
           <div>
             <h2 class="text-base font-black text-white tracking-wide">Sambungan TV Kiosk Surau</h2>
-            <p class="text-xs text-amber-300 font-semibold mt-0.5">Masukkan alamat IP atau imbas kod QR TV</p>
+            <p class="text-xs text-amber-300 font-semibold mt-0.5">Taip IP atau imbas kod QR TV</p>
           </div>
         </div>
         <span id="badgeCurrentIp" class="text-xs sm:text-sm font-mono text-amber-300 font-black bg-emerald-950 px-3 py-1.5 rounded-2xl border-2 border-amber-400 shadow-md">
@@ -167,7 +205,7 @@
         </div>
       </form>
 
-      <!-- QR Scanner Viewport (Hidden by default, shown on click) -->
+      <!-- QR Scanner Viewport (Hidden by default) -->
       <div id="qrScannerBox" class="hidden p-4 sm:p-5 rounded-2xl bg-slate-950 border-2 border-amber-400 space-y-3.5 shadow-2xl">
         <div class="flex items-center justify-between">
           <span class="text-sm font-black text-amber-300 flex items-center gap-2">
@@ -183,7 +221,7 @@
         </div>
       </div>
 
-      <!-- Auto Subnet Scanner Viewport (Hidden by default, shown on click) -->
+      <!-- Auto Subnet Scanner Viewport (Hidden by default) -->
       <div id="subnetScannerBox" class="hidden p-4 sm:p-5 rounded-2xl bg-slate-950 border-2 border-teal-400 space-y-3.5 shadow-2xl">
         <div class="flex items-center justify-between">
           <span class="text-sm font-black text-teal-300 flex items-center gap-2">
@@ -216,89 +254,20 @@
 
     </section>
 
-    <!-- ==================== SECTION 2: BORANG LOG MASUK (LOGIN FORM) ==================== -->
-    <section id="section-login" class="bg-slate-900 border-2 border-amber-400/70 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-5">
-      
-      <div class="flex items-center justify-between border-b-2 border-slate-800 pb-3.5">
-        <div class="flex items-center gap-2.5">
-          <span class="text-2xl">🔐</span>
-          <div>
-            <h2 class="text-base font-black text-white tracking-wide">Log Masuk Pentadbir Surau</h2>
-            <p class="text-xs text-amber-300 font-semibold mt-0.5">Sahkan identiti AJK untuk membuka kawalan TV</p>
-          </div>
-        </div>
-        <button id="btnChangeIpFromLogin" type="button" class="text-xs font-bold text-amber-300 hover:text-white px-3 py-1.5 rounded-xl bg-slate-800 border border-amber-400/40">
-          Tukar IP
-        </button>
-      </div>
-
-      <!-- Connected Target IP Info Banner -->
-      <div class="p-3.5 rounded-2xl bg-slate-950 border border-emerald-500/50 flex items-center justify-between">
-        <div class="flex items-center gap-2.5">
-          <span class="w-3 h-3 rounded-full bg-emerald-400 inline-block animate-pulse"></span>
-          <span class="text-xs font-bold text-slate-300">Sasaran Kiosk:</span>
-        </div>
-        <span id="loginTargetIpDisplay" class="text-xs sm:text-sm font-mono font-black text-emerald-300">
-          http://192.168.1.104:8080
-        </span>
-      </div>
-
-      <!-- Login Form -->
-      <form id="loginForm" class="space-y-4" onsubmit="return false;">
-        <div>
-          <label for="inputUsername" class="block text-sm font-black text-slate-200 mb-1.5">
-            Nama Pengguna:
-          </label>
-          <input 
-            type="text" 
-            id="inputUsername" 
-            value="admin" 
-            placeholder="admin"
-            class="w-full bg-slate-950 border-2 border-slate-700 focus:border-amber-400 rounded-2xl px-4 py-3.5 text-base font-bold text-white focus:outline-none placeholder-slate-600"
-            autocomplete="username"
-          >
-        </div>
-
-        <div>
-          <label for="inputPassword" class="block text-sm font-black text-slate-200 mb-1.5">
-            Kata Laluan:
-          </label>
-          <input 
-            type="password" 
-            id="inputPassword" 
-            value="admin@surau" 
-            placeholder="••••••••"
-            class="w-full bg-slate-950 border-2 border-slate-700 focus:border-amber-400 rounded-2xl px-4 py-3.5 text-base font-mono font-bold text-white focus:outline-none placeholder-slate-600"
-            autocomplete="current-password"
-          >
-          <p class="text-[11px] text-slate-400 mt-1.5">Kata laluan lalai: <code>admin@surau</code></p>
-        </div>
-
-        <button 
-          id="btnSubmitLogin" 
-          type="submit" 
-          class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 hover:from-amber-300 hover:to-amber-200 text-slate-950 font-black text-base uppercase tracking-wider transition active:scale-95 shadow-xl cursor-pointer"
-        >
-          LOG MASUK KE SURAU &rarr;
-        </button>
-      </form>
-
-    </section>
-
-    <!-- ==================== SECTION 3: PANEL KAWALAN PANTAS TV ==================== -->
-    <section id="section-controls" class="hidden bg-slate-900 border-2 border-emerald-500/50 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-5">
+    <!-- ==================== 1. MODUL DASHBOARD & KAWALAN PANTAS ==================== -->
+    <section id="mod-dashboard" class="module-section bg-slate-900 border-2 border-emerald-500/50 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-5">
       
       <div class="flex items-center justify-between border-b-2 border-slate-800 pb-3.5">
         <div class="flex items-center gap-2.5">
           <span class="text-2xl">🎮</span>
           <div>
             <h2 class="text-base font-black text-white tracking-wide">Panel Kawalan Pantas TV</h2>
-            <p class="text-xs text-emerald-300 font-semibold mt-0.5">Status: Log Masuk Aktif</p>
+            <p class="text-xs text-emerald-300 font-semibold mt-0.5">Tukar mod siaran TV serta-merta</p>
           </div>
         </div>
-        <button id="btnLogout" type="button" class="text-xs font-bold text-rose-400 hover:text-white px-3 py-1.5 rounded-xl bg-slate-800 border border-rose-500/40">
-          Log Keluar
-        </button>
+        <span class="text-xs text-slate-950 font-black uppercase tracking-wider bg-emerald-400 px-3 py-1 rounded-full shadow-sm">
+          SIARAN SEGERA
+        </span>
       </div>
 
       <!-- Action Grid: Large Senior-Friendly Touch Cards -->
@@ -359,18 +328,298 @@
 
     </section>
 
-    <!-- ==================== SECTION 4: CAMERA STREAMER SHORTCUT CARD ==================== -->
-    <section class="p-5 rounded-3xl bg-gradient-to-r from-emerald-950/80 via-slate-900 to-emerald-950/80 border-2 border-emerald-400/50 flex items-center justify-between gap-4 shadow-xl">
-      <div class="flex items-center gap-3.5">
-        <div class="text-3xl">📹</div>
-        <div>
-          <h4 class="text-sm sm:text-base font-black text-white">Pentas Siaran Kamera Langsung</h4>
-          <p class="text-xs text-emerald-200 mt-0.5">Pancarkan video kuliah terus dari kamera telefon ke TV.</p>
+    <!-- ==================== 2. MODUL TAKWIM JAKIM & MASA IQAMAH ==================== -->
+    <section id="mod-takwim" class="module-section hidden bg-slate-900 border-2 border-emerald-500/50 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-5">
+      
+      <div class="flex items-center justify-between border-b-2 border-slate-800 pb-3.5">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl">🕌</span>
+          <div>
+            <h2 class="text-base font-black text-white tracking-wide">Zon Solat JAKIM &amp; Iqamah</h2>
+            <p class="text-xs text-emerald-300 font-semibold mt-0.5">Penetapan zon solat rasmi &amp; minit kiraan undur</p>
+          </div>
         </div>
       </div>
-      <a id="btnOpenStreamer" href="../streamer/" class="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs sm:text-sm whitespace-nowrap transition shadow-lg shrink-0">
-        Buka Kamera &rarr;
-      </a>
+
+      <form id="formTakwimSettings" class="space-y-4" onsubmit="return false;">
+        
+        <!-- JAKIM Zone Selector + GPS Auto Match -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label for="selectJakimZone" class="text-sm font-black text-white">Zon Solat Rasmi JAKIM:</label>
+            <button id="btnGpsMatch" type="button" class="text-xs font-bold text-amber-300 hover:text-white px-2.5 py-1 rounded-lg bg-slate-800 border border-amber-400/40 flex items-center gap-1">
+              <span>📍</span><span>Kesan GPS Telefon</span>
+            </button>
+          </div>
+          <select id="selectJakimZone" class="w-full bg-slate-950 border-2 border-emerald-500/60 focus:border-amber-400 rounded-2xl px-4 py-3.5 text-sm font-bold text-emerald-300 focus:outline-none">
+            <option value="SGR01">SGR01 — Gombak, Petaling, Sepang, Hulu Langat, Shah Alam</option>
+            <option value="SGR02">SGR02 — Kuala Selangor, Sabak Bernam</option>
+            <option value="SGR03">SGR03 — Klang, Kuala Langat</option>
+            <option value="WLY01">WLY01 — Kuala Lumpur, Putrajaya</option>
+            <option value="WLY02">WLY02 — Labuan</option>
+            <option value="JHR01">JHR01 — Pulau Aur dan Pulau Pemanggil</option>
+            <option value="JHR02">JHR02 — Johor Bahru, Kota Tinggi, Kulai</option>
+            <option value="JHR03">JHR03 — Kluang, Pontian</option>
+            <option value="JHR04">JHR04 — Batu Pahat, Muar, Segamat, Tangkak</option>
+            <option value="KDH01">KDH01 — Kota Setar, Kubang Pasu, Pokok Sena</option>
+            <option value="KDH02">KDH02 — Kuala Muda, Yan, Pendang</option>
+            <option value="KDH03">KDH03 — Padang Terap, Sik</option>
+            <option value="KDH04">KDH04 — Baling</option>
+            <option value="KDH05">KDH05 — Bandar Baharu, Kulim</option>
+            <option value="KDH06">KDH06 — Langkawi</option>
+            <option value="PNG01">PNG01 — Seluruh Negeri Pulau Pinang</option>
+            <option value="PRK01">PRK01 — Tapah, Slim River, Tanjung Malim</option>
+            <option value="PRK02">PRK02 — Ipoh, Batu Gajah, Kampar, Sg Siput, Kuala Kangsar</option>
+            <option value="MLK01">MLK01 — Seluruh Negeri Melaka</option>
+            <option value="NGS01">NGS01 — Tampin, Jempol</option>
+            <option value="NGS02">NGS02 — Jelebu, Kuala Pilah, Port Dickson, Rembau, Seremban</option>
+            <option value="PHG01">PHG01 — Pulau Tioman</option>
+            <option value="PHG02">PHG02 — Kuantan, Pekan, Rompin, Muadzam Shah</option>
+            <option value="TRG01">TRG01 — Kuala Terengganu, Marang, Kuala Nerus</option>
+            <option value="KTN01">KTN01 — Kota Bharu, Bachok, Pasir Puteh, Tumpat</option>
+            <option value="SBH01">SBH01 — Kota Kinabalu, Penampang, Tuaran</option>
+            <option value="SWK01">SWK01 — Limbang, Lawas, Sundar, Trusan</option>
+            <option value="SWK08">SWK08 — Kuching, Bau, Lundu, Sematan</option>
+          </select>
+        </div>
+
+        <!-- Iqamah Timers Grid -->
+        <div class="space-y-2 pt-2">
+          <label class="block text-sm font-black text-white">Masa Kiraan Undur Iqamah (Minit):</label>
+          <div class="grid grid-cols-5 gap-2">
+            <div class="text-center bg-slate-950 p-2.5 rounded-2xl border border-slate-700">
+              <div class="text-[11px] font-bold text-slate-300">Subuh</div>
+              <input type="number" id="inputIqamahSubuh" value="12" min="1" max="60" class="w-full bg-slate-900 border border-slate-700 rounded-xl text-center font-bold text-amber-300 text-sm py-1.5 mt-1">
+            </div>
+            <div class="text-center bg-slate-950 p-2.5 rounded-2xl border border-slate-700">
+              <div class="text-[11px] font-bold text-slate-300">Zohor</div>
+              <input type="number" id="inputIqamahZohor" value="10" min="1" max="60" class="w-full bg-slate-900 border border-slate-700 rounded-xl text-center font-bold text-amber-300 text-sm py-1.5 mt-1">
+            </div>
+            <div class="text-center bg-slate-950 p-2.5 rounded-2xl border border-slate-700">
+              <div class="text-[11px] font-bold text-slate-300">Asar</div>
+              <input type="number" id="inputIqamahAsar" value="10" min="1" max="60" class="w-full bg-slate-900 border border-slate-700 rounded-xl text-center font-bold text-amber-300 text-sm py-1.5 mt-1">
+            </div>
+            <div class="text-center bg-slate-950 p-2.5 rounded-2xl border border-slate-700">
+              <div class="text-[11px] font-bold text-slate-300">Maghrib</div>
+              <input type="number" id="inputIqamahMaghrib" value="10" min="1" max="60" class="w-full bg-slate-900 border border-slate-700 rounded-xl text-center font-bold text-amber-300 text-sm py-1.5 mt-1">
+            </div>
+            <div class="text-center bg-slate-950 p-2.5 rounded-2xl border border-slate-700">
+              <div class="text-[11px] font-bold text-slate-300">Isyak</div>
+              <input type="number" id="inputIqamahIsyak" value="10" min="1" max="60" class="w-full bg-slate-900 border border-slate-700 rounded-xl text-center font-bold text-amber-300 text-sm py-1.5 mt-1">
+            </div>
+          </div>
+        </div>
+
+        <button id="btnSaveTakwim" type="button" class="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-400 to-teal-300 hover:from-emerald-300 hover:to-teal-200 text-slate-950 font-black text-sm uppercase tracking-wider transition active:scale-95 shadow-xl">
+          SIMPAN TETAPAN TAKWIM &amp; IQAMAH
+        </button>
+      </form>
+
+    </section>
+
+    <!-- ==================== 3. MODUL AUDIO AZAN & TARHIM ==================== -->
+    <section id="mod-audio" class="module-section hidden bg-slate-900 border-2 border-emerald-500/50 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-5">
+      
+      <div class="flex items-center justify-between border-b-2 border-slate-800 pb-3.5">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl">🔊</span>
+          <div>
+            <h2 class="text-base font-black text-white tracking-wide">Audio Azan, Tarhim &amp; Volume</h2>
+            <p class="text-xs text-amber-300 font-semibold mt-0.5">Kawalan pembesar suara dan alunan azan MP3</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Volume Slider -->
+      <div class="p-4 sm:p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
+        <div class="flex items-center justify-between">
+          <label for="sliderVolume" class="text-sm font-black text-white">Kelantangan Pembesar Suara TV:</label>
+          <span id="volumeValueDisplay" class="text-sm font-mono font-black text-emerald-300">85%</span>
+        </div>
+        <input type="range" id="sliderVolume" min="0" max="100" value="85" class="w-full h-3 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-400">
+      </div>
+
+      <!-- Azan Presets -->
+      <div class="space-y-3">
+        <label for="selectAzanVoice" class="block text-sm font-black text-white">Pilihan Alunan Azan:</label>
+        <select id="selectAzanVoice" class="w-full bg-slate-950 border-2 border-emerald-500/60 rounded-2xl px-4 py-3.5 text-sm font-bold text-white focus:outline-none">
+          <option value="azan_makkah.mp3">Azan Makkah Al-Mukarramah</option>
+          <option value="azan_madinah.mp3">Azan Madinah Al-Munawwarah</option>
+          <option value="azan_mesir.mp3">Azan Mesir (Al-Azhar)</option>
+          <option value="azan_subuh.mp3">Azan Khas Subuh (Assalatu Khairum Minan Naum)</option>
+          <option value="custom.mp3">Fail Suara Ustaz Tempatan (Rakaman MP3)</option>
+        </select>
+      </div>
+
+      <!-- Tarhim & Pre-Azan Toggle -->
+      <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+        <div>
+          <div class="text-sm font-black text-white">Bacaan Tarhim / Al-Quran Sebelum Azan</div>
+          <div class="text-xs text-slate-400">Mainkan bacaan 10 minit sebelum Azan Subuh &amp; Jumaat</div>
+        </div>
+        <input type="checkbox" id="checkTarhim" checked class="w-6 h-6 rounded-lg accent-emerald-500 cursor-pointer">
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="grid grid-cols-2 gap-3">
+        <button id="btnTestAzanAudio" type="button" class="py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-xs text-white transition flex items-center justify-center gap-1.5 shadow-md">
+          <span>🔊 Main Audio Azan</span>
+        </button>
+        <button id="btnStopAzanAudio" type="button" class="py-3.5 px-4 rounded-xl bg-rose-900 hover:bg-rose-800 border border-rose-500 font-bold text-xs text-white transition flex items-center justify-center gap-1.5 shadow-md">
+          <span>⏹️ Henti Audio</span>
+        </button>
+      </div>
+
+    </section>
+
+    <!-- ==================== 4. MODUL POSTER & INFAQ QR ==================== -->
+    <section id="mod-media" class="module-section hidden bg-slate-900 border-2 border-emerald-500/50 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-5">
+      
+      <div class="flex items-center justify-between border-b-2 border-slate-800 pb-3.5">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl">🖼️</span>
+          <div>
+            <h2 class="text-base font-black text-white tracking-wide">Poster Slaid Kuliah &amp; Infaq</h2>
+            <p class="text-xs text-amber-300 font-semibold mt-0.5">Muat naik poster &amp; Kod QR DuitNow terus ke TV</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Upload Poster Form -->
+      <div class="p-4 sm:p-5 rounded-2xl bg-slate-950 border-2 border-slate-800 space-y-3.5">
+        <div class="text-sm font-black text-white flex items-center gap-2">
+          <span>📤</span><span>Muat Naik Poster Kuliah Baharu:</span>
+        </div>
+        <input type="file" id="inputSlideFile" accept="image/*" class="w-full text-xs text-slate-300 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-emerald-500 file:text-slate-950 hover:file:bg-emerald-400 cursor-pointer">
+        <div class="flex gap-2.5">
+          <input type="text" id="inputSlideTitle" placeholder="Tajuk Slaid (cth: Kuliah Maghrib Ustaz Azhar)..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-400">
+          <button id="btnUploadSlide" type="button" class="px-5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs transition shadow-md">
+            HANTAR
+          </button>
+        </div>
+      </div>
+
+      <!-- Upload Infaq Bank QR -->
+      <div class="p-4 sm:p-5 rounded-2xl bg-slate-950 border-2 border-emerald-500/40 space-y-3.5">
+        <div class="text-sm font-black text-white flex items-center gap-2">
+          <span>💳</span><span>Tukar Kod QR Infaq DuitNow Masjid:</span>
+        </div>
+        <input type="file" id="inputQrFile" accept="image/*" class="w-full text-xs text-slate-300 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-teal-400 file:text-slate-950 hover:file:bg-teal-300 cursor-pointer">
+        <button id="btnUploadQr" type="button" class="w-full py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-xs uppercase tracking-wider transition shadow-md">
+          KEMAS KINI KOD QR INFAQ DUITNOW
+        </button>
+      </div>
+
+    </section>
+
+    <!-- ==================== 5. MODUL KAMERA & RAKAMAN ==================== -->
+    <section id="mod-camera" class="module-section hidden bg-slate-900 border-2 border-emerald-500/50 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-5">
+      
+      <div class="flex items-center justify-between border-b-2 border-slate-800 pb-3.5">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl">📹</span>
+          <div>
+            <h2 class="text-base font-black text-white tracking-wide">Pentas Kuliah, RTSP &amp; Rakaman</h2>
+            <p class="text-xs text-emerald-300 font-semibold mt-0.5">Siaran kamera tanpa wayar &amp; rakaman MP4</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live WebRTC Streamer Card -->
+      <div class="p-5 rounded-2xl bg-gradient-to-r from-emerald-950 to-slate-950 border-2 border-emerald-400/60 flex items-center justify-between gap-4">
+        <div>
+          <div class="text-sm font-black text-white">Kamera Telefon Tanpa Wayar</div>
+          <div class="text-xs text-slate-300 mt-0.5">Pancarkan video ceramah dari telefon ini terus ke TV Kiosk</div>
+        </div>
+        <a id="btnOpenStreamer" href="../streamer/" class="px-4 py-2.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-black text-xs uppercase whitespace-nowrap shadow-lg shrink-0">
+          BUKA KAMERA &rarr;
+        </a>
+      </div>
+
+      <!-- RTSP IP Camera Configuration -->
+      <div class="p-4 sm:p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
+        <label for="inputRtspUrl" class="block text-sm font-black text-white">Alamat IP / RTSP Kamera Surau:</label>
+        <input type="text" id="inputRtspUrl" placeholder="rtsp://admin:pass@192.168.1.50:554/ch0" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs font-mono text-white focus:outline-none focus:border-emerald-400">
+        <div class="grid grid-cols-2 gap-2.5">
+          <button id="btnStartRtsp" type="button" class="py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 font-bold text-xs text-white transition">
+            Sambung RTSP
+          </button>
+          <button id="btnStopRtsp" type="button" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 font-bold text-xs text-slate-300 transition">
+            Henti RTSP
+          </button>
+        </div>
+      </div>
+
+      <!-- Video MP4 Recording Trigger -->
+      <div class="p-4 sm:p-5 rounded-2xl bg-slate-950 border border-rose-500/40 space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="text-sm font-black text-white">Rakaman Video Kuliah (MP4)</div>
+          <span id="badgeRecording" class="hidden text-xs font-bold text-rose-400 bg-rose-950 px-2.5 py-0.5 rounded-full border border-rose-500 animate-pulse">● SEDANG MERAKAM</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2.5">
+          <button id="btnStartRecord" type="button" class="py-3 rounded-xl bg-rose-600 hover:bg-rose-500 font-black text-xs text-white transition shadow-md">
+            🔴 Mula Rakam MP4
+          </button>
+          <button id="btnStopRecord" type="button" class="py-3 rounded-xl bg-slate-800 hover:bg-slate-700 font-black text-xs text-slate-300 transition">
+            ⏹️ Henti Rakam
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ==================== 6. MODUL DIAGNOSTIK & SISTEM TV ==================== -->
+    <section id="mod-diagnostics" class="module-section hidden bg-slate-900 border-2 border-emerald-500/50 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-5">
+      
+      <div class="flex items-center justify-between border-b-2 border-slate-800 pb-3.5">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl">⚙️</span>
+          <div>
+            <h2 class="text-base font-black text-white tracking-wide">Penyelenggaraan &amp; Diagnostik</h2>
+            <p class="text-xs text-amber-300 font-semibold mt-0.5">Ujian simulator, muat semula &amp; status PC Kiosk</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kiosk Actions -->
+      <div class="grid grid-cols-2 gap-3">
+        <button id="btnReloadKiosk" type="button" class="p-4 rounded-2xl bg-slate-950 border-2 border-emerald-500/50 hover:border-emerald-400 text-left transition active:scale-95 shadow-md">
+          <div class="text-2xl mb-1">🔄</div>
+          <div class="text-xs font-black text-white">Muat Semula TV</div>
+          <div class="text-[11px] text-slate-400 mt-0.5">Reload browser Kiosk</div>
+        </button>
+        <button id="btnClearTestState" type="button" class="p-4 rounded-2xl bg-slate-950 border-2 border-amber-500/50 hover:border-amber-400 text-left transition active:scale-95 shadow-md">
+          <div class="text-2xl mb-1">⏹️</div>
+          <div class="text-xs font-black text-white">Batal Ujian</div>
+          <div class="text-[11px] text-slate-400 mt-0.5">Padam mod simulasi</div>
+        </button>
+      </div>
+
+      <!-- Kiosk State Simulator -->
+      <div class="p-4 sm:p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
+        <div class="text-sm font-black text-white">Simulasi Paparan Skrin TV:</div>
+        <div class="grid grid-cols-3 gap-2 text-xs font-bold">
+          <button type="button" onclick="window.simulateKioskState('ADHAN')" class="p-2.5 rounded-xl bg-slate-800 hover:bg-emerald-700 text-emerald-300 text-center transition">
+            Azan Penuh
+          </button>
+          <button type="button" onclick="window.simulateKioskState('IQAMAH')" class="p-2.5 rounded-xl bg-slate-800 hover:bg-emerald-700 text-emerald-300 text-center transition">
+            Iqamah
+          </button>
+          <button type="button" onclick="window.simulateKioskState('SAF')" class="p-2.5 rounded-xl bg-slate-800 hover:bg-emerald-700 text-emerald-300 text-center transition">
+            Rapat Saf
+          </button>
+          <button type="button" onclick="window.simulateKioskState('CHIME')" class="p-2.5 rounded-xl bg-slate-800 hover:bg-emerald-700 text-emerald-300 text-center transition">
+            Pra-Azan
+          </button>
+          <button type="button" onclick="window.simulateKioskState('KULIAH')" class="p-2.5 rounded-xl bg-slate-800 hover:bg-emerald-700 text-emerald-300 text-center transition">
+            Pentas Kuliah
+          </button>
+          <button type="button" onclick="window.simulateKioskState('NORMAL')" class="p-2.5 rounded-xl bg-slate-800 hover:bg-emerald-700 text-emerald-300 text-center transition">
+            Normal TV
+          </button>
+        </div>
+      </div>
+
     </section>
 
   </main>

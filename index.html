@@ -41,6 +41,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="e-Solat">
+  <link rel="manifest" href="./manifest.json">
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png">
@@ -50,13 +51,17 @@
   <!-- ==================== TOP ANNOUNCEMENT BANNER ==================== -->
   <div class="bg-gradient-to-r from-emerald-950 via-emerald-800 to-emerald-950 border-b border-emerald-600/40 text-xs py-2.5 px-4 text-center text-emerald-100 shadow-md">
     <div class="max-w-7xl mx-auto flex items-center justify-center gap-3 flex-wrap">
-      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-black bg-amber-400 text-slate-950">📲 ADMIN APP</span>
-      <span><b>Admin Remote (PWA):</b> Imbas IP Surau &amp; kawal TV terus dari telefon anda!</span>
-      <a href="./admin/" class="font-black text-amber-300 underline hover:text-white transition">🚀 Buka Admin App &rarr;</a>
+      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-black bg-emerald-500 text-slate-950">✨ VERSI 1.3.16</span>
+      <span>Sistem e-Solat Kiosk &amp; Digital Signage Masjid Pintar (100% Beroperasi Luar Talian)</span>
       <span class="hidden md:inline text-emerald-600">|</span>
-      <a href="./manual/" class="text-amber-300 font-bold hover:text-white transition flex items-center gap-1">📖 Panduan Pengguna AJK</a>
+      <button type="button" class="btn-trigger-pwa text-amber-300 font-bold hover:text-white transition flex items-center gap-1 bg-amber-500/20 px-2.5 py-0.5 rounded-lg border border-amber-400/40">
+        <span>📲</span>
+        <span>Buka Admin App</span>
+      </button>
       <span class="hidden md:inline text-emerald-600">|</span>
-      <a href="https://wa.me/601118712388" target="_blank" class="text-emerald-300 hover:text-white transition hidden md:inline">Support: 0111 8712388</a>
+      <a href="./manual/" class="text-emerald-300 font-bold hover:text-white transition flex items-center gap-1">📖 Panduan Pengguna AJK</a>
+      <span class="hidden md:inline text-emerald-600">|</span>
+      <a href="https://wa.me/601118712388" target="_blank" class="text-emerald-300 hover:text-white transition">Bantuan: 0111 8712388</a>
     </div>
   </div>
 
@@ -81,24 +86,20 @@
       </a>
 
       <!-- Desktop Nav -->
-      <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-300">
+      <nav class="hidden md:flex items-center gap-5 text-sm font-medium text-slate-300">
         <a href="#ciri-ciri" class="hover:text-emerald-400 transition">Ciri Utama</a>
         <a href="#perbandingan" class="hover:text-emerald-400 transition">Kenapa Mini PC?</a>
         <a href="#spesifikasi" class="hover:text-emerald-400 transition">Perkakasan</a>
         <a href="#pakej" class="hover:text-emerald-400 transition">Pakej Tawaran</a>
         <a href="#faq" class="hover:text-emerald-400 transition">Soalan Lazim</a>
-        <a href="./manual/" class="hover:text-amber-300 text-amber-400 font-bold transition flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-400/10 border border-amber-400/20">
-          <span>📖</span>
-          <span>Panduan Pengguna</span>
-        </a>
+        <button type="button" class="btn-trigger-pwa hover:text-amber-300 text-amber-400 font-bold transition flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-400/10 border border-amber-400/30">
+          <span>📲</span>
+          <span>Admin App (PWA)</span>
+        </button>
       </nav>
 
       <!-- Desktop CTA -->
       <div class="hidden lg:flex items-center gap-3">
-        <a href="./admin/" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-xs bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 border border-emerald-300 shadow-lg shadow-emerald-950/80 hover:scale-105 transition duration-200">
-          <span>📲</span>
-          <span>Admin App (PWA)</span>
-        </a>
         <a href="./downloads/skywalker-esolat_1.3.16_amd64.deb" class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl font-black text-xs bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 border border-amber-300 shadow-md shadow-amber-950/40 hover:scale-105 transition duration-200" download>
           <span>📥</span>
           <span>Download eSolat</span>
@@ -120,9 +121,9 @@
 
     <!-- Mobile Nav Menu (Hidden by default) -->
     <div id="mobileNavMenu" class="hidden md:hidden px-4 pt-2 pb-6 bg-slate-900/95 border-b border-slate-800 space-y-3">
-      <a href="./admin/" class="block w-full text-center py-3 rounded-xl font-black bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 shadow-lg text-sm">
-        📲 Buka Admin App (PWA)
-      </a>
+      <button type="button" class="btn-trigger-pwa block w-full text-center py-2.5 rounded-xl font-black bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 border border-emerald-300 text-sm shadow-md">
+        📲 Admin App (PWA)
+      </button>
       <a href="./manual/" class="block w-full text-center py-2.5 rounded-xl font-bold bg-amber-500/20 text-amber-300 border border-amber-400/40 text-sm">
         📖 Panduan Pengguna Rasmi AJK
       </a>
@@ -173,32 +174,6 @@
           </a>
         </div>
 
-        <!-- PWA Mobile Admin Feature Card -->
-        <div class="mt-8 p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-emerald-950/90 via-slate-900/90 to-emerald-950/90 border-2 border-emerald-500/50 shadow-2xl shadow-emerald-950/80 text-left relative overflow-hidden max-w-2xl mx-auto">
-          <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
-          <div class="flex flex-col sm:flex-row items-center justify-between gap-5 relative z-10">
-            <div class="flex items-start gap-4">
-              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 border border-emerald-300/40 flex items-center justify-center text-3xl shadow-lg shrink-0">
-                📱
-              </div>
-              <div>
-                <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-slate-950 uppercase tracking-wide mb-1">
-                  Admin App (PWA)
-                </div>
-                <h3 class="text-lg font-black text-white leading-snug">
-                  Admin Remote Mudah Alih
-                </h3>
-                <p class="text-xs text-slate-300 mt-1 leading-relaxed">
-                  Imbas automatik alamat IP TV surau, imbas Kod QR kamera, &amp; kawal paparan terus dari telefon pintar anda.
-                </p>
-              </div>
-            </div>
-            <a href="./admin/" class="w-full sm:w-auto px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-950 flex items-center justify-center gap-2 shrink-0 hover:scale-105 transition duration-200">
-              <span>🚀</span>
-              <span>BUKA ADMIN APP</span>
-            </a>
-          </div>
-        </div>
 
         <!-- Trust Badges -->
         <div class="mt-10 grid grid-cols-2 md:grid-cols-4 gap-4 pt-6 border-t border-slate-800/80 text-left">
@@ -371,14 +346,20 @@
         </div>
 
         <!-- Feature 3: Phone Admin Web -->
-        <div class="glass-panel p-6 rounded-2xl hover:border-emerald-500/50 transition duration-300">
-          <div class="w-12 h-12 rounded-xl bg-emerald-900/60 border border-emerald-500/40 flex items-center justify-center text-2xl mb-4">
-            📱
+        <div class="glass-panel p-6 rounded-2xl hover:border-emerald-500/50 transition duration-300 flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-emerald-900/60 border border-emerald-500/40 flex items-center justify-center text-2xl mb-4">
+              📱
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">Panel Telefon Pintar (Admin PWA)</h3>
+            <p class="text-sm text-slate-300 leading-relaxed">
+              Semua AJK boleh menyunting poster, menukar teks pengumuman, atau menguji suara azan terus melalui telefon yang bersambung ke Wi-Fi surau.
+            </p>
           </div>
-          <h3 class="text-lg font-bold text-white mb-2">Panel Telefon Pintar (Zero Install)</h3>
-          <p class="text-sm text-slate-300 leading-relaxed">
-            Semua AJK boleh menyunting poster, menukar teks pengumuman, atau menguji suara azan terus melalui pelayar telefon (Chrome/Safari) yang bersambung ke Wi-Fi surau.
-          </p>
+          <button type="button" class="btn-trigger-pwa mt-5 w-full py-2.5 px-4 rounded-xl font-black text-xs bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/50 hover:scale-[1.02] active:scale-95 transition">
+            <span>📲</span>
+            <span>BUKA ADMIN APP</span>
+          </button>
         </div>
 
         <!-- Feature 4: Audio Engine -->
@@ -1058,23 +1039,220 @@
     </div>
   </footer>
 
+  <!-- ==================== PWA INSTALLER MODAL (MINIMALIST GATEWAY) ==================== -->
+  <div id="pwaInstallModal" class="fixed inset-0 z-[9999] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 transition-all duration-300" style="display: none;">
+    <div class="relative w-full max-w-md bg-gradient-to-b from-slate-900 via-emerald-950/95 to-slate-900 border-2 border-emerald-500/50 rounded-3xl p-6 sm:p-7 shadow-2xl text-center">
+      
+      <!-- Close Button -->
+      <button type="button" id="btnClosePwaModal" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-sm transition">
+        ✕
+      </button>
+
+      <!-- App Icon -->
+      <div class="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-900 p-3.5 border-2 border-emerald-400/50 shadow-xl flex items-center justify-center">
+        <img src="./icons/icon-192.png" alt="e-Solat Admin Icon" class="w-full h-full object-contain rounded-xl">
+      </div>
+
+      <h3 class="text-xl font-black text-white tracking-tight">Pasang Aplikasi Admin e-Solat (PWA)</h3>
+      <p class="text-xs sm:text-sm text-emerald-200/90 mt-2 leading-relaxed">
+        Aplikasi ini membolehkan kawalan penuh tanpa wayar ke Kiosk TV Surau terus dari skrin utama telefon anda.
+      </p>
+
+      <!-- Primary Action: Install App -->
+      <div class="mt-6 space-y-3">
+        <button type="button" id="btnModalTriggerInstall" class="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-sm tracking-wide shadow-lg shadow-amber-950/50 hover:scale-[1.02] active:scale-95 transition flex items-center justify-center gap-2">
+          <span>📲</span>
+          <span>Pasang ke Skrin Utama / Install App</span>
+        </button>
+
+        <button type="button" id="btnModalOpenGateway" class="w-full py-2.5 px-4 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-emerald-300 font-bold text-xs border border-emerald-500/30 transition flex items-center justify-center gap-1.5">
+          <span>⚙️</span>
+          <span>Sambung Terus ke IP Surau ➔</span>
+        </button>
+      </div>
+
+      <!-- iOS / Android Step-by-Step Fallback Instructions -->
+      <div class="mt-6 pt-4 border-t border-slate-800/80 text-left text-xs text-slate-400 space-y-2.5">
+        <div class="flex items-start gap-2.5">
+          <span class="text-base">🍎</span>
+          <div>
+            <strong class="text-slate-200 block">Pengguna iPhone (Safari):</strong>
+            <span>Tekan ikon <b>Kongsi (Share ⎋)</b> di bawah pelayar, kemudian pilih <b>"Tambah ke Skrin Utama" (Add to Home Screen)</b>.</span>
+          </div>
+        </div>
+        <div class="flex items-start gap-2.5">
+          <span class="text-base">🤖</span>
+          <div>
+            <strong class="text-slate-200 block">Pengguna Android (Chrome):</strong>
+            <span>Tekan menu 3-titik <b>(⋮)</b> di atas kanan, kemudian pilih <b>"Pasang aplikasi" / "Add to Home screen"</b>.</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== STANDALONE HOST CONNECTION GATEWAY MODAL ==================== -->
+  <div id="standaloneGatewayModal" class="fixed inset-0 z-[9999] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 transition-all duration-300" style="display: none;">
+    <div class="relative w-full max-w-md bg-gradient-to-b from-slate-900 via-emerald-950/95 to-slate-900 border-2 border-emerald-500/50 rounded-3xl p-6 sm:p-7 shadow-2xl text-center">
+      
+      <button type="button" id="btnCloseGatewayModal" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-sm transition">
+        ✕
+      </button>
+
+      <div class="w-16 h-16 mx-auto mb-3.5 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-800 p-3 border border-emerald-400 flex items-center justify-center text-3xl shadow-lg">
+        🕌
+      </div>
+
+      <h3 class="text-lg sm:text-xl font-black text-white">Sambung ke Kiosk TV Surau</h3>
+      <p class="text-xs text-emerald-200/80 mt-1">Pastikan telefon anda disambungkan ke Wi-Fi Surau yang sama.</p>
+
+      <form id="formGatewayConnect" class="mt-5 space-y-3.5 text-left">
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">Alamat IP Kiosk TV Surau:</label>
+          <div class="relative">
+            <input type="text" id="inputGatewayIp" placeholder="cth: 192.168.1.100 atau 192.168.0.5" required class="w-full bg-slate-950 border-2 border-slate-700 focus:border-emerald-400 rounded-xl px-3.5 py-2.5 text-sm font-mono text-emerald-300 placeholder-slate-600 outline-none transition">
+          </div>
+          <span class="text-[11px] text-slate-500 block mt-1">Port <code>:8080/admin/</code> akan ditambah secara automatik.</span>
+        </div>
+
+        <button type="submit" class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-sm shadow-lg shadow-emerald-950/50 hover:scale-[1.02] active:scale-95 transition flex items-center justify-center gap-2">
+          <span>🚀</span>
+          <span>Sambung ke Panel Admin TV</span>
+        </button>
+      </form>
+
+    </div>
+  </div>
+
   <!-- Scripts -->
   <script src="./js/main.js"></script>
   <script>
-    // Automatically unregister any legacy service workers and purge caches
+    // 1. Service Worker Registration
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(function(registrations) {
-        for (var reg of registrations) {
-          reg.unregister();
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('./sw.js')
+          .then(function(reg) {
+            console.log('[PWA Gateway] Service worker registered:', reg.scope);
+          })
+          .catch(function(err) {
+            console.warn('[PWA Gateway] SW registration non-fatal error:', err);
+          });
+      });
+    }
+
+    // 2. Capture PWA Installation Prompt
+    let deferredInstallPrompt = null;
+    window.addEventListener('beforeinstallprompt', function(e) {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      console.log('[PWA Gateway] captured beforeinstallprompt event');
+    });
+
+    // 3. Modal Elements & Helpers
+    const pwaModal = document.getElementById('pwaInstallModal');
+    const gatewayModal = document.getElementById('standaloneGatewayModal');
+    const btnClosePwa = document.getElementById('btnClosePwaModal');
+    const btnCloseGateway = document.getElementById('btnCloseGatewayModal');
+    const btnModalInstall = document.getElementById('btnModalTriggerInstall');
+    const btnModalOpenGateway = document.getElementById('btnModalOpenGateway');
+    const formGateway = document.getElementById('formGatewayConnect');
+    const inputIp = document.getElementById('inputGatewayIp');
+
+    function openPwaInstallModal() {
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        deferredInstallPrompt.userChoice.then(function(choiceResult) {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('[PWA Gateway] User accepted install prompt');
+            deferredInstallPrompt = null;
+          } else {
+            pwaModal.style.display = 'flex';
+          }
+        });
+      } else {
+        pwaModal.style.display = 'flex';
+      }
+    }
+
+    function openGatewayModal() {
+      pwaModal.style.display = 'none';
+      gatewayModal.style.display = 'flex';
+      const lastIp = localStorage.getItem('last_surau_ip') || '';
+      if (lastIp && inputIp) {
+        inputIp.value = lastIp;
+      }
+      setTimeout(() => inputIp && inputIp.focus(), 200);
+    }
+
+    // 4. Wire All Trigger Buttons on Landing Page
+    document.querySelectorAll('.btn-trigger-pwa').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        openPwaInstallModal();
+      });
+    });
+
+    if (btnClosePwa) {
+      btnClosePwa.addEventListener('click', function() {
+        pwaModal.style.display = 'none';
+      });
+    }
+
+    if (btnCloseGateway) {
+      btnCloseGateway.addEventListener('click', function() {
+        gatewayModal.style.display = 'none';
+      });
+    }
+
+    if (btnModalInstall) {
+      btnModalInstall.addEventListener('click', function() {
+        if (deferredInstallPrompt) {
+          deferredInstallPrompt.prompt();
+          deferredInstallPrompt.userChoice.then(function() {
+            deferredInstallPrompt = null;
+            pwaModal.style.display = 'none';
+          });
+        } else {
+          alert('Sila gunakan arahan di bawah: Pada Android tekan menu (⋮) > "Pasang aplikasi", atau pada iPhone tekan Kongsi (Share) > "Tambah ke Skrin Utama".');
         }
       });
     }
-    if ('caches' in window) {
-      caches.keys().then(function(names) {
-        for (var name of names) {
-          caches.delete(name);
-        }
+
+    if (btnModalOpenGateway) {
+      btnModalOpenGateway.addEventListener('click', function() {
+        openGatewayModal();
       });
+    }
+
+    // 5. Host Connection Form Submit Handler
+    if (formGateway) {
+      formGateway.addEventListener('submit', function(e) {
+        e.preventDefault();
+        let rawIp = inputIp.value.trim();
+        if (!rawIp) return;
+
+        rawIp = rawIp.replace(/^https?:\/\//i, '').replace(/\/+$/, '');
+        localStorage.setItem('last_surau_ip', rawIp);
+
+        let targetUrl = rawIp;
+        if (!targetUrl.includes(':')) {
+          targetUrl = targetUrl + ':8080';
+        }
+        if (!targetUrl.includes('/admin')) {
+          targetUrl = targetUrl + '/admin/';
+        }
+        targetUrl = 'http://' + targetUrl;
+
+        window.location.href = targetUrl;
+      });
+    }
+
+    // 6. Standalone Launch Flow (Post-Installation)
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true || window.location.search.includes('mode=standalone');
+    if (isStandalone) {
+      // In standalone mode, automatically show the clean host connection gateway
+      openGatewayModal();
     }
   </script>
 </body>

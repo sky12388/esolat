@@ -1,0 +1,4256 @@
+/* ==============================================================================
+   e-Solat Mosque Digital Signage - TV Kiosk Stylesheet
+   Optimized for 16:9 1080p & 4K displays. Zero scrollbars.
+   ============================================================================== */
+
+:root {
+  --font-primary: 'Outfit', sans-serif;
+  --font-digits: 'Space Grotesk', monospace;
+  --font-arabic: 'Amiri', serif;
+  --primary-bg: #06281e;
+  --header-bg: linear-gradient(180deg, rgba(2, 44, 34, 0.95), rgba(6, 40, 30, 0.85));
+  --card-bg: rgba(6, 78, 59, 0.45);
+  --card-border: rgba(52, 211, 153, 0.25);
+  --accent-gold: #fbbf24;
+  --accent-amber: #d97706;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --active-glow: #10b981;
+}
+
+/* ==================== MULTI-THEME CSS ENGINE (6 MOSQUE THEMES) ==================== */
+/* Theme 1: Emerald Nabawi (Classic Islamic Green & Gold) */
+body.theme-emerald-nabawi, body.theme-emerald_nabawi, body.theme-emerald {
+  --primary-bg: #06281e;
+  --header-bg: linear-gradient(180deg, rgba(2, 44, 34, 0.95), rgba(6, 40, 30, 0.85));
+  --card-bg: rgba(6, 78, 59, 0.45);
+  --card-border: rgba(52, 211, 153, 0.25);
+  --accent-gold: #fbbf24;
+  --accent-amber: #d97706;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --active-glow: #10b981;
+}
+body.theme-emerald-nabawi .kiosk-container, body.theme-emerald_nabawi .kiosk-container, body.theme-emerald .kiosk-container {
+  background: radial-gradient(circle at 50% 20%, #064e3b 0%, #022c22 45%, #01140e 100%);
+}
+
+/* Theme 2: Royal Sapphire (Midnight Navy & Electric Cyan) */
+body.theme-royal-sapphire, body.theme-royal_sapphire, body.theme-sapphire {
+  --primary-bg: #050b14;
+  --header-bg: linear-gradient(180deg, rgba(11, 25, 44, 0.95), rgba(15, 23, 42, 0.85));
+  --card-bg: rgba(15, 23, 42, 0.65);
+  --card-border: rgba(56, 189, 248, 0.35);
+  --accent-gold: #38bdf8;
+  --accent-amber: #0284c7;
+  --text-main: #ffffff;
+  --text-muted: #94a3b8;
+  --active-glow: #00f0ff;
+}
+body.theme-royal-sapphire .kiosk-container, body.theme-royal_sapphire .kiosk-container, body.theme-sapphire .kiosk-container {
+  background: radial-gradient(circle at 50% 15%, #0f172a 0%, #0b192c 40%, #020617 100%);
+}
+
+/* Theme 3: Midnight Obsidian OLED (Pitch Black High Contrast for OLED & Sunlit Halls) */
+body.theme-midnight-oled, body.theme-midnight_oled, body.theme-clean-minimalist, body.theme-clean_minimalist {
+  --primary-bg: #000000;
+  --header-bg: #050505;
+  --card-bg: #0a0a0a;
+  --card-border: rgba(255, 255, 255, 0.22);
+  --accent-gold: #facc15;
+  --accent-amber: #eab308;
+  --text-main: #ffffff;
+  --text-muted: #e2e8f0;
+  --active-glow: #22c55e;
+}
+body.theme-midnight-oled .kiosk-container, body.theme-midnight_oled .kiosk-container, body.theme-clean-minimalist .kiosk-container, body.theme-clean_minimalist .kiosk-container {
+  background: #000000;
+}
+
+/* Theme 4: Madinah Bronze (Warm Sandstone, Desert Marble & Teak Wood) */
+body.theme-madinah-bronze, body.theme-madinah_bronze, body.theme-terracotta {
+  --primary-bg: #140b07;
+  --header-bg: linear-gradient(180deg, rgba(36, 21, 12, 0.95), rgba(22, 12, 7, 0.85));
+  --card-bg: rgba(46, 28, 12, 0.6);
+  --card-border: rgba(245, 158, 11, 0.35);
+  --accent-gold: #f59e0b;
+  --accent-amber: #ea580c;
+  --text-main: #fffbeb;
+  --text-muted: #d6d3d1;
+  --active-glow: #fb923c;
+}
+body.theme-madinah-bronze .kiosk-container, body.theme-madinah_bronze .kiosk-container, body.theme-terracotta .kiosk-container {
+  background: radial-gradient(circle at 50% 15%, #2e1c0c 0%, #1c1007 45%, #0d0603 100%);
+}
+
+/* Theme 5: Al-Aqsa Teal (Persian Ottoman Turquoise & Gold Dome) */
+body.theme-al-aqsa-teal, body.theme-al_aqsa_teal, body.theme-ottoman {
+  --primary-bg: #021a1a;
+  --header-bg: linear-gradient(180deg, rgba(4, 47, 46, 0.95), rgba(8, 32, 38, 0.85));
+  --card-bg: rgba(19, 78, 74, 0.5);
+  --card-border: rgba(45, 212, 191, 0.3);
+  --accent-gold: #f59e0b;
+  --accent-amber: #14b8a6;
+  --text-main: #f0fdfa;
+  --text-muted: #99f6e4;
+  --active-glow: #2dd4bf;
+}
+body.theme-al-aqsa-teal .kiosk-container, body.theme-al_aqsa_teal .kiosk-container, body.theme-ottoman .kiosk-container {
+  background: radial-gradient(circle at 50% 15%, #134e4a 0%, #042f2e 45%, #011314 100%);
+}
+
+/* Theme 6: Modern Dark Glass (Frosted Glass with Holographic Glow) */
+body.theme-dark-glass, body.theme-dark_glass {
+  --primary-bg: #030712;
+  --header-bg: linear-gradient(180deg, rgba(15, 23, 42, 0.88), rgba(10, 15, 30, 0.85));
+  --card-bg: rgba(30, 41, 59, 0.65);
+  --card-border: rgba(129, 140, 248, 0.35);
+  --accent-gold: #818cf8;
+  --accent-amber: #6366f1;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --active-glow: #a855f7;
+}
+body.theme-dark-glass .kiosk-container, body.theme-dark_glass .kiosk-container {
+  background: radial-gradient(circle at 50% 15%, #1e293b 0%, #0f172a 40%, #020617 100%);
+}
+body.theme-dark-glass .prayer-card, 
+body.theme-dark-glass .widget-card,
+body.theme-dark-glass .kiosk-header {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* Font Family Presets */
+body.font-outfit, .font-outfit { --font-primary: 'Outfit', sans-serif; }
+body.font-amiri, .font-amiri { --font-primary: 'Amiri', serif; }
+body.font-inter, .font-inter { --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+body.font-montserrat, .font-montserrat { --font-primary: 'Montserrat', sans-serif; }
+body.font-reem_kufi, body.font-reem-kufi, .font-reem_kufi, .font-reem-kufi { --font-primary: 'Reem Kufi', 'Outfit', sans-serif; }
+body.font-scheherazade, .font-scheherazade { --font-primary: 'Scheherazade New', 'Amiri', serif; }
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+html, body, #app, main, .main-wrapper, .kiosk-container, #kioskContainer, #viewportSignage, .viewport-signage, .kiosk-main-body {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+html, body {
+  background-color: #021a13;
+  color: var(--text-main);
+  font-family: var(--font-primary);
+  cursor: none; /* Mouse pointer hidden for clean TV signage */
+}
+
+body:hover {
+  cursor: default; /* Show if user moves mouse during maintenance */
+}
+
+.kiosk-container {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 20%, #064e3b 0%, #022c22 45%, #01140e 100%);
+  box-sizing: border-box !important;
+}
+
+/* ==================== 1. TOP HEADER (3-COLUMN PROMINENT CENTER CLOCK) ==================== */
+.kiosk-header {
+  width: 100vw !important;
+  max-width: none !important;
+  height: 14.5vh;
+  min-height: 96px;
+  background: var(--header-bg);
+  backdrop-filter: blur(16px);
+  border-bottom: 2px solid rgba(217, 119, 6, 0.5);
+  display: grid;
+  grid-template-columns: 1.1fr auto 1.1fr;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 clamp(1.2rem, 2.2vw, 2.8rem);
+  box-sizing: border-box;
+  z-index: 10;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+
+/* Left Column: Mosque Branding */
+.mosque-branding {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  justify-self: start;
+  min-width: 0;
+}
+
+.mosque-logo {
+  width: clamp(54px, 4.2vw, 68px);
+  height: clamp(54px, 4.2vw, 68px);
+  min-width: 54px;
+  background: rgba(2, 44, 34, 0.85);
+  border: 2px solid var(--accent-gold);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px;
+  box-shadow: 0 0 18px rgba(251, 191, 36, 0.25);
+  flex-shrink: 0;
+}
+
+.dome-icon {
+  width: 100%;
+  height: 100%;
+}
+
+.mosque-titles {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.mosque-titles h1 {
+  font-size: clamp(1.4rem, 2vw, 2.3rem);
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+  line-height: 1.2;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mosque-titles p {
+  font-size: clamp(0.95rem, 1.15vw, 1.25rem);
+  color: #a7f3d0;
+  font-weight: 500;
+  margin: 0.2rem 0 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mosque-ip-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 0.2rem;
+  font-family: 'Space Grotesk', 'Courier New', monospace, sans-serif;
+  font-size: clamp(0.72rem, 0.85vw, 0.95rem);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 0.5px;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 1px 8px;
+  border-radius: 6px;
+  width: fit-content;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mosque-ip-row .ip-pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #34d399;
+  box-shadow: 0 0 6px #34d399;
+  display: inline-block;
+  flex-shrink: 0;
+  animation: ipDotPulse 2s ease-in-out infinite;
+}
+
+@keyframes ipDotPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.mosque-ip-row .ip-label {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.85em;
+  font-weight: 500;
+}
+
+.mosque-ip-row .ip-val {
+  color: #fbbf24;
+  font-weight: 700;
+}
+
+/* Center Column: Prominent Digital Clock (Center Stage) */
+.header-center-clock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  justify-self: center;
+  text-align: center;
+}
+
+.digital-clock {
+  position: relative;
+  z-index: 1;
+  font-family: 'Space Grotesk', 'Outfit', monospace;
+  font-size: clamp(3.4rem, 5.8vw, 5.2rem);
+  font-weight: 900;
+  line-height: 1;
+  color: #34d399;
+  letter-spacing: 2px;
+  text-shadow: 0 0 22px rgba(52, 211, 153, 0.6), 0 0 45px rgba(52, 211, 153, 0.3);
+  padding: 0.25rem clamp(1.2rem, 2vw, 2.2rem);
+  border-radius: 16px;
+  overflow: hidden;
+  border: none !important;
+  box-shadow: 0 4px 22px rgba(0, 0, 0, 0.45), 0 0 25px rgba(0, 255, 200, 0.3);
+  animation: rainbow-border-flash 3.5s ease-in-out infinite;
+  white-space: nowrap;
+}
+
+.digital-clock::before {
+  content: '';
+  position: absolute;
+  top: -100%;
+  left: -100%;
+  width: 300%;
+  height: 300%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 160deg,
+    rgba(255, 0, 110, 0.2) 200deg,
+    rgba(168, 85, 247, 0.45) 240deg,
+    rgba(59, 130, 246, 0.7) 275deg,
+    rgba(16, 185, 129, 0.95) 315deg,
+    #facc15 345deg,
+    #ffffff 360deg
+  );
+  animation: rotate-anticlockwise 17s linear infinite;
+  z-index: -2;
+}
+
+.digital-clock::after {
+  content: '';
+  position: absolute;
+  inset: 2.5px;
+  background: linear-gradient(180deg, rgba(2, 44, 34, 0.96) 0%, rgba(1, 24, 18, 0.98) 100%);
+  border-radius: 13.5px;
+  z-index: -1;
+}
+
+.clock-prayer-status {
+  margin-top: 0.35rem;
+  font-size: clamp(0.85rem, 1vw, 1.1rem);
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #fbbf24;
+  background: rgba(2, 44, 34, 0.75);
+  padding: 0.2rem 0.9rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  text-shadow: 0 0 8px rgba(251, 191, 36, 0.45);
+  white-space: nowrap;
+}
+
+/* Right Column: Dates & Hijri Countdown */
+.header-date-section,
+.time-block {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.date-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  gap: 0.15rem;
+}
+
+.gregorian-date {
+  font-size: clamp(1.15rem, 1.4vw, 1.55rem);
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.3px;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  white-space: nowrap;
+}
+
+.hijri-date {
+  font-family: 'Amiri', 'Scheherazade New', serif;
+  font-size: clamp(1.35rem, 1.7vw, 1.95rem);
+  color: var(--accent-gold);
+  font-weight: 700;
+  line-height: 1.2;
+  text-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
+  white-space: nowrap;
+}
+
+.countdown-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  font-size: clamp(1.15rem, 1.8vw, 1.5rem) !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.5px;
+  color: #fef08a !important;
+  text-shadow: 0 0 10px rgba(254, 240, 138, 0.5), 0 2px 6px rgba(0, 0, 0, 0.8);
+  padding: 6px 16px;
+  border-radius: 20px;
+  margin-top: 0.35rem;
+  white-space: nowrap;
+  z-index: 1;
+}
+
+.countdown-tag::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  background: linear-gradient(rgba(2, 44, 34, 0.88), rgba(2, 44, 34, 0.88)) padding-box,
+              linear-gradient(90deg, #ff3b30, #ff9500, #ffd60a, #34c759, #00c7be, #32ade6, #af52de, #ff2d55, #ff3b30) border-box;
+  border: 2px solid transparent;
+  background-size: 100% 100%, 300% 100%;
+  animation: rainbowShift 6s linear infinite;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6), 0 0 15px rgba(251, 191, 36, 0.3);
+  z-index: -1;
+}
+
+.countdown-tag::before {
+  content: "⏳";
+  font-size: 1.15rem;
+  display: inline-block;
+  margin-right: 2px;
+}
+
+@keyframes rainbowShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+/* ==================== 2. PRAYER TIMES RIBBON ==================== */
+.prayer-ribbon {
+  width: 100vw !important;
+  max-width: none !important;
+  height: 15vh;
+  min-height: 100px;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: clamp(0.6rem, 1vw, 1.25rem);
+  padding: 0.6rem clamp(1.5rem, 2vw, 2.5rem);
+  box-sizing: border-box;
+  background: rgba(2, 44, 34, 0.4);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  z-index: 5;
+}
+
+.prayer-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.prayer-card .p-arabic,
+.prayer-card .p-name,
+.prayer-card .p-time {
+  position: relative;
+  z-index: 2;
+}
+
+.prayer-card .p-arabic {
+  font-family: 'Amiri', serif;
+  font-size: clamp(1.2rem, 1.6vw, 1.7rem);
+  color: #a7f3d0;
+  line-height: 1.1;
+}
+
+.prayer-card .p-name {
+  font-size: clamp(1.0rem, 1.25vw, 1.35rem);
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #e2e8f0;
+}
+
+.prayer-card .p-time {
+  font-family: 'Space Grotesk', monospace;
+  font-size: clamp(2.2rem, 2.9vw, 3.2rem);
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+/* Active Highlight with Rainbow Anticlockwise Running Border */
+.prayer-card.active,
+.prayer-box.active {
+  position: relative;
+  z-index: 1;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #0b241e;
+  border: none !important;
+  box-shadow: 0 0 25px rgba(0, 255, 200, 0.4), 0 0 15px rgba(251, 191, 36, 0.3);
+  transform: translateY(-2px);
+  animation: rainbow-border-flash 3.5s ease-in-out infinite;
+}
+
+.prayer-card.active::before,
+.prayer-box.active::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 160deg,
+    rgba(255, 0, 110, 0.15) 200deg,
+    rgba(168, 85, 247, 0.38) 240deg,
+    rgba(59, 130, 246, 0.65) 275deg,
+    rgba(16, 185, 129, 0.9) 315deg,
+    #facc15 345deg,
+    #ffffff 360deg
+  );
+  animation: rotate-anticlockwise 17s linear infinite;
+  z-index: -2;
+}
+
+.prayer-card.active::after,
+.prayer-box.active::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  background: #0e3027;
+  border-radius: 11px;
+  z-index: -1;
+}
+
+.prayer-card.active .p-name,
+.prayer-card.active .p-arabic {
+  color: #fef08a;
+  position: relative;
+  z-index: 2;
+  text-shadow: 0 0 10px rgba(254, 240, 138, 0.4);
+}
+
+.prayer-card.active .p-time {
+  color: var(--accent-gold);
+  position: relative;
+  z-index: 2;
+  text-shadow: 0 0 15px rgba(251, 191, 36, 0.5);
+}
+
+@keyframes rotate-anticlockwise {
+  0% {
+    transform: rotate(360deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes rainbow-border-flash {
+  0% {
+    box-shadow: 0 0 22px rgba(0, 255, 102, 0.65), 0 0 45px rgba(0, 255, 102, 0.3);
+  }
+  20% {
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.7), 0 0 50px rgba(0, 255, 255, 0.35);
+  }
+  40% {
+    box-shadow: 0 0 25px rgba(59, 130, 246, 0.7), 0 0 50px rgba(59, 130, 246, 0.35);
+  }
+  60% {
+    box-shadow: 0 0 25px rgba(168, 85, 247, 0.7), 0 0 50px rgba(168, 85, 247, 0.35);
+  }
+  80% {
+    box-shadow: 0 0 28px rgba(251, 191, 36, 0.75), 0 0 55px rgba(251, 191, 36, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 22px rgba(0, 255, 102, 0.65), 0 0 45px rgba(0, 255, 102, 0.3);
+  }
+}
+
+@keyframes rainbow-overlay-flash {
+  0% {
+    box-shadow: 0 0 65px rgba(0, 255, 102, 0.55), 0 0 110px rgba(0, 255, 102, 0.3);
+  }
+  20% {
+    box-shadow: 0 0 70px rgba(0, 255, 255, 0.6), 0 0 120px rgba(0, 255, 255, 0.35);
+  }
+  40% {
+    box-shadow: 0 0 70px rgba(59, 130, 246, 0.6), 0 0 120px rgba(59, 130, 246, 0.35);
+  }
+  60% {
+    box-shadow: 0 0 70px rgba(168, 85, 247, 0.6), 0 0 120px rgba(168, 85, 247, 0.35);
+  }
+  80% {
+    box-shadow: 0 0 75px rgba(251, 191, 36, 0.65), 0 0 130px rgba(251, 191, 36, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 65px rgba(0, 255, 102, 0.55), 0 0 110px rgba(0, 255, 102, 0.3);
+  }
+}
+
+/* ==================== 3. CENTRAL STAGE (FLEXIBLE LAYOUTS) ==================== */
+/* ==================== 3. CENTRAL 2-COLUMN STAGE & WIDGET SYSTEM ==================== */
+.kiosk-main-body {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  width: 100vw !important;
+  max-width: none !important;
+  height: calc(100vh - 14vh - 15vh - 7vh) !important;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+  background: transparent;
+  box-sizing: border-box !important;
+}
+
+/* --- Layout Modes on kiosk-main-body --- */
+.kiosk-main-body.layout-split-right {
+  flex-direction: row;
+}
+
+.kiosk-main-body.layout-split-left {
+  flex-direction: row-reverse;
+}
+
+.kiosk-main-body.layout-split-left .kiosk-left-column {
+  padding: 0.6rem 1.8rem 0.6rem 0.8rem;
+}
+
+.kiosk-main-body.layout-split-left .kiosk-right-column {
+  padding: 0.6rem 0.8rem 0.6rem 1.8rem;
+}
+
+.kiosk-main-body.layout-full .kiosk-left-column {
+  flex: 1 1 100%;
+  width: 100%;
+  max-width: 100%;
+  padding: 0.6rem 2rem;
+}
+
+.kiosk-main-body.layout-full .kiosk-right-column {
+  display: none !important;
+}
+
+/* ==================== FULLSCREEN MEDIA / STAGE MODE ==================== */
+/* When .fullscreen-media is toggled:
+   - Collapse/hide right widget column (.widget-stack / .kiosk-right-column)
+   - Expand left media viewport (.main-stage / .kiosk-left-column) to 100% width
+   - Prayer ribbon and bottom ticker remain visible
+   - Prayer state overlays (z-index: 9999) take full priority
+*/
+.kiosk-main-body.fullscreen-media .kiosk-right-column,
+.kiosk-main-body.fullscreen-media .widget-stack,
+body.fullscreen-media .kiosk-right-column,
+body.fullscreen-media .widget-stack {
+  display: none !important;
+}
+
+.kiosk-main-body.fullscreen-media .kiosk-left-column,
+.kiosk-main-body.fullscreen-media .main-stage,
+body.fullscreen-media .kiosk-left-column,
+body.fullscreen-media .main-stage {
+  flex: 1 1 100% !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 0.6rem 2rem !important;
+}
+
+.kiosk-main-body.fullscreen-media .main-stage-16x9,
+body.fullscreen-media .main-stage-16x9 {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 100% !important;
+}
+
+/* --- 1. LEFT COLUMN: MAIN STAGE (~68% WIDTH, 16:9 RATIO) --- */
+.kiosk-left-column {
+  flex: 0 0 68%;
+  width: 68%;
+  max-width: 68%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 0.8rem 0.6rem 1.8rem;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.main-stage-16x9 {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  aspect-ratio: 16 / 9;
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #000000;
+  border: 2px solid rgba(52, 211, 153, 0.3);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.7), inset 0 0 30px rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stage-media-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000000;
+  z-index: 2;
+}
+
+.stage-media-layer video,
+.stage-media-layer iframe {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000000;
+}
+
+.stage-slides-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.slides-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.slide-item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #01140e;
+}
+
+.slide-item.active {
+  opacity: 1;
+  z-index: 1;
+}
+
+.slide-item img,
+.slide-item video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.slide-indicators {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 4;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.dot.active {
+  background: var(--accent-gold);
+  width: 22px;
+  border-radius: 10px;
+}
+
+/* --- 2. RIGHT COLUMN: WIDGET STACK (~32% WIDTH, 2 CARDS) --- */
+.kiosk-right-column {
+  flex: 0 0 32%;
+  width: 32%;
+  max-width: 32%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.6rem 1.8rem 0.6rem 0.6rem;
+  box-sizing: border-box;
+  min-height: 0;
+}
+
+/* Base Widget Card */
+.widget-card {
+  border-radius: 18px;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+/* --- CARD 1: GIANT PRAYER COUNTDOWN WIDGET --- */
+.giant-countdown-card {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  border-radius: 18px;
+  flex: 1.15;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.1rem 1.3rem;
+  background: #022c22;
+  border: none !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(0, 255, 200, 0.2);
+  animation: rainbow-border-flash 3.5s ease-in-out infinite;
+}
+
+.giant-countdown-card::before {
+  content: '';
+  position: absolute;
+  top: -100%;
+  left: -100%;
+  width: 300%;
+  height: 300%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 160deg,
+    rgba(255, 0, 110, 0.15) 200deg,
+    rgba(168, 85, 247, 0.38) 240deg,
+    rgba(59, 130, 246, 0.65) 275deg,
+    rgba(16, 185, 129, 0.9) 315deg,
+    #facc15 345deg,
+    #ffffff 360deg
+  );
+  animation: rotate-anticlockwise 17s linear infinite;
+  z-index: -2;
+}
+
+.giant-countdown-card::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  background: linear-gradient(145deg, rgba(6, 78, 59, 0.95) 0%, rgba(2, 38, 28, 0.98) 100%);
+  border-radius: 15px;
+  z-index: -1;
+}
+
+.giant-countdown-card > * {
+  position: relative;
+  z-index: 2;
+}
+
+.cd-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.2rem;
+}
+
+.cd-badge {
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  color: #a7f3d0;
+  background: rgba(5, 150, 105, 0.35);
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  padding: 0.3rem 0.85rem;
+  border-radius: 8px;
+  text-transform: uppercase;
+}
+
+.cd-azan-time {
+  font-family: 'Space Grotesk', monospace;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #fef08a;
+  background: rgba(0, 0, 0, 0.55);
+  padding: 0.3rem 0.9rem;
+  border-radius: 8px;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  letter-spacing: 0.5px;
+}
+
+.cd-prayer-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-start;
+  margin-top: 0.15rem;
+}
+
+.cd-prayer-name {
+  font-size: 2.5rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+
+.cd-countdown-display {
+  font-family: 'Space Grotesk', monospace;
+  font-size: clamp(3.8rem, 4.6vw, 4.8rem);
+  font-weight: 900;
+  color: #fbbf24;
+  letter-spacing: 3px;
+  line-height: 1;
+  text-shadow: 0 0 28px rgba(251, 191, 36, 0.65), 0 4px 14px rgba(0, 0, 0, 0.9);
+  text-align: center;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 14px;
+  padding: 0.5rem 0;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  margin: 0.25rem 0;
+}
+
+.cd-footer-status {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding-top: 0.4rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cd-dot-pulse {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 10px #34d399;
+  animation: pulseDot 2s infinite ease-in-out;
+}
+
+.cd-status-text {
+  font-size: 0.95rem;
+  color: #a7f3d0;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+}
+
+/* --- CARD 2: BOTTOM CYCLE WIDGET (INFAQ & MINI INFO) --- */
+.cycle-widget-card {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  border: 2px solid rgba(52, 211, 153, 0.28);
+  background: linear-gradient(145deg, rgba(6, 78, 59, 0.5) 0%, rgba(2, 44, 34, 0.9) 100%);
+}
+
+.cycle-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0.9rem 1.15rem;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(10px);
+}
+
+.cycle-slide.active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+  z-index: 2;
+}
+
+.cycle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.35rem;
+}
+
+.widget-badge {
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.infaq-badge {
+  background: rgba(251, 191, 36, 0.2);
+  color: var(--accent-gold);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+}
+
+.kuliah-badge {
+  background: rgba(56, 189, 248, 0.2);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+}
+
+.hijri-badge {
+  background: rgba(245, 158, 11, 0.25);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.5);
+}
+
+.hadith-badge {
+  background: rgba(52, 211, 153, 0.25);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.5);
+}
+
+.widget-subtitle {
+  font-size: 0.95rem;
+  color: #a7f3d0;
+  font-weight: 700;
+}
+
+.widget-time-pill {
+  font-size: 0.88rem;
+  color: #fef08a;
+  background: rgba(0, 0, 0, 0.45);
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  font-weight: 700;
+  border: 1px solid rgba(251, 191, 36, 0.2);
+}
+
+/* Infaq QR & Bank Content */
+.cycle-qr-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex: 1;
+}
+
+.qr-frame-box {
+  width: 170px;
+  height: 170px;
+  flex-shrink: 0;
+  padding: 6px;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.custom-bank-qr {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: center;
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 2px;
+  box-sizing: border-box;
+  display: block;
+  aspect-ratio: 1 / 1;
+}
+
+.duitnow-qr-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.bank-details-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.bank-title {
+  font-size: 1.05rem;
+  color: #a7f3d0;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bank-account-num {
+  font-family: 'Space Grotesk', monospace;
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: var(--accent-gold);
+  letter-spacing: 1.5px;
+  margin: 0.1rem 0;
+}
+
+.bank-holder-name {
+  font-size: 0.88rem;
+  color: #cbd5e1;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Next Kuliah / Announcement Content */
+.kuliah-body-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.45rem;
+  flex: 1;
+}
+
+.kuliah-topic-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.3;
+}
+
+.kuliah-speaker-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 0.35rem 0.6rem;
+  border-radius: 8px;
+  border-left: 3px solid #38bdf8;
+}
+
+.speaker-avatar {
+  font-size: 1.4rem;
+}
+
+.speaker-meta {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.speaker-role {
+  font-size: 0.82rem;
+  color: #a7f3d0;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  font-weight: 700;
+}
+
+.speaker-name {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #38bdf8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.announcement-hint {
+  font-size: 0.95rem;
+  color: #a7f3d0;
+  font-weight: 600;
+  font-style: italic;
+  line-height: 1.35;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+  border-left: 2px solid var(--accent-gold);
+}
+
+/* Hijri Event Countdown Slide */
+.hijri-event-body-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 0.35rem;
+  flex: 1;
+}
+
+.hijri-event-icon {
+  font-size: 2.2rem;
+}
+
+.hijri-event-name {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--accent-gold);
+  line-height: 1.25;
+}
+
+.hijri-event-days-box {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  padding: 0.25rem 0.9rem;
+  border-radius: 20px;
+}
+
+.hijri-event-days-num {
+  font-family: 'Space Grotesk', monospace;
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #34d399;
+}
+
+.hijri-event-days-label {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #a7f3d0;
+  letter-spacing: 0.8px;
+}
+
+.hijri-event-desc {
+  font-size: 0.88rem;
+  color: #cbd5e1;
+}
+
+/* Hadith Slide */
+.hadith-body-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.45rem;
+  flex: 1;
+}
+
+.hadith-text-quote {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #ffffff;
+  font-style: italic;
+  line-height: 1.45;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border-left: 3px solid #34d399;
+}
+
+.hadith-source-tag {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--accent-gold);
+  text-align: right;
+  letter-spacing: 0.5px;
+}
+
+/* Roster / Petugas Slide */
+.roster-badge {
+  background: rgba(147, 51, 234, 0.25);
+  color: #c084fc;
+  border: 1px solid rgba(192, 132, 252, 0.5);
+}
+
+.roster-body-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.35rem;
+  flex: 1;
+}
+
+.roster-item-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 0.32rem 0.7rem;
+  border-radius: 8px;
+  border-left: 3px solid #c084fc;
+}
+
+.roster-role-badge {
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  min-width: 58px;
+  text-align: center;
+}
+
+.badge-imam {
+  background: rgba(16, 185, 129, 0.25);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.4);
+}
+
+.badge-bilal {
+  background: rgba(245, 158, 11, 0.25);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.4);
+}
+
+.badge-siak {
+  background: rgba(56, 189, 248, 0.25);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+}
+
+.roster-person-name {
+  font-size: 1.12rem;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Tabung & Kewangan Slide */
+.tabung-badge {
+  background: rgba(16, 185, 129, 0.25);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.5);
+}
+
+.tabung-body-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.4rem;
+  flex: 1;
+}
+
+.tabung-summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.tabung-card-mini {
+  background: rgba(0, 0, 0, 0.4);
+  padding: 0.35rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+}
+
+.tabung-mini-title {
+  font-size: 0.85rem;
+  color: #a7f3d0;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.tabung-amt-val {
+  font-family: 'Space Grotesk', monospace;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.tabung-amt-val.gold {
+  color: var(--accent-gold);
+}
+
+.tabung-amt-val.green {
+  color: #34d399;
+}
+
+.tabung-pembangunan-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.45);
+  padding: 0.35rem 0.65rem;
+  border-radius: 8px;
+  border-left: 3px solid var(--accent-gold);
+}
+
+.tabung-pb-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+.tabung-pb-amt {
+  font-family: 'Space Grotesk', monospace;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #fef08a;
+}
+
+/* Cycle Dots */
+.cycle-dots-container {
+  position: absolute;
+  bottom: 8px;
+  right: 14px;
+  display: flex;
+  gap: 6px;
+  z-index: 5;
+}
+
+.cycle-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  transition: all 0.3s ease;
+}
+
+.cycle-dot.active {
+  width: 18px;
+  border-radius: 6px;
+  background: var(--accent-gold);
+}
+
+/* ==================== 4. RUNNING TICKER / MARQUEE ==================== */
+.kiosk-footer {
+  width: 100vw !important;
+  max-width: none !important;
+  height: 7vh;
+  min-height: 54px;
+  background: #011812;
+  border-top: 2px solid var(--accent-amber);
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  z-index: 10;
+  box-sizing: border-box !important;
+}
+
+.ticker-badge {
+  background: var(--accent-amber);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: clamp(1.15rem, 1.5vw, 1.55rem);
+  padding: 0 1.8rem;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  letter-spacing: 1.5px;
+  z-index: 4;
+  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.6);
+  flex-shrink: 0;
+}
+
+.ticker-wrapper {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+  position: relative;
+}
+
+.ticker-content,
+.marquee-text,
+.ticker-content span,
+#tickerText {
+  display: inline-flex !important;
+  align-items: center !important;
+  white-space: nowrap;
+  font-size: clamp(1.4rem, 2.2vw, 2rem) !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  letter-spacing: 0.5px;
+  color: #ffffff !important;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+  padding-left: 0 !important;
+  will-change: transform;
+  animation: marqueeLinear 30s linear infinite;
+}
+
+@keyframes marqueeLinear {
+  0% { transform: translate3d(var(--marquee-start, 100vw), 0, 0); }
+  100% { transform: translate3d(var(--marquee-end, -100%), 0, 0); }
+}
+
+.kiosk-watermark {
+  position: relative;
+  height: 100%;
+  background: #011812;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 0 1.2rem;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  z-index: 4;
+  text-transform: none;
+  box-shadow: -6px 0 14px rgba(0, 0, 0, 0.7);
+  flex-shrink: 0;
+}
+
+.system-status-pill {
+  background: #b91c1c;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  margin-right: 1rem;
+  letter-spacing: 1px;
+  z-index: 5;
+  flex-shrink: 0;
+}
+
+/* ==================== FULLSCREEN OVERLAYS ==================== */
+.kiosk-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(20px);
+}
+
+.kiosk-overlay.show {
+  display: flex !important;
+}
+
+/* OVERLAY 1: PRE-ADHAN */
+.overlay-pre-adhan {
+  background: rgba(2, 44, 34, 0.94);
+}
+
+.overlay-box {
+  position: relative;
+  background: #022c22;
+  border: none !important;
+  border-radius: 28px;
+  padding: 3.5rem 5rem;
+  text-align: center;
+  box-shadow: 0 0 80px rgba(0, 0, 0, 0.8), 0 0 40px rgba(251, 191, 36, 0.35);
+  width: 92vw;
+  max-width: 1650px;
+  box-sizing: border-box;
+  overflow: hidden;
+  z-index: 1;
+  animation: rainbow-overlay-flash 3.5s ease-in-out infinite;
+}
+
+.overlay-box::before {
+  content: '';
+  position: absolute;
+  top: -100%;
+  left: -100%;
+  width: 300%;
+  height: 300%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 160deg,
+    rgba(255, 0, 110, 0.15) 200deg,
+    rgba(168, 85, 247, 0.38) 240deg,
+    rgba(59, 130, 246, 0.65) 275deg,
+    rgba(16, 185, 129, 0.9) 315deg,
+    #facc15 345deg,
+    #ffffff 360deg
+  );
+  animation: rotate-anticlockwise 17s linear infinite;
+  z-index: -2;
+}
+
+.overlay-box::after {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  background: radial-gradient(circle at center, rgba(6, 78, 59, 0.95) 0%, rgba(2, 44, 34, 0.98) 100%);
+  border-radius: 23px;
+  z-index: -1;
+}
+
+.overlay-box > * {
+  position: relative;
+  z-index: 2;
+}
+
+.chime-icon-pulse {
+  font-size: clamp(3.5rem, 5vw, 5.5rem);
+  animation: pulseRotate 2s infinite ease-in-out;
+}
+
+.overlay-box h2 {
+  font-size: clamp(1.8rem, 2.5vw, 2.6rem);
+  color: #a7f3d0;
+  margin-top: 1rem;
+  letter-spacing: 2px;
+}
+
+.pre-prayer-name {
+  font-size: clamp(3.5rem, 5.5vw, 5.5rem);
+  font-weight: 900;
+  color: var(--accent-gold);
+  margin: 0.5rem 0;
+}
+
+.pre-counter {
+  font-family: 'Space Grotesk', monospace;
+  font-size: clamp(4rem, 6.5vw, 6.5rem);
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 4px;
+}
+
+.overlay-box p {
+  font-size: clamp(1.2rem, 1.8vw, 1.8rem);
+  color: #cbd5e1;
+  margin-top: 1rem;
+}
+
+/* OVERLAY 2: ADHAN */
+.overlay-adhan {
+  background: radial-gradient(circle, #064e3b 0%, #022c22 60%, #000000 100%);
+  width: 100vw !important;
+  height: 100vh !important;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.adhan-calligraphy {
+  font-family: 'Amiri', serif;
+  font-size: clamp(4.5rem, 7.5vw, 7.5rem);
+  color: var(--accent-gold);
+  text-shadow: 0 0 30px rgba(251, 191, 36, 0.6);
+  margin-bottom: 1.5rem;
+}
+
+.adhan-banner {
+  font-size: clamp(3.2rem, 5.5vw, 5.5rem);
+  font-weight: 900;
+  letter-spacing: 4px;
+  color: #ffffff;
+}
+
+.adhan-sub {
+  font-size: clamp(1.4rem, 2.2vw, 2.4rem);
+  color: #a7f3d0;
+  letter-spacing: 2px;
+  margin-top: 0.5rem;
+}
+
+.adhan-timer {
+  font-family: 'Space Grotesk', monospace;
+  font-size: clamp(2.5rem, 4vw, 4.2rem);
+  font-weight: 800;
+  color: var(--accent-gold);
+  margin-top: 2rem;
+}
+
+/* OVERLAY 3: DOA SELEPAS ADHAN */
+.overlay-doa {
+  background: rgba(2, 44, 34, 0.96);
+}
+
+.doa-card {
+  position: relative;
+  width: 92vw;
+  max-width: 1650px;
+  padding: 3rem 4.5rem;
+  background: #022c22;
+  border: none !important;
+  border-radius: 24px;
+  text-align: center;
+  box-sizing: border-box;
+  box-shadow: 0 0 80px rgba(0, 0, 0, 0.8), 0 0 40px rgba(251, 191, 36, 0.35);
+  overflow: hidden;
+  z-index: 1;
+  animation: rainbow-overlay-flash 3.5s ease-in-out infinite;
+}
+
+.doa-card::before {
+  content: '';
+  position: absolute;
+  top: -100%;
+  left: -100%;
+  width: 300%;
+  height: 300%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 160deg,
+    rgba(255, 0, 110, 0.15) 200deg,
+    rgba(168, 85, 247, 0.38) 240deg,
+    rgba(59, 130, 246, 0.65) 275deg,
+    rgba(16, 185, 129, 0.9) 315deg,
+    #facc15 345deg,
+    #ffffff 360deg
+  );
+  animation: rotate-anticlockwise 17s linear infinite;
+  z-index: -2;
+}
+
+.doa-card::after {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  background: radial-gradient(circle at center, rgba(6, 78, 59, 0.95) 0%, rgba(2, 44, 34, 0.98) 100%);
+  border-radius: 19px;
+  z-index: -1;
+}
+
+.doa-card > * {
+  position: relative;
+  z-index: 2;
+}
+
+.doa-card h3 {
+  font-size: clamp(1.8rem, 2.8vw, 2.8rem);
+  color: var(--accent-gold);
+  margin-bottom: 1.5rem;
+}
+
+.doa-arabic {
+  font-family: 'Amiri', serif;
+  font-size: clamp(2.2rem, 3.8vw, 4rem);
+  line-height: 1.6;
+  color: #ffffff;
+  margin-bottom: 1.5rem;
+}
+
+.doa-rumi {
+  font-size: clamp(1.15rem, 1.8vw, 1.8rem);
+  font-style: italic;
+  color: #cbd5e1;
+  line-height: 1.5;
+}
+
+/* OVERLAY 4: IQAMAH COUNTDOWN */
+.overlay-iqamah {
+  background: radial-gradient(circle, #022c22 0%, #01140e 100%);
+}
+
+.iqamah-card {
+  position: relative;
+  text-align: center;
+  background: #022c22;
+  border: none !important;
+  border-radius: 32px;
+  padding: 3.5rem 5rem;
+  width: 92vw;
+  max-width: 1650px;
+  box-sizing: border-box;
+  box-shadow: 0 0 90px rgba(0, 0, 0, 0.8), 0 0 50px rgba(52, 211, 153, 0.35);
+  overflow: hidden;
+  z-index: 1;
+  animation: rainbow-overlay-flash 3.5s ease-in-out infinite;
+}
+
+.iqamah-card::before {
+  content: '';
+  position: absolute;
+  top: -100%;
+  left: -100%;
+  width: 300%;
+  height: 300%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 160deg,
+    rgba(255, 0, 110, 0.15) 200deg,
+    rgba(168, 85, 247, 0.38) 240deg,
+    rgba(59, 130, 246, 0.65) 275deg,
+    rgba(16, 185, 129, 0.9) 315deg,
+    #facc15 345deg,
+    #ffffff 360deg
+  );
+  animation: rotate-anticlockwise 17s linear infinite;
+  z-index: -2;
+}
+
+.iqamah-card::after {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  background: radial-gradient(circle at center, #064e3b 0%, #022c22 100%);
+  border-radius: 26px;
+  z-index: -1;
+}
+
+.iqamah-card > * {
+  position: relative;
+  z-index: 2;
+}
+
+.iqamah-badge {
+  display: inline-block;
+  background: #059669;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: clamp(1.1rem, 1.6vw, 1.6rem);
+  padding: 0.5rem 2.5rem;
+  border-radius: 30px;
+  letter-spacing: 2px;
+}
+
+.iqamah-card h2 {
+  font-size: clamp(2.8rem, 4.5vw, 4.5rem);
+  color: #ffffff;
+  margin: 1rem 0;
+}
+
+.iqamah-digits {
+  font-family: 'Space Grotesk', monospace;
+  font-size: clamp(6.5rem, 12vw, 11rem);
+  font-weight: 900;
+  color: #34d399;
+  letter-spacing: 6px;
+  text-shadow: 0 0 40px rgba(52, 211, 153, 0.7);
+}
+
+.iqamah-instruction {
+  font-size: clamp(1.3rem, 1.9vw, 2rem);
+  color: #a7f3d0;
+  margin-top: 1rem;
+}
+
+/* OVERLAY 5: SOLAT IN PROGRESS */
+.overlay-solat {
+  background: #01140e;
+}
+
+.solat-container {
+  text-align: center;
+  width: 92vw;
+  max-width: 1650px;
+  box-sizing: border-box;
+}
+
+.saf-arabic {
+  font-family: 'Amiri', serif;
+  font-size: clamp(3.8rem, 6vw, 6.2rem);
+  color: var(--accent-gold);
+  margin-bottom: 1.5rem;
+}
+
+.solat-main-title {
+  font-size: clamp(3.2rem, 5vw, 5rem);
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 3px;
+  margin-bottom: 2rem;
+}
+
+.solat-phone-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.5rem;
+  background: rgba(220, 38, 38, 0.25);
+  border: 2px solid #ef4444;
+  padding: 1.2rem 3.5rem;
+  border-radius: 20px;
+}
+
+.phone-silent-icon {
+  font-size: clamp(2.8rem, 4vw, 4rem);
+}
+
+.solat-phone-box p {
+  font-size: clamp(1.3rem, 2vw, 2.2rem);
+  font-weight: 700;
+  color: #fca5a5;
+  letter-spacing: 1px;
+}
+
+.solat-peaceful-text {
+  font-size: clamp(1.2rem, 1.8vw, 1.8rem);
+  color: #64748b;
+  margin-top: 3rem;
+  letter-spacing: 2px;
+}
+
+/* OVERLAY 6: TRIAL EXPIRED LOCK */
+.overlay-locked {
+  background: rgba(15, 23, 42, 0.98);
+}
+
+.lock-modal {
+  background: #1e293b;
+  border: 2px solid #ef4444;
+  border-radius: 24px;
+  padding: 3.5rem 4rem;
+  width: 88vw;
+  max-width: 1350px;
+  box-sizing: border-box;
+  text-align: center;
+  box-shadow: 0 0 50px rgba(239, 68, 68, 0.4);
+}
+
+.lock-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.lock-modal h1 {
+  font-size: 2.4rem;
+  color: #ef4444;
+  font-weight: 800;
+}
+
+.lock-subtitle {
+  font-size: 1.2rem;
+  color: #94a3b8;
+  margin: 0.8rem 0 1.5rem 0;
+}
+
+.hwid-box {
+  background: #0f172a;
+  border: 1px dashed var(--accent-gold);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin: 1.5rem 0;
+}
+
+.hwid-label {
+  display: block;
+  font-size: 0.9rem;
+  color: #a7f3d0;
+  letter-spacing: 1px;
+  margin-bottom: 0.4rem;
+}
+
+.hwid-val {
+  font-family: 'Space Grotesk', monospace;
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: var(--accent-gold);
+  letter-spacing: 3px;
+}
+
+.lock-instructions {
+  text-align: left;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 1.5rem;
+  border-radius: 10px;
+  font-size: 1rem;
+  color: #cbd5e1;
+  line-height: 1.6;
+}
+
+.support-footer {
+  margin-top: 1.5rem;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* OVERLAY 7: LIVE CAMERA BROADCAST */
+.overlay-live-cam {
+  background: #000000;
+  padding: 0;
+}
+
+#liveCamVideo {
+  width: 100vw;
+  height: 100vh;
+  object-fit: contain;
+  background: #000000;
+}
+
+.live-cam-badge {
+  position: absolute;
+  top: 30px;
+  left: 40px;
+  background: rgba(220, 38, 38, 0.95);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 1.2rem;
+  padding: 0.5rem 1.4rem;
+  border-radius: 24px;
+  letter-spacing: 1.5px;
+  box-shadow: 0 0 25px rgba(220, 38, 38, 0.7);
+  animation: pulseRotate 2s infinite ease-in-out;
+  z-index: 10;
+}
+
+.live-cam-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 8vh;
+  background: linear-gradient(0deg, rgba(2, 44, 34, 0.95), transparent);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 3.5rem;
+  color: #ffffff;
+  font-size: 1.3rem;
+  font-weight: 700;
+  z-index: 10;
+}
+
+@keyframes pulseRotate {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* ==============================================================================
+   MULTI-SOURCE VIDEO & PICTURE-IN-PICTURE (PiP) LAYOUT SYSTEM
+   ============================================================================== */
+
+/* ==============================================================================
+   MULTI-SOURCE VIDEO & PICTURE-IN-PICTURE (PiP) LAYOUT SYSTEM
+   ============================================================================== */
+
+/* Viewports Base */
+.viewport-signage {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  flex: 1 1 100%;
+  z-index: 5;
+  transition: all 0.3s ease;
+}
+
+/* ==================== 1. MODE: 100% TAKWIM (FULLSCREEN SIGNAGE) ==================== */
+.kiosk-container.mode-fullscreen-signage .viewport-signage,
+.kiosk-container.mode-fullscreen_signage .viewport-signage {
+  display: flex !important;
+  width: 100%;
+  height: 100%;
+}
+
+.kiosk-container.mode-fullscreen-signage .kiosk-header,
+.kiosk-container.mode-fullscreen_signage .kiosk-header {
+  height: 14vh;
+  min-height: 90px;
+}
+
+.kiosk-container.mode-fullscreen-signage .prayer-ribbon,
+.kiosk-container.mode-fullscreen_signage .prayer-ribbon {
+  height: 15vh;
+  min-height: 100px;
+}
+
+.kiosk-container.mode-fullscreen-signage .kiosk-main-body,
+.kiosk-container.mode-fullscreen_signage .kiosk-main-body {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  min-height: 0;
+}
+
+.kiosk-container.mode-fullscreen-signage .kiosk-left-column,
+.kiosk-container.mode-fullscreen_signage .kiosk-left-column {
+  flex: 0 0 68%;
+  width: 68%;
+  max-width: 68%;
+  height: 100%;
+  padding: 0.6rem 0.8rem 0.6rem 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kiosk-container.mode-fullscreen-signage .kiosk-right-column,
+.kiosk-container.mode-fullscreen_signage .kiosk-right-column {
+  display: flex !important;
+  flex: 0 0 32%;
+  width: 32%;
+  max-width: 32%;
+  height: 100%;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.6rem 1.8rem 0.6rem 0.6rem;
+}
+
+.kiosk-container.mode-fullscreen-signage .giant-countdown-card,
+.kiosk-container.mode-fullscreen_signage .giant-countdown-card {
+  flex: 1.15;
+}
+
+.kiosk-container.mode-fullscreen-signage .cycle-widget-card,
+.kiosk-container.mode-fullscreen_signage .cycle-widget-card {
+  flex: 1;
+}
+
+.kiosk-container.mode-fullscreen-signage .pip-signage-widget,
+.kiosk-container.mode-fullscreen_signage .pip-signage-widget {
+  display: none !important;
+}
+
+/* ==================== 2. MODE: 50% / 50% (SPLIT EQUAL) ==================== */
+.kiosk-container.mode-split-equal .viewport-signage,
+.kiosk-container.mode-split_equal .viewport-signage {
+  display: flex !important;
+  width: 100%;
+  height: 100%;
+}
+
+.kiosk-container.mode-split-equal .kiosk-main-body,
+.kiosk-container.mode-split_equal .kiosk-main-body {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  min-height: 0;
+}
+
+.kiosk-container.mode-split-equal .kiosk-left-column,
+.kiosk-container.mode-split_equal .kiosk-left-column {
+  flex: 0 0 50%;
+  width: 50%;
+  max-width: 50%;
+  height: 100%;
+  padding: 0.6rem 0.6rem 0.6rem 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kiosk-container.mode-split-equal .main-stage-16x9,
+.kiosk-container.mode-split_equal .main-stage-16x9 {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  aspect-ratio: 16 / 9;
+}
+
+.kiosk-container.mode-split-equal .kiosk-right-column,
+.kiosk-container.mode-split_equal .kiosk-right-column {
+  display: flex !important;
+  flex: 0 0 50%;
+  width: 50%;
+  max-width: 50%;
+  height: 100%;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.6rem 1.8rem 0.6rem 0.6rem;
+}
+
+.kiosk-container.mode-split-equal .giant-countdown-card,
+.kiosk-container.mode-split_equal .giant-countdown-card {
+  flex: 1.15;
+  padding: 1.1rem 1.3rem;
+}
+
+.kiosk-container.mode-split-equal .giant-countdown-card .cd-countdown-display,
+.kiosk-container.mode-split_equal .giant-countdown-card .cd-countdown-display {
+  font-size: 3.5rem;
+}
+
+.kiosk-container.mode-split-equal .giant-countdown-card .cd-prayer-name,
+.kiosk-container.mode-split_equal .giant-countdown-card .cd-prayer-name {
+  font-size: 1.85rem;
+}
+
+.kiosk-container.mode-split-equal .cycle-widget-card,
+.kiosk-container.mode-split_equal .cycle-widget-card {
+  flex: 1;
+}
+
+.kiosk-container.mode-split-equal .pip-signage-widget,
+.kiosk-container.mode-split_equal .pip-signage-widget {
+  display: none !important;
+}
+
+/* ==================== 3. MODE: 65% TAKWIM / 35% VIDEO (SPLIT SIGNAGE FOCUS) ==================== */
+.kiosk-container.mode-split-signage-focus .viewport-signage,
+.kiosk-container.mode-split_signage_focus .viewport-signage {
+  display: flex !important;
+  width: 100%;
+  height: 100%;
+}
+
+.kiosk-container.mode-split-signage-focus .kiosk-main-body,
+.kiosk-container.mode-split_signage_focus .kiosk-main-body {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  min-height: 0;
+}
+
+.kiosk-container.mode-split-signage-focus .kiosk-left-column,
+.kiosk-container.mode-split_signage_focus .kiosk-left-column {
+  flex: 0 0 65%;
+  width: 65%;
+  max-width: 65%;
+  height: 100%;
+  padding: 0.6rem 0.8rem 0.6rem 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kiosk-container.mode-split-signage-focus .main-stage-16x9,
+.kiosk-container.mode-split_signage_focus .main-stage-16x9 {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  aspect-ratio: 16 / 9;
+}
+
+.kiosk-container.mode-split-signage-focus .kiosk-right-column,
+.kiosk-container.mode-split_signage_focus .kiosk-right-column {
+  display: flex !important;
+  flex: 0 0 35%;
+  width: 35%;
+  max-width: 35%;
+  height: 100%;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.6rem 1.8rem 0.6rem 0.6rem;
+}
+
+.kiosk-container.mode-split-signage-focus .giant-countdown-card,
+.kiosk-container.mode-split_signage_focus .giant-countdown-card {
+  flex: 1.15;
+}
+
+.kiosk-container.mode-split-signage-focus .cycle-widget-card,
+.kiosk-container.mode-split_signage_focus .cycle-widget-card {
+  flex: 1;
+}
+
+.kiosk-container.mode-split-signage-focus .pip-signage-widget,
+.kiosk-container.mode-split_signage_focus .pip-signage-widget {
+  display: none !important;
+}
+
+/* ==================== 4. MODE: 35% TAKWIM / 65% VIDEO (SPLIT VIDEO FOCUS) ==================== */
+.kiosk-container.mode-split-video-focus .viewport-signage,
+.kiosk-container.mode-split_video_focus .viewport-signage {
+  display: flex !important;
+  width: 100%;
+  height: 100%;
+}
+
+.kiosk-container.mode-split-video-focus .kiosk-main-body,
+.kiosk-container.mode-split_video_focus .kiosk-main-body {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  min-height: 0;
+}
+
+.kiosk-container.mode-split-video-focus .kiosk-left-column,
+.kiosk-container.mode-split_video_focus .kiosk-left-column {
+  flex: 0 0 65%;
+  width: 65%;
+  max-width: 65%;
+  height: 100%;
+  padding: 0.6rem 0.8rem 0.6rem 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kiosk-container.mode-split-video-focus .main-stage-16x9,
+.kiosk-container.mode-split_video_focus .main-stage-16x9 {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  aspect-ratio: 16 / 9;
+}
+
+.kiosk-container.mode-split-video-focus .kiosk-right-column,
+.kiosk-container.mode-split_video_focus .kiosk-right-column {
+  display: flex !important;
+  flex: 0 0 35%;
+  width: 35%;
+  max-width: 35%;
+  height: 100%;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.6rem 1.8rem 0.6rem 0.6rem;
+}
+
+.kiosk-container.mode-split-video-focus .giant-countdown-card,
+.kiosk-container.mode-split_video_focus .giant-countdown-card {
+  flex: 1.15;
+}
+
+.kiosk-container.mode-split-video-focus .cycle-widget-card,
+.kiosk-container.mode-split_video_focus .cycle-widget-card {
+  flex: 1;
+}
+
+.kiosk-container.mode-split-video-focus .pip-signage-widget,
+.kiosk-container.mode-split_video_focus .pip-signage-widget {
+  display: none !important;
+}
+
+/* ==================== 5. MODE: 100% FULLSCREEN VIDEO ==================== */
+.kiosk-container.mode-fullscreen-video .viewport-signage,
+.kiosk-container.mode-fullscreen_video .viewport-signage {
+  display: flex !important;
+  width: 100%;
+  height: 100%;
+}
+
+.kiosk-container.mode-fullscreen-video .kiosk-header,
+.kiosk-container.mode-fullscreen_video .kiosk-header {
+  height: 7vh;
+  min-height: 48px;
+  padding: 0 1.5rem;
+  background: rgba(2, 44, 34, 0.88);
+  border-bottom: 1px solid rgba(217, 119, 6, 0.4);
+}
+
+.kiosk-container.mode-fullscreen-video .mosque-logo,
+.kiosk-container.mode-fullscreen_video .mosque-logo {
+  width: 36px;
+  height: 36px;
+  padding: 4px;
+}
+
+.kiosk-container.mode-fullscreen-video .mosque-titles h1,
+.kiosk-container.mode-fullscreen_video .mosque-titles h1 {
+  font-size: 1.25rem;
+}
+
+.kiosk-container.mode-fullscreen-video .mosque-titles p,
+.kiosk-container.mode-fullscreen_video .mosque-titles p {
+  display: none;
+}
+
+.kiosk-container.mode-fullscreen-video .time-block,
+.kiosk-container.mode-fullscreen_video .time-block {
+  gap: 1.2rem;
+}
+
+.kiosk-container.mode-fullscreen-video .digital-clock,
+.kiosk-container.mode-fullscreen_video .digital-clock {
+  font-size: 2rem;
+  padding: 0.1rem 0.8rem;
+}
+
+.kiosk-container.mode-fullscreen-video .gregorian-date,
+.kiosk-container.mode-fullscreen_video .gregorian-date {
+  font-size: 0.85rem;
+}
+
+.kiosk-container.mode-fullscreen-video .hijri-date,
+.kiosk-container.mode-fullscreen_video .hijri-date {
+  font-size: 0.85rem;
+}
+
+.kiosk-container.mode-fullscreen-video .prayer-ribbon,
+.kiosk-container.mode-fullscreen_video .prayer-ribbon {
+  height: 7.5vh;
+  min-height: 46px;
+  padding: 0.25rem 1.5rem;
+  gap: 0.5rem;
+}
+
+.kiosk-container.mode-fullscreen-video .prayer-card,
+.kiosk-container.mode-fullscreen_video .prayer-card {
+  padding: 0.15rem 0.4rem;
+  border-radius: 8px;
+  flex-direction: row;
+  justify-content: space-around;
+  gap: 0.4rem;
+}
+
+.kiosk-container.mode-fullscreen-video .prayer-card .p-arabic,
+.kiosk-container.mode-fullscreen_video .prayer-card .p-arabic {
+  display: none;
+}
+
+.kiosk-container.mode-fullscreen-video .prayer-card .p-name,
+.kiosk-container.mode-fullscreen_video .prayer-card .p-name {
+  font-size: 0.75rem;
+}
+
+.kiosk-container.mode-fullscreen-video .prayer-card .p-time,
+.kiosk-container.mode-fullscreen_video .prayer-card .p-time {
+  font-size: 1.15rem;
+}
+
+.kiosk-container.mode-fullscreen-video .kiosk-main-body,
+.kiosk-container.mode-fullscreen_video .kiosk-main-body {
+  flex: 1;
+  display: flex;
+  width: 100%;
+  min-height: 0;
+}
+
+.kiosk-container.mode-fullscreen-video .kiosk-left-column,
+.kiosk-container.mode-fullscreen_video .kiosk-left-column {
+  flex: 1 1 100% !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 100% !important;
+  padding: 0.4rem 1.5rem !important;
+  display: flex;
+}
+
+.kiosk-container.mode-fullscreen-video .main-stage-16x9,
+.kiosk-container.mode-fullscreen_video .main-stage-16x9 {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  aspect-ratio: auto;
+  border-radius: 12px;
+}
+
+.kiosk-container.mode-fullscreen-video .kiosk-right-column,
+.kiosk-container.mode-fullscreen_video .kiosk-right-column {
+  display: none !important;
+}
+
+.kiosk-container.mode-fullscreen-video .kiosk-footer,
+.kiosk-container.mode-fullscreen_video .kiosk-footer {
+  height: 5.5vh;
+  min-height: 40px;
+}
+
+.kiosk-container.mode-fullscreen-video .ticker-badge,
+.kiosk-container.mode-fullscreen_video .ticker-badge {
+  font-size: 0.85rem;
+  padding: 0 1rem;
+}
+
+.kiosk-container.mode-fullscreen-video .ticker-content,
+.kiosk-container.mode-fullscreen_video .ticker-content {
+  font-size: 1.1rem;
+}
+
+.kiosk-container.mode-fullscreen-video .pip-signage-widget,
+.kiosk-container.mode-fullscreen_video .pip-signage-widget {
+  display: none !important;
+}
+
+/* ==================== 6. MODE: PiP VIDEO ==================== */
+.kiosk-container.mode-pip-video .viewport-signage,
+.kiosk-container.mode-pip_video .viewport-signage {
+  display: flex !important;
+  width: 100%;
+  height: 100%;
+}
+
+.kiosk-container.mode-pip-video .kiosk-left-column,
+.kiosk-container.mode-pip_video .kiosk-left-column {
+  flex: 0 0 68%;
+  width: 68%;
+  max-width: 68%;
+}
+
+.kiosk-container.mode-pip-video .kiosk-right-column,
+.kiosk-container.mode-pip_video .kiosk-right-column {
+  display: flex !important;
+  flex: 0 0 32%;
+  width: 32%;
+  max-width: 32%;
+  flex-direction: column;
+}
+
+.kiosk-container.mode-pip-video .stage-media-layer,
+.kiosk-container.mode-pip_video .stage-media-layer {
+  position: fixed !important;
+  bottom: 8.5vh !important;
+  right: 2vw !important;
+  width: 28vw !important;
+  height: 15.75vw !important;
+  z-index: 50 !important;
+  border-radius: 16px !important;
+  border: 2px solid var(--accent-gold) !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.8), 0 0 25px rgba(251, 191, 36, 0.35) !important;
+  overflow: hidden !important;
+  animation: pipPopIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.kiosk-container.mode-pip-video .stage-slides-layer,
+.kiosk-container.mode-pip_video .stage-slides-layer {
+  display: block !important;
+}
+
+.kiosk-container.mode-pip-video .pip-signage-widget,
+.kiosk-container.mode-pip_video .pip-signage-widget {
+  display: none !important;
+}
+
+/* ==================== 7. MODE: PiP SIGNAGE ==================== */
+.kiosk-container.mode-pip-signage .viewport-signage,
+.kiosk-container.mode-pip_signage .viewport-signage {
+  display: flex !important;
+  width: 100%;
+  height: 100%;
+}
+
+.kiosk-container.mode-pip-signage .kiosk-header,
+.kiosk-container.mode-pip_signage .kiosk-header {
+  display: none !important;
+}
+
+.kiosk-container.mode-pip-signage .prayer-ribbon,
+.kiosk-container.mode-pip_signage .prayer-ribbon {
+  display: none !important;
+}
+
+.kiosk-container.mode-pip-signage .kiosk-footer,
+.kiosk-container.mode-pip_signage .kiosk-footer {
+  display: none !important;
+}
+
+.kiosk-container.mode-pip-signage .kiosk-left-column,
+.kiosk-container.mode-pip_signage .kiosk-left-column {
+  flex: 1 1 100% !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+}
+
+.kiosk-container.mode-pip-signage .main-stage-16x9,
+.kiosk-container.mode-pip_signage .main-stage-16x9 {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  aspect-ratio: auto;
+  border-radius: 0;
+  border: none;
+}
+
+.kiosk-container.mode-pip-signage .kiosk-right-column,
+.kiosk-container.mode-pip_signage .kiosk-right-column {
+  display: none !important;
+}
+
+.kiosk-container.mode-pip-signage .pip-signage-widget,
+.kiosk-container.mode-pip_signage .pip-signage-widget {
+  display: flex !important;
+  position: absolute;
+  top: 3vh;
+  right: 3vw;
+  z-index: 50;
+}
+
+@keyframes pipPopIn {
+  from { opacity: 0; transform: scale(0.9) translateY(12px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Media Player Styling */
+.media-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000000;
+  overflow: hidden;
+}
+
+.media-player-video,
+.media-player-iframe {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000000;
+}
+
+.media-live-badge {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(239, 68, 68, 0.6);
+  border-radius: 20px;
+  padding: 0.3rem 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  z-index: 10;
+  pointer-events: none;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.live-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #ef4444;
+  box-shadow: 0 0 10px #ef4444;
+  animation: pulseDot 1.5s infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.media-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  padding: 2rem;
+  text-align: center;
+}
+
+.placeholder-icon {
+  font-size: 3.5rem;
+  margin-bottom: 0.8rem;
+}
+
+.placeholder-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.4rem;
+}
+
+.placeholder-subtitle {
+  font-size: 0.85rem;
+  color: #64748b;
+  max-width: 320px;
+  line-height: 1.4;
+}
+
+/* Floating PiP Signage Widget */
+.pip-signage-widget .pip-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.pip-signage-widget .pip-logo {
+  font-size: 1.15rem;
+}
+
+.pip-signage-widget .pip-title {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #a7f3d0;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.pip-signage-widget .pip-clock {
+  font-family: 'Space Grotesk', monospace;
+  font-size: 2.6rem;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1;
+  text-shadow: 0 0 14px rgba(251, 191, 36, 0.4);
+}
+
+.pip-signage-widget .pip-date {
+  font-size: 0.8rem;
+  color: #cbd5e1;
+  margin: 0.2rem 0 0.6rem 0;
+}
+
+.pip-signage-widget .pip-prayer-row {
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: 8px;
+  padding: 0.4rem 0.65rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-left: 3px solid var(--accent-gold);
+}
+
+.pip-signage-widget .pip-label {
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+.pip-signage-widget .pip-label b {
+  color: #fef08a;
+}
+
+.pip-signage-widget .pip-timer {
+  font-family: 'Space Grotesk', monospace;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--accent-gold);
+}
+
+/* Specific PiP Corner Placement Overlays */
+.pip-signage-widget.pip-bottom-right,
+.pip-signage-widget.bottom_right {
+  display: flex !important;
+  position: absolute;
+  bottom: 8vh;
+  right: 2.5vw;
+  top: auto;
+  left: auto;
+  z-index: 50;
+  animation: pipPopIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pip-signage-widget.pip-bottom-left,
+.pip-signage-widget.bottom_left {
+  display: flex !important;
+  position: absolute;
+  bottom: 8vh;
+  left: 2.5vw;
+  top: auto;
+  right: auto;
+  z-index: 50;
+  animation: pipPopIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pip-signage-widget.pip-top-right,
+.pip-signage-widget.top_right {
+  display: flex !important;
+  position: absolute;
+  top: 3vh;
+  right: 2.5vw;
+  bottom: auto;
+  left: auto;
+  z-index: 50;
+  animation: pipPopIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pip-signage-widget.pip-top-left,
+.pip-signage-widget.top_left {
+  display: flex !important;
+  position: absolute;
+  top: 3vh;
+  left: 2.5vw;
+  bottom: auto;
+  right: auto;
+  z-index: 50;
+  animation: pipPopIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Clean Media Fallback Layer when stream/video is invalid */
+.media-fallback-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(2, 44, 34, 0.92);
+  backdrop-filter: blur(12px);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.fallback-card {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  border-radius: 16px;
+  padding: 1.5rem 2rem;
+  max-width: 480px;
+  text-align: center;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+}
+
+.fallback-icon {
+  font-size: 2.8rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.fallback-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #fbbf24;
+  margin-bottom: 0.5rem;
+}
+
+.fallback-desc {
+  font-size: 0.88rem;
+  color: #cbd5e1;
+  line-height: 1.5;
+}
+
+/* ==================== INTERACTIVE DRAG & RESIZE CANVAS LAYOUT ==================== */
+/* 1. Custom Layout Active Positioning */
+.custom-layout-active .viewport-signage,
+body.custom-layout-active .viewport-signage,
+.custom-layout-active .kiosk-main-body,
+body.custom-layout-active .kiosk-main-body {
+  position: static !important;
+  display: block !important;
+  overflow: visible !important;
+}
+
+.custom-layout-active [data-zone],
+body.custom-layout-active [data-zone] {
+  position: absolute !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  transform: none !important;
+}
+
+.custom-layout-active .kiosk-left-column,
+body.custom-layout-active .kiosk-left-column {
+  flex: none !important;
+  max-width: none !important;
+  padding: 0 !important;
+  display: block !important;
+}
+
+.custom-layout-active .main-stage-16x9,
+body.custom-layout-active .main-stage-16x9 {
+  aspect-ratio: unset !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-height: none !important;
+  border-radius: 18px !important;
+}
+
+.custom-layout-active .kiosk-right-column,
+body.custom-layout-active .kiosk-right-column {
+  flex: none !important;
+  max-width: none !important;
+  padding: 0 !important;
+  display: flex !important;
+}
+
+.custom-layout-active .pip-signage-widget,
+body.custom-layout-active .pip-signage-widget {
+  position: absolute !important;
+  margin: 0 !important;
+}
+
+/* 2. Layout Edit Mode Active (Interactive Drag & Resize Unlocked) */
+body.layout-edit-mode-active,
+.layout-edit-mode-active {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  cursor: default !important;
+}
+
+.layout-edit-mode-active #kioskContainer,
+body.layout-edit-mode-active #kioskContainer {
+  cursor: default !important;
+  outline: 4px solid #10b981;
+  background-image: radial-gradient(rgba(52, 211, 153, 0.12) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+/* Ensure PiP Overlay is visible and accessible in edit mode */
+.layout-edit-mode-active #pipSignageWidget,
+body.layout-edit-mode-active #pipSignageWidget {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.layout-edit-mode-active [data-zone],
+body.layout-edit-mode-active [data-zone] {
+  cursor: grab !important;
+  border: 2px dashed #fbbf24 !important;
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.45), inset 0 0 15px rgba(251, 191, 36, 0.15) !important;
+  transition: box-shadow 0.15s ease;
+  z-index: 100;
+  touch-action: none !important;
+}
+
+/* Block inner child interactions during edit mode so clicks & drags target the zone */
+.layout-edit-mode-active [data-zone] > * {
+  pointer-events: none !important;
+  user-select: none !important;
+  -webkit-user-drag: none !important;
+}
+
+.layout-edit-mode-active [data-zone] video,
+.layout-edit-mode-active [data-zone] iframe,
+.layout-edit-mode-active [data-zone] img,
+.layout-edit-mode-active [data-zone] button,
+.layout-edit-mode-active [data-zone] a {
+  pointer-events: none !important;
+  -webkit-user-drag: none !important;
+}
+
+.layout-edit-mode-active [data-zone]:hover {
+  border-color: #34d399 !important;
+  box-shadow: 0 0 25px rgba(52, 211, 153, 0.6) !important;
+}
+
+.layout-edit-mode-active [data-zone].is-dragging {
+  cursor: grabbing !important;
+  opacity: 0.92;
+  border-color: #f59e0b !important;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8), 0 0 35px rgba(245, 158, 11, 0.7) !important;
+  z-index: 9999 !important;
+}
+
+.layout-edit-mode-active [data-zone].is-resizing {
+  opacity: 0.95;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 30px rgba(56, 189, 248, 0.7) !important;
+  z-index: 9999 !important;
+}
+
+/* Zone Drag Header Bar */
+.zone-edit-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 28px;
+  background: linear-gradient(90deg, rgba(6, 78, 59, 0.95), rgba(2, 44, 34, 0.95));
+  border-bottom: 1px solid rgba(251, 191, 36, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #fbbf24;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  z-index: 50;
+  pointer-events: none !important;
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+}
+
+.zone-edit-header .header-drag-hint {
+  font-size: 0.68rem;
+  color: #a7f3d0;
+  font-weight: 600;
+}
+
+/* Resize Handles - Large, High-Contrast, Touch & Mouse Optimized */
+.layout-edit-mode-active .resize-handle,
+.resize-handle {
+  position: absolute;
+  background: #f59e0b !important;
+  border: 2px solid #ffffff !important;
+  border-radius: 6px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.8), 0 0 8px #f59e0b !important;
+  z-index: 10000 !important;
+  box-sizing: border-box !important;
+  pointer-events: auto !important;
+  touch-action: none !important;
+  transition: transform 0.1s ease, background 0.1s ease;
+}
+
+.layout-edit-mode-active .resize-handle:hover,
+.resize-handle:hover {
+  background: #34d399 !important;
+  transform: scale(1.25);
+}
+
+/* Corner handles (22px x 22px) */
+.resize-nw {
+  top: -11px;
+  left: -11px;
+  width: 22px;
+  height: 22px;
+  cursor: nwse-resize !important;
+}
+
+.resize-ne {
+  top: -11px;
+  right: -11px;
+  width: 22px;
+  height: 22px;
+  cursor: nesw-resize !important;
+}
+
+.resize-se {
+  bottom: -11px;
+  right: -11px;
+  width: 24px;
+  height: 24px;
+  cursor: nwse-resize !important;
+  background: #10b981 !important;
+}
+
+.resize-sw {
+  bottom: -11px;
+  left: -11px;
+  width: 22px;
+  height: 22px;
+  cursor: nesw-resize !important;
+}
+
+/* Edge handles */
+.resize-n {
+  top: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 44px;
+  height: 14px;
+  cursor: ns-resize !important;
+}
+
+.resize-s {
+  bottom: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 44px;
+  height: 14px;
+  cursor: ns-resize !important;
+}
+
+.resize-w {
+  top: 50%;
+  left: -7px;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 44px;
+  cursor: ew-resize !important;
+}
+
+.resize-e {
+  top: 50%;
+  right: -7px;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 44px;
+  cursor: ew-resize !important;
+}
+
+/* 3. Floating Live Coordinates HUD Badge */
+.canvas-layout-hud-badge {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(2, 44, 34, 0.96);
+  backdrop-filter: blur(10px);
+  border: 2px solid #34d399;
+  border-radius: 30px;
+  padding: 0.6rem 1.4rem;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.8), 0 0 20px rgba(52, 211, 153, 0.35);
+  font-family: 'Space Grotesk', monospace;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  z-index: 99999;
+  pointer-events: none;
+  letter-spacing: 0.5px;
+  animation: hudFadeIn 0.25s ease;
+}
+
+.canvas-layout-hud-badge .hud-icon {
+  font-size: 1.25rem;
+}
+
+.canvas-layout-hud-badge .hud-text {
+  color: #fbbf24;
+}
+
+.canvas-layout-hud-badge .hud-zone-name {
+  color: #34d399;
+  font-weight: 800;
+  padding-right: 0.5rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@keyframes hudFadeIn {
+  from { opacity: 0; transform: translate(-50%, 15px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* ==================== MAINTENANCE / EXIT BUTTON & PIN MODAL ==================== */
+.btn-maintenance-trigger {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(2, 44, 34, 0.75);
+  border: 1.5px solid rgba(251, 191, 36, 0.4);
+  color: #fbbf24;
+  opacity: 0.1;
+  cursor: pointer;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  transition: opacity 0.3s ease, transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  outline: none;
+  padding: 0;
+}
+
+.btn-maintenance-trigger:hover,
+.btn-maintenance-trigger:focus,
+.btn-maintenance-trigger:active {
+  opacity: 0.95;
+  transform: scale(1.1);
+  background: rgba(6, 78, 59, 0.95);
+  border-color: #fbbf24;
+  box-shadow: 0 0 16px rgba(251, 191, 36, 0.5);
+}
+
+.btn-maintenance-trigger svg {
+  pointer-events: none;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
+}
+
+.maintenance-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(12px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: maintFadeIn 0.25s ease-out;
+}
+
+.maintenance-modal-box {
+  width: 390px;
+  max-width: 92vw;
+  background: linear-gradient(165deg, #022c22 0%, #064e3b 100%);
+  border: 2px solid rgba(52, 211, 153, 0.45);
+  border-radius: 24px;
+  box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.85), 0 0 35px rgba(5, 150, 105, 0.35);
+  padding: 1.75rem 1.5rem;
+  color: #ffffff;
+  text-align: center;
+  animation: maintScaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.maint-modal-header {
+  margin-bottom: 1.25rem;
+}
+
+.maint-modal-badge {
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 0.75rem auto;
+  border-radius: 50%;
+  background: rgba(251, 191, 36, 0.15);
+  border: 2px solid rgba(251, 191, 36, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 18px rgba(251, 191, 36, 0.25);
+}
+
+.maint-modal-badge.maint-badge-success {
+  background: rgba(52, 211, 153, 0.15);
+  border-color: rgba(52, 211, 153, 0.5);
+  box-shadow: 0 0 18px rgba(52, 211, 153, 0.25);
+}
+
+.maint-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #ffffff;
+  margin: 0 0 0.35rem 0;
+}
+
+.maint-subtitle {
+  font-size: 0.85rem;
+  color: #cbd5e1;
+  margin: 0;
+}
+
+/* Masked PIN Indicator Dots */
+.pin-display-wrapper {
+  margin: 1rem 0 0.5rem 0;
+}
+
+.pin-dots {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 0.6rem;
+}
+
+.pin-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid rgba(251, 191, 36, 0.55);
+  background: rgba(2, 44, 34, 0.85);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pin-dot.filled {
+  background: #fbbf24;
+  border-color: #fbbf24;
+  box-shadow: 0 0 14px rgba(251, 191, 36, 0.85);
+  transform: scale(1.2);
+}
+
+.pin-dot.error {
+  background: #ef4444;
+  border-color: #ef4444;
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.85);
+  animation: pinShake 0.35s ease;
+}
+
+.pin-msg-area {
+  min-height: 1.4rem;
+}
+
+.pin-error-msg {
+  color: #f87171;
+  font-size: 0.85rem;
+  font-weight: 600;
+  animation: pinShake 0.35s ease;
+}
+
+.pin-lockout-msg {
+  color: #fbbf24;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: rgba(180, 83, 9, 0.3);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  border-radius: 10px;
+  padding: 0.5rem 0.75rem;
+  line-height: 1.4;
+  margin-top: 0.25rem;
+}
+
+/* Numeric Keypad */
+.maint-keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 1.25rem 0 1.25rem 0;
+}
+
+.kp-btn {
+  height: 54px;
+  border-radius: 12px;
+  font-family: 'Space Grotesk', monospace;
+  font-size: 1.4rem;
+  font-weight: 700;
+  background: rgba(5, 150, 105, 0.22);
+  border: 1.5px solid rgba(52, 211, 153, 0.35);
+  color: #f8fafc;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+}
+
+.kp-btn:hover {
+  background: rgba(5, 150, 105, 0.55);
+  border-color: #34d399;
+  color: #fbbf24;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+}
+
+.kp-btn:active {
+  transform: translateY(1px) scale(0.96);
+  background: rgba(5, 150, 105, 0.75);
+}
+
+.kp-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.kp-clear, .kp-backspace {
+  font-size: 1.15rem;
+  color: #94a3b8;
+  background: rgba(15, 23, 42, 0.45);
+  border-color: rgba(148, 163, 184, 0.25);
+}
+
+.kp-clear:hover, .kp-backspace:hover {
+  color: #ffffff;
+  border-color: #94a3b8;
+  background: rgba(30, 41, 59, 0.7);
+}
+
+/* Maintenance Action Menu Items */
+.maint-action-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 1.25rem 0;
+  text-align: left;
+}
+
+.maint-action-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(2, 44, 34, 0.85);
+  border: 1.5px solid rgba(52, 211, 153, 0.35);
+  border-radius: 14px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  width: 100%;
+  outline: none;
+}
+
+.maint-action-item:hover {
+  background: rgba(5, 150, 105, 0.35);
+  border-color: #34d399;
+  transform: translateX(4px);
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.25);
+}
+
+.maint-action-item:active {
+  transform: scale(0.98);
+}
+
+.maint-action-danger {
+  background: rgba(69, 10, 10, 0.55);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.maint-action-danger:hover {
+  background: rgba(127, 29, 29, 0.7);
+  border-color: #ef4444;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
+}
+
+.action-item-icon {
+  font-size: 1.65rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.action-item-body {
+  flex: 1;
+}
+
+.action-item-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.action-item-desc {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 2px;
+  line-height: 1.3;
+}
+
+.action-item-arrow {
+  font-size: 1.1rem;
+  color: #34d399;
+  margin-left: auto;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.maint-action-item:hover .action-item-arrow {
+  transform: translateX(3px);
+  color: #fbbf24;
+}
+
+.maint-status-banner {
+  margin-bottom: 1rem;
+  padding: 0.65rem 0.9rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+  background: rgba(5, 150, 105, 0.25);
+  border: 1px solid #34d399;
+  color: #a7f3d0;
+  line-height: 1.4;
+  animation: maintFadeIn 0.2s ease;
+}
+
+.maint-status-banner.error {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  color: #fca5a5;
+}
+
+.maint-footer-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+.maint-btn-cancel {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #cbd5e1;
+  border-radius: 10px;
+  padding: 8px 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.maint-btn-cancel:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border-color: #ffffff;
+}
+
+@keyframes maintFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes maintScaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pinShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+
+/* ==================== INSTANT JANAZAH NOTICE LAYER ==================== */
+.stage-janazah-layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, rgba(15, 23, 42, 0.96) 0%, rgba(2, 6, 23, 0.98) 100%);
+  backdrop-filter: blur(25px);
+  z-index: 45;
+  padding: 1.5rem 2.5rem;
+  box-sizing: border-box;
+  animation: maintFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.janazah-card {
+  width: 100%;
+  max-width: 960px;
+  background: linear-gradient(165deg, #0b1120 0%, #030712 100%);
+  border: 2px solid rgba(251, 191, 36, 0.65);
+  border-radius: 22px;
+  padding: 1.6rem 2.6rem;
+  text-align: center;
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.9), 0 0 35px rgba(251, 191, 36, 0.25);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.65rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.janazah-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #fbbf24, transparent);
+}
+
+.janazah-arabic-title {
+  font-family: 'Amiri', 'Scheherazade New', serif;
+  font-size: clamp(2.2rem, 3.5vw, 3.1rem);
+  font-weight: 700;
+  color: var(--accent-gold);
+  line-height: 1.15;
+  text-shadow: 0 0 25px rgba(251, 191, 36, 0.6);
+  letter-spacing: 1px;
+}
+
+.janazah-badge {
+  background: rgba(220, 38, 38, 0.22);
+  border: 1.5px solid rgba(239, 68, 68, 0.6);
+  color: #fca5a5;
+  font-size: clamp(0.78rem, 1vw, 0.9rem);
+  font-weight: 800;
+  letter-spacing: 2px;
+  padding: 0.3rem 1.2rem;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+}
+
+.janazah-subtitle {
+  font-size: clamp(0.95rem, 1.2vw, 1.15rem);
+  color: #94a3b8;
+  font-weight: 600;
+  font-style: italic;
+  margin-top: 0.2rem;
+}
+
+.janazah-arwah-name {
+  font-size: clamp(1.8rem, 2.6vw, 2.5rem);
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+  margin: 0.1rem 0;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.9), 0 0 15px rgba(255, 255, 255, 0.3);
+}
+
+.janazah-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+  width: 100%;
+  margin-top: 0.3rem;
+}
+
+.janazah-detail-item {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  padding: 0.65rem 1.1rem;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  text-align: left;
+  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
+}
+
+.janazah-detail-item.full-w {
+  grid-column: 1 / -1;
+}
+
+.janazah-detail-item .j-label {
+  font-size: 0.75rem;
+  color: #cbd5e1;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+}
+
+.janazah-detail-item .j-val {
+  font-size: clamp(1.05rem, 1.3vw, 1.25rem);
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.janazah-detail-item .j-val.gold {
+  color: #fde047;
+  text-shadow: 0 0 10px rgba(253, 224, 71, 0.3);
+}
+
+.janazah-detail-item .j-val.green {
+  color: #34d399;
+}
+
+.janazah-doa-text {
+  font-size: clamp(0.88rem, 1.1vw, 1.05rem);
+  font-style: italic;
+  color: #a7f3d0;
+  margin-top: 0.35rem;
+  line-height: 1.4;
+}
+
+/* ==================== FRIDAY JUMAAT NOTICE LAYER ==================== */
+.stage-jumaat-layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 30%, rgba(6, 78, 59, 0.95), rgba(2, 44, 34, 0.98));
+  backdrop-filter: blur(15px);
+  z-index: 35;
+  padding: 1.5rem 2.5rem;
+  box-sizing: border-box;
+}
+
+.jumaat-card {
+  width: 100%;
+  max-width: 900px;
+  background: rgba(2, 44, 34, 0.7);
+  border: 2px solid rgba(52, 211, 153, 0.4);
+  border-radius: 20px;
+  padding: 2rem 2.5rem;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.jumaat-header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  color: #fbbf24;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  padding: 0.3rem 1.2rem;
+  border-radius: 9999px;
+}
+
+.jumaat-main-title {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 1px;
+  text-shadow: 0 0 25px rgba(52, 211, 153, 0.4);
+}
+
+.jumaat-khutbah-box {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  padding: 1rem 1.8rem;
+  border-radius: 14px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.khutbah-tag {
+  font-size: 0.75rem;
+  color: var(--accent-gold);
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.khutbah-title-text {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #fef08a;
+  margin-top: 0.3rem;
+}
+
+.jumaat-hadith-box {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-left: 4px solid #ef4444;
+  padding: 0.85rem 1.4rem;
+  border-radius: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.hadith-pill {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #fca5a5;
+  letter-spacing: 0.8px;
+}
+
+.jumaat-hadith-text {
+  font-size: 0.95rem;
+  font-style: italic;
+  color: #ffffff;
+  line-height: 1.35;
+  margin-top: 0.25rem;
+}
+
+.jumaat-hadith-ref {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent-gold);
+  text-align: right;
+  margin-top: 0.2rem;
+}
+
+/* ==================== LOWER-THIRD BROADCAST OVERLAY ==================== */
+.kiosk-lower-third,
+#kioskLowerThird,
+.kuliah-info-card,
+#kuliahOverlay,
+.stream-banner-box,
+#streamOverlay {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  right: auto;
+  width: fit-content !important;
+  max-width: 85% !important;
+  display: inline-flex !important;
+  flex-direction: column !important;
+  padding: 0.6rem 1rem !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(10, 30, 20, 0.85) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-left: 5px solid var(--accent-gold);
+  border-radius: 8px !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  z-index: 25;
+  gap: 0.35rem;
+  animation: lowerThirdSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes lowerThirdSlideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.lt-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.lt-live-tag {
+  background: rgba(239, 68, 68, 0.25);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: #fca5a5;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  padding: 0.15rem 0.55rem;
+  border-radius: 9999px;
+  text-transform: uppercase;
+}
+
+/* ==================== FULLSCREEN LIVE KULIAH MODE ==================== */
+body.mode-kuliah-fullscreen #media-container,
+body.mode-kuliah-fullscreen #persistent-stream-container,
+body.mode-kuliah-fullscreen .main-stage-16x9,
+body.mode-kuliah-fullscreen #streamVideoContainer,
+body.mode-kuliah-fullscreen #webrtcVideoContainer {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 100 !important;
+  background: #000000 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+body.mode-kuliah-fullscreen #hls-video,
+body.mode-kuliah-fullscreen #webrtc-video,
+body.mode-kuliah-fullscreen #streamVideo,
+body.mode-kuliah-fullscreen #webrtcVideo,
+body.mode-kuliah-fullscreen #kioskIframePlayer {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 0 !important;
+}
+
+body.mode-kuliah-fullscreen .kiosk-header,
+body.mode-kuliah-fullscreen .prayer-ribbon,
+body.mode-kuliah-fullscreen .kiosk-right-column,
+body.mode-kuliah-fullscreen .running-ticker-container,
+body.mode-kuliah-fullscreen #prayer-grid,
+body.mode-kuliah-fullscreen #side-panel {
+  display: none !important;
+}
+
+body.mode-kuliah-fullscreen .kiosk-lower-third,
+body.mode-kuliah-fullscreen #kioskLowerThird {
+  position: fixed !important;
+  bottom: 24px !important;
+  left: 24px !important;
+  z-index: 10001 !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  background: rgba(10, 30, 20, 0.88) !important;
+}
+
+body.mode-kuliah-fullscreen #floatingKuliahHud {
+  display: flex !important;
+}
+
+/* Floating Minimal HUD for Fullscreen Kuliah */
+#floatingKuliahHud {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10002;
+  display: none;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.55rem 1.1rem;
+  background: rgba(10, 25, 20, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+  color: #ffffff;
+}
+
+.hud-live-tag {
+  background: #dc2626;
+  color: #ffffff;
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  letter-spacing: 0.5px;
+}
+
+.hud-clock {
+  font-family: var(--font-digits, 'Space Grotesk', monospace);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #fbbf24;
+}
+
+.hud-next-prayer {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #a7f3d0;
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+  padding-left: 0.75rem;
+}
+
+.lt-kitab-tag {
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #fde68a;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.15rem 0.55rem;
+  border-radius: 6px;
+}
+
+.lt-speaker-row {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.lt-speaker-avatar {
+  font-size: 1.8rem;
+}
+
+.lt-speaker-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.lt-speaker-name {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.4px;
+}
+
+.lt-topic-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--accent-gold);
+}
+
+.lt-silent-bar {
+  font-size: 0.75rem;
+  color: #a7f3d0;
+  font-style: italic;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 0.25rem;
+  margin-top: 0.1rem;
+}
+
+/* ==================== 3-LAYOUT SYSTEM PRESETS ==================== */
+/* Mod A: Horizontal Glass (Default) */
+body.layout-preset-horizontal_glass .prayer-ribbon {
+  display: grid !important;
+  order: 1;
+}
+
+/* Mod B: Sidebar Elegance (Vertical stack on right side) */
+body.layout-preset-sidebar_elegance .prayer-ribbon {
+  display: none !important;
+}
+body.layout-preset-sidebar_elegance .kiosk-left-column {
+  flex: 1 1 70% !important;
+  width: 70% !important;
+}
+body.layout-preset-sidebar_elegance .kiosk-right-column {
+  flex: 1 1 30% !important;
+  width: 30% !important;
+}
+
+/* Mod C: Contemporary Grid (Full height stage with bottom ribbon) */
+body.layout-preset-grid_contemporary .kiosk-container {
+  flex-direction: column !important;
+}
+body.layout-preset-grid_contemporary .prayer-ribbon {
+  order: 3 !important;
+  height: 16vh !important;
+}
+
+/* ==================== MOBILE & PORTRAIT RESPONSIVE SIMULATOR ==================== */
+@media (orientation: portrait), (max-width: 900px) {
+  html, body {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    height: auto !important;
+    min-height: 100vh !important;
+    cursor: default !important;
+  }
+
+  .kiosk-container {
+    height: auto !important;
+    min-height: 100vh !important;
+    flex-direction: column !important;
+    overflow-y: auto !important;
+    padding-bottom: 2rem !important;
+  }
+
+  .kiosk-header {
+    height: auto !important;
+    min-height: 80px !important;
+    padding: 0.75rem 1rem !important;
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+  }
+
+  .mosque-titles h1 {
+    font-size: 1.1rem !important;
+  }
+
+  .digital-clock {
+    font-size: 1.5rem !important;
+  }
+
+  .prayer-ribbon {
+    height: auto !important;
+    min-height: 90px !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 0.4rem !important;
+    padding: 0.5rem !important;
+  }
+
+  .prayer-card {
+    padding: 0.4rem !important;
+    border-radius: 8px !important;
+  }
+
+  .p-name {
+    font-size: 0.75rem !important;
+  }
+
+  .p-time {
+    font-size: 0.95rem !important;
+  }
+
+  .kiosk-main-body {
+    flex-direction: column !important;
+    height: auto !important;
+    min-height: auto !important;
+  }
+
+  .kiosk-left-column, .kiosk-right-column {
+    width: 100% !important;
+    height: auto !important;
+    flex: none !important;
+  }
+
+  .main-stage-16x9 {
+    aspect-ratio: 16/9 !important;
+    min-height: 220px !important;
+    height: auto !important;
+  }
+
+  .widget-stack {
+    height: auto !important;
+    min-height: auto !important;
+  }
+
+  .giant-countdown-card {
+    min-height: 140px !important;
+  }
+
+  .bottom-cycle-widget {
+    min-height: 180px !important;
+  }
+}
+
+/* ==================== TV UX & REMOTE CONTROL MODALS ==================== */
+/* 1. TV Remote Quick Settings Modal */
+.tv-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(3, 7, 18, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.tv-modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.tv-modal-card {
+  width: 90%;
+  max-width: 680px;
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(6, 12, 24, 0.98));
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: 20px;
+  padding: 1.75rem 2rem;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(56, 189, 248, 0.15);
+  color: #f8fafc;
+  animation: tvModalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes tvModalPop {
+  0% { transform: scale(0.92); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.tv-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 1rem;
+}
+
+.tv-modal-icon {
+  font-size: 2rem;
+  background: rgba(56, 189, 248, 0.15);
+  border-radius: 12px;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tv-modal-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #fbbf24;
+  letter-spacing: -0.01em;
+}
+
+.tv-modal-subtitle {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  margin-top: 0.15rem;
+}
+
+.tv-theme-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.tv-theme-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 0.85rem 0.6rem;
+  color: #f8fafc;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+  font-family: var(--font-primary);
+}
+
+.tv-theme-btn:hover, .tv-theme-btn:focus, .tv-theme-btn.active {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: #38bdf8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+  outline: none;
+}
+
+.tv-theme-color-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+}
+
+.tv-theme-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* 2. DuitNow QR Donation Pop-up */
+.tv-donation-card {
+  text-align: center;
+  padding: 1.5rem;
+}
+
+.tv-qr-wrapper {
+  background: #ffffff;
+  padding: 1.2rem;
+  border-radius: 16px;
+  display: inline-block;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  margin: 1rem auto;
+}
+
+.tv-qr-image {
+  width: 220px;
+  height: 220px;
+  object-fit: contain;
+}
+
+.tv-bank-details {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #f8fafc;
+  margin-top: 0.5rem;
+}
+
+.tv-bank-acc {
+  font-family: var(--font-digits);
+  font-size: 1.4rem;
+  color: #fbbf24;
+  letter-spacing: 0.05em;
+  margin-top: 0.25rem;
+}
+
+/* 3. Offline Status Banner */
+#tvOfflineBadge {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 9999;
+  background: rgba(220, 38, 38, 0.9);
+  backdrop-filter: blur(8px);
+  color: #ffffff;
+  padding: 0.4rem 0.85rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: none;
+  align-items: center;
+  gap: 0.4rem;
+  box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+  animation: pulseOffline 2s infinite ease-in-out;
+}
+
+@keyframes pulseOffline {
+  0%, 100% { opacity: 0.9; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.97); }
+}
+
+/* ==================== RESIZE, TEXT SCALE & ORIENTATION ==================== */
+.text-scale-115 .prayer-time-item,
+.text-scale-115 .prayer-card,
+.text-scale-115 .clock-time-text {
+  font-size: 1.15em !important;
+}
+
+.text-scale-130 .prayer-time-item,
+.text-scale-130 .prayer-card,
+.text-scale-130 .clock-time-text {
+  font-size: 1.3em !important;
+}
+
+.orientation-portrait #kioskContainer,
+.orientation-portrait #mainContainer {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100vh !important;
+  overflow: hidden !important;
+}
+
+.orientation-portrait .main-stage-16x9 {
+  width: 100% !important;
+  height: 52% !important;
+  max-height: 55vh !important;
+}
+
+.orientation-portrait .sidebar-signage,
+.orientation-portrait .takwim-sidebar {
+  width: 100% !important;
+  height: 48% !important;
+}
+
+.high-contrast-mode {
+  filter: contrast(1.15) !important;
+}
+
+.high-contrast-mode .prayer-time-val,
+.high-contrast-mode .clock-time-text {
+  color: #fef08a !important;
+  text-shadow: 0 0 12px rgba(254, 240, 138, 0.8) !important;
+}
+

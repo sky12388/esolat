@@ -1,0 +1,10 @@
+[
+  { "name": "Awal Muharram (Tahun Baharu)", "month": 1, "day": 1 },
+  { "name": "Maulidur Rasul", "month": 3, "day": 12 },
+  { "name": "Israk & Mikraj", "month": 7, "day": 27 },
+  { "name": "Nisfu Syaaban", "month": 8, "day": 15 },
+  { "name": "Awal Ramadhan Al-Mubarak", "month": 9, "day": 1 },
+  { "name": "Nuzul Al-Quran", "month": 9, "day": 17 },
+  { "name": "Hari Raya Aidilfitri", "month": 10, "day": 1 },
+  { "name": "Hari Raya Aidiladha", "month": 12, "day": 10 }
+]

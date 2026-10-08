@@ -1363,31 +1363,109 @@
             </div>
           </div>
 
-          <!-- 4. Mod Paparan & PiP Configuration -->
-          <div class="side-info-config-box mt-3">
-            <span class="sub-label">Tetapan Mod Paparan &amp; PiP:</span>
+          <!-- 4. Kawalan Saiz & Skala Paparan (Resize & Scale) -->
+          <div class="side-info-config-box mt-3" style="border: 1px solid rgba(52, 211, 153, 0.35); background: rgba(6, 78, 59, 0.25); border-radius: 12px; padding: 1rem;">
+            <div style="font-weight:700; color:#34d399; font-size:1rem; display:flex; align-items:center; gap:0.4rem; margin-bottom:0.6rem;">
+              <span>📏</span>
+              <span>1. Skala &amp; Saiz Paparan (Resize &amp; Zoom):</span>
+            </div>
 
+            <!-- TV Kiosk Zoom Scale Slider -->
             <div class="form-group mt-2">
-              <label>Mod Paparan Kiosk (Layout Mode)</label>
-              <select id="selectKioskLayoutMode">
-                <option value="split">2 Kolum (Pentas Media 68% + Widget Kanan 32%)</option>
-                <option value="fullscreen">Skrin Penuh (100% Lebar Media / Slaid)</option>
-              </select>
+              <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:0.25rem;">
+                <label style="font-weight:600; color:#ffffff;">Skala Paparan Skrin TV Kiosk (Zoom)</label>
+                <span id="kioskScaleLabel" style="color:#34d399; font-weight:800; font-family:monospace;">100%</span>
+              </div>
+              <input type="range" id="rangeKioskScale" min="80" max="120" step="5" value="100" style="width:100%;">
+              <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:#94a3b8; margin-top:2px;">
+                <span>80% (Kecil)</span>
+                <span>100% (Lalai)</span>
+                <span>120% (Besar)</span>
+              </div>
+            </div>
+
+            <!-- Text & Takwim Scale -->
+            <div class="form-row-2 mt-2">
+              <div class="form-group">
+                <label>Saiz Teks Takwim &amp; Jam TV</label>
+                <select id="selectKioskTextScale">
+                  <option value="100">Standard (100%)</option>
+                  <option value="115">Besar (115%)</option>
+                  <option value="130">Ekstra Besar Senior (130%)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Saiz Fon Panel Admin</label>
+                <select id="selectAdminFontScale">
+                  <option value="100">Standard (100%)</option>
+                  <option value="120">Besar Warga Emas (120%)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Brightness Slider -->
+            <div class="form-group mt-2">
+              <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:0.25rem;">
+                <label style="font-weight:600; color:#ffffff;">Kecerahan Skrin TV (Brightness)</label>
+                <span id="kioskBrightnessLabel" style="color:#fbbf24; font-weight:800; font-family:monospace;">100%</span>
+              </div>
+              <input type="range" id="rangeKioskBrightness" min="50" max="100" step="5" value="100" style="width:100%;">
+            </div>
+          </div>
+
+          <!-- 4.1. Susun Atur & Orientasi Paparan (Layout & Orientation) -->
+          <div class="side-info-config-box mt-3">
+            <span class="sub-label" style="color:#38bdf8; font-weight:700;">📐 2. Susun Atur &amp; Orientasi Skrin:</span>
+
+            <div class="form-row-2 mt-2">
+              <div class="form-group">
+                <label>Orientasi Skrin TV</label>
+                <select id="selectKioskOrientation">
+                  <option value="landscape">Melintang / Horizontal (16:9 - Lalai)</option>
+                  <option value="portrait">Menegak / Vertical (9:16 - Kiosk Stand)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Mod Susun Atur (Layout Preset)</label>
+                <select id="selectKioskLayoutPreset">
+                  <option value="horizontal_glass">Mod A: Horizontal Glass (Bar Melintang)</option>
+                  <option value="sidebar_elegance">Mod B: Sidebar Elegan (Jadual Sisi)</option>
+                  <option value="grid_contemporary">Mod C: Grid Kontemporari (Jam Gergasi)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Mod Paparan Kiosk (Layout Mode)</label>
+                <select id="selectKioskLayoutMode">
+                  <option value="split">2 Kolum (Pentas Media 68% + Widget 32%)</option>
+                  <option value="fullscreen">Skrin Penuh (100% Media / Slaid)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Kedudukan PiP (Jam &amp; Undur)</label>
+                <select id="selectPipMode">
+                  <option value="none">Tiada (None)</option>
+                  <option value="bottom_right">Sudut Kanan Bawah</option>
+                  <option value="bottom_left">Sudut Kiri Bawah</option>
+                  <option value="top_right">Sudut Kanan Atas</option>
+                  <option value="top_left">Sudut Kiri Atas</option>
+                </select>
+              </div>
             </div>
 
             <div class="form-group">
-              <label>Mod Picture-in-Picture (PiP Jam &amp; Undur Solat)</label>
-              <select id="selectPipMode">
-                <option value="none">Tiada (None)</option>
-                <option value="bottom_right">Sudut Kanan Bawah (Bottom Right)</option>
-                <option value="bottom_left">Sudut Kiri Bawah (Bottom Left)</option>
-                <option value="top_right">Sudut Kanan Atas (Top Right)</option>
-                <option value="top_left">Sudut Kiri Atas (Top Left)</option>
+              <label>Susunan Slaid Dalam Takwim</label>
+              <select id="selectKioskSubLayout">
+                <option value="full">Slaid Penuh (16:9)</option>
+                <option value="split_right">Belah Kanan (Slaid + Info Kanan)</option>
+                <option value="split_left">Belah Kiri (Info Kiri + Slaid)</option>
               </select>
             </div>
           </div>
 
-          <!-- 4.1. Interactive Drag & Resize Canvas Layout Section -->
+          <!-- 4.2. Interactive Drag & Resize Canvas Layout Section -->
           <div class="side-info-config-box mt-3" style="border: 2px solid rgba(52, 211, 153, 0.4); background: rgba(2, 44, 34, 0.45); border-radius: 12px; padding: 1rem;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <div>
@@ -1417,52 +1495,6 @@
               </span>
             </div>
           </div>
-
-          <!-- 5. Video Audio & Volume Controls -->
-          <div class="side-info-config-box mt-3">
-            <span class="sub-label">Kawalan Audio Video:</span>
-
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.5rem;">
-              <span style="font-size:0.9rem; font-weight:600;">Suara Video di TV</span>
-              <label class="toggle-switch">
-                <input type="checkbox" id="checkVideoAudio">
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-
-            <div class="form-group mt-3">
-              <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:0.25rem;">
-                <label>Kelantangan Suara Video</label>
-                <span id="videoVolLabel" style="color:var(--accent-gold); font-weight:700;">80%</span>
-              </div>
-              <input type="range" id="rangeVideoVolume" min="0" max="100" value="80" style="width:100%;">
-            </div>
-
-            <div style="background:rgba(217,119,6,0.15); border:1px solid rgba(217,119,6,0.3); border-radius:8px; padding:0.5rem 0.75rem; font-size:0.75rem; color:#fde68a; margin-top:0.5rem;">
-              ℹ️ <b>Auto-Override:</b> Suara video akan disenyapkan secara automatik apabila sistem masuk fasa Peringatan Pra-Azan, Azan, Iqamah, dan Solat.
-            </div>
-          </div>
-
-          <!-- 6. Slide Sub-Layout & Kuliah Info (for Signage Viewport) -->
-          <div class="side-info-config-box mt-3">
-            <!-- 3-Layout Preset Switcher -->
-            <div class="form-group mt-2">
-              <label style="color:#38bdf8; font-weight:700;">📐 Mod Reka Bentuk Susun Atur (Layout Switcher):</label>
-              <select id="selectKioskLayoutPreset">
-                <option value="horizontal_glass">Mod A: Horizontal Glass (Bar Waktu Melintang Di Atas - Lalai)</option>
-                <option value="sidebar_elegance">Mod B: Sidebar Elegan (Jadual Waktu Menegak Di Sisi Kanan)</option>
-                <option value="grid_contemporary">Mod C: Grid Kontemporari (Jam Gergasi Atas + Bar Waktu Di Bawah)</option>
-              </select>
-            </div>
-
-            <span class="sub-label">Susunan Slaid Dalam Takwim:</span>
-            <div class="form-group mt-2">
-              <select id="selectKioskSubLayout">
-                <option value="full">Slaid Penuh (16:9)</option>
-                <option value="split_right">Belah Kanan (Slaid + Info/QR Kanan)</option>
-                <option value="split_left">Belah Kiri (Info/QR Kiri + Slaid)</option>
-              </select>
-            </div>
 
             <!-- Lower-Third Live Kuliah Broadcast Overlay -->
             <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.75rem; margin-top: 0.75rem;">
@@ -1635,8 +1667,53 @@
             </div>
           </div>
 
+          <!-- Format Jam, Tarikh & Penggalak Kontras -->
+          <div style="border-top:1px solid rgba(255,255,255,0.1); padding-top:0.85rem; margin-top:0.85rem;">
+            <span class="sub-label" style="color:#fbbf24; font-weight:700;">🕒 Format Jam &amp; Paparan Teks:</span>
+
+            <div class="form-row-2 mt-2">
+              <div class="form-group">
+                <label>Format Waktu Jam</label>
+                <select id="selectClockFormat">
+                  <option value="12h">12-Jam (cth: 08:30:15 PM)</option>
+                  <option value="24h">24-Jam (cth: 20:30:15)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.4rem;">
+                  <label style="margin:0; font-weight:600; font-size:0.85rem;">Paparan Detik Jam (Saat)</label>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="switchShowSeconds" checked>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row-2 mt-1">
+              <div class="form-group">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <label style="margin:0; font-weight:600; font-size:0.85rem;">Paparan Tarikh Hijri</label>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="switchShowHijri" checked>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+              <div class="form-group">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <label style="margin:0; font-weight:600; font-size:0.85rem; color:#fbbf24;">Penggalak Kontras Senior</label>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="switchHighContrast">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <button type="button" class="btn btn-primary btn-block mt-3" id="btnSaveFontFamily">
-            💾 Simpan Gaya Fon TV Kiosk
+            💾 Simpan Gaya Fon &amp; Paparan Teks
           </button>
         </div>
 

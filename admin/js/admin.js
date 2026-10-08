@@ -524,6 +524,67 @@ async function loadSettings() {
       if (document.getElementById('valAzanVolume')) document.getElementById('valAzanVolume').textContent = `${azanVol}%`;
     }
 
+    // Kiosk Display Scale (Resize)
+    const elScale = document.getElementById('rangeKioskScale');
+    const elScaleLbl = document.getElementById('kioskScaleLabel');
+    if (elScale) {
+      const scaleVal = s.kiosk_scale ? Math.round(parseFloat(s.kiosk_scale) * 100) : 100;
+      elScale.value = scaleVal;
+      if (elScaleLbl) elScaleLbl.textContent = `${scaleVal}%`;
+    }
+
+    // Text & Takwim Scale
+    const elTextScale = document.getElementById('selectKioskTextScale');
+    if (elTextScale) {
+      elTextScale.value = s.kiosk_text_scale || '100';
+    }
+
+    // Admin Font Scale
+    const elAdminFontScale = document.getElementById('selectAdminFontScale');
+    if (elAdminFontScale) {
+      const adminScale = localStorage.getItem('admin_font_scale') || s.admin_font_scale || '100';
+      elAdminFontScale.value = adminScale;
+      document.documentElement.style.fontSize = adminScale === '120' ? '21px' : '18px';
+    }
+
+    // Brightness
+    const elBright = document.getElementById('rangeKioskBrightness');
+    const elBrightLbl = document.getElementById('kioskBrightnessLabel');
+    if (elBright) {
+      const bVal = s.kiosk_brightness ? parseInt(s.kiosk_brightness, 10) : 100;
+      elBright.value = bVal;
+      if (elBrightLbl) elBrightLbl.textContent = `${bVal}%`;
+    }
+
+    // Kiosk Orientation & Preset
+    const elOrient = document.getElementById('selectKioskOrientation');
+    if (elOrient) {
+      elOrient.value = s.kiosk_orientation || 'landscape';
+    }
+    const elPreset = document.getElementById('selectKioskLayoutPreset');
+    if (elPreset && s.kiosk_layout_preset) {
+      elPreset.value = s.kiosk_layout_preset;
+    }
+    const elSubLayout = document.getElementById('selectKioskSubLayout');
+    if (elSubLayout && s.kiosk_layout) {
+      elSubLayout.value = s.kiosk_layout;
+    }
+
+    // Font Family Selection
+    const fontVal = (s.kiosk_font_family || 'outfit').toLowerCase();
+    const fontRadio = document.querySelector(`input[name="kiosk_font_family"][value="${fontVal}"]`);
+    if (fontRadio) fontRadio.checked = true;
+
+    // Clock Format, Seconds, Hijri & High Contrast
+    const elClockFmt = document.getElementById('selectClockFormat');
+    if (elClockFmt) elClockFmt.value = s.clock_format || '12h';
+    const swSeconds = document.getElementById('switchShowSeconds');
+    if (swSeconds) swSeconds.checked = (s.show_seconds !== '0' && s.show_seconds !== false);
+    const swHijri = document.getElementById('switchShowHijri');
+    if (swHijri) swHijri.checked = (s.show_hijri_date !== '0' && s.show_hijri_date !== false);
+    const swContrast = document.getElementById('switchHighContrast');
+    if (swContrast) swContrast.checked = (s.high_contrast_mode === '1' || s.high_contrast_mode === 1 || s.high_contrast_mode === true);
+
     // Theme Selector (Multi-Theme Engine)
     let activeTheme = (s.selected_theme || s.kiosk_theme || 'emerald').toLowerCase().trim().replace(/_/g, '-');
     if (activeTheme === 'emerald-nabawi') activeTheme = 'emerald';
@@ -1767,6 +1828,17 @@ async function handleSaveDisplaySettings() {
   const pip_mode = document.getElementById('selectPipMode') ? document.getElementById('selectPipMode').value : 'none';
   const media_source_type = document.getElementById('selectMediaSourceType') ? document.getElementById('selectMediaSourceType').value : 'slides';
   
+  const kiosk_scale = document.getElementById('rangeKioskScale') ? (parseInt(document.getElementById('rangeKioskScale').value, 10) / 100).toString() : '1.0';
+  const kiosk_text_scale = document.getElementById('selectKioskTextScale') ? document.getElementById('selectKioskTextScale').value : '100';
+  const admin_font_scale = document.getElementById('selectAdminFontScale') ? document.getElementById('selectAdminFontScale').value : '100';
+  const kiosk_brightness = document.getElementById('rangeKioskBrightness') ? document.getElementById('rangeKioskBrightness').value : '100';
+  const kiosk_orientation = document.getElementById('selectKioskOrientation') ? document.getElementById('selectKioskOrientation').value : 'landscape';
+
+  const clock_format = document.getElementById('selectClockFormat') ? document.getElementById('selectClockFormat').value : '12h';
+  const show_seconds = (document.getElementById('switchShowSeconds') && document.getElementById('switchShowSeconds').checked) ? '1' : '0';
+  const show_hijri_date = (document.getElementById('switchShowHijri') && document.getElementById('switchShowHijri').checked) ? '1' : '0';
+  const high_contrast_mode = (document.getElementById('switchHighContrast') && document.getElementById('switchHighContrast').checked) ? '1' : '0';
+
   const video_source_type = document.getElementById('selectVideoType') ? document.getElementById('selectVideoType').value : 'mp4';
   const video_source_url = document.getElementById('inputVideoUrl') ? document.getElementById('inputVideoUrl').value.trim() : '';
   const media_stream_url = video_source_url;
@@ -1802,8 +1874,20 @@ async function handleSaveDisplaySettings() {
   const selectedRadio = document.querySelector('input[name="active_layout_mode"]:checked');
   const active_layout_mode = selectedRadio ? selectedRadio.value : (kiosk_layout_mode === 'fullscreen' ? 'fullscreen_video' : 'fullscreen_signage');
 
+  localStorage.setItem('admin_font_scale', admin_font_scale);
+  document.documentElement.style.fontSize = admin_font_scale === '120' ? '21px' : '18px';
+
   try {
-    await apiRequest('/api/settings', 'POST', {
+    const payload = {
+      kiosk_scale,
+      kiosk_text_scale,
+      admin_font_scale,
+      kiosk_brightness,
+      kiosk_orientation,
+      clock_format,
+      show_seconds,
+      show_hijri_date,
+      high_contrast_mode,
       kiosk_layout_mode,
       kiosk_layout_preset,
       pip_mode,
@@ -1832,8 +1916,10 @@ async function handleSaveDisplaySettings() {
       hadith_text,
       hadith_source,
       media_fullscreen_enabled
-    });
-    showToast('Tetapan paparan berjaya dikemaskini!');
+    };
+    await apiRequest('/api/settings', 'POST', payload);
+    broadcastAdminSync('SETTINGS_UPDATED', payload);
+    showToast('Tetapan paparan, susun atur & skala berjaya dikemaskini!');
     loadSettings();
     // Prompt to set 4-digit PIN code for kiosk lock
     setTimeout(promptKioskPinSetup, 600);
@@ -2020,13 +2106,53 @@ if (btnSaveFontEl) {
   btnSaveFontEl.addEventListener('click', async () => {
     const selected = document.querySelector('input[name="kiosk_font_family"]:checked');
     const fontVal = selected ? selected.value : 'outfit';
+    const clock_format = document.getElementById('selectClockFormat') ? document.getElementById('selectClockFormat').value : '12h';
+    const show_seconds = (document.getElementById('switchShowSeconds') && document.getElementById('switchShowSeconds').checked) ? '1' : '0';
+    const show_hijri_date = (document.getElementById('switchShowHijri') && document.getElementById('switchShowHijri').checked) ? '1' : '0';
+    const high_contrast_mode = (document.getElementById('switchHighContrast') && document.getElementById('switchHighContrast').checked) ? '1' : '0';
+
     try {
-      await apiRequest('/api/settings', 'POST', { kiosk_font_family: fontVal });
-      showToast('🎨 Gaya fon TV Kiosk berjaya dikemas kini!');
+      const payload = {
+        kiosk_font_family: fontVal,
+        clock_format,
+        show_seconds,
+        show_hijri_date,
+        high_contrast_mode
+      };
+      await apiRequest('/api/settings', 'POST', payload);
+      broadcastAdminSync('SETTINGS_UPDATED', payload);
+      showToast('🎨 Gaya fon & paparan teks TV Kiosk berjaya dikemas kini!');
       await loadSettings();
     } catch (err) {
       showToast('Gagal menyimpan fon: ' + err.message, true);
     }
+  });
+}
+
+// Live range slider updates
+const rangeScaleEl = document.getElementById('rangeKioskScale');
+if (rangeScaleEl) {
+  rangeScaleEl.addEventListener('input', () => {
+    const lbl = document.getElementById('kioskScaleLabel');
+    if (lbl) lbl.textContent = `${rangeScaleEl.value}%`;
+  });
+}
+
+const rangeBrightEl = document.getElementById('rangeKioskBrightness');
+if (rangeBrightEl) {
+  rangeBrightEl.addEventListener('input', () => {
+    const lbl = document.getElementById('kioskBrightnessLabel');
+    if (lbl) lbl.textContent = `${rangeBrightEl.value}%`;
+  });
+}
+
+const selectAdminFontScaleEl = document.getElementById('selectAdminFontScale');
+if (selectAdminFontScaleEl) {
+  selectAdminFontScaleEl.addEventListener('change', () => {
+    const scale = selectAdminFontScaleEl.value;
+    localStorage.setItem('admin_font_scale', scale);
+    document.documentElement.style.fontSize = scale === '120' ? '21px' : '18px';
+    showToast(scale === '120' ? '👓 Saiz fon warga emas diaktifkan.' : 'Saiz fon standard diaktifkan.');
   });
 }
 

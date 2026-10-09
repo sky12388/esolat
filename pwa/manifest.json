@@ -1,9 +1,9 @@
 {
-  "name": "Skywalker e-Solat Admin",
-  "short_name": "e-Solat Admin",
+  "id": "/esolat/pwa/?v=2",
+  "name": "e-Solat Kiosk Remote v2",
+  "short_name": "eSolat Remote",
   "description": "Panel Pengurusan & Kawalan Digital Kiosk e-Solat Surau & Masjid",
-  "start_url": "./index.html",
-  "id": "/esolat/pwa/",
+  "start_url": "/esolat/pwa/?v=2",
   "scope": "./",
   "display": "standalone",
   "background_color": "#061e16",

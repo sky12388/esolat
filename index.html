@@ -54,7 +54,7 @@
       <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-black bg-emerald-500 text-slate-950">✨ VERSI 1.3.16</span>
       <span>Sistem e-Solat Kiosk &amp; Digital Signage Masjid Pintar (100% Beroperasi Luar Talian)</span>
       <span class="hidden md:inline text-emerald-600">|</span>
-      <button type="button" class="btn-trigger-pwa text-amber-300 font-bold hover:text-white transition flex items-center gap-1 bg-amber-500/20 px-2.5 py-0.5 rounded-lg border border-amber-400/40">
+      <button type="button" id="btnBukaAdminApp" class="btn-trigger-pwa text-amber-300 font-bold hover:text-white transition flex items-center gap-1 bg-amber-500/20 px-2.5 py-0.5 rounded-lg border border-amber-400/40" onclick="window.location.href='https://sky12388.github.io/esolat/pwa/'">
         <span>📲</span>
         <span>Buka Admin App</span>
       </button>
@@ -92,7 +92,7 @@
         <a href="#spesifikasi" class="hover:text-emerald-400 transition">Perkakasan</a>
         <a href="#pakej" class="hover:text-emerald-400 transition">Pakej Tawaran</a>
         <a href="#faq" class="hover:text-emerald-400 transition">Soalan Lazim</a>
-        <button type="button" class="btn-trigger-pwa hover:text-amber-300 text-amber-400 font-bold transition flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-400/10 border border-amber-400/30">
+        <button type="button" class="btn-trigger-pwa hover:text-amber-300 text-amber-400 font-bold transition flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-400/10 border border-amber-400/30" onclick="window.location.href='https://sky12388.github.io/esolat/pwa/'">
           <span>📲</span>
           <span>Admin App (PWA)</span>
         </button>
@@ -121,7 +121,7 @@
 
     <!-- Mobile Nav Menu (Hidden by default) -->
     <div id="mobileNavMenu" class="hidden md:hidden px-4 pt-2 pb-6 bg-slate-900/95 border-b border-slate-800 space-y-3">
-      <button type="button" class="btn-trigger-pwa block w-full text-center py-2.5 rounded-xl font-black bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 border border-emerald-300 text-sm shadow-md">
+      <button type="button" id="btnAdminAppMobile" class="btn-trigger-pwa block w-full text-center py-2.5 rounded-xl font-black bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 border border-emerald-300 text-sm shadow-md" onclick="window.location.href='https://sky12388.github.io/esolat/pwa/'">
         📲 Admin App (PWA)
       </button>
       <a href="./manual/" class="block w-full text-center py-2.5 rounded-xl font-bold bg-amber-500/20 text-amber-300 border border-amber-400/40 text-sm">
@@ -1214,10 +1214,21 @@
     }
 
     // 4. Wire All Trigger Buttons on Landing Page
-    document.querySelectorAll('.btn-trigger-pwa').forEach(function(btn) {
+    document.querySelectorAll('.btn-trigger-pwa, #btnBukaAdminApp, #btnAdminAppMobile').forEach(function(btn) {
       btn.addEventListener('click', function(e) {
         e.preventDefault();
-        openPwaInstallModal();
+        if (deferredInstallPrompt) {
+          deferredInstallPrompt.prompt();
+          deferredInstallPrompt.userChoice.then(function(choiceResult) {
+            if (choiceResult.outcome === 'accepted') {
+              deferredInstallPrompt = null;
+            } else {
+              window.location.href = 'https://sky12388.github.io/esolat/pwa/';
+            }
+          });
+        } else {
+          window.location.href = 'https://sky12388.github.io/esolat/pwa/';
+        }
       });
     });
 

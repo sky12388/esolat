@@ -2931,50 +2931,47 @@ function setupSmartPairingUI() {
   const lastConnectedCard = document.getElementById('lastConnectedCard');
   const lastConnectedHostText = document.getElementById('lastConnectedHostText');
   const btnQuickReconnect = document.getElementById('btnQuickReconnectLast');
-  const btnToggleManual = document.getElementById('btnToggleManualIp');
-  const manualAccordion = document.getElementById('manualIpAccordionContent');
-  const manualChevron = document.getElementById('manualIpChevron');
   const manualIpInput = document.getElementById('inputManualKioskIp');
   const btnConnect = document.getElementById('btnConnectManualIp');
 
-  // Auto-cache base URL upon opening link from QR scan for the first time
+  // Purge any accidental non-local domain saved in localStorage (e.g. github.io)
+  let lastIp = localStorage.getItem('last_connected_ip');
+  if (lastIp && (lastIp.includes('github.io') || lastIp.includes('localhost') || lastIp.includes('127.0.0.1'))) {
+    localStorage.removeItem('last_connected_ip');
+    lastIp = null;
+  }
+
+  // Auto-cache base URL only if running from a local LAN IP or custom local hostname (not github.io or localhost)
   const currentHost = window.location.hostname;
   const currentPort = window.location.port || '8080';
   const currentOrigin = window.location.origin;
-  if (currentHost && currentHost !== 'localhost' && currentHost !== '127.0.0.1') {
+  const isPrivateIp = /^(192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|esolat\.local)/i.test(currentHost);
+  if (isPrivateIp) {
     try {
       const targetStr = `${currentHost}:${currentPort}`;
       localStorage.setItem('last_connected_ip', targetStr);
       localStorage.setItem('esolat_base_url', currentOrigin);
       localStorage.setItem('esolat_admin_url', window.location.href);
+      lastIp = targetStr;
     } catch (_) {}
   }
 
-  // Check localStorage for previous connection
-  const lastIp = localStorage.getItem('last_connected_ip');
+  // Check localStorage for previous valid connection
   if (lastIp) {
     if (lastConnectedCard && lastConnectedHostText) {
       lastConnectedHostText.textContent = lastIp;
       lastConnectedCard.style.display = 'block';
     }
-    if (manualIpInput) {
+    if (manualIpInput && !manualIpInput.value) {
       manualIpInput.value = lastIp;
     }
   }
 
   // 1-Click Reconnect button
-  if (btnQuickReconnect && lastIp) {
+  if (btnQuickReconnect) {
     btnQuickReconnect.addEventListener('click', () => {
-      connectToKioskTarget(lastIp);
-    });
-  }
-
-  // Toggle manual IP accordion
-  if (btnToggleManual && manualAccordion) {
-    btnToggleManual.addEventListener('click', () => {
-      const isHidden = manualAccordion.style.display === 'none';
-      manualAccordion.style.display = isHidden ? 'block' : 'none';
-      if (manualChevron) manualChevron.textContent = isHidden ? '▲' : '▼';
+      const target = lastConnectedHostText ? lastConnectedHostText.textContent.trim() : (lastIp || '');
+      if (target) connectToKioskTarget(target);
     });
   }
 
@@ -2983,7 +2980,7 @@ function setupSmartPairingUI() {
     btnConnect.addEventListener('click', () => {
       const rawVal = manualIpInput.value.trim();
       if (!rawVal) {
-        showToast('Sila masukkan alamat IP atau Hostname Kiosk.', true);
+        showToast('Sila masukkan alamat IP TV Kiosk (cth: 192.168.1.150).', true);
         return;
       }
       connectToKioskTarget(rawVal);

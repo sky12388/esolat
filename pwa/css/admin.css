@@ -124,16 +124,16 @@ header.top-nav,
 header.app-header {
   position: sticky;
   top: 0;
-  min-height: calc(54px + env(safe-area-inset-top, 0px));
-  height: calc(54px + env(safe-area-inset-top, 0px));
+  min-height: calc(50px + env(safe-area-inset-top, 0px));
+  height: calc(50px + env(safe-area-inset-top, 0px));
   padding-top: env(safe-area-inset-top, 0px);
   background: #09141c !important;
   z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-left: max(14px, env(safe-area-inset-left, 0px));
-  padding-right: max(14px, env(safe-area-inset-right, 0px));
+  padding-left: max(12px, env(safe-area-inset-left, 0px));
+  padding-right: max(12px, env(safe-area-inset-right, 0px));
   border-bottom: 1px solid rgba(22, 163, 74, 0.25);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
   box-sizing: border-box;
@@ -650,8 +650,9 @@ nav.bottom-nav .nav-item {
   border: none;
   border-top: 3px solid transparent;
   color: #94a3b8;
-  flex: 1 0 auto;
-  min-width: 48px;
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  max-width: none !important;
   height: 100%;
   display: flex !important;
   flex-direction: column !important;
@@ -659,8 +660,8 @@ nav.bottom-nav .nav-item {
   justify-content: center !important;
   text-align: center !important;
   white-space: nowrap !important;
-  font-size: 11px;
-  padding: 4px 3px !important;
+  font-size: clamp(9.5px, 2.7vw, 11px);
+  padding: 3px 2px !important;
   cursor: pointer;
   transition: all 0.15s ease-in-out;
   text-decoration: none;
@@ -668,7 +669,7 @@ nav.bottom-nav .nav-item {
 }
 
 nav.bottom-nav .nav-item .nav-icon {
-  font-size: 1.25rem !important;
+  font-size: 1.2rem !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -677,13 +678,16 @@ nav.bottom-nav .nav-item .nav-icon {
 }
 
 nav.bottom-nav .nav-item .nav-text {
-  font-size: 11px !important;
+  font-size: clamp(9.5px, 2.7vw, 11px) !important;
   font-weight: 700 !important;
   color: #fbbf24 !important;
   letter-spacing: -0.1px;
   white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
   line-height: 1.1;
   text-align: center;
+  width: 100% !important;
 }
 
 nav.bottom-nav .nav-item:hover {
@@ -1523,9 +1527,9 @@ nav.bottom-nav .nav-item.active .nav-icon {
 
   header.top-nav,
   header.app-header {
-    height: 56px !important;
-    min-height: 56px !important;
-    padding: 0 12px !important;
+    height: 50px !important;
+    min-height: 50px !important;
+    padding: 0 10px !important;
   }
 
   main.content-body,
@@ -1727,30 +1731,30 @@ select option {
 
 /* 7. Bottom Navigation Bar */
 nav.bottom-nav {
-  height: 64px !important;
-  min-height: 64px !important;
+  height: 58px !important;
+  min-height: 58px !important;
   border-top: 1px solid rgba(22, 163, 74, 0.25) !important;
-  padding: 0 4px !important;
-  padding-bottom: env(safe-area-inset-bottom) !important;
+  padding: 0 2px !important;
+  padding-bottom: env(safe-area-inset-bottom, 0px) !important;
   display: flex !important;
   justify-content: space-around !important;
 }
 
 nav.bottom-nav .nav-item {
-  flex: 1 0 auto !important;
+  flex: 1 1 0 !important;
   width: auto !important;
-  min-width: 48px !important;
-  font-size: 11px !important;
-  padding: 4px 3px !important;
+  min-width: 0 !important;
+  font-size: clamp(9.5px, 2.7vw, 11px) !important;
+  padding: 3px 2px !important;
 }
 
 nav.bottom-nav .nav-icon {
-  font-size: 1.25rem !important;
+  font-size: 1.2rem !important;
   margin-bottom: 2px !important;
 }
 
 nav.bottom-nav .nav-text {
-  font-size: 11px !important;
+  font-size: clamp(9.5px, 2.7vw, 11px) !important;
   font-weight: 700 !important;
   color: #fbbf24 !important;
   white-space: nowrap !important;
@@ -1758,6 +1762,7 @@ nav.bottom-nav .nav-text {
   text-overflow: ellipsis !important;
   width: 100% !important;
   line-height: 1.1 !important;
+  text-align: center;
 }
 
 nav.bottom-nav .nav-item.active {

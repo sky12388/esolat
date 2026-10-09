@@ -27,26 +27,74 @@ function broadcastAdminSync(type = 'SETTINGS_UPDATED', payload = {}) {
   } catch (_) {}
 }
 
-function formatNetworkErrorMessage(err) {
-  if (window.location.protocol === 'https:') {
-    return 'Pelayar menyekat sambungan HTTP tempatan (Mixed Content / HTTPS-ke-HTTP). Sila buka terus URL Tempatan LAN: http://[IP_PC]:8080/admin pada peranti anda.';
+function getSavedKioskIp() {
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const queryIp = urlParams.get('ip') || urlParams.get('kiosk') || urlParams.get('host');
+    if (queryIp) {
+      const cleanQuery = queryIp.trim().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+      localStorage.setItem('last_connected_ip', cleanQuery);
+      localStorage.setItem('saved_kiosk_ip', cleanQuery);
+      return cleanQuery;
+    }
+
+    const saved = localStorage.getItem('last_connected_ip') || 
+                  localStorage.getItem('saved_kiosk_ip') ||
+                  localStorage.getItem('esolat_base_url');
+
+    if (saved) {
+      let clean = saved.trim().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+      if (clean && !clean.includes('github.io') && !clean.includes('localhost') && !clean.includes('127.0.0.1')) {
+        return clean;
+      }
+    }
+  } catch (_) {}
+  return '192.168.0.5:8080';
+}
+
+function getKioskBaseUrl() {
+  const host = window.location.hostname;
+  const isHostedPwa = host === 'sky12388.github.io' || host.endsWith('github.io') || window.location.protocol === 'https:';
+  if (!isHostedPwa) {
+    return ''; // Relative path when running on local Kiosk server (HTTP)
   }
-  return `Gagal berhubung ke pelayan e-Solat (${err.message || 'Network Error'}). Sila pastikan PC Kiosk hidup dan peranti berada dalam satu rangkaian Wi-Fi yang sama (Port 8080).`;
+
+  let ip = getSavedKioskIp();
+  if (!ip.startsWith('http://') && !ip.startsWith('https://')) {
+    if (!ip.includes(':')) {
+      ip += ':8080';
+    }
+    ip = 'http://' + ip;
+  }
+  return ip.replace(/\/+$/, '');
+}
+
+function getKioskApiUrl(endpoint) {
+  if (!endpoint) return '';
+  if (endpoint.startsWith('http://') || endpoint.startsWith('https://')) return endpoint;
+  const base = getKioskBaseUrl();
+  const cleanEp = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  return `${base}${cleanEp}`;
+}
+
+function formatNetworkErrorMessage(err) {
+  return `Gagal berhubung ke TV Kiosk (${err.message || 'Network Error'}). Sila pastikan telefon dan TV berada dalam rangkaian Wi-Fi yang sama dan alamat IP TV Kiosk dimasukkan dengan betul.`;
 }
 
 async function apiRequest(endpoint, method = 'GET', body = null) {
+  const fullUrl = getKioskApiUrl(endpoint);
   const headers = { 'Content-Type': 'application/json' };
   if (authToken) {
     headers['Authorization'] = `Bearer ${authToken}`;
   }
 
-  const options = { method, headers };
+  const options = { method, headers, mode: 'cors' };
   if (body) {
     options.body = JSON.stringify(body);
   }
 
   try {
-    const res = await fetch(endpoint, options);
+    const res = await fetch(fullUrl, options);
     const data = await res.json();
     if (!res.ok) {
       if (res.status === 401) {
@@ -56,9 +104,7 @@ async function apiRequest(endpoint, method = 'GET', body = null) {
     }
     return data;
   } catch (err) {
-    if (window.location.protocol === 'https:') {
-      console.warn('Mixed Content Warning: Direct HTTP fetch from HTTPS origin is blocked by modern browsers.');
-    }
+    console.warn(`[API] Error on ${method} ${fullUrl}:`, err);
     throw err;
   }
 }
@@ -103,10 +149,11 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   if (alertEl) alertEl.style.display = 'none';
 
   try {
-    const res = await fetch('/api/auth/login', {
+    const res = await fetch(getKioskApiUrl('/api/auth/login'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password })
+      body: JSON.stringify({ username, password }),
+      mode: 'cors'
     });
     const data = await res.json();
     if (res.ok && data.success) {
@@ -568,81 +615,132 @@ async function loadSettings() {
   }
 }
 
-// ==================== GPS ZONE DETECTION ====================
-function initGpsSecurityCheck() {
-  const gpsBox = document.querySelector('.gps-box') || document.getElementById('btnDetectGps')?.closest('.gps-box');
-  const isSecure = (window.isSecureContext === true) || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-  if (gpsBox && !isSecure) {
+// ==================== GPS ZONE DETECTION (MOBILE PWA ONLY) ====================
+function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Earth radius in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+function matchNearestJakimZone(lat, lon) {
+  if (!availableZones || availableZones.length === 0) return null;
+  let nearest = null;
+  let minDistance = Infinity;
+  for (const z of availableZones) {
+    if (typeof z.lat === 'number' && typeof z.lon === 'number') {
+      const dist = calculateHaversineDistance(lat, lon, z.lat, z.lon);
+      if (dist < minDistance) {
+        minDistance = dist;
+        nearest = z;
+      }
+    }
+  }
+  return nearest ? { zone: nearest, distance_km: Math.round(minDistance * 100) / 100 } : null;
+}
+
+function initGpsVisibility() {
+  const gpsBox = document.querySelector('.gps-box') || document.getElementById('gpsDetectionWrapper') || document.getElementById('btnDetectGps')?.closest('.gps-box');
+  if (!gpsBox) return;
+  // Completely hide GPS on Desktop Web Admin (>= 769px), show on Mobile PWA
+  const isDesktop = window.innerWidth >= 769;
+  if (isDesktop) {
     gpsBox.style.display = 'none';
+  } else {
+    gpsBox.style.display = 'block';
   }
 }
+window.addEventListener('resize', initGpsVisibility);
 
 const btnGps = document.getElementById('btnDetectGps');
 if (btnGps) {
   btnGps.addEventListener('click', () => {
     const statusEl = document.getElementById('gpsStatus');
-    const isSecure = (window.isSecureContext === true) || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-    if (!isSecure) {
-      if (statusEl) {
-        statusEl.innerHTML = '<span style="color:#94a3b8; font-size:0.85rem;">💡 Pengesanan GPS memerlukan sambungan HTTPS. Sila pilih zon dari senarai di bawah.</span>';
-      }
-      document.getElementById('selectJakimZone')?.focus();
-      return;
-    }
 
     if (!navigator.geolocation) {
+      alert("Gagal mengesan lokasi GPS. Sila benarkan kebenaran lokasi (Location Permission) pada pelayar telefon anda.");
       if (statusEl) {
-        statusEl.innerHTML = '<span style="color:#94a3b8; font-size:0.85rem;">Pelayar ini tidak menyokong pengesanan GPS. Sila pilih zon secara manual di bawah.</span>';
+        statusEl.innerHTML = '<span style="color:#ef4444; font-size:0.85rem;">Pelayar ini tidak menyokong fungsi geolokasi GPS. Sila pilih zon secara manual di bawah.</span>';
       }
       document.getElementById('selectJakimZone')?.focus();
       return;
     }
 
     if (statusEl) {
-      statusEl.innerHTML = '<span style="color:#fbbf24;">Sedang mengesan koordinat GPS telefon anda...</span>';
+      statusEl.innerHTML = '<span style="color:#38bdf8;">📡 Sedang membaca koordinat GPS telefon anda...</span>';
     }
 
     navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        const lat = pos.coords.latitude;
-        const lon = pos.coords.longitude;
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+
+        // Match nearest JAKIM zone based on lat/lon lookup table
+        let matchedZone = null;
+        let distanceKm = null;
+        let matchedZoneObj = null;
+
+        const matchResult = matchNearestJakimZone(latitude, longitude);
+        if (matchResult && matchResult.zone) {
+          matchedZoneObj = matchResult.zone;
+          matchedZone = matchResult.zone.code;
+          distanceKm = matchResult.distance_km;
+        }
+
+        // Auto-select corresponding zone in dropdown
+        const selZone = document.getElementById('selectJakimZone');
+        if (selZone && matchedZone) {
+          selZone.value = matchedZone;
+        }
 
         try {
-          const res = await apiRequest('/api/zones/match_gps', 'POST', { lat, lon });
-          const matched = res.matched_zone;
-          const dist = res.distance_km;
+          if (statusEl) {
+            statusEl.innerHTML = `<span style="color:#fbbf24;">📍 Lokasi dikesan: (${latitude.toFixed(4)}, ${longitude.toFixed(4)}). Mengemas kini zon Kiosk...</span>`;
+          }
+
+          // Send POST /api/takwim/zone with { zone: matchedZone, lat: latitude, lon: longitude } to update kiosk
+          const res = await apiRequest('/api/takwim/zone', 'POST', {
+            zone: matchedZone,
+            lat: latitude,
+            lon: longitude,
+            latitude: latitude,
+            longitude: longitude
+          });
+
+          const finalZone = res.zone || matchedZone;
+          const locInfo = matchedZoneObj ? `${matchedZoneObj.location} (${matchedZoneObj.state}) ~${distanceKm} km` : `Lat: ${latitude.toFixed(4)}, Lon: ${longitude.toFixed(4)}`;
 
           if (statusEl) {
             statusEl.innerHTML = `
-              <div style="background: rgba(2, 44, 34, 0.8); border: 1px solid #10b981; padding: 0.75rem; border-radius: 8px; margin-top: 0.5rem;">
-                <div style="font-weight:700; color:#34d399;">✓ Zon Dipadankan: ${matched.code} (${matched.state})</div>
-                <div style="font-size:0.8rem; color:#cbd5e1;">Kawasan: ${matched.location} (~${dist} km)</div>
+              <div style="background: rgba(2, 44, 34, 0.85); border: 1px solid #10b981; padding: 0.75rem; border-radius: 10px; margin-top: 0.6rem;">
+                <div style="font-weight:700; color:#34d399; font-size:0.9rem;">✓ Zon Dipadankan &amp; Disimpan: ${finalZone}</div>
+                <div style="font-size:0.78rem; color:#cbd5e1; margin-top:0.2rem;">Kawasan: ${locInfo}</div>
               </div>
             `;
           }
 
-          const selZone = document.getElementById('selectJakimZone');
-          if (selZone) selZone.value = matched.code;
-
-          // Auto prompt to apply and sync
-          if (confirm(`Zon ${matched.code} (${matched.location}) dikesan melalui GPS. Tetapkan zon ini dan segerakkan takwim sekarang?`)) {
-            await apiRequest('/api/settings', 'POST', { jakim_zone: matched.code });
-            await triggerTakwimSync(matched.code);
-            await loadSettings();
-          }
+          showToast(`Zon ${finalZone} berjaya ditetapkan melalui GPS telefon!`, 'success');
+          await loadSettings();
 
         } catch (err) {
-          if (statusEl) statusEl.innerHTML = `<span style="color:#94a3b8; font-size:0.85rem;">Sila pilih zon secara manual di bawah.</span>`;
+          console.error('[GPS] Error updating takwim zone:', err);
+          if (statusEl) {
+            statusEl.innerHTML = `<span style="color:#ef4444; font-size:0.85rem;">Ralat mengemas kini zon: ${err.message || 'Sila cuba lagi'}</span>`;
+          }
         }
       },
-      (err) => {
-        console.warn('[GPS] Geolocation notice:', err.message);
+      (error) => {
+        console.warn('[GPS] Geolocation error:', error);
+        alert("Gagal mengesan lokasi GPS. Sila benarkan kebenaran lokasi (Location Permission) pada pelayar telefon anda.");
         if (statusEl) {
-          statusEl.innerHTML = '<span style="color:#94a3b8; font-size:0.85rem;">Akses GPS tidak tersedia. Sila pilih zon secara manual di bawah.</span>';
+          statusEl.innerHTML = '<span style="color:#ef4444; font-size:0.85rem;">Gagal mengesan lokasi GPS. Sila benarkan kebenaran lokasi pada telefon atau pilih zon secara manual di bawah.</span>';
         }
         document.getElementById('selectJakimZone')?.focus();
       },
-      { enableHighAccuracy: true, timeout: 10000 }
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
   });
 }
@@ -848,31 +946,32 @@ async function loadAudioList() {
                             t.is_active_regular ? '<span class="track-badge active">Aktif (Lazim)</span>' : '';
 
         const timeStr = t.modified_iso ? ` • ${t.modified_iso}` : '';
+        const filePreviewUrl = t.file_url && !t.file_url.startsWith('http') ? getKioskApiUrl(t.file_url) : (t.file_url || '');
 
         item.innerHTML = `
-          <div class="audio-track-info">
-            <div class="audio-track-name">${t.label}</div>
-            <div class="audio-track-meta">
+          <div class="audio-track-info" style="flex:1; width:100%; min-width:0;">
+            <div class="audio-track-name" style="font-weight:700; color:#f8fafc; font-size:0.92rem; word-break:break-word;">${t.label}</div>
+            <div class="audio-track-meta" style="display:flex; flex-wrap:wrap; gap:0.4rem; align-items:center; margin-top:0.35rem; font-size:0.75rem; color:#94a3b8;">
               ${badgeActive}
               ${badgeType}
               ${badgeSubuh}
-              <span>${t.file_name}</span>
+              <span style="word-break:break-all;">${t.file_name}</span>
               <span>•</span>
               <span>${sizeStr}</span>
               <span>${timeStr}</span>
             </div>
           </div>
-          <div class="audio-track-actions">
-            <button type="button" class="btn-inline-play" data-url="${t.file_url}" title="Pratonton audio di peranti / pelayar web ini">
-              🎧 Pratonton (Peranti Ini)
+          <div class="audio-track-actions" style="display:flex; flex-wrap:wrap; gap:0.45rem; align-items:center; width:100%; margin-top:0.4rem;">
+            <button type="button" class="btn-inline-play" data-url="${filePreviewUrl}" title="Pratonton audio di peranti / pelayar web ini" style="flex:1 1 auto;">
+              🎧 Pratonton
             </button>
-            <button type="button" class="btn-inline-kiosk" data-file="${t.file_name}" title="Uji pembesar suara TV fizikal dewan solat (Kiosk)">
-              📢 Uji Pembesar Suara TV
+            <button type="button" class="btn-inline-kiosk" data-file="${t.file_name}" title="Uji pembesar suara TV fizikal dewan solat (Kiosk)" style="flex:1 1 auto;">
+              📢 Uji TV
             </button>
-            <button type="button" class="btn-inline-replace" data-file="${t.file_name}" data-label="${t.label}" title="Gantikan fail audio ini">
+            <button type="button" class="btn-inline-replace" data-file="${t.file_name}" data-label="${t.label}" title="Gantikan fail audio ini" style="flex:0 0 auto;">
               🔄 Ganti
             </button>
-            <button type="button" class="btn-inline-delete" data-file="${t.file_name}" data-label="${t.label}" title="Padam fail audio">
+            <button type="button" class="btn-inline-delete" data-file="${t.file_name}" data-label="${t.label}" title="Padam fail audio" style="flex:0 0 auto;">
               🗑️ Padam
             </button>
           </div>
@@ -1197,32 +1296,32 @@ async function loadQuranAudioList() {
         const item = document.createElement('div');
         item.className = 'audio-track-item';
         const isCurrent = res.current_track === t.file_name;
-        if (isCurrent) item.classList.add('is-active');
+        const fileUrl = t.file_url && !t.file_url.startsWith('http') ? getKioskApiUrl(t.file_url) : (t.file_url || '');
 
         item.innerHTML = `
-          <div class="audio-track-info" style="flex:1;">
-            <div class="audio-track-name" style="font-weight:700; color:#f8fafc; display:flex; align-items:center; gap:0.5rem;">
+          <div class="audio-track-info" style="flex:1; width:100%; min-width:0;">
+            <div class="audio-track-name" style="font-weight:700; color:#f8fafc; display:flex; flex-wrap:wrap; align-items:center; gap:0.4rem;">
               <span>📖</span> <span>${t.title}</span>
               ${isCurrent ? '<span class="track-badge active" style="background:#10b981; color:#022c22; font-weight:bold;">Sedang Main</span>' : ''}
             </div>
-            <div class="audio-track-meta" style="font-size:0.75rem; color:#94a3b8; display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center; margin-top:0.25rem;">
-              <span class="track-badge preset">${t.type.toUpperCase()}</span>
-              <span>${t.file_name}</span>
+            <div class="audio-track-meta" style="font-size:0.75rem; color:#94a3b8; display:flex; flex-wrap:wrap; gap:0.4rem; align-items:center; margin-top:0.35rem;">
+              <span class="track-badge preset">${t.type ? t.type.toUpperCase() : 'MP3'}</span>
+              <span style="word-break:break-all;">${t.file_name}</span>
               <span>•</span>
-              <span>${t.size_formatted}</span>
+              <span>${t.size_formatted || ''}</span>
             </div>
-            <div style="margin-top:0.5rem;">
-              <audio controls preload="none" style="height:32px; width:100%; max-width:340px;">
-                <source src="${t.file_url}" type="audio/mpeg">
+            <div style="margin-top:0.5rem; width:100%;">
+              <audio controls preload="none" style="height:36px; width:100%; max-width:100%;">
+                <source src="${fileUrl}" type="audio/mpeg">
                 Pelayar anda tidak menyokong audio player.
               </audio>
             </div>
           </div>
-          <div class="audio-track-actions" style="display:flex; gap:0.4rem; align-items:center;">
-            <button type="button" class="btn btn-sm btn-accent btn-test-quran-tv" data-file="${t.file_name}" title="Uji mainkan fail ini pada pembesar suara TV / PA surau">
+          <div class="audio-track-actions" style="display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center; width:100%; margin-top:0.5rem;">
+            <button type="button" class="btn btn-sm btn-accent btn-test-quran-tv" data-file="${t.file_name}" title="Uji mainkan fail ini pada pembesar suara TV / PA surau" style="flex:1 1 auto;">
               📢 Main di TV/PA
             </button>
-            <button type="button" class="btn btn-sm btn-outline btn-del-quran" data-file="${t.file_name}" title="Padam fail ini" style="border-color:#ef4444; color:#ef4444;">
+            <button type="button" class="btn btn-sm btn-outline btn-del-quran" data-file="${t.file_name}" title="Padam fail ini" style="border-color:#ef4444; color:#ef4444; flex:0 0 auto;">
               🗑️ Padam
             </button>
           </div>
@@ -2635,7 +2734,7 @@ function startAdminClock() {
 
 async function syncAdminStatePoller() {
   try {
-    const s = await fetch('/api/state', { cache: 'no-store' }).then(r => r.json());
+    const s = await fetch(getKioskApiUrl('/api/state'), { cache: 'no-store', mode: 'cors' }).then(r => r.json());
     if (s) {
       if (s.ribbon_times) {
         adminPrayerTimes = s.ribbon_times;
@@ -2767,11 +2866,11 @@ async function updateNetworkInfo() {
   try {
     let net = null;
     try {
-      const res = await fetch('/api/system/network-info', { cache: 'no-store' });
+      const res = await fetch(getKioskApiUrl('/api/system/network-info'), { cache: 'no-store', mode: 'cors' });
       if (res.ok) net = await res.json();
     } catch (_) {}
     if (!net) {
-      net = await fetch('/api/system/network', { cache: 'no-store' }).then(r => r.json());
+      net = await fetch(getKioskApiUrl('/api/system/network'), { cache: 'no-store', mode: 'cors' }).then(r => r.json());
     }
     cachedNetworkInfo = net;
     renderNetworkInfo(net);
@@ -3015,7 +3114,7 @@ function setupQuickControlsUI() {
       if (!confirm('Langkau kiraan undur dan laksanakan Iqamah / Mod Solat sekarang?')) return;
       try {
         if (navigator.vibrate) navigator.vibrate(200);
-        await fetch('/api/iqamah/now', { method: 'POST' });
+        await fetch(getKioskApiUrl('/api/iqamah/now'), { method: 'POST', mode: 'cors' });
         showToast('⏱️ Iqamah diaktifkan! Paparan TV beralih ke mod solat serta-merta.');
       } catch (err) {
         showToast(`Ralat mencetuskan Iqamah: ${err.message}`, true);
@@ -3028,10 +3127,11 @@ function setupQuickControlsUI() {
     btnToggleSolat.addEventListener('click', async () => {
       try {
         if (!isSolatModeActive) {
-          await fetch('/api/system/test_state', {
+          await fetch(getKioskApiUrl('/api/system/test_state'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ state: 'SOLAT', duration: 900 })
+            body: JSON.stringify({ state: 'SOLAT', duration: 900 }),
+            mode: 'cors'
           });
           isSolatModeActive = true;
           btnToggleSolat.style.background = '#ef4444';
@@ -3040,7 +3140,7 @@ function setupQuickControlsUI() {
           btnToggleSolat.innerHTML = '<span>☀️</span><span>Kembalikan Skrin TV</span>';
           showToast('🌙 Mod Khusyuk / Skrin Gelap diaktifkan pada TV.');
         } else {
-          await fetch('/api/system/clear_test_state', { method: 'POST' });
+          await fetch(getKioskApiUrl('/api/system/clear_test_state'), { method: 'POST', mode: 'cors' });
           isSolatModeActive = false;
           btnToggleSolat.style.background = 'rgba(251,191,36,0.08)';
           btnToggleSolat.style.color = '#fbbf24';
@@ -3058,10 +3158,11 @@ function setupQuickControlsUI() {
   if (btnTestAudio) {
     btnTestAudio.addEventListener('click', async () => {
       try {
-        await fetch('/api/audio/test_kiosk', {
+        await fetch(getKioskApiUrl('/api/audio/test_kiosk'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sound: 'pre_adhan' })
+          body: JSON.stringify({ sound: 'pre_adhan' }),
+          mode: 'cors'
         });
         showToast('🔔 Isyarat audio ujian dimainkan pada pembesar suara TV.');
       } catch (err) {
@@ -3236,10 +3337,11 @@ function setupInstantTestModeUI() {
           headers['Authorization'] = `Bearer ${authToken}`;
         }
 
-        const res = await fetch('/api/simulate-trigger', {
+        const res = await fetch(getKioskApiUrl('/api/simulate-trigger'), {
           method: 'POST',
           headers,
-          body: JSON.stringify({ action: action, prayer: 'Zohor' })
+          body: JSON.stringify({ action: action, prayer: 'Zohor' }),
+          mode: 'cors'
         });
 
         const data = await res.json();
@@ -3506,7 +3608,7 @@ async function loadHardwareDiagnostics(fullScan = false) {
 
   try {
     const endpoint = fullScan ? '/api/system/diagnostics/all' : '/api/system/diagnostics/hardware';
-    const res = await fetch(endpoint).then(r => r.json());
+    const res = await fetch(getKioskApiUrl(endpoint), { mode: 'cors' }).then(r => r.json());
     renderDiagnostics(res);
     diagnosticsLoaded = true;
     if (fullScan) {
@@ -3534,7 +3636,7 @@ async function scanNetworkOnly() {
   }
 
   try {
-    const res = await fetch('/api/system/diagnostics/network').then(r => r.json());
+    const res = await fetch(getKioskApiUrl('/api/system/diagnostics/network'), { mode: 'cors' }).then(r => r.json());
     renderNetworkScan(res.network_devices || []);
     showToast(`✅ Imbasan selesai: ${res.total_found || 0} peranti dikesan.`);
   } catch (err) {
@@ -3690,14 +3792,10 @@ function renderNetworkScan(devices) {
 window.applyCameraIp = async function(ip) {
   const rtspUrl = `rtsp://admin:password@${ip}:554/live/ch0`;
   try {
-    const res = await fetch('/api/settings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        camera_source_type: 'rtsp',
-        camera_rtsp_url: rtspUrl
-      })
-    }).then(r => r.json());
+    await apiRequest('/api/settings', 'POST', {
+      camera_source_type: 'rtsp',
+      camera_rtsp_url: rtspUrl
+    });
     showToast(`🎥 Kamera RTSP (${ip}) berjaya ditetapkan untuk rakaman e-Solat!`);
   } catch (err) {
     showToast(`Ralat menetapkan kamera: ${err.message}`, true);
@@ -4190,7 +4288,7 @@ window.addEventListener('DOMContentLoaded', () => {
   startAdminClock();
   syncAdminStatePoller();
   setupPWA();
-  initGpsSecurityCheck();
+  initGpsVisibility();
   setupNetworkBroadcastUI();
   setupSmartPairingUI();
   setupQuickControlsUI();

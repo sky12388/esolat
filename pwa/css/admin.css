@@ -452,6 +452,45 @@ textarea {
   font-weight: 700;
 }
 
+/* ==================== GPS DETECTION VIEWPORT VISIBILITY ==================== */
+/* 1. Desktop Web Admin (>= 769px): Completely hide GPS button */
+@media (min-width: 769px) {
+  .gps-box,
+  .mobile-only-gps,
+  #btnDetectGps,
+  #gpsDetectionWrapper {
+    display: none !important;
+  }
+}
+
+/* 2. Mobile PWA Interface (<= 768px): Prominently show GPS button */
+@media (max-width: 768px) {
+  .gps-box,
+  .mobile-only-gps,
+  #gpsDetectionWrapper {
+    display: block !important;
+    margin-bottom: 1rem;
+  }
+
+  .btn-gps,
+  #btnDetectGps {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    min-height: 48px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+    background: linear-gradient(135deg, #0284c7, #0369a1);
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+  }
+}
+
 .btn:active {
   transform: scale(0.98);
 }
@@ -1159,14 +1198,23 @@ nav.bottom-nav .nav-item.active .nav-icon {
 
 .audio-track-item {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   background: rgba(2, 44, 34, 0.6);
   border: 1px solid rgba(52, 211, 153, 0.2);
-  border-radius: 10px;
-  padding: 0.65rem 0.85rem;
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
   gap: 0.75rem;
   transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .audio-track-item {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
 }
 
 .audio-track-item:hover {
@@ -1176,24 +1224,27 @@ nav.bottom-nav .nav-item.active .nav-icon {
 .audio-track-info {
   flex: 1;
   min-width: 0;
+  width: 100%;
 }
 
 .audio-track-name {
   font-weight: 700;
-  font-size: 0.88rem;
+  font-size: 0.92rem;
   color: #ffffff;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.35;
 }
 
 .audio-track-meta {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.45rem;
-  margin-top: 0.2rem;
-  font-size: 0.72rem;
+  margin-top: 0.35rem;
+  font-size: 0.74rem;
   color: var(--text-muted);
+  line-height: 1.4;
 }
 
 .track-badge {
@@ -1225,25 +1276,45 @@ nav.bottom-nav .nav-item.active .nav-icon {
 
 .audio-track-actions {
   display: flex;
-  gap: 0.4rem;
+  gap: 0.5rem;
   align-items: center;
   flex-wrap: wrap;
+  width: 100%;
+  margin-top: 0.35rem;
+}
+
+@media (min-width: 768px) {
+  .audio-track-actions {
+    width: auto;
+    margin-top: 0;
+    justify-content: flex-end;
+  }
+}
+
+.btn-inline-play,
+.btn-inline-kiosk,
+.btn-inline-replace,
+.btn-inline-delete,
+.btn-test-quran-tv,
+.btn-del-quran {
+  min-height: 38px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .btn-inline-play {
   background: rgba(2, 44, 34, 0.8);
   border: 1px solid var(--primary-light);
   color: #34d399;
-  border-radius: 6px;
-  padding: 0.3rem 0.65rem;
-  font-size: 0.78rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  transition: all 0.2s;
-  white-space: nowrap;
 }
 
 .btn-inline-play:hover,
@@ -1257,16 +1328,6 @@ nav.bottom-nav .nav-item.active .nav-icon {
   background: rgba(217, 119, 6, 0.25);
   border: 1px solid rgba(251, 191, 36, 0.4);
   color: #fbbf24;
-  border-radius: 6px;
-  padding: 0.3rem 0.65rem;
-  font-size: 0.78rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  transition: all 0.2s;
-  white-space: nowrap;
 }
 
 .btn-inline-kiosk:hover,
@@ -1280,15 +1341,6 @@ nav.bottom-nav .nav-item.active .nav-icon {
   background: rgba(30, 58, 138, 0.6);
   border: 1px solid rgba(96, 165, 250, 0.4);
   color: #93c5fd;
-  border-radius: 6px;
-  padding: 0.3rem 0.65rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  transition: all 0.2s;
 }
 
 .btn-inline-replace:hover {
@@ -1301,15 +1353,6 @@ nav.bottom-nav .nav-item.active .nav-icon {
   background: rgba(127, 29, 29, 0.6);
   border: 1px solid rgba(248, 113, 113, 0.4);
   color: #fca5a5;
-  border-radius: 6px;
-  padding: 0.3rem 0.65rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  transition: all 0.2s;
 }
 
 .btn-inline-delete:hover {

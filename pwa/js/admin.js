@@ -2676,7 +2676,7 @@ function setupPWA() {
     navigator.serviceWorker.getRegistrations().then((registrations) => {
       for (const reg of registrations) {
         if (reg.scope.endsWith(':8080/') || reg.scope.endsWith('/')) {
-          if (!reg.scope.includes('/admin/') && !reg.scope.includes('/pwa/')) {
+          if (!reg.scope.includes('/admin/')) {
             reg.unregister();
           }
         }

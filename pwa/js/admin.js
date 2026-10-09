@@ -244,9 +244,14 @@ document.querySelectorAll('.nav-item').forEach(btn => {
   });
 });
 
-document.getElementById('btnGoToLicense').addEventListener('click', () => {
-  document.querySelector('.nav-item[data-tab="tabLicense"]').click();
-});
+const btnGoLic = document.getElementById('btnGoToLicense');
+if (btnGoLic) {
+  btnGoLic.addEventListener('click', () => {
+    const tabLic = document.querySelector('.nav-item[data-tab="tabLicense"]');
+    if (tabLic) tabLic.click();
+    else showToast('Sila hubungi sokongan teknikal: +6011-1871 2388');
+  });
+}
 
 // ==================== INITIALIZATION & DATA LOADING ====================
 async function initApp() {

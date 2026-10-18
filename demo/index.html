@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demo Interaktif — e-Solat Paparan Masjid Digital</title>
+  <meta name="description" content="Demo langsung paparan digital masjid e-Solat: waktu solat JAKIM, detik undur azan, pengumuman berjalan dan panel admin. Jalankan terus dalam pelayar.">
+  <link rel="canonical" href="https://sky12388.github.io/esolat/demo/">
+  <link rel="stylesheet" href="./css/frame.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="frame-viewport" id="frameViewport">
+    <div class="frame-stage" id="frameStage">
+      <iframe
+        id="signageFrame"
+        src="./signage.html"
+        title="Demo paparan kiosk e-Solat"
+        scrolling="no"></iframe>
+    </div>
+  </div>
+
+  <div class="demo-toolbar" id="demoToolbar">
+    <div class="demo-chip" id="demoChip">
+      <span class="demo-chip-tag">DEMO</span>
+      <a class="demo-chip-link" href="../admin/">Panel admin</a>
+      <a class="demo-chip-link" href="../">Laman utama</a>
+      <button type="button" class="demo-chip-btn" id="demoFullscreenBtn" title="Paparan skrin penuh">⛶ Penuh</button>
+    </div>
+
+    <div class="demo-hint" id="demoHint">
+      <span class="hint-desktop">
+        <kbd>H</kbd> sembunyi · <kbd>→</kbd> slaid · <kbd>↓</kbd> widget · <kbd>F11</kbd> skrin penuh
+      </span>
+      <span class="hint-mobile">Putarkan telefon ke landskap · tekan <kbd>H</kbd> untuk sembunyi</span>
+    </div>
+  </div>
+
+  <div class="demo-note" id="demoNote">
+    Waktu solat dikira dalam pelayar ini daripada koordinat zon JAKIM (selisih ±3 minit daripada takwim rasmi).
+    <button type="button" class="demo-note-close" id="demoNoteClose" aria-label="Tutup nota">✕</button>
+  </div>
+
+  <script src="./js/frame.js"></script>
+</body>
+</html>

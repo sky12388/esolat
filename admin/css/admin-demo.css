@@ -1,0 +1,49 @@
+/* admin-demo.css — small additions; layout comes from the Tailwind CDN. */
+
+.safe-top {
+  padding-top: max(0.75rem, env(safe-area-inset-top));
+}
+
+/* Collapsible form groups */
+.admin-group[open] .admin-chevron {
+  transform: rotate(90deg);
+}
+
+.admin-chevron {
+  transition: transform 0.2s ease;
+}
+
+/* Range slider */
+input[type="range"].admin-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 999px;
+  background: #1e293b;
+  outline: none;
+}
+
+input[type="range"].admin-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #34d399;
+  border: 2px solid #0f172a;
+  cursor: pointer;
+}
+
+input[type="range"].admin-range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #34d399;
+  border: 2px solid #0f172a;
+  cursor: pointer;
+}
+
+/* Toast */
+#adminToast {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}

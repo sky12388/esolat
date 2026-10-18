@@ -1,0 +1,74 @@
+/* ==============================================================================
+   demo.css — additions on top of the production kiosk stylesheet.
+   Only styles things that do not exist in the real e-Solat TV build:
+   poster slides (no image assets on a static site) and the countdown zone
+   caption. The demo chrome lives in the wrapper page (css/frame.css).
+   ============================================================================== */
+
+/* ---------- Poster slides --------------------------------------------------- */
+.slide-item.demo-poster {
+  background:
+    radial-gradient(circle at 22% 18%, rgba(16, 185, 129, 0.28), transparent 55%),
+    radial-gradient(circle at 82% 78%, rgba(251, 191, 36, 0.22), transparent 52%),
+    linear-gradient(150deg, #04302a 0%, #02211c 55%, #01100d 100%);
+  padding: 0 6%;
+  box-sizing: border-box;
+}
+
+.demo-poster-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 1.4rem;
+  max-width: 100%;
+}
+
+.demo-poster-eyebrow {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(1rem, 1.35vw, 1.5rem);
+  font-weight: 700;
+  letter-spacing: 5px;
+  color: #6ee7b7;
+  text-transform: uppercase;
+}
+
+.demo-poster-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(2.4rem, 5.4vw, 6rem);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: 1px;
+  color: #ffffff;
+  text-shadow: 0 6px 30px rgba(0, 0, 0, 0.55);
+  overflow-wrap: break-word;
+}
+
+.demo-poster-sub {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(1.1rem, 1.85vw, 2.05rem);
+  font-weight: 500;
+  line-height: 1.4;
+  color: #a7f3d0;
+  max-width: 26ch;
+}
+
+.demo-poster-rule {
+  width: clamp(120px, 16vw, 280px);
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #10b981, #fbbf24);
+}
+
+/* ---------- Countdown card zone line ---------------------------------------- */
+.cd-zone-line {
+  margin-top: 0.35rem;
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(0.7rem, 0.85vw, 1rem);
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  color: #a7f3d0;
+  opacity: 0.85;
+  text-align: center;
+}

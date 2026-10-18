@@ -1,0 +1,218 @@
+/* ==============================================================================
+   frame.css — the demo wrapper page.
+
+   The signage itself is locked to a 1920x1080 TV layout (demo/css/kiosk.css
+   is viewport-unit heavy and only makes sense on a 16:9 screen). Rather than
+   trying to rewrite that stylesheet for phones, the wrapper renders the
+   signage inside an iframe and scales the iframe down to fit whatever screen
+   the visitor is on. Inside the iframe the viewport *is* 1920x1080, so every
+   vh / vw / clamp() in the production stylesheet resolves exactly the same as
+   on a real kiosk.
+   ============================================================================== */
+
+:root {
+  --frame-bar: 60px;
+  --frame-bg: #01050b;
+  --frame-accent: #34d399;
+  --frame-gold: #fbbf24;
+  --frame-text: #a7f3d0;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--frame-bg);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Stage ---------------------------------------------------------- */
+
+.frame-viewport {
+  position: fixed;
+  inset: 0 0 var(--frame-bar) 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.frame-stage {
+  position: relative;
+  overflow: hidden;
+  background: #000;
+  box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.12), 0 24px 80px rgba(0, 0, 0, 0.7);
+}
+
+.frame-stage iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1920px;
+  height: 1080px;
+  border: 0;
+  transform-origin: top left;
+  transform: scale(var(--frame-scale, 0.5));
+}
+
+/* When the chrome is hidden the stage gets the full viewport back. */
+body.chrome-hidden { --frame-bar: 0px; }
+
+body.chrome-hidden .demo-toolbar,
+body.chrome-hidden .demo-note {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---------- Bottom toolbar ------------------------------------------------- */
+
+.demo-toolbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--frame-bar);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 14px;
+  background: rgba(2, 8, 16, 0.92);
+  border-top: 1px solid rgba(148, 163, 184, 0.14);
+  backdrop-filter: blur(12px);
+  transition: opacity 0.3s ease;
+  z-index: 20;
+}
+
+.demo-chip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.demo-chip-tag {
+  flex-shrink: 0;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: #022c22;
+  background: var(--frame-accent);
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 0.66rem;
+}
+
+.demo-chip-link {
+  flex-shrink: 0;
+  color: var(--frame-text);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.82rem;
+  border-bottom: 1px solid rgba(167, 243, 208, 0.32);
+  padding-bottom: 1px;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.demo-chip-link:hover {
+  color: var(--frame-gold);
+  border-bottom-color: var(--frame-gold);
+}
+
+.demo-chip-btn {
+  flex-shrink: 0;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #fde68a;
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.32);
+  border-radius: 999px;
+  padding: 4px 11px;
+  transition: background 0.2s ease;
+}
+
+.demo-chip-btn:hover { background: rgba(251, 191, 36, 0.24); }
+
+.demo-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #cbd5e1;
+  font-size: 0.74rem;
+  white-space: nowrap;
+  transition: opacity 0.4s ease;
+}
+
+.demo-hint kbd {
+  font-family: 'Inter', monospace;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  padding: 1px 6px;
+  color: #fff;
+}
+
+.hint-mobile { display: none; }
+
+/* ---------- Footer note ---------------------------------------------------- */
+
+.demo-note {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--frame-bar) + 12px);
+  transform: translateX(-50%);
+  z-index: 21;
+  max-width: min(720px, calc(100vw - 24px));
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 13px;
+  border-radius: 12px;
+  background: rgba(2, 17, 13, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  backdrop-filter: blur(10px);
+  color: #cbd5e1;
+  font-size: 0.74rem;
+  line-height: 1.45;
+  transition: opacity 0.35s ease, bottom 0.3s ease;
+}
+
+.demo-note-close {
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: #cbd5e1;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.66rem;
+  line-height: 1;
+}
+
+.demo-note-close:hover { background: rgba(255, 255, 255, 0.2); color: #fff; }
+
+/* ---------- Responsive ----------------------------------------------------- */
+
+@media (max-width: 900px) {
+  :root { --frame-bar: 54px; }
+  .demo-note { display: none; }
+}
+
+@media (max-width: 720px) {
+  :root { --frame-bar: 48px; }
+  .demo-toolbar { padding: 0 10px; }
+  .demo-chip { gap: 9px; }
+  .demo-chip-link { font-size: 0.74rem; }
+  .hint-desktop { display: none; }
+  .hint-mobile { display: inline; }
+}
+
+@media (max-width: 420px) {
+  .demo-chip-link[href="../"] { display: none; }
+  .demo-hint { font-size: 0.68rem; }
+}

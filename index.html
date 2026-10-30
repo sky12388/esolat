@@ -1,1379 +1,719 @@
 <!DOCTYPE html>
-<html lang="ms" class="scroll-smooth">
+<html lang="ms">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Skywalker e-Solat Kiosk — Sistem Digital Signage & Automasi Masjid Pintar</title>
-  <meta name="description" content="Sistem e-Solat Kiosk & Digital Signage komersial berasaskan Mini PC Debian Linux untuk masjid dan surau Malaysia. 100% Luar Talian, Takwim Rasmi JAKIM, alunan Azan automatik, dan kawalan telefon pintar.">
-  
-  <!-- Tailwind CSS via CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            emerald: {
-              850: '#064e3b',
-              900: '#022c22',
-              950: '#011c15',
-            },
-            amber: {
-              450: '#f59e0b',
-            }
-          }
-        }
-      }
-    }
-  </script>
-
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-  
-  <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="./css/style.css">
-
-  <!-- Favicons & App Icons -->
-  <meta name="theme-color" content="#064e3b">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="e-Solat">
-  <link rel="manifest" href="./manifest.json">
-  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>e-Solat v5 — Kiosk Waktu Solat & Digital Signage Masjid</title>
+  <meta name="description" content="e-Solat v5 ialah sistem kiosk dan digital signage masjid dengan dua personaliti paparan — UX V menegak dan UX H mendatar. Takwim rasmi JAKIM, azan automatik, panel admin, dan pemasang Debian. 100% beroperasi luar talian." />
+  <meta name="theme-color" content="#020617" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=JetBrains+Mono:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/site.css" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23020617'/%3E%3Cpath d='M32 10c-6 6-9 12-9 17a9 9 0 0 0 18 0c0-5-3-11-9-17Z' fill='%23fbbf24'/%3E%3Cpath d='M17 36h30v16H17z' fill='%2310b981'/%3E%3Cpath d='M27 52V43a5 5 0 0 1 10 0v9' fill='%23020617'/%3E%3C/svg%3E" />
 </head>
-<body class="bg-islamic-pattern text-slate-100 min-h-screen antialiased selection:bg-emerald-500 selection:text-white">
+<body>
+  <a class="skip-link" href="#main">Lompat ke kandungan</a>
 
-  <!-- ==================== TOP ANNOUNCEMENT BANNER ==================== -->
-  <div class="bg-gradient-to-r from-emerald-950 via-emerald-800 to-emerald-950 border-b border-emerald-600/40 text-xs py-2.5 px-4 text-center text-emerald-100 shadow-md">
-    <div class="max-w-7xl mx-auto flex items-center justify-center gap-3 flex-wrap">
-      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-black bg-emerald-500 text-slate-950">✨ VERSI 1.3.18</span>
-      <span>Sistem e-Solat Kiosk &amp; Digital Signage Masjid Pintar (100% Beroperasi Luar Talian)</span>
-      <span class="hidden md:inline text-emerald-600">|</span>
-      <a href="./demo/" target="_blank" class="text-amber-300 font-bold hover:text-white transition flex items-center gap-1 bg-amber-500/20 px-2.5 py-0.5 rounded-lg border border-amber-400/40">
-        <span>📺</span>
-        <span>Cuba Demo Interaktif</span>
-      </a>
-      <span class="hidden md:inline text-emerald-600">|</span>
-      <a href="./manual/" class="text-emerald-300 font-bold hover:text-white transition flex items-center gap-1">📖 Panduan Pengguna AJK</a>
-      <span class="hidden md:inline text-emerald-600">|</span>
-      <a href="https://wa.me/601118712388" target="_blank" class="text-emerald-300 hover:text-white transition">Bantuan: 0111 8712388</a>
+  <!-- ================= SVG ICON SPRITE ================= -->
+  <svg class="svg-sprite" aria-hidden="true" focusable="false">
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></symbol>
+    <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M8 3v4M16 3v4M3.5 10h17M8 14h2M14 14h2"/></symbol>
+    <symbol id="i-megaphone" viewBox="0 0 24 24"><path d="M4 10v4h3l9 4V6L7 10H4Z"/><path d="M19 9a4 4 0 0 1 0 6"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 20 6v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3Z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M3.5 7.5h10v9h-10z"/><path d="m13.5 11 6.5-3v8l-6.5-3"/><circle cx="8.5" cy="12" r="2"/></symbol>
+    <symbol id="i-volume" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4Z"/><path d="M17 8a6 6 0 0 1 0 8M20 5a10 10 0 0 1 0 14"/></symbol>
+    <symbol id="i-wifi-off" viewBox="0 0 24 24"><path d="m3 3 18 18"/><path d="M8.5 15.5a5 5 0 0 1 7 0"/><path d="M5 12a10 10 0 0 1 3-2M19 12a10 10 0 0 0-3-2"/><path d="M2 8.5A15 15 0 0 1 8 5M22 8.5a15 15 0 0 0-6-3.5"/><circle cx="12" cy="19" r="1"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.88.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.88l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.88-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9c.14.6.66 1 1.28 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1Z"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 20h16"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="i-whatsapp" viewBox="0 0 24 24"><path d="M20 11.5a8 8 0 0 1-11.9 7L4 20l1.5-4A8 8 0 1 1 20 11.5Z"/><path d="M9 8.5c.3 2.4 2.1 4.2 4.5 4.5l1-1.2c.2-.3.6-.4.9-.2l1.2.7c.3.2.4.6.2.9-.8 1.2-2 1.6-3.2 1.3-3-.7-5.1-2.8-5.8-5.8-.3-1.2.1-2.4 1.3-3.2.3-.2.7-.1.9.2l.7 1.2c.2.3.1.7-.2.9L9 8.5Z"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/></symbol>
+    <symbol id="i-zap" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 15.5A8.5 8.5 0 0 1 8.5 4 8.5 8.5 0 1 0 20 15.5Z"/></symbol>
+    <symbol id="i-package" viewBox="0 0 24 24"><path d="m12 3 8 4v10l-8 4-8-4V7l8-4Z"/><path d="m4 7 8 4 8-4M12 11v10"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-6 8-6s8 2 8 6"/></symbol>
+    <symbol id="i-database" viewBox="0 0 24 24"><ellipse cx="12" cy="5.5" rx="8" ry="3"/><path d="M4 5.5v13c0 1.7 3.6 3 8 3s8-1.3 8-3v-13"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></symbol>
+    <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M2 8.5A15 15 0 0 1 22 8.5M5 12a10 10 0 0 1 14 0M8.5 15.5a5 5 0 0 1 7 0"/><circle cx="12" cy="19" r="1"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H20v18H7.5A3.5 3.5 0 0 0 4 23.5v-18Z"/><path d="M4 19.5A3.5 3.5 0 0 1 7.5 16H20"/></symbol>
+    <symbol id="i-keyboard" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M6 10h.01M9.5 10h.01M13 10h.01M16.5 10h.01M6 13.5h.01M9.5 13.5h.01M13 13.5h.01M16.5 13.5h.01M8 16.5h8"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+  </svg>
+
+  <div class="ambient" aria-hidden="true"></div>
+
+  <!-- ================= HEADER ================= -->
+  <div class="topbar">
+    <div class="container topbar-inner">
+      <span class="topbar-version">VERSI 5.0.0</span>
+      <span class="topbar-text">Kiosk Waktu Solat &amp; Digital Signage Masjid — 100% Beroperasi Luar Talian</span>
+      <a class="topbar-link" href="#demo"><span class="dot"></span> Demo UX V &amp; UX H</a>
+      <a class="topbar-link" href="https://wa.me/601118712388" target="_blank" rel="noopener">Bantuan: 0111 8712388</a>
     </div>
   </div>
 
-  <!-- ==================== NAVBAR ==================== -->
-  <header class="sticky top-0 z-50 glass-panel border-b border-slate-800/80">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-      
-      <!-- Brand Logo -->
-      <a href="#" class="flex items-center gap-3 group">
-        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-900 p-2 border border-emerald-400/30 flex items-center justify-center shadow-lg group-hover:scale-105 transition duration-300">
-          <svg viewBox="0 0 100 100" class="w-full h-full">
-            <path d="M50 10 C50 10 32 30 32 50 C32 55 35 60 40 60 L60 60 C65 60 68 55 68 50 C68 30 50 10 50 10 Z" fill="#fbbf24"/>
-            <path d="M25 60 L75 60 L75 88 L25 88 Z" fill="#34d399"/>
-            <path d="M42 88 L42 70 C42 66 58 66 58 70 L58 88 Z" fill="#022c22"/>
-            <circle cx="50" cy="8" r="3" fill="#fbbf24"/>
+  <header class="site-header" id="siteHeader">
+    <div class="container nav">
+      <a class="brand" href="#top" aria-label="e-Solat v5 — laman utama">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 100 100">
+            <path d="M50 8c-9 9-14 19-14 27a14 14 0 0 0 28 0c0-8-5-18-14-27Z" fill="#fbbf24"/>
+            <path d="M22 42h56v42H22z" fill="#10b981"/>
+            <path d="M40 84V64a10 10 0 0 1 20 0v20" fill="#04121f"/>
+            <path d="M17 42h66" stroke="#fbbf24" stroke-width="4" stroke-linecap="round"/>
           </svg>
-        </div>
-        <div>
-          <span class="text-xl font-black tracking-tight text-white block">Skywalker <span class="text-amber-400">e-Solat</span></span>
-          <span class="text-[11px] text-emerald-400 font-semibold tracking-wider block">Kiosk &bull; Skywalker Consortium</span>
-        </div>
+        </span>
+        <span class="brand-text">
+          <strong>e-Solat</strong>
+          <span>v5 &bull; Skywalker</span>
+        </span>
       </a>
 
-      <!-- Desktop Nav -->
-      <nav class="hidden md:flex items-center gap-5 text-sm font-medium text-slate-300">
-        <a href="#ciri-ciri" class="hover:text-emerald-400 transition">Ciri Utama</a>
-        <a href="#perbandingan" class="hover:text-emerald-400 transition">Kenapa Mini PC?</a>
-        <a href="#demo" class="hover:text-emerald-400 transition">Demo</a>
-        <a href="#pakej" class="hover:text-emerald-400 transition">Pakej Tawaran</a>
-        <a href="#faq" class="hover:text-emerald-400 transition">Soalan Lazim</a>
+      <nav class="nav-links" id="navLinks" aria-label="Navigasi utama">
+        <a href="#paparan">Paparan</a>
+        <a href="#demo">Demo</a>
+        <a href="#ciri">Ciri</a>
+        <a href="#pakej">Pakej</a>
+        <a href="#manual">Manual</a>
+        <a href="#faq">FAQ</a>
       </nav>
 
-      <!-- Desktop CTA -->
-      <div class="hidden lg:flex items-center gap-3">
-        <a href="./demo/" target="_blank" class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl font-black text-xs bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 border border-amber-300 shadow-md shadow-amber-950/40 hover:scale-105 transition duration-200">
-          <span>📺</span>
-          <span>Cuba Demo</span>
+      <div class="nav-actions">
+        <a class="btn btn-ghost btn-sm desktop-only" href="https://wa.me/601118712388" target="_blank" rel="noopener">
+          <svg class="ico"><use href="#i-whatsapp"/></svg> Hubungi
         </a>
-        <a href="https://wa.me/601118712388?text=Salam%20Skywalker%20Consortium,%20saya%20ingin%20sebut%20harga%20e-Solat%20Kiosk" target="_blank" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white shadow-lg shadow-emerald-950/60 border border-emerald-400/40 hover:-translate-y-0.5 transition duration-200">
-          <span>💬</span>
-          <span>Support 0111 8712388</span>
-        </a>
+        <a class="btn btn-primary btn-sm" href="#demo">Cuba Demo</a>
+        <button class="nav-toggle" id="navToggle" aria-label="Buka menu" aria-expanded="false" aria-controls="navLinks">
+          <svg class="ico" id="navToggleIcon"><use href="#i-menu"/></svg>
+        </button>
       </div>
-
-      <!-- Mobile Menu Button -->
-      <button id="btnMobileMenu" class="md:hidden p-2 rounded-lg bg-slate-800 border border-slate-700 text-slate-300">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-        </svg>
-      </button>
-
-    </div>
-
-    <!-- Mobile Nav Menu (Hidden by default) -->
-    <div id="mobileNavMenu" class="hidden md:hidden px-4 pt-2 pb-6 bg-slate-900/95 border-b border-slate-800 space-y-3">
-      <a href="./demo/" target="_blank" class="block w-full text-center py-2.5 rounded-xl font-black bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 border border-amber-300 text-sm shadow-md">
-        📺 Cuba Demo Interaktif
-      </a>
-      <a href="./manual/" class="block w-full text-center py-2.5 rounded-xl font-bold bg-amber-500/20 text-amber-300 border border-amber-400/40 text-sm">
-        📖 Panduan Pengguna Rasmi AJK
-      </a>
-      <a href="#ciri-ciri" class="block py-2 text-slate-300 hover:text-emerald-400 font-medium">Ciri Utama</a>
-      <a href="#perbandingan" class="block py-2 text-slate-300 hover:text-emerald-400 font-medium">Kenapa Mini PC?</a>
-      <a href="#spesifikasi" class="block py-2 text-slate-300 hover:text-emerald-400 font-medium">Perkakasan</a>
-      <a href="#pakej" class="block py-2 text-slate-300 hover:text-emerald-400 font-medium">Pakej Tawaran</a>
-      <a href="#demo" class="block py-2 text-slate-300 hover:text-emerald-400 font-medium">Demo</a>
-      <a href="#faq" class="block py-2 text-slate-300 hover:text-emerald-400 font-medium">Soalan Lazim</a>
-      <a href="https://wa.me/601118712388" target="_blank" class="block w-full text-center py-3 rounded-xl font-bold bg-emerald-600 text-white">
-        Hubungi Support (0111 8712388)
-      </a>
     </div>
   </header>
 
-  <!-- ==================== HERO SECTION ==================== -->
-  <section class="relative pt-12 pb-20 overflow-hidden">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      
-      <!-- Headline & Subtitle -->
-      <div class="text-center max-w-3xl mx-auto mb-12">
-        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold badge-emerald mb-6">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-          <span>100% Selaras Takwim Rasmi JAKIM &bull; Teknologi Mini PC Debian 24/7</span>
+  <main id="main">
+    <!-- ================= HERO ================= -->
+    <section class="hero" id="top">
+      <div class="hero-bg" aria-hidden="true"></div>
+      <div class="hero-grid-lines" aria-hidden="true"></div>
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <span class="badge badge-amber"><span class="pulse-dot"></span> VERSI 5.0.0 &bull; EDISI 2026</span>
+          <h1>Dua personaliti.<br /><span class="grad">Satu kiosk.</span><br />24/7.</h1>
+          <p class="lead">
+            <strong>e-Solat v5</strong> menghimpunkan paparan waktu solat, takwim Islam, pengumuman,
+            poster kuliah dan kawalan pentadbir dalam satu sistem kiosk Debian yang disegerakkan
+            terus dengan takwim rasmi JAKIM.
+          </p>
+
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#demo">
+              <svg class="ico"><use href="#i-play"/></svg> Cuba Demo Langsung
+            </a>
+            <a class="btn btn-glass" href="#pakej">Lihat Pakej v5</a>
+          </div>
+
+          <ul class="hero-stats">
+            <li><strong>2</strong><span>Personaliti paparan</span></li>
+            <li><strong>60+</strong><span>Zon JAKIM</span></li>
+            <li><strong>101</strong><span>Wallpaper masjid</span></li>
+            <li><strong>0</strong><span>Yuran bulanan</span></li>
+          </ul>
+
+          <div class="hero-trust">
+            <span><svg class="ico"><use href="#i-check"/></svg> Takwim rasmi JAKIM</span>
+            <span><svg class="ico"><use href="#i-check"/></svg> Debian 12/13 &amp; Ubuntu</span>
+            <span><svg class="ico"><use href="#i-check"/></svg> Pemasang .deb</span>
+          </div>
         </div>
 
-        <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-tight">
-          Sistem Digital Signage &amp; <br>
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-300">
-            e-Solat Pintar Masjid &amp; Surau
+        <div class="hero-preview">
+          <div class="preview-badge"><span class="live-dot"></span> DEMO LANGSUNG</div>
+          <div class="tv">
+            <div class="tv-top">
+              <span class="tv-dot"></span><span class="tv-dot"></span><span class="tv-dot"></span>
+              <span class="tv-url">esolat/v5/</span>
+              <div class="tv-switch" role="group" aria-label="Pilih paparan demo">
+                <button class="tv-btn is-active" data-hero-mode="v" type="button">UX V</button>
+                <button class="tv-btn" data-hero-mode="h" type="button">UX H</button>
+              </div>
+            </div>
+            <div class="screen" data-screen>
+              <div class="screen-inner">
+                <iframe id="heroFrame" title="Demo langsung e-Solat v5" src="./v5/?mode=v1&amp;embed=1" loading="eager" allow="autoplay; fullscreen"></iframe>
+              </div>
+              <div class="demo-fallback">
+                <svg class="ico"><use href="#i-monitor"/></svg>
+                <strong>Demo belum dibina</strong>
+                <span>Jalankan <code>npm run site</code> untuk membina kiosk v5 secara automatik.</span>
+              </div>
+            </div>
+          </div>
+          <div class="tv-caption">
+            <span id="heroCaption">UX V — Waktu solat menegak, jam flip 3D &amp; takwim.</span>
+            <a href="./v5/?mode=v1" target="_blank" rel="noopener">Buka skrin penuh <svg class="ico"><use href="#i-external"/></svg></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="container">
+        <div class="hero-strip">
+          <span><svg class="ico"><use href="#i-moon"/></svg> Takwim Hijri &amp; Masihi</span>
+          <span><svg class="ico"><use href="#i-clock"/></svg> Detik undur waktu solat</span>
+          <span><svg class="ico"><use href="#i-volume"/></svg> Azan &amp; iqamah automatik</span>
+          <span><svg class="ico"><use href="#i-camera"/></svg> Siaran kuliah langsung</span>
+          <span><svg class="ico"><use href="#i-wifi-off"/></svg> Beroperasi tanpa internet</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TWO PERSONALITIES ================= -->
+    <section class="section" id="paparan">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow">DUA SUSUN ATUR</span>
+          <h2>Satu sistem. Dua personaliti.</h2>
+          <p>Tukar susun atur serta-merta mengikut bentuk dewan solat anda — atau biarkan kiosk bergilir automatik antara kedua-duanya.</p>
+        </div>
+
+        <div class="persona-grid">
+          <article class="persona-card reveal">
+            <div class="persona-preview persona-v" aria-hidden="true">
+              <div class="pv-head"><span></span><span class="pv-title"></span><span></span></div>
+              <div class="pv-body">
+                <div class="pv-left">
+                  <div class="pv-clock">04:32<span>:18</span></div>
+                  <div class="pv-date">AHAD &bull; 30 OKTOBER 2026</div>
+                  <div class="pv-takwim"><i></i><i></i><i></i></div>
+                </div>
+                <div class="pv-side">
+                  <div class="pv-prayer is-now"><b>SUBUH</b><em>05:48</em></div>
+                  <div class="pv-prayer"><b>SYURUK</b><em>06:56</em></div>
+                  <div class="pv-prayer"><b>ZOHOR</b><em>13:00</em></div>
+                  <div class="pv-prayer"><b>ASAR</b><em>16:20</em></div>
+                  <div class="pv-prayer"><b>MAGHRIB</b><em>19:00</em></div>
+                  <div class="pv-prayer"><b>ISYAK</b><em>20:10</em></div>
+                </div>
+              </div>
+              <div class="pv-ticker"><span>MAKLUMAN</span> Selamat datang ke Surau Darul Taqwa&hellip;</div>
+            </div>
+
+            <div class="persona-body">
+              <div class="persona-label"><span class="tag tag-emerald">UX V</span> v1 &middot; VERTICAL</div>
+              <h3>Klasik, tenang, mudah dibaca.</h3>
+              <p>Jam flip 3D dan kad takwim di pentas kiri, bar sisi waktu solat menegak di kanan. Susun atur yang sudah terbukti di dewan solat.</p>
+              <ul class="tick-list">
+                <li><svg class="ico"><use href="#i-check"/></svg> Jam HTC flip-flap 3D &amp; detik bergerak</li>
+                <li><svg class="ico"><use href="#i-check"/></svg> Takwim Islam setahun &amp; peristiwa terdekat</li>
+                <li><svg class="ico"><use href="#i-check"/></svg> 6 lajur waktu solat dengan status SEKARANG</li>
+              </ul>
+              <a class="link-arrow" href="#demo" data-open-demo="v">Demo UX V <svg class="ico"><use href="#i-arrow"/></svg></a>
+            </div>
+          </article>
+
+          <article class="persona-card reveal">
+            <div class="persona-preview persona-h" aria-hidden="true">
+              <div class="ph-head"><span class="ph-pill">PAPARAN DIGITAL V5</span><span class="ph-name">SURAU DARUL TAQWA</span><span class="ph-pill">SGR03</span></div>
+              <div class="ph-stage">
+                <div class="ph-clock">04:32<span>:18</span></div>
+                <div class="ph-carousel">
+                  <div class="ph-slide"><span class="ph-kicker">MUTIARA HIKMAH</span><p>&ldquo;Sesungguhnya solat itu mencegah daripada kemungkaran.&rdquo;</p></div>
+                  <div class="ph-dots"><i class="on"></i><i></i><i></i></div>
+                </div>
+              </div>
+              <div class="ph-ribbon">
+                <div class="ph-r is-now"><b>SUBUH</b><em>05:48</em></div>
+                <div class="ph-r"><b>SYURUK</b><em>06:56</em></div>
+                <div class="ph-r"><b>ZOHOR</b><em>13:00</em></div>
+                <div class="ph-r"><b>ASAR</b><em>16:20</em></div>
+                <div class="ph-r"><b>MAGHRIB</b><em>19:00</em></div>
+                <div class="ph-r"><b>ISYAK</b><em>20:10</em></div>
+              </div>
+              <div class="pv-ticker"><span>MAKLUMAN</span> Sila rapatkan saf &amp; matikan telefon bimbit&hellip;</div>
+            </div>
+
+            <div class="persona-body">
+              <div class="persona-label"><span class="tag tag-amber">UX H</span> v3 &middot; HORIZONTAL</div>
+              <h3>Moden, padat, penuh dinamik.</h3>
+              <p>Pentas carousel untuk jam, poster kuliah dan mutiara hikmah, dengan reben waktu solat mendatar di bawah. Ruang paparan lebih luas untuk media.</p>
+              <ul class="tick-list">
+                <li><svg class="ico"><use href="#i-check"/></svg> Carousel poster, kuliah &amp; kaligrafi</li>
+                <li><svg class="ico"><use href="#i-check"/></svg> Reben solat mendatar yang padat</li>
+                <li><svg class="ico"><use href="#i-check"/></svg> Sesuai untuk TV 16:9 di ruang utama</li>
+              </ul>
+              <a class="link-arrow" href="#demo" data-open-demo="h">Demo UX H <svg class="ico"><use href="#i-arrow"/></svg></a>
+            </div>
+          </article>
+        </div>
+
+        <div class="mixed-banner reveal">
+          <div class="mixed-icon"><svg class="ico"><use href="#i-layers"/></svg></div>
+          <div>
+            <strong>MIXED MODE</strong>
+            <p>Biarkan kiosk bergilir automatik antara UX V dan UX H setiap 25 saat — sesuai untuk jemaah yang datang pada waktu berbeza.</p>
+          </div>
+          <a class="btn btn-glass btn-sm" href="./v5/?mode=v1" target="_blank" rel="noopener">Lihat demo <svg class="ico"><use href="#i-external"/></svg></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= DEMO LAB ================= -->
+    <section class="section section-demo" id="demo">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow">DEMO DALAM PELAYAR</span>
+          <h2>Demo langsung, bukan tangkapan skrin.</h2>
+          <p>Kiosk sebenar berjalan di dalam halaman ini — jam berdetik, waktu solat JAKIM dikira secara langsung, ticker bergerak dan takwim berputar. Pilih paparan dan bandingkan.</p>
+        </div>
+
+        <div class="demo-shell reveal">
+          <div class="demo-toolbar">
+            <div class="demo-tabs" role="tablist" aria-label="Pilih paparan demo">
+              <button class="demo-tab is-active" data-tab="v" type="button" role="tab" aria-selected="true">UX V <small>v1 &middot; Menegak</small></button>
+              <button class="demo-tab" data-tab="h" type="button" role="tab" aria-selected="false">UX H <small>v3 &middot; Mendatar</small></button>
+              <button class="demo-tab" data-tab="compare" type="button" role="tab" aria-selected="false">Bandingan <small>v1 + v3</small></button>
+            </div>
+            <div class="demo-toolbar-actions">
+              <span class="demo-live"><span class="live-dot"></span> PAPARAN SEBENAR</span>
+              <a class="btn btn-ghost btn-xs" data-open-link href="./v5/?mode=v1" target="_blank" rel="noopener">Buka penuh <svg class="ico"><use href="#i-external"/></svg></a>
+            </div>
+          </div>
+
+          <div class="demo-stage" data-active="v">
+            <div class="demo-view" data-view="v">
+              <div class="browser">
+                <div class="browser-bar"><span></span><span></span><span></span><em>192.168.1.104:8080/?mode=v1</em></div>
+                <div class="screen" data-screen>
+                  <div class="screen-inner"><iframe data-src="./v5/?mode=v1&amp;embed=1" title="Demo UX V" allow="autoplay; fullscreen"></iframe></div>
+                  <div class="demo-fallback"><svg class="ico"><use href="#i-monitor"/></svg><strong>Demo belum dibina</strong><span>Jalankan <code>npm run site</code>.</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="demo-view" data-view="h">
+              <div class="browser">
+                <div class="browser-bar"><span></span><span></span><span></span><em>192.168.1.104:8080/?mode=v3</em></div>
+                <div class="screen" data-screen>
+                  <div class="screen-inner"><iframe data-src="./v5/?mode=v3&amp;embed=1" title="Demo UX H" allow="autoplay; fullscreen"></iframe></div>
+                  <div class="demo-fallback"><svg class="ico"><use href="#i-monitor"/></svg><strong>Demo belum dibina</strong><span>Jalankan <code>npm run site</code>.</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="demo-view" data-view="compare">
+              <div class="compare-grid">
+                <div>
+                  <div class="compare-label"><span class="tag tag-emerald">UX V</span> VERTICAL</div>
+                  <div class="screen" data-screen>
+                    <div class="screen-inner"><iframe data-src="./v5/?mode=v1&amp;embed=1" title="Demo UX V" allow="autoplay; fullscreen"></iframe></div>
+                    <div class="demo-fallback"><svg class="ico"><use href="#i-monitor"/></svg><strong>Demo belum dibina</strong></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="compare-label"><span class="tag tag-amber">UX H</span> HORIZONTAL</div>
+                  <div class="screen" data-screen>
+                    <div class="screen-inner"><iframe data-src="./v5/?mode=v3&amp;embed=1" title="Demo UX H" allow="autoplay; fullscreen"></iframe></div>
+                    <div class="demo-fallback"><svg class="ico"><use href="#i-monitor"/></svg><strong>Demo belum dibina</strong></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="demo-footer">
+            <div class="demo-notes">
+              <span><svg class="ico"><use href="#i-database"/></svg> Data JAKIM langsung</span>
+              <span><svg class="ico"><use href="#i-clock"/></svg> Detik undur aktif</span>
+              <span><svg class="ico"><use href="#i-keyboard"/></svg> Kekunci <kbd>V</kbd> / <kbd>H</kbd> / <kbd>M</kbd></span>
+            </div>
+            <div class="demo-footer-actions">
+              <a class="btn btn-glass btn-sm" href="./v5/?admin=1" target="_blank" rel="noopener"><svg class="ico"><use href="#i-settings"/></svg> Demo Panel Admin</a>
+              <a class="btn btn-primary btn-sm" data-open-link href="./v5/?mode=v1" target="_blank" rel="noopener">Skrin penuh <svg class="ico"><use href="#i-external"/></svg></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="demo-hint reveal">
+          <svg class="ico"><use href="#i-zap"/></svg>
+          <p><strong>Tip demo:</strong> klik mana-mana butang <code>UX V</code> / <code>UX H</code> di dalam kiosk untuk bertukar susun atur. <code>v1</code> ialah UX V (menegak) dan <code>v3</code> ialah UX H (mendatar). Tekan <kbd>A</kbd> untuk membuka log masuk pentadbir demo.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= FEATURES ================= -->
+    <section class="section" id="ciri">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow">CIRI-CIRI v5</span>
+          <h2>Semua yang dewan solat perlukan.</h2>
+          <p>Bukan sekadar jam waktu solat — satu papan maklumat digital lengkap yang direka bersama keperluan AJK masjid dan surau.</p>
+        </div>
+
+        <div class="feature-grid">
+          <article class="feature reveal"><div class="f-ico emerald"><svg class="ico"><use href="#i-layers"/></svg></div><h3>UX V &amp; UX H</h3><p>Dua susun atur penuh, bertukar serta-merta melalui butang, papan kekunci atau mod bergilir automatik.</p></article>
+          <article class="feature reveal"><div class="f-ico emerald"><svg class="ico"><use href="#i-database"/></svg></div><h3>Segerak JAKIM</h3><p>60+ zon seluruh Malaysia, disegerakkan terus dari portal e-Solat JAKIM dan disimpan untuk operasi luar talian.</p></article>
+          <article class="feature reveal"><div class="f-ico amber"><svg class="ico"><use href="#i-clock"/></svg></div><h3>Jam Flip 3D</h3><p>Jam HTC split-flap dengan detik bergerak, tarikh Masihi dan Hijri yang berputar seperti papan lapangan terbang.</p></article>
+          <article class="feature reveal"><div class="f-ico amber"><svg class="ico"><use href="#i-calendar"/></svg></div><h3>Takwim Setahun</h3><p>Peristiwa Islam terdekat, baki hari dan slaid takwim berputar dengan penyelarasan lampu RGB 1:1.</p></article>
+          <article class="feature reveal"><div class="f-ico emerald"><svg class="ico"><use href="#i-megaphone"/></svg></div><h3>Ticker &amp; Poster</h3><p>Pengumuman berjalan, poster kuliah, tabung QR dan mutiara hikmah — semuanya boleh dikemas kini dari telefon.</p></article>
+          <article class="feature reveal"><div class="f-ico emerald"><svg class="ico"><use href="#i-settings"/></svg></div><h3>4 Suite Admin</h3><p>Kanvas visual, operasi solat &amp; audio, media &amp; kamera, serta keselamatan &amp; rollback dalam satu panel.</p></article>
+          <article class="feature reveal"><div class="f-ico amber"><svg class="ico"><use href="#i-volume"/></svg></div><h3>Azan &amp; Iqamah</h3><p>Azan Mekah, Madinah, Al-Aqsa, Mesir atau rakaman bilal sendiri, dengan nada amaran dan kiraan iqamah.</p></article>
+          <article class="feature reveal"><div class="f-ico amber"><svg class="ico"><use href="#i-camera"/></svg></div><h3>Siaran Kuliah</h3><p>Kamera telefon, camcorder HDMI atau PTZ RTSP — dipaparkan terus di pentas kiosk bersama waktu solat.</p></article>
+          <article class="feature reveal"><div class="f-ico emerald"><svg class="ico"><use href="#i-wifi-off"/></svg></div><h3>Luar Talian</h3><p>Jadual setahun disimpan setempat. Internet terputus berbulan-bulan, waktu solat tetap tepat.</p></article>
+          <article class="feature reveal"><div class="f-ico emerald"><svg class="ico"><use href="#i-package"/></svg></div><h3>Pemasang Debian</h3><p>Satu pakej <code>.deb</code> mendaftarkan servis systemd, autostart Chromium kiosk dan watchdog 24/7.</p></article>
+          <article class="feature reveal"><div class="f-ico amber"><svg class="ico"><use href="#i-shield"/></svg></div><h3>Kawalan Keselamatan</h3><p>Log masuk berlapis, peranan pengguna, audit log dan rollback konfigurasi jika berlaku kesilapan.</p></article>
+          <article class="feature reveal"><div class="f-ico amber"><svg class="ico"><use href="#i-moon"/></svg></div><h3>101 Wallpaper</h3><p>Galeri masjid dunia yang bertukar setiap hari secara automatik — tanpa perlu muat naik apa-apa.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= ADMIN SHOWCASE ================= -->
+    <section class="section section-admin">
+      <div class="container admin-grid">
+        <div class="admin-copy reveal">
+          <span class="eyebrow">PUSAT KAWALAN</span>
+          <h2>Urus kiosk dari telefon AJK.</h2>
+          <p>Panel pentadbir v5 dibahagikan kepada empat suite yang kemas. Semua perubahan disimpan ke peranti kiosk dan disiarkan serta-merta melalui saluran penyegerakan setempat.</p>
+
+          <div class="suite-list">
+            <div class="suite"><span>01</span><div><strong>Studio Kanvas &amp; Visual</strong><p>Nama surau, zon, mod UX, tema, wallpaper dan poster.</p></div></div>
+            <div class="suite"><span>02</span><div><strong>Operasi Solat &amp; Audio</strong><p>Offsets waktu, iqamah, azan, beep dan ujian pembesar suara.</p></div></div>
+            <div class="suite"><span>03</span><div><strong>Media, Kamera &amp; Poster</strong><p>Live stream, slaid kuliah, tabung QR dan mutiara hikmah.</p></div></div>
+            <div class="suite"><span>04</span><div><strong>Keselamatan &amp; Rollback</strong><p>Pengguna, kata laluan, audit log dan pemulihan konfigurasi.</p></div></div>
+          </div>
+
+          <div class="admin-actions">
+            <a class="btn btn-primary btn-sm" href="./v5/?admin=1" target="_blank" rel="noopener">Buka Demo Admin <svg class="ico"><use href="#i-external"/></svg></a>
+            <span class="admin-cred">Demo: <code>developer</code> / <code>12388</code></span>
+          </div>
+        </div>
+
+        <div class="admin-mock reveal" aria-hidden="true">
+          <div class="am-browser">
+            <div class="am-bar"><span></span><span></span><span></span><em>192.168.1.104:8080/?admin=1</em></div>
+            <div class="am-body">
+              <aside class="am-side">
+                <div class="am-logo"><i></i><b>e-Solat</b><small>v5</small></div>
+                <div class="am-nav is-active"><svg class="ico"><use href="#i-layers"/></svg> Studio Kanvas</div>
+                <div class="am-nav"><svg class="ico"><use href="#i-clock"/></svg> Solat &amp; Audio</div>
+                <div class="am-nav"><svg class="ico"><use href="#i-camera"/></svg> Media &amp; Kamera</div>
+                <div class="am-nav"><svg class="ico"><use href="#i-shield"/></svg> Keselamatan</div>
+                <div class="am-side-foot"><span class="live-dot"></span> Kiosk aktif</div>
+              </aside>
+              <div class="am-main">
+                <div class="am-head"><div><small>STUDIO KANVAS</small><b>Surau Darul Taqwa</b></div><span class="am-save">Simpan</span></div>
+                <div class="am-row">
+                  <label class="am-field"><small>NAMA SURAU</small><span>SURAU DARUL TAQWA</span></label>
+                  <label class="am-field"><small>ZON JAKIM</small><span>SGR03 — Shah Alam</span></label>
+                </div>
+                <div class="am-modes">
+                  <div class="am-mode is-on"><b>UX V</b><span>Menegak</span></div>
+                  <div class="am-mode"><b>UX H</b><span>Mendatar</span></div>
+                  <div class="am-mode"><b>MIXED</b><span>Bergilir</span></div>
+                </div>
+                <div class="am-toggle"><span>Pengumuman berjalan</span><i></i></div>
+                <div class="am-toggle"><span>Kad takwim</span><i></i></div>
+                <div class="am-preview"><span>PREVIEW TV 16:9</span><div class="am-preview-screen"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= COMPARISON ================= -->
+    <section class="section" id="perbandingan">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow">PERBANDINGAN</span>
+          <h2>Kenapa bukan Android TV box?</h2>
+          <p>TV box murah direka untuk menonton di rumah, bukan beroperasi 24 jam di rumah ibadat. Inilah perbezaan yang dirasai AJK selepas beberapa bulan.</p>
+        </div>
+
+        <div class="compare-cards">
+          <article class="compare-card bad reveal">
+            <header><span class="cc-badge bad"><svg class="ico"><use href="#i-x"/></svg></span><div><h3>TV Box Android Biasa</h3><p>Pasaran umum</p></div></header>
+            <ul>
+              <li><svg class="ico"><use href="#i-x"/></svg><span><strong>Kerap freeze &amp; panas.</strong> Pemprosesan murah tanpa pelesap haba industri menyebabkan sistem beku selepas beberapa hari.</span></li>
+              <li><svg class="ico"><use href="#i-x"/></svg><span><strong>Storan mudah rosak.</strong> Bekalan elektrik terputus mengejut boleh merosakkan fail sistem.</span></li>
+              <li><svg class="ico"><use href="#i-x"/></svg><span><strong>Iklan &amp; pop-up.</strong> Notifikasi Google Play dan iklan muncul di skrin dewan solat.</span></li>
+              <li><svg class="ico"><use href="#i-x"/></svg><span><strong>Wajib internet.</strong> Wi-Fi terputus, waktu solat tidak dikemas kini.</span></li>
+              <li><svg class="ico"><use href="#i-x"/></svg><span><strong>Sukar dikawal AJK.</strong> Remote sering hilang dan bateri habis.</span></li>
+            </ul>
+          </article>
+
+          <article class="compare-card good reveal">
+            <header><span class="cc-badge good"><svg class="ico"><use href="#i-check"/></svg></span><div><h3>Skywalker Mini PC + Debian</h3><p>e-Solat v5</p></div></header>
+            <ul>
+              <li><svg class="ico"><use href="#i-check"/></svg><span><strong>Stabil 24/7/365.</strong> OS gred pelayan, beroperasi berminggu-minggu tanpa reboot.</span></li>
+              <li><svg class="ico"><use href="#i-check"/></svg><span><strong>Kalis blackout.</strong> Auto power-on dan paparan kembali sendiri selepas elektrik pulih.</span></li>
+              <li><svg class="ico"><use href="#i-check"/></svg><span><strong>Bebas iklan &amp; terkunci.</strong> Chromium kiosk penuh, tiada desktop, tiada kursor.</span></li>
+              <li><svg class="ico"><use href="#i-check"/></svg><span><strong>100% luar talian.</strong> Takwim setahun dan enjin falak solar terbina dalam.</span></li>
+              <li><svg class="ico"><use href="#i-check"/></svg><span><strong>Kawalan telefon.</strong> Urus poster, azan dan ticker dari telefon AJK tanpa remote.</span></li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= HARDWARE ================= -->
+    <section class="section section-spec" id="spesifikasi">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow">PERKAKASAN</span>
+          <h2>Gred perusahaan, bukan gred bilik tidur.</h2>
+          <p>Setiap unit ditala khusus dengan pengurusan kuasa BIOS automatik dan storan SSD untuk operasi berterusan.</p>
+        </div>
+
+        <div class="spec-grid">
+          <article class="spec reveal"><div class="f-ico emerald"><svg class="ico"><use href="#i-monitor"/></svg></div><h3>Mini PC Kompak</h3><p>Operasi senyap 24/7, jimat tenaga, atau stesen kerja berprestasi tinggi untuk mod dwi-fungsi pejabat surau.</p></article>
+          <article class="spec reveal"><div class="f-ico emerald"><svg class="ico"><use href="#i-database"/></svg></div><h3>SSD Pantas</h3><p>But Debian dalam beberapa saat. Pilihan storan arkib untuk minit mesyuarat, kewangan dan rakaman kuliah.</p></article>
+          <article class="spec reveal"><div class="f-ico amber"><svg class="ico"><use href="#i-wifi"/></svg></div><h3>Wi-Fi &amp; Dwi-HDMI</h3><p>Wi-Fi antena atau Gigabit LAN, output HDMI ke TV dewan solat dan TV dewan muslimah.</p></article>
+          <article class="spec reveal"><div class="f-ico amber"><svg class="ico"><use href="#i-zap"/></svg></div><h3>Perlindungan Kuasa</h3><p>Soket pelindung lonjakan kilat dan output audio 3.5mm terus ke amplifier PA surau.</p></article>
+        </div>
+
+        <div class="diagram reveal">
+          <div class="diagram-node main">
+            <span class="d-kicker">UNIT KIOSK</span>
+            <strong>e-Solat v5</strong>
+            <small>Debian Linux &bull; 24/7</small>
+          </div>
+          <div class="diagram-lines" aria-hidden="true"><i></i><i></i><i></i></div>
+          <div class="diagram-targets">
+            <div class="diagram-node"><svg class="ico"><use href="#i-monitor"/></svg><div><strong>TV Dewan Solat</strong><small>HDMI &bull; 4K / FHD</small></div></div>
+            <div class="diagram-node"><svg class="ico"><use href="#i-volume"/></svg><div><strong>PA Amplifier</strong><small>Audio 3.5mm &bull; Azan</small></div></div>
+            <div class="diagram-node"><svg class="ico"><use href="#i-wifi"/></svg><div><strong>Telefon AJK</strong><small>Wi-Fi &bull; Panel Admin</small></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PACKAGES ================= -->
+    <section class="section" id="pakej">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow">PAKEJ &amp; SEBUT HARGA</span>
+          <h2>Pilih cara surau anda bermula.</h2>
+          <p>Lesen kekal seumur hidup, tanpa yuran bulanan. Harga perkakasan diselaraskan mengikut pasaran semasa — hubungi kami untuk sebut harga rasmi.</p>
+        </div>
+
+        <div class="pricing-grid">
+          <article class="price-card reveal">
+            <div class="pc-head"><span class="pc-tag">PAKEJ 1</span><h3>Lesen Perisian DIY</h3><p>Untuk surau yang sudah mempunyai PC sendiri.</p></div>
+            <div class="pc-price"><small>RM</small><strong>499</strong><span>sekali bayar</span></div>
+            <div class="pc-note">Wajib Linux Debian 12/13 atau Ubuntu LTS</div>
+            <ul class="tick-list">
+              <li><svg class="ico"><use href="#i-check"/></svg> 1x lesen kekal dikunci Machine ID</li>
+              <li><svg class="ico"><use href="#i-check"/></svg> Pemasang rasmi Debian (.deb)</li>
+              <li><svg class="ico"><use href="#i-check"/></svg> Automasi JAKIM &amp; pangkalan data luar talian</li>
+              <li><svg class="ico"><use href="#i-check"/></svg> Azan MP3 &amp; nada notifikasi bilal</li>
+              <li><svg class="ico"><use href="#i-check"/></svg> Panel kawalan telefon pintar</li>
+              <li><svg class="ico"><use href="#i-check"/></svg> Poster, tabung QR &amp; teks bergerak</li>
+              <li><svg class="ico"><use href="#i-check"/></svg> Panduan pemasangan manual</li>
+            </ul>
+            <button class="btn btn-glass btn-block" type="button" data-quote="Pakej 1 — Lesen Perisian DIY (RM499)">Dapatkan Sebut Harga</button>
+          </article>
+
+          <article class="price-card is-featured reveal">
+            <span class="pc-ribbon">PALING POPULAR</span>
+            <div class="pc-head"><span class="pc-tag">PAKEJ 2</span><h3>Dedicated Kiosk</h3><p>Mini PC siap dipasang, CLI headless.</p></div>
+            <div class="pc-price"><small>RM</small><strong>1,499</strong><span>seunit lengkap</span></div>
+            <div class="pc-note">Sedia pasang &amp; diuji &bull; Penghantaran seluruh Malaysia</div>
+            <ul class="tick-list">
+              <li><svg class="ico"><use href="#i-check"/></svg> Mini PC / thin client gred komersial</li>
+              <li><svg class="ico"><use href="#i-check"/></svg> RAM &amp; SSD pantas, operasi senyap</li>
+              <li><svg class="ico"><use href="#i-check"/></svg> Debian kiosk siap ditala &amp; diuji</li>
+              <li><svg class="ico"><use href="#i-check"/></svg> 1x lesen komersial kekal</li>
+              <li><svg class="ico"><use href="#i-check"/></svg> Auto power-on &amp; surge protector</li>
+              <li><svg class="ico"><use href="#i-check"/></svg> HDMI 4K/FHD, Wi-Fi antena / LAN</li>
+              <li><svg class="ico"><use href="#i-check"/></svg> Jaminan perkakasan 1 tahun</li>
+            </ul>
+            <button class="btn btn-primary btn-block" type="button" data-quote="Pakej 2 — Dedicated Kiosk (RM1,499)">Tempah Pakej Kiosk</button>
+          </article>
+
+          <article class="price-card reveal">
+            <div class="pc-head"><span class="pc-tag">PAKEJ 3</span><h3>Hybrid Workstation</h3><p>Pejabat pentadbiran + kiosk TV dewan solat.</p></div>
+            <div class="pc-price"><small>RM</small><strong>2,499</strong><span>lengkap pasang</span></div>
+            <div class="pc-note">Termasuk pemasangan Lembah Klang</div>
+            <ul class="tick-list">
+              <li><svg class="ico"><use href="#i-check"/></svg> Desktop berprestasi tinggi</li>
+              <li><svg class="ico"><use href="#i-check"/></svg> RAM tinggi untuk multitasking</li>
+              <li><svg class="ico"><use href="#i-check"/></svg> Dwi-storan: SSD sistem + arkib</li>
+              <li><svg class="ico"><use href="#i-check"/></svg> Papan kekunci &amp; tetikus tanpa wayar</li>
+              <li><svg class="ico"><use href="#i-check"/></svg> Mod hibrid: 1-klik log keluar ke CLI</li>
+              <li><svg class="ico"><use href="#i-check"/></svg> 1x lesen komersial kekal</li>
+              <li><svg class="ico"><use href="#i-check"/></svg> Latihan pengendalian bersama AJK</li>
+            </ul>
+            <button class="btn btn-glass btn-block" type="button" data-quote="Pakej 3 — Hybrid Workstation (RM2,499)">Dapatkan Pakej Hibrid</button>
+          </article>
+        </div>
+
+        <div class="addon reveal">
+          <div><span class="tag tag-amber">ADD-ON</span><h3>Monitor Paparan Pejabat</h3><p>22&quot; atau 24&quot; FHD IPS, lengkap kabel HDMI dan jaminan rasmi.</p></div>
+          <a class="btn btn-ghost btn-sm" href="https://wa.me/601118712388" target="_blank" rel="noopener">Sebut harga monitor <svg class="ico"><use href="#i-arrow"/></svg></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= FAQ ================= -->
+    <section class="section" id="faq">
+      <div class="container faq-wrap">
+        <div class="section-head reveal">
+          <span class="eyebrow">SOALAN LAZIM</span>
+          <h2>Perkara yang kerap ditanya AJK.</h2>
+          <p>Jika soalan anda tiada di sini, hubungi talian sokongan kami terus.</p>
+        </div>
+
+        <div class="faq-list reveal">
+          <details class="faq-item">
+            <summary>Bolehkah surau membayar menggunakan cek atau Pesanan Kerajaan / LO Masjid?<span class="faq-icon">+</span></summary>
+            <div class="faq-answer"><p>Ya. Skywalker Consortium ialah entiti perniagaan berdaftar SSM (AS0463209-A). Kami menyediakan invois rasmi, sebut harga dan resit rasmi untuk kegunaan audit penyata kewangan bendahari masjid.</p></div>
+          </details>
+          <details class="faq-item">
+            <summary>Adakah jadual waktu solat terjejas jika internet terputus?<span class="faq-icon">+</span></summary>
+            <div class="faq-answer"><p>Tidak. Semasa pemasangan awal, takwim rasmi JAKIM setahun penuh disimpan ke pangkalan data setempat. Jika internet terputus berbulan-bulan, enjin falak solar terbina dalam mengekalkan ketepatan waktu solat.</p></div>
+          </details>
+          <details class="faq-item">
+            <summary>Bagaimana jika bekalan elektrik terputus semasa ribut?<span class="faq-icon">+</span></summary>
+            <div class="faq-answer"><p>Komputer diprogramkan pada BIOS dengan tetapan <em>Restore AC Power Loss</em> dan dilindungi surge protector. Sebaik elektrik pulih, kiosk menyala sendiri dan memaparkan waktu solat tanpa perlu tekan butang kuasa.</p></div>
+          </details>
+          <details class="faq-item">
+            <summary>Bolehkah kami menggunakan suara azan bilal surau sendiri?<span class="faq-icon">+</span></summary>
+            <div class="faq-answer"><p>Boleh. Melalui panel kawalan telefon, anda boleh memuat naik rakaman azan tempatan dalam format MP3/WAV, atau memilih praset azan Mekah, Madinah, Mesir dan Al-Aqsa.</p></div>
+          </details>
+          <details class="faq-item">
+            <summary>Adakah terdapat yuran langganan tahunan atau bulanan?<span class="faq-icon">+</span></summary>
+            <div class="faq-answer"><p>Tiada. Semua pakej menggunakan lesen kekal seumur hidup yang dikunci kepada perkakasan komputer surau. Tiada yuran bulanan, tiada panggilan balik wajib.</p></div>
+          </details>
+          <details class="faq-item">
+            <summary>Jika membeli lesen sahaja, adakah wajib guna Linux Debian?<span class="faq-icon">+</span></summary>
+            <div class="faq-answer"><p>Ya. e-Solat v5 dibina khusus dalam format pakej <code>.deb</code> untuk Debian 12/13 atau Ubuntu LTS. Ia tidak berjalan pada Windows atau Android TV box. Jika surau tiada PC Linux, kami syorkan Pakej Dedicated Kiosk atau Hybrid Workstation yang siap dipasang.</p></div>
+          </details>
+          <details class="faq-item">
+            <summary>Bolehkah siaran kuliah dipancarkan dari telefon atau kamera?<span class="faq-icon">+</span></summary>
+            <div class="faq-answer"><p>Boleh. Sokongan termasuk telefon pintar tanpa wayar (IP Webcam / Larix), camcorder HDMI melalui capture card, dan kamera PTZ RTSP. Audio disyorkan melalui mic klip atau output AUX amplifier untuk menghapuskan gema dewan.</p></div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= MANUAL / DOWNLOAD ================= -->
+    <section class="section section-manual" id="manual">
+      <div class="container">
+        <div class="manual-grid">
+          <div class="manual-copy reveal">
+            <span class="eyebrow">DOKUMENTASI &amp; LESEN</span>
+            <h2>Bawa pulang v5 hari ini.</h2>
+            <p>Pemasang Debian v5 diedarkan kepada pembeli berlesen sahaja selepas pembayaran disahkan. Panduan pengguna AJK pula boleh dibaca terus di sini tanpa log masuk.</p>
+            <div class="manual-actions">
+              <a class="btn btn-primary" href="https://wa.me/601118712388?text=Assalamualaikum%2C%20saya%20ingin%20mendapatkan%20pemasang%20e-Solat%20v5%20untuk%20surau%20kami." target="_blank" rel="noopener">
+                <svg class="ico"><use href="#i-whatsapp"/></svg> Dapatkan Pemasang
+              </a>
+              <a class="btn btn-glass" href="./manual/">
+                <svg class="ico"><use href="#i-book"/></svg> Panduan AJK
+              </a>
+            </div>
+            <p class="manual-meta">Pemasang disediakan selepas pengesahan lesen &bull; Debian 13 / Ubuntu &bull; amd64</p>
+          </div>
+
+          <div class="doc-grid reveal">
+            <a class="doc-card" href="./manual/">
+              <div class="f-ico emerald"><svg class="ico"><use href="#i-settings"/></svg></div>
+              <div><strong>Panel Kawalan AJK</strong><span>Cara membuka dan menggunakan panel pentadbir.</span></div>
+              <svg class="ico doc-arrow"><use href="#i-arrow"/></svg>
+            </a>
+            <a class="doc-card" href="./v5/?admin=1" target="_blank" rel="noopener">
+              <div class="f-ico amber"><svg class="ico"><use href="#i-user"/></svg></div>
+              <div><strong>Demo Admin v5</strong><span>Cuba 4 suite kawalan dalam pelayar.</span></div>
+              <svg class="ico doc-arrow"><use href="#i-arrow"/></svg>
+            </a>
+            <a class="doc-card" href="#ciri">
+              <div class="f-ico emerald"><svg class="ico"><use href="#i-layers"/></svg></div>
+              <div><strong>Perbezaan UX V &amp; UX H</strong><span>Pilih susun atur yang sesuai untuk dewan anda.</span></div>
+              <svg class="ico doc-arrow"><use href="#i-arrow"/></svg>
+            </a>
+            <a class="doc-card" href="https://wa.me/601118712388" target="_blank" rel="noopener">
+              <div class="f-ico amber"><svg class="ico"><use href="#i-whatsapp"/></svg></div>
+              <div><strong>Sokongan Teknikal</strong><span>0111 8712388 &bull; Isnin–Ahad, 8am–10pm.</span></div>
+              <svg class="ico doc-arrow"><use href="#i-arrow"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= FINAL CTA ================= -->
+    <section class="cta">
+      <div class="cta-bg" aria-hidden="true"></div>
+      <div class="container cta-inner reveal">
+        <span class="eyebrow">MULAKAN DENGAN v5</span>
+        <h2>Imarahkan rumah Allah dengan paparan yang tenang.</h2>
+        <p>Tempah sesi demo langsung di surau anda, atau dapatkan sebut harga rasmi untuk pembentangan AJK.</p>
+        <div class="cta-actions">
+          <a class="btn btn-primary" href="https://wa.me/601118712388" target="_blank" rel="noopener"><svg class="ico"><use href="#i-whatsapp"/></svg> WhatsApp 0111 8712388</a>
+          <a class="btn btn-glass" href="mailto:skywalker.co@proton.me"><svg class="ico"><use href="#i-arrow"/></svg> skywalker.co@proton.me</a>
+        </div>
+        <small>Skywalker Consortium &bull; SSM AS0463209-A &bull; Ampang, Selangor</small>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <a class="brand" href="#top">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 100 100">
+              <path d="M50 8c-9 9-14 19-14 27a14 14 0 0 0 28 0c0-8-5-18-14-27Z" fill="#fbbf24"/>
+              <path d="M22 42h56v42H22z" fill="#10b981"/>
+              <path d="M40 84V64a10 10 0 0 1 20 0v20" fill="#04121f"/>
+              <path d="M17 42h66" stroke="#fbbf24" stroke-width="4" stroke-linecap="round"/>
+            </svg>
           </span>
-        </h1>
-
-        <p class="mt-6 text-base sm:text-lg text-slate-300 leading-relaxed">
-          Tinggalkan Android TV Box yang kerap hang, panas dan rosak. Dikuasakan oleh Mini PC Debian Linux industri—<b>100% beroperasi luar talian</b>, sifar yuran bulanan, alunan azan automatik ke PA System, dan kawalan telefon pintar tanpa pasang aplikasi.
-        </p>
-
-        <!-- CTA Buttons -->
-        <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <a href="./demo/" target="_blank" class="w-full sm:w-auto px-8 py-4 rounded-xl font-black text-base bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 shadow-xl shadow-amber-950/60 border border-amber-300 hover:-translate-y-0.5 transition duration-200 text-center flex items-center justify-center gap-2">
-            <span>📺</span>
-            <span>Cuba Demo Interaktif (Live Display)</span>
-          </a>
-          <a href="https://wa.me/601118712388?text=Assalamualaikum%20Skywalker%20Consortium,%20saya%20mewakili%20surau/masjid%20berminat%20dapatkan%20sebut%20harga%20e-Solat" target="_blank" class="w-full sm:w-auto px-8 py-4 rounded-xl font-bold text-base bg-emerald-600 hover:bg-emerald-500 text-white shadow-xl shadow-emerald-950/50 hover:-translate-y-0.5 transition duration-200 text-center">
-            💬 Dapatkan Sebut Harga Rasmi (Quotation)
-          </a>
-        </div>
-
-
-        <!-- Trust Badges -->
-        <div class="mt-10 grid grid-cols-2 md:grid-cols-4 gap-4 pt-6 border-t border-slate-800/80 text-left">
-          <div class="flex items-center gap-3">
-            <span class="text-2xl">🕌</span>
-            <div>
-              <div class="text-xs text-slate-400 font-medium">Pematuhan Penuh</div>
-              <div class="text-sm font-bold text-white">Takwim Rasmi JAKIM</div>
-            </div>
-          </div>
-          <div class="flex items-center gap-3">
-            <span class="text-2xl">⚡</span>
-            <div>
-              <div class="text-xs text-slate-400 font-medium">Kalis Blackout</div>
-              <div class="text-sm font-bold text-white">Auto Power-On Boot</div>
-            </div>
-          </div>
-          <div class="flex items-center gap-3">
-            <span class="text-2xl">🌐</span>
-            <div>
-              <div class="text-xs text-slate-400 font-medium">100% Luar Talian</div>
-              <div class="text-sm font-bold text-white">Kekal Tepat Tanpa Internet</div>
-            </div>
-          </div>
-          <div class="flex items-center gap-3">
-            <span class="text-2xl">💎</span>
-            <div>
-              <div class="text-xs text-slate-400 font-medium">Sifar Langganan</div>
-              <div class="text-sm font-bold text-white">Lesen Kekal Seumur Hidup</div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ==================== INTERACTIVE LIVE DEMO ==================== -->
-  <section id="demo" class="py-20 bg-slate-950">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
-      <div class="text-center max-w-3xl mx-auto mb-12">
-        <h2 class="text-xs font-bold uppercase tracking-widest text-emerald-400 mb-2">DEMO LIVE DALAM PELAYAR</h2>
-        <p class="text-3xl sm:text-4xl font-black text-white tracking-tight">Cuba e-Solat Sebelum Anda Pasang</p>
-        <p class="mt-4 text-slate-400 text-sm sm:text-base">
-          Jalankan paparan TV sebenar terus di pelayar ini — jam berdetik, waktu solat JAKIM yang dikira secara langsung,
-          detik undur azan dan bar pengumuman berjalan. Buka panel admin demo dan taip apa-apa: paparan TV berubah serta-merta.
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-6xl mx-auto">
-
-        <!-- TV SIGNAGE -->
-        <a href="demo/" class="group relative block overflow-hidden rounded-2xl border border-emerald-500/30 bg-slate-900 hover:border-emerald-400/70 transition">
-          <div class="aspect-video bg-black">
-            <div class="absolute inset-0 opacity-70 transition group-hover:opacity-100" style="background: radial-gradient(circle at 30% 20%, #0a382a 0%, #061e16 55%, #020e0b 100%);"></div>
-            <div class="absolute inset-0 flex flex-col justify-center px-6 sm:px-8 gap-2">
-              <div class="text-[10px] font-bold tracking-[0.3em] text-amber-400">PAPARAN TV</div>
-              <div class="font-mono text-3xl sm:text-4xl font-black text-white tabular-nums">13:02:44</div>
-              <div class="grid grid-cols-4 gap-1.5 mt-1">
-                <div class="rounded bg-emerald-950/80 border border-emerald-700/40 py-1 text-center"><div class="text-[8px] text-yellow-300 font-bold">SUBUH</div><div class="text-[11px] font-black text-white">05:50</div></div>
-                <div class="rounded bg-emerald-950/80 border border-emerald-700/40 py-1 text-center"><div class="text-[8px] text-yellow-300 font-bold">SYURUK</div><div class="text-[11px] font-black text-white">06:57</div></div>
-                <div class="rounded bg-emerald-950/80 border border-amber-400/60 py-1 text-center"><div class="text-[8px] text-yellow-300 font-bold">ZOHOR</div><div class="text-[11px] font-black text-amber-400">13:02</div></div>
-                <div class="rounded bg-emerald-950/80 border border-emerald-700/40 py-1 text-center"><div class="text-[8px] text-yellow-300 font-bold">ASAR</div><div class="text-[11px] font-black text-white">16:18</div></div>
-              </div>
-              <div class="mt-2 flex items-center gap-2 rounded bg-amber-400 px-2 py-1 w-max">
-                <span class="text-[9px] font-black text-amber-950">PENGUMUMAN</span>
-                <span class="text-[10px] font-bold text-amber-950 truncate">Selamat Datang ke Surau Darul Taqwa…</span>
-              </div>
-            </div>
-          </div>
-          <div class="flex items-center justify-between gap-4 px-5 py-4 border-t border-slate-800">
-            <div>
-              <div class="font-bold text-white">Paparan Digital Masjid</div>
-              <div class="text-xs text-slate-400">Klik untuk buka skrin penuh sebenar</div>
-            </div>
-            <span class="shrink-0 rounded-lg bg-emerald-500 px-3 py-2 text-xs font-bold text-emerald-950 group-hover:bg-emerald-400 transition">Buka Demo ↗</span>
-          </div>
+          <span class="brand-text"><strong>e-Solat</strong><span>v5 &bull; Skywalker</span></span>
         </a>
-
-        <!-- ADMIN PANEL -->
-        <a href="admin/" class="group relative block overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 hover:border-emerald-400/70 transition">
-          <div class="aspect-video bg-slate-950 px-6 sm:px-8 py-5 flex flex-col gap-3">
-            <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
-              <div class="h-6 w-6 rounded bg-emerald-500 text-emerald-950 text-[10px] font-black flex items-center justify-center">e</div>
-              <div class="text-[10px] font-bold text-white">Panel Pentadbir · Demo</div>
-            </div>
-            <div class="space-y-2 flex-1">
-              <div>
-                <div class="text-[8px] font-bold tracking-widest text-slate-400">PENGUMUMAN BERJALAN</div>
-                <div class="mt-1 rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-[11px] text-slate-200 truncate">Selamat Datang ke Surau Darul Taqwa…</div>
-              </div>
-              <div class="grid grid-cols-2 gap-2">
-                <div>
-                  <div class="text-[8px] font-bold tracking-widest text-slate-400">NAMA SURAU</div>
-                  <div class="mt-1 rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-[11px] text-slate-200 truncate">SURAU DARUL TAQWA</div>
-                </div>
-                <div>
-                  <div class="text-[8px] font-bold tracking-widest text-slate-400">ZON WAKTU SOLAT</div>
-                  <div class="mt-1 rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-[11px] text-slate-200 truncate">SGR03 — Shah Alam</div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="flex items-center justify-between gap-4 px-5 py-4 border-t border-slate-800">
-            <div>
-              <div class="font-bold text-white">Panel Admin (Mock)</div>
-              <div class="text-xs text-slate-400">Ubah kandungan, TV ikut serta-merta</div>
-            </div>
-            <span class="shrink-0 rounded-lg border border-emerald-500/40 px-3 py-2 text-xs font-bold text-emerald-300 group-hover:bg-emerald-500/10 transition">Buka Admin ↗</span>
-          </div>
-        </a>
-
+        <p>Penyedia sistem automasi dan digital signage masjid. Perisian bebas awan, berasaskan Linux Debian, direka untuk operasi 24/7.</p>
+        <div class="footer-badges"><span>SSM AS0463209-A</span><span>Debian Linux</span><span>Lifetime License</span></div>
       </div>
 
-      <p class="text-center text-xs text-slate-500 mt-8 max-w-2xl mx-auto">
-        Demo ini berjalan sepenuhnya dalam pelayar anda — tiada pemasangan, tiada akaun, tiada data dihantar ke mana-mana pelayan.
-        <span class="text-slate-400">Tekan <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-300">H</kbd> pada paparan TV untuk menyembunyikan butang demo.</span>
-      </p>
-
-    </div>
-  </section>
-
-  <!-- ==================== PROBLEM VS SOLUTION ==================== -->
-  <section id="perbandingan" class="py-20 bg-slate-900/60 border-y border-slate-800/80">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      
-      <div class="text-center max-w-3xl mx-auto mb-16">
-        <h2 class="text-xs font-bold uppercase tracking-widest text-amber-400 mb-2">PERBANDINGAN KETARA</h2>
-        <p class="text-3xl sm:text-4xl font-black text-white tracking-tight">Kenapa Masjid Anda Perlu Menolak Android TV Box Murah?</p>
-        <p class="mt-4 text-slate-400 text-sm sm:text-base">
-          Banyak kariah surau kecewa selepas membeli Android TV box murah yang asalnya direka untuk menonton YouTube di rumah, bukannya beroperasi 24 jam sehari di rumah ibadat.
-        </p>
+      <div class="footer-links">
+        <h4>Produk</h4>
+        <a href="#paparan">UX V &amp; UX H</a>
+        <a href="#demo">Demo langsung</a>
+        <a href="#ciri">Ciri-ciri</a>
+        <a href="#spesifikasi">Perkakasan</a>
       </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-        
-        <!-- Negative Side: Android TV Box -->
-        <div class="p-8 rounded-2xl bg-red-950/20 border border-red-900/40 relative">
-          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-500/20 text-red-400 border border-red-500/30 mb-6">
-            <span>❌</span> TV Box Android Biasa (Pasaran Umum)
-          </div>
-          <ul class="space-y-4 text-sm text-slate-300">
-            <li class="flex items-start gap-3">
-              <span class="text-red-400 font-bold text-lg mt-0.5">&times;</span>
-              <div>
-                <b class="text-white">Kerap 'Freeze' &amp; Hang Panas:</b> Pemprosesan murah tanpa pelesap haba industri menyebabkan sistem beku selepas beberapa hari beroperasi.
-              </div>
-            </li>
-            <li class="flex items-start gap-3">
-              <span class="text-red-400 font-bold text-lg mt-0.5">&times;</span>
-              <div>
-                <b class="text-white">SD Card / Storan Corrupt:</b> Apabila bekalan elektrik surau terputus tiba-tiba, fail sistem rosak dan skrin TV kekal hitam.
-              </div>
-            </li>
-            <li class="flex items-start gap-3">
-              <span class="text-red-400 font-bold text-lg mt-0.5">&times;</span>
-              <div>
-                <b class="text-white">Iklan &amp; Notifikasi Mengganggu:</b> Pop-up kemas kini Google Play, iklan, dan antaramuka telefon timbul di skrin dewan solat.
-              </div>
-            </li>
-            <li class="flex items-start gap-3">
-              <span class="text-red-400 font-bold text-lg mt-0.5">&times;</span>
-              <div>
-                <b class="text-white">Wajib Sambungan Internet:</b> Apabila Wi-Fi terputus, waktu solat tidak dikemas kini atau aplikasi gagal dibuka langsung.
-              </div>
-            </li>
-            <li class="flex items-start gap-3">
-              <span class="text-red-400 font-bold text-lg mt-0.5">&times;</span>
-              <div>
-                <b class="text-white">Sukar Dikawal Oleh AJK:</b> Perlu guna alat kawalan jauh (remote) yang sering hilang atau bateri habis.
-              </div>
-            </li>
-          </ul>
-        </div>
-
-        <!-- Positive Side: Skywalker Linux Mini PC -->
-        <div class="p-8 rounded-2xl glass-panel-emerald relative shadow-2xl shadow-emerald-950/50">
-          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 mb-6">
-            <span>✅</span> Skywalker Mini PC + Debian Linux Industri
-          </div>
-          <ul class="space-y-4 text-sm text-slate-200">
-            <li class="flex items-start gap-3">
-              <span class="text-emerald-400 font-bold text-lg mt-0.5">&#10003;</span>
-              <div>
-                <b class="text-white">Kestabilan 24/7/365:</b> Dikuasakan sistem operasi gred pelayan (Debian Linux). Bebas reboot berminggu-minggu tanpa sangkut.
-              </div>
-            </li>
-            <li class="flex items-start gap-3">
-              <span class="text-emerald-400 font-bold text-lg mt-0.5">&#10003;</span>
-              <div>
-                <b class="text-white">Auto Power-On (Kalis Blackout):</b> Hidup dan buka paparan dewan solat secara automatik sebaik sahaja elektrik pulih.
-              </div>
-            </li>
-            <li class="flex items-start gap-3">
-              <span class="text-emerald-400 font-bold text-lg mt-0.5">&#10003;</span>
-              <div>
-                <b class="text-white">100% Bebas Iklan &amp; Terkunci:</b> Chromium Kiosk mod sepenuhnya. Tiada desktop bar, kursor tetikus disembunyikan automatik.
-              </div>
-            </li>
-            <li class="flex items-start gap-3">
-              <span class="text-emerald-400 font-bold text-lg mt-0.5">&#10003;</span>
-              <div>
-                <b class="text-white">100% Beroperasi Luar Talian:</b> Pangkalan data SQLite takwim setahun penuh dan enjin falak solar offline terbina dalam.
-              </div>
-            </li>
-            <li class="flex items-start gap-3">
-              <span class="text-emerald-400 font-bold text-lg mt-0.5">&#10003;</span>
-              <div>
-                <b class="text-white">Kawalan Telefon Pintar:</b> Urus poster, azan, dan teks bergerak terus dari telefon bimbit AJK tanpa remote!
-              </div>
-            </li>
-          </ul>
-        </div>
-
+      <div class="footer-links">
+        <h4>Sokongan</h4>
+        <a href="./manual/">Panduan pengguna</a>
+        <a href="#faq">Soalan lazim</a>
+        <a href="./v5/?admin=1" target="_blank" rel="noopener">Demo admin</a>
+        <a href="https://wa.me/601118712388" target="_blank" rel="noopener">WhatsApp</a>
       </div>
-
-    </div>
-  </section>
-
-  <!-- ==================== CORE FEATURES GRID ==================== -->
-  <section id="ciri-ciri" class="py-20">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      
-      <div class="text-center max-w-3xl mx-auto mb-16">
-        <h2 class="text-xs font-bold uppercase tracking-widest text-emerald-400 mb-2">CIRI-CIRI LENGKAP</h2>
-        <p class="text-3xl sm:text-4xl font-black text-white tracking-tight">Teknologi Lengkap Digital Signage Masjid Moden</p>
-        <p class="mt-4 text-slate-400 text-sm sm:text-base">
-          Direka khas dengan kerjasama jawatankuasa masjid dan surau untuk memenuhi segala keperluan pengimarahan rumah Allah.
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        
-        <!-- Feature 1: JAKIM Takwim -->
-        <div class="glass-panel p-6 rounded-2xl hover:border-emerald-500/50 transition duration-300">
-          <div class="w-12 h-12 rounded-xl bg-emerald-900/60 border border-emerald-500/40 flex items-center justify-center text-2xl mb-4">
-            🕋
-          </div>
-          <h3 class="text-lg font-bold text-white mb-2">Takwim Rasmi JAKIM &amp; GPS</h3>
-          <p class="text-sm text-slate-300 leading-relaxed">
-            Menyegerakkan data dari portal e-Solat JAKIM merangkumi 60+ zon solat seluruh Malaysia. Dilengkapi fungsi GPS telefon untuk kesan zon terdekat serta enjin falak solar luar talian.
-          </p>
-        </div>
-
-        <!-- Feature 2: Fullscreen Stage Mode & Multi-Camera Streaming -->
-        <div class="glass-panel p-6 rounded-2xl hover:border-amber-500/50 transition duration-300">
-          <div class="w-12 h-12 rounded-xl bg-amber-900/60 border border-amber-500/40 flex items-center justify-center text-2xl mb-4">
-            🎥
-          </div>
-          <h3 class="text-lg font-bold text-white mb-2">Pentas Kuliah &amp; Siaran Kamera Langsung</h3>
-          <p class="text-sm text-slate-300 leading-relaxed">
-            Pancarkan ceramah terus ke TV masjid secara langsung. Menyokong <b>Telefon Pintar tanpa wayar</b>, <b>Camcorder HDMI</b>, dan <b>Kamera PTZ</b>, lengkap dengan sokongan audio PA sistem bebas gema serta jam waktu solat <i>Picture-in-Picture (PiP)</i>.
-          </p>
-        </div>
-
-        <!-- Feature 3: Phone Admin Web -->
-        <div class="glass-panel p-6 rounded-2xl hover:border-emerald-500/50 transition duration-300 flex flex-col justify-between">
-          <div>
-            <div class="w-12 h-12 rounded-xl bg-emerald-900/60 border border-emerald-500/40 flex items-center justify-center text-2xl mb-4">
-              📱
-            </div>
-            <h3 class="text-lg font-bold text-white mb-2">Panel Telefon Pintar (Admin PWA)</h3>
-            <p class="text-sm text-slate-300 leading-relaxed">
-              Semua AJK boleh menyunting poster, menukar teks pengumuman, atau menguji suara azan terus melalui telefon yang bersambung ke Wi-Fi surau.
-            </p>
-          </div>
-          <button type="button" class="btn-trigger-pwa mt-5 w-full py-2.5 px-4 rounded-xl font-black text-xs bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/50 hover:scale-[1.02] active:scale-95 transition">
-            <span>📲</span>
-            <span>BUKA ADMIN APP</span>
-          </button>
-        </div>
-
-        <!-- Feature 4: Audio Engine -->
-        <div class="glass-panel p-6 rounded-2xl hover:border-emerald-500/50 transition duration-300">
-          <div class="w-12 h-12 rounded-xl bg-emerald-900/60 border border-emerald-500/40 flex items-center justify-center text-2xl mb-4">
-            🔊
-          </div>
-          <h3 class="text-lg font-bold text-white mb-2">Alunan Azan MP3 &amp; Nada Bilal</h3>
-          <p class="text-sm text-slate-300 leading-relaxed">
-            Tetapkan mod fleksibel bagi setiap waktu solat: Auto MP3 (Makkah, Madinah, Mesir atau fail rakaman Ustaz tempatan), nada amaran Bilal, atau mod senyap visual.
-          </p>
-        </div>
-
-        <!-- Feature 5: Infaq DuitNow QR -->
-        <div class="glass-panel p-6 rounded-2xl hover:border-amber-500/50 transition duration-300">
-          <div class="w-12 h-12 rounded-xl bg-amber-900/60 border border-amber-500/40 flex items-center justify-center text-2xl mb-4">
-            💳
-          </div>
-          <h3 class="text-lg font-bold text-white mb-2">Tabung Infaq &amp; Wakaf DuitNow QR</h3>
-          <p class="text-sm text-slate-300 leading-relaxed">
-            Tingkatkan kutipan tabung surau dengan memaparkan kod DuitNow QR rasmi dan nombor akaun bank surau yang berputar secara teratur di sudut skrin TV dewan solat.
-          </p>
-        </div>
-
-        <!-- Feature 6: Machine-Locked Licensing -->
-        <div class="glass-panel p-6 rounded-2xl hover:border-emerald-500/50 transition duration-300">
-          <div class="w-12 h-12 rounded-xl bg-emerald-900/60 border border-emerald-500/40 flex items-center justify-center text-2xl mb-4">
-            🔑
-          </div>
-          <h3 class="text-lg font-bold text-white mb-2">Lesen Kekal</h3>
-          <p class="text-sm text-slate-300 leading-relaxed">
-            Setiap peranti dilindungi kunci perkakasan Machine ID (HMAC-SHA256). Pengaktifan pantas menggunakan PIN 16-aksara luar talian tanpa perlu talian internet.
-          </p>
-        </div>
-
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ==================== HARDWARE SPECIFICATIONS & CONNECTIVITY ==================== -->
-  <section id="spesifikasi" class="py-20">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      
-      <div class="text-center max-w-3xl mx-auto mb-16">
-        <h2 class="text-xs font-bold uppercase tracking-widest text-emerald-400 mb-2">SPESIFIKASI PERKAKASAN</h2>
-        <p class="text-3xl sm:text-4xl font-black text-white tracking-tight">Perkakasan Gred Perusahaan &amp; Stesen Kerja 24/7</p>
-        <p class="mt-4 text-slate-400 text-sm sm:text-base leading-relaxed">
-          Setiap unit perkakasan e-Solat Kiosk diprogramkan khusus dengan pengurusan kuasa BIOS automatik (kalis gangguan bekalan elektrik) dan storan pantas SSD tahan lasak.
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-        
-        <!-- Hardware Specs List -->
-        <div class="space-y-4">
-          
-          <div class="glass-panel p-5 rounded-2xl flex items-start gap-4 border border-emerald-500/20 hover:border-emerald-500/40 transition">
-            <div class="w-10 h-10 rounded-xl bg-emerald-900/60 border border-emerald-500/40 flex items-center justify-center text-xl shrink-0">
-              💻
-            </div>
-            <div>
-              <h4 class="font-bold text-white text-base">Pemproses Kompak Mini PC &amp; Desktop Berkuasa</h4>
-              <p class="text-xs text-slate-300 mt-1 leading-relaxed">
-                Pilihan komputer kompak untuk Kiosk Dedikasi (operasi senyap 24/7 &amp; jimat tenaga) atau stesen kerja berprestasi tinggi untuk mod dwi-fungsi pejabat surau.
-              </p>
-            </div>
-          </div>
-
-          <div class="glass-panel p-5 rounded-2xl flex items-start gap-4 border border-emerald-500/20 hover:border-emerald-500/40 transition">
-            <div class="w-10 h-10 rounded-xl bg-emerald-900/60 border border-emerald-500/40 flex items-center justify-center text-xl shrink-0">
-              💾
-            </div>
-            <div>
-              <h4 class="font-bold text-white text-base">Storan Pantas SSD &amp; Pilihan Arkib Data</h4>
-              <p class="text-xs text-slate-300 mt-1 leading-relaxed">
-                Kelajuan but sistem Linux Debian sepantas beberapa saat. Dilengkapi pilihan storan arkib untuk penyimpanan minit mesyuarat, data kewangan &amp; rakaman kuliah.
-              </p>
-            </div>
-          </div>
-
-          <div class="glass-panel p-5 rounded-2xl flex items-start gap-4 border border-emerald-500/20 hover:border-emerald-500/40 transition">
-            <div class="w-10 h-10 rounded-xl bg-emerald-900/60 border border-emerald-500/40 flex items-center justify-center text-xl shrink-0">
-              📡
-            </div>
-            <div>
-              <h4 class="font-bold text-white text-base">Rangkaian Berkelajuan Tinggi (Wi-Fi Antena / Gigabit LAN) &amp; Dwi-HDMI</h4>
-              <p class="text-xs text-slate-300 mt-1 leading-relaxed">
-                Penerimaan isyarat Wi-Fi stabil dari jarak jauh untuk kawalan telefon pintar. Menyokong sambungan paparan HDMI ke TV dewan solat utama dan TV dewan muslimah.
-              </p>
-            </div>
-          </div>
-
-          <div class="glass-panel p-5 rounded-2xl flex items-start gap-4 border border-amber-500/20 hover:border-amber-500/40 transition">
-            <div class="w-10 h-10 rounded-xl bg-amber-900/60 border border-amber-500/40 flex items-center justify-center text-xl shrink-0">
-              ⚡
-            </div>
-            <div>
-              <h4 class="font-bold text-white text-base">Pelindung Lonjakan Kilat (Surge Protector) &amp; Audio PA System 3.5mm</h4>
-              <p class="text-xs text-slate-300 mt-1 leading-relaxed">
-                Disertakan soket pelindung lonjakan kilat untuk keselamatan perkakasan, serta bicu audio terus ke input Aux amplifier surau bagi alunan azan automatik.
-              </p>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Connection Diagram Card -->
-        <div class="glass-panel-emerald p-6 sm:p-8 rounded-3xl border border-emerald-500/30 shadow-2xl">
-          <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
-            <span>🔌</span> Rajah Integrasi Sistem Kiosk di Surau / Masjid
-          </h3>
-          
-          <div class="bg-slate-950/85 p-5 rounded-2xl border border-slate-800 space-y-3.5 font-mono text-xs">
-            <div class="p-3.5 bg-emerald-950/70 rounded-xl border border-emerald-500/40 text-center">
-              <span class="text-amber-400 font-bold block text-sm">UNIT KOMPUTER e-SOLAT</span>
-              <span class="text-slate-300 text-[11px] font-sans">Sistem Operasi Debian Linux Kiosk 24/7 Terpasang</span>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-center">
-              <div class="p-3 bg-slate-900 rounded-xl border border-slate-700">
-                <span class="text-emerald-400 font-bold block">HDMI Out ➔</span>
-                <span class="text-white text-xs mt-1 block font-sans">Skrin TV Dewan Solat</span>
-                <span class="text-[10px] text-slate-400 block mt-0.5 font-sans">(Paparan Takwim 4K / FHD)</span>
-              </div>
-              <div class="p-3 bg-slate-900 rounded-xl border border-slate-700">
-                <span class="text-amber-400 font-bold block">Audio Jack ➔</span>
-                <span class="text-white text-xs mt-1 block font-sans">PA Amplifier Surau</span>
-                <span class="text-[10px] text-slate-400 block mt-0.5 font-sans">(Alunan Azan &amp; Chime)</span>
-              </div>
-            </div>
-
-            <div class="p-3 bg-slate-900/90 rounded-xl border border-slate-800 text-center">
-              <span class="text-teal-400 font-bold block">Wi-Fi Antena / Gigabit LAN ➔</span>
-              <span class="text-white text-xs mt-1 block font-sans">Telefon Pintar Imam, Bilal &amp; AJK Surau</span>
-              <span class="text-[10px] text-emerald-400/90 block mt-0.5">http://&lt;IP_SURAU&gt;:8080/admin</span>
-            </div>
-          </div>
-
-          <div class="mt-4 text-xs text-emerald-300/90 leading-relaxed text-center font-sans">
-            * Pemasangan bersih <i>Plug &amp; Play</i> dengan soket pelindung lonjakan kilat untuk perlindungan 24 jam.
-          </div>
-        </div>
-
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ==================== PRICING & PACKAGES ==================== -->
-  <section id="pakej" class="py-20 bg-slate-900/60 border-y border-slate-800">
-    <div id="harga" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      
-      <div class="text-center max-w-3xl mx-auto mb-16">
-        <h2 class="text-xs font-bold uppercase tracking-widest text-amber-400 mb-2">PAKEJ &amp; SEBUT HARGA RASMI</h2>
-        <p class="text-3xl sm:text-4xl font-black text-white tracking-tight">Pakej e-Solat Kiosk &amp; Stesen Kerja Surau</p>
-        <p class="mt-4 text-slate-400 text-sm sm:text-base leading-relaxed">
-          Penyelesaian digital signage masjid berautonomi tanpa sebarang yuran langganan bulanan. Harga perkakasan diselaraskan mengikut pasaran semasa. Hubungi kami untuk mendapatkan <b>Sebut Harga Rasmi (Official Quotation)</b> segera bagi tujuan pembentangan mesyuarat jawatankuasa masjid/surau anda.
-        </p>
-        <div class="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-slate-300">
-          <span class="text-amber-400 font-bold">ℹ️ Maklumat OS &amp; Lesen:</span>
-          <span>Ditala khusus atas <b>Linux Debian</b> &bull; Lesen Kekal Seumur Hidup &bull; Sifar Yuran Bulanan.</span>
-        </div>
-      </div>
-
-      <!-- 3 Main Package Cards Grid -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch mb-10">
-        
-        <!-- Pakej 1: DIY / Perisian Sahaja (RM 499) -->
-        <div class="glass-panel p-6 sm:p-8 rounded-3xl flex flex-col justify-between border border-slate-800 hover:border-slate-700 transition relative">
-          <div>
-            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">PAKEJ 1 &bull; LESEN PERISIAN DIY</div>
-            <h3 class="text-2xl font-black text-white">Lesen Perisian e-Solat</h3>
-            <p class="text-xs text-slate-400 mt-1 leading-relaxed">Sesuai jika surau sudah mempunyai perkakasan komputer PC sendiri.</p>
-
-            <div class="my-6">
-              <span class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Harga Lesen</span>
-              <span class="text-3xl font-black text-white">RM 499.00</span>
-              <span class="text-xs text-slate-400 font-medium"> (Sekali Bayar / Lifetime)</span>
-            </div>
-
-            <!-- Badge / Note Khusus Linux -->
-            <div class="mb-5 p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs">
-              <span class="font-bold text-amber-400">🖥️ Keperluan OS:</span>
-              <span class="text-slate-300 ml-1">Wajib menggunakan <b>Linux Debian</b> (Debian 12/13 atau Ubuntu LTS).</span>
-            </div>
-
-            <ul class="space-y-2.5 text-xs text-slate-300">
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-400 font-bold shrink-0 mt-0.5">&#10003;</span>
-                <span><b>1x Lesen Perisian Kekal (Lifetime)</b> dikunci pada Machine ID perkakasan surau</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-400 font-bold shrink-0 mt-0.5">&#10003;</span>
-                <span><b>Pakej Pemasang Rasmi Debian (<code>.deb</code>)</b></span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-400 font-bold shrink-0 mt-0.5">&#10003;</span>
-                <span><b>Automasi Takwim JAKIM</b> &amp; Database SQLite Luar Talian (Offline)</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-400 font-bold shrink-0 mt-0.5">&#10003;</span>
-                <span><b>Mainan Azan MP3 Automatik</b> &amp; Nada Notifikasi Bilal</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-400 font-bold shrink-0 mt-0.5">&#10003;</span>
-                <span><b>Panel Kawalan Telefon Pintar</b> (Pengesanan Zon GPS Pantas)</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-400 font-bold shrink-0 mt-0.5">&#10003;</span>
-                <span><b>Poster Kuliah, Tabung QR</b>, &amp; Teks Bergerak (Marquee)</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-400 font-bold shrink-0 mt-0.5">&#10003;</span>
-                <span><b>Siaran Kamera Langsung &amp; Rakaman MP4 Kuliah</b></span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-400 font-bold shrink-0 mt-0.5">&#10003;</span>
-                <span><b>Panduan Pemasangan Manual Lengkap</b></span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-400 font-bold shrink-0 mt-0.5">&#10003;</span>
-                <span><b>Tiada Yuran Bulanan / Tahunan</b></span>
-              </li>
-            </ul>
-          </div>
-
-          <div class="mt-8 space-y-2.5">
-            <a href="./demo/" target="_blank" class="w-full py-3 rounded-xl font-black text-xs bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 border border-amber-300 shadow-lg shadow-amber-950/60 transition flex items-center justify-center gap-2 text-center">
-              <span>📺</span>
-              <span>Cuba Demo Interaktif</span>
-            </a>
-            <button onclick="requestQuotation('Pakej 1: Lesen Perisian e-Solat (Debian Linux DIY - RM 499.00)')" class="w-full py-2.5 rounded-xl font-bold text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
-              Beli Lesen Kekal (RM 499) &rarr;
-            </button>
-          </div>
-        </div>
-
-        <!-- Pakej 2: Dedicated Kiosk (Thin Client Appliance) (POPULAR - RM 1,499) -->
-        <div class="glass-panel p-6 sm:p-8 rounded-3xl flex flex-col justify-between border-2 border-emerald-500/50 hover:border-emerald-400 transition relative shadow-2xl shadow-emerald-950/40">
-          <div class="absolute -top-3.5 left-6 bg-emerald-600 text-white text-[10px] font-black tracking-widest uppercase px-3 py-1 rounded-full shadow">
-            ⭐ PILIHAN POPULAR &bull; DEWAN SOLAT
-          </div>
-
-          <div>
-            <div class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">PAKEJ 2 &bull; THIN CLIENT APPLIANCE</div>
-            <h3 class="text-2xl font-black text-white">Pakej Dedicated Kiosk</h3>
-            <p class="text-xs text-emerald-300 font-semibold mt-0.5">Kiosk Dedicated (CLI Only / Headless)</p>
-
-            <div class="my-6">
-              <span class="block text-[10px] font-bold uppercase tracking-widest text-slate-300 mb-1">Harga bermula dari</span>
-              <span class="text-4xl font-black text-amber-400">RM 1,499.00</span>
-              <span class="text-xs text-slate-300 font-medium"> / Unit Lengkap</span>
-            </div>
-
-            <!-- Hardware Profile Note -->
-            <div class="mb-5 p-3 rounded-2xl bg-emerald-950/80 border border-emerald-500/40 text-xs">
-              <span class="font-bold text-emerald-400">⚡ Mod Dedicated:</span>
-              <span class="text-slate-300 ml-1">CLI Only (Tiada Desktop Environment), servis berjalan headless secara autonomi 24/7.</span>
-            </div>
-
-            <ul class="space-y-2.5 text-xs text-slate-300">
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-400 font-bold shrink-0 mt-0.5">&#10003;</span>
-                <span><b>Unit Komputer Kompak Mini PC / Thin Client</b> Gred Komersial</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-400 font-bold shrink-0 mt-0.5">&#10003;</span>
-                <span><b>Memori RAM &amp; Storan Pantas SSD</b> (Operasi Pantas, Senyap &amp; Responsif)</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-400 font-bold shrink-0 mt-0.5">&#10003;</span>
-                <span><b>Sistem Operasi Debian Linux Kiosk</b> siap ditala &amp; diuji</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-400 font-bold shrink-0 mt-0.5">&#10003;</span>
-                <span><b>1x Lesen Komersial Kekal</b> telah diaktifkan siap (Lifetime)</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-400 font-bold shrink-0 mt-0.5">&#10003;</span>
-                <span><b>Kalis Blackout (Auto Power-On)</b> &amp; <b>Soket Pelindung Lonjakan Kilat</b></span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-400 font-bold shrink-0 mt-0.5">&#10003;</span>
-                <span><b>Sambungan HDMI Resolusi 4K/FHD</b> &amp; Wi-Fi Antena / Gigabit LAN</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-400 font-bold shrink-0 mt-0.5">&#10003;</span>
-                <span><b>Sokongan Jarak Jauh (Remote Assistance)</b> jika perlukan bantuan</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-400 font-bold shrink-0 mt-0.5">&#10003;</span>
-                <span><b>Jaminan Perkakasan 1 Tahun</b> &amp; Gantian 1-to-1</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-400 font-bold shrink-0 mt-0.5">&#10003;</span>
-                <span><b>Penghantaran Pantas ke Seluruh Malaysia</b></span>
-              </li>
-            </ul>
-          </div>
-
-          <div class="mt-8">
-            <button onclick="requestQuotation('Pakej 2: Dedicated Kiosk Thin Client Appliance (RM 1,499.00)')" class="w-full py-3.5 rounded-xl font-extrabold text-sm bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-lg shadow-amber-950/50 transition">
-              Tempah Pakej Kiosk (RM 1,499) &rarr;
-            </button>
-          </div>
-        </div>
-
-        <!-- Pakej 3: Hybrid Workstation & Kiosk (Dual-Function PC - RM 2,499) -->
-        <div class="glass-panel p-6 sm:p-8 rounded-3xl flex flex-col justify-between border border-slate-800 hover:border-slate-700 transition relative">
-          <div>
-            <div class="text-xs font-bold text-amber-400 uppercase tracking-wider mb-2">PAKEJ 3 &bull; DUAL-FUNCTION PC</div>
-            <h3 class="text-2xl font-black text-white">Pakej Hybrid Workstation</h3>
-            <p class="text-xs text-slate-400 mt-1">Stesen Kerja Pentadbiran + Kiosk TV Dewan Solat.</p>
-
-            <div class="my-6">
-              <span class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Harga bermula dari</span>
-              <span class="text-3xl font-black text-white">RM 2,499.00</span>
-              <span class="text-xs text-slate-400 font-medium"> / Lengkap Pasang</span>
-            </div>
-
-            <!-- Hardware Profile Note -->
-            <div class="mb-5 p-3 rounded-2xl bg-slate-800/90 border border-slate-700 text-xs">
-              <span class="font-bold text-amber-400">🖥️ Mod Hibrid:</span>
-              <span class="text-slate-300 ml-1">Default boot CLI, sesi DE dilancarkan on-demand dengan butang 1-klik log keluar ke CLI.</span>
-            </div>
-
-            <ul class="space-y-2.5 text-xs text-slate-300">
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-400 font-bold shrink-0 mt-0.5">&#10003;</span>
-                <span><b>Pemproses Desktop Berprestasi Tinggi</b> untuk Pentadbiran &amp; Signage</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-400 font-bold shrink-0 mt-0.5">&#10003;</span>
-                <span><b>Kapasiti Memori RAM Berkelajuan Tinggi</b> (Multitasking Pejabat Lancar)</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-400 font-bold shrink-0 mt-0.5">&#10003;</span>
-                <span><b>Konfigurasi Dwi-Storan:</b> SSD Pantas (Sistem) + Storan Tambahan (Arkib &amp; Media)</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-400 font-bold shrink-0 mt-0.5">&#10003;</span>
-                <span><b>Bekalan Kuasa Stabil</b> &amp; Casis Kompak Pengaliran Udara Cemerlang</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-400 font-bold shrink-0 mt-0.5">&#10003;</span>
-                <span><b>Papan Kekunci &amp; Tetikus Tanpa Wayar (Wireless Combo)</b></span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-400 font-bold shrink-0 mt-0.5">&#10003;</span>
-                <span><b>Mod Hibrid On-Demand:</b> Butang 1-Klik Log Keluar ke CLI</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-400 font-bold shrink-0 mt-0.5">&#10003;</span>
-                <span><b>1x Lesen Komersial Kekal (Lifetime)</b> Diaktifkan</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-400 font-bold shrink-0 mt-0.5">&#10003;</span>
-                <span><b>Penghantaran &amp; Pemasangan di Dewan Solat (Lembah Klang)</b></span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-400 font-bold shrink-0 mt-0.5">&#10003;</span>
-                <span><b>Sesi Latihan Pengendalian Bersama Barisan AJK Surau</b></span>
-              </li>
-            </ul>
-          </div>
-
-          <div class="mt-8">
-            <button onclick="requestQuotation('Pakej 3: Hybrid Workstation & Kiosk (RM 2,499.00)')" class="w-full py-3 rounded-xl font-bold text-xs bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 transition">
-              Dapatkan Pakej Hibrid (RM 2,499) &rarr;
-            </button>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- 3. Pilihan Tambahan (Optional Add-ons) -->
-      <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-700/80 bg-slate-950/70 shadow-xl">
-        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-          <div class="space-y-2 max-w-2xl">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-slate-800 text-amber-400 border border-slate-700 uppercase tracking-wide">
-              <span>📦</span> Pilihan Tambahan (Optional Add-ons)
-            </div>
-            <h3 class="text-xl sm:text-2xl font-black text-white">Monitor Paparan Pejabat (Office Workstation Display)</h3>
-            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Sesuai untuk meja kerja pentadbiran AJK sekiranya tidak berkongsi paparan TV dewan solat.
-            </p>
-            <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-300 pt-1">
-              <li class="flex items-center gap-2">
-                <span class="text-emerald-400 font-bold">✓</span>
-                <span>Pilihan saiz skrin: <b>22" FHD</b> atau <b>24" FHD IPS</b></span>
-              </li>
-              <li class="flex items-center gap-2">
-                <span class="text-emerald-400 font-bold">✓</span>
-                <span>Lengkap kabel HDMI &amp; jaminan perkakasan rasmi</span>
-              </li>
-            </ul>
-          </div>
-          <div class="w-full lg:w-auto shrink-0">
-            <button onclick="requestQuotation('Pilihan Tambahan: Monitor Paparan Pejabat (22&quot; / 24&quot; FHD IPS)')" class="w-full sm:w-auto px-6 py-3.5 rounded-xl font-bold text-xs sm:text-sm bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/40 hover:border-amber-400 shadow-lg transition flex items-center justify-center gap-2">
-              <span>➕</span>
-              <span>Hubungi untuk Sebut Harga Monitor &rarr;</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ==================== FAQ SECTION ==================== -->
-  <section id="faq" class="py-20">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-      
-      <div class="text-center mb-14">
-        <h2 class="text-xs font-bold uppercase tracking-widest text-emerald-400 mb-2">SOALAN LAZIM</h2>
-        <p class="text-3xl sm:text-4xl font-black text-white tracking-tight">Perkara Yang Kerap Ditanya Jawatankuasa</p>
-      </div>
-
-      <div class="space-y-4">
-        
-        <!-- FAQ 1 -->
-        <div class="faq-item glass-panel rounded-2xl overflow-hidden border border-slate-800 transition">
-          <button class="faq-question w-full p-5 text-left font-bold text-white text-sm sm:text-base flex items-center justify-between gap-4">
-            <span>1. Bolehkah surau kami membayar menggunakan cek atau Pesanan Kerajaan / LO Masjid?</span>
-            <span class="faq-chevron text-slate-400 text-sm transition-transform">&#9660;</span>
-          </button>
-          <div class="faq-answer px-5 pb-5 text-xs sm:text-sm text-slate-300 leading-relaxed border-t border-slate-800/60 pt-3">
-            Ya, sudah tentu. Skywalker Consortium adalah entiti perniagaan berdaftar rasmi dengan SSM (No. Pendaftaran: AS0463209-A). Kami menyediakan Invois Rasmi, Sebut Harga (Quotation), dan Resit Rasmi untuk kegunaan pengauditan penyata kewangan bendahari masjid.
-          </div>
-        </div>
-
-        <!-- FAQ 2 -->
-        <div class="faq-item glass-panel rounded-2xl overflow-hidden border border-slate-800 transition">
-          <button class="faq-question w-full p-5 text-left font-bold text-white text-sm sm:text-base flex items-center justify-between gap-4">
-            <span>2. Adakah jadual waktu solat akan terjejas jika surau tidak mempunyai internet?</span>
-            <span class="faq-chevron text-slate-400 text-sm transition-transform">&#9660;</span>
-          </button>
-          <div class="faq-answer px-5 pb-5 text-xs sm:text-sm text-slate-300 leading-relaxed border-t border-slate-800/60 pt-3">
-            Tidak terjejas sama sekali. Semasa pemasangan awal, sistem menyimpan takwim rasmi JAKIM setahun penuh terus ke dalam pangkalan data SQLite komputer. Sekiranya internet terputus berbulan-bulan sekalipun, sistem mempunyai enjin falak solar berautonomi yang mengekalkan ketepatan waktu solat.
-          </div>
-        </div>
-
-        <!-- FAQ 3 -->
-        <div class="faq-item glass-panel rounded-2xl overflow-hidden border border-slate-800 transition">
-          <button class="faq-question w-full p-5 text-left font-bold text-white text-sm sm:text-base flex items-center justify-between gap-4">
-            <span>3. Bagaimana jika bekalan elektrik terputus (blackout) semasa ribut?</span>
-            <span class="faq-chevron text-slate-400 text-sm transition-transform">&#9660;</span>
-          </button>
-          <div class="faq-answer px-5 pb-5 text-xs sm:text-sm text-slate-300 leading-relaxed border-t border-slate-800/60 pt-3">
-            Komputer kami diprogramkan pada peringkat BIOS dengan tetapan <i>Restore AC Power Loss</i> dan dilindungi soket pelindung lonjakan kilat. Sebaik sahaja elektrik surau kembali pulih, komputer akan menyala sendiri dan memaparkan jadual waktu solat di skrin TV secara automatik tanpa perlu ada sesiapa menekan butang 'Power'.
-          </div>
-        </div>
-
-        <!-- FAQ 4 -->
-        <div class="faq-item glass-panel rounded-2xl overflow-hidden border border-slate-800 transition">
-          <button class="faq-question w-full p-5 text-left font-bold text-white text-sm sm:text-base flex items-center justify-between gap-4">
-            <span>4. Adakah kami boleh melaungkan azan menggunakan suara Ustaz atau Bilal surau kami sendiri?</span>
-            <span class="faq-chevron text-slate-400 text-sm transition-transform">&#9660;</span>
-          </button>
-          <div class="faq-answer px-5 pb-5 text-xs sm:text-sm text-slate-300 leading-relaxed border-t border-slate-800/60 pt-3">
-            Boleh! Melalui panel kawalan telefon pintar, anda boleh memuat naik fail rakaman suara azan tempatan dalam format MP3 atau WAV, atau memilih daripada praset azan Makkah, Madinah, Mesir, dan Al-Aqsa yang telah disediakan.
-          </div>
-        </div>
-
-        <!-- FAQ 5 -->
-        <div class="faq-item glass-panel rounded-2xl overflow-hidden border border-slate-800 transition">
-          <button class="faq-question w-full p-5 text-left font-bold text-white text-sm sm:text-base flex items-center justify-between gap-4">
-            <span>5. Adakah sistem ini mengenakan sebarang yuran langganan tahunan atau bulanan?</span>
-            <span class="faq-chevron text-slate-400 text-sm transition-transform">&#9660;</span>
-          </button>
-          <div class="faq-answer px-5 pb-5 text-xs sm:text-sm text-slate-300 leading-relaxed border-t border-slate-800/60 pt-3">
-            Tiada sebarang yuran tahunan atau bulanan. Pakej kami adalah <b>Lesen Kekal (Lifetime License)</b> yang dikunci kepada perkakasan komputer surau anda.
-          </div>
-        </div>
-
-        <!-- FAQ 6 -->
-        <div class="faq-item glass-panel rounded-2xl overflow-hidden border border-slate-800 transition">
-          <button class="faq-question w-full p-5 text-left font-bold text-white text-sm sm:text-base flex items-center justify-between gap-4">
-            <span>6. Jika kami hanya membeli Pakej Lesen Perisian Sahaja (RM 499), adakah wajib guna Linux Debian?</span>
-            <span class="faq-chevron text-slate-400 text-sm transition-transform">&#9660;</span>
-          </button>
-          <div class="faq-answer px-5 pb-5 text-xs sm:text-sm text-slate-300 leading-relaxed border-t border-slate-800/60 pt-3">
-            <b>Ya, wajib.</b> Perisian Skywalker e-Solat dibina khusus dalam format pakej <code>.deb</code> untuk dijalankan di atas <b>Sistem Operasi berasaskan Linux Debian</b> (seperti Debian 12 Bookworm, Debian 13 Trixie, atau Ubuntu LTS). Sistem ini <b>tidak serasi dengan Windows mahupun Android TV Box</b>. Jika pihak surau tidak mempunyai komputer dengan Linux Debian terpasang, kami amat mengesyorkan mengambil <b>Pakej Dedicated Kiosk (RM 1,499)</b> atau <b>Pakej Hybrid Workstation (RM 2,499)</b> yang sudah siap dipasang, ditala, dan diuji sepenuhnya (Plug &amp; Play).
-          </div>
-        </div>
-
-        <!-- FAQ 7 -->
-        <div class="faq-item glass-panel rounded-2xl overflow-hidden border border-slate-800 transition">
-          <button class="faq-question w-full p-5 text-left font-bold text-white text-sm sm:text-base flex items-center justify-between gap-4">
-            <span>7. Bolehkah kami siarkan video ceramah atau kuliah ke TV menggunakan telefon pintar atau kamera?</span>
-            <span class="faq-chevron text-slate-400 text-sm transition-transform">&#9660;</span>
-          </button>
-          <div class="faq-answer px-5 pb-5 text-xs sm:text-sm text-slate-300 leading-relaxed border-t border-slate-800/60 pt-3">
-            <b>Boleh, sangat mudah!</b> Sistem e-Solat menyokong 3 kaedah kamera:
-            <ul class="list-disc pl-5 mt-2 space-y-1.5 text-xs text-slate-300">
-              <li><b>Telefon Pintar (Tanpa Wayar):</b> Gunakan aplikasi percuma seperti <i>IP Webcam</i> (Android) atau <i>Larix</i> (iPhone) untuk memancarkan video penceramah secara langsung melalui Wi-Fi surau ke skrin TV.</li>
-              <li><b>Camcorder / Kamera Video (HDMI):</b> Sambungkan kamera HDMI ke PC menggunakan <i>USB HDMI Capture Card</i> untuk kualiti visual HD/4K tajam.</li>
-              <li><b>Kamera PTZ Masjid:</b> Menyokong pautan strim rangkaian RTSP terus daripada kamera dinding masjid.</li>
-              <li><b>Kualiti Audio Jelas:</b> Disyorkan menggunakan <i>Wireless Lavalier Mic</i> (mic klip) pada jubah penceramah atau sambungan audio terus dari <i>AUX Out Amplifier Surau</i> bagi menghapuskan 100% gema dewan solat.</li>
-            </ul>
-          </div>
-        </div>
-
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ==================== USER MANUAL SHOWCASE SECTION ==================== -->
-  <section id="manual" class="py-16 bg-slate-900/60 border-y border-slate-800/80 relative">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      
-      <div class="text-center max-w-3xl mx-auto mb-12">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-amber-400/10 text-amber-400 border border-amber-400/20 mb-3">
-          <span>📖 DOKUMENTASI RASMI</span>
-        </div>
-        <h2 class="text-2xl sm:text-4xl font-black text-white tracking-tight">
-          Panduan Pengguna &amp; Operasi Sistem
-        </h2>
-        <p class="mt-3 text-slate-400 text-sm sm:text-base">
-          Rujukan lengkap langkah demi langkah untuk kegunaan Jawatankuasa Surau &amp; Masjid (Imam, Bilal, Setiausaha &amp; Siak).
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-10">
-        
-        <div class="glass-panel p-6 rounded-2xl border border-slate-800 hover:border-emerald-500/40 transition group">
-          <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition">
-            🎛️
-          </div>
-          <h3 class="text-lg font-bold text-white mb-2">Panel Kawalan AJK</h3>
-          <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
-            Cara membuka dan mengakses panel kawalan pengurusan e-Solat terus melalui pelayar web pada rangkaian setempat surau.
-          </p>
-        </div>
-
-        <div class="glass-panel p-6 rounded-2xl border border-slate-800 hover:border-amber-500/40 transition group">
-          <div class="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition">
-            📹
-          </div>
-          <h3 class="text-lg font-bold text-white mb-2">Kamera Telefon (WebRTC)</h3>
-          <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
-            Panduan menyiarkan video kuliah terus daripada kamera telefon ke skrin TV Kiosk secara tanpa wayar hanya dengan mengimbas Kod QR.
-          </p>
-        </div>
-
-        <div class="glass-panel p-6 rounded-2xl border border-slate-800 hover:border-teal-500/40 transition group">
-          <div class="w-12 h-12 rounded-xl bg-teal-500/20 text-teal-400 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition">
-            🕌
-          </div>
-          <h3 class="text-lg font-bold text-white mb-2">Takwim JAKIM &amp; Azan MP3</h3>
-          <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
-            Penetapan koordinat GPS automatik, kiraan Iqamah, muat naik slaid poster kuliah, dan ujian audio pembesar suara.
-          </p>
-        </div>
-
-      </div>
-
-      <div class="text-center">
-        <a href="./manual/" class="inline-flex items-center gap-3 px-8 py-4 rounded-xl font-extrabold text-sm sm:text-base bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-xl shadow-amber-950/60 border border-amber-300 transition duration-200">
-          <span>📖 Buka Panduan Pengguna Penuh (Manual Lengkap)</span>
-          <span>&rarr;</span>
-        </a>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ==================== FINAL HIGH-IMPACT CTA ==================== -->
-  <section class="py-16 relative overflow-hidden">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="glass-panel-emerald p-10 sm:p-14 rounded-3xl border-2 border-emerald-400/50 text-center relative overflow-hidden shadow-2xl shadow-emerald-950/90">
-        
-        <div class="max-w-2xl mx-auto">
-          <div class="text-3xl mb-3">🕌</div>
-          <h2 class="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight">
-            Imarahkan Rumah Allah Dengan Teknologi Kiosk Yang Tahan Lasak
-          </h2>
-          <p class="mt-4 text-slate-200 text-sm sm:text-base leading-relaxed">
-            Dapatkan sebut harga rasmi atau jadualkan sesi demonstrasi langsung di surau anda sekarang. Pasukan sokongan teknikal kami sedia membantu.
-          </p>
-
-          <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a href="https://wa.me/601118712388?text=Salam%20Skywalker%20Consortium,%20kami%20ingin%20jadualkan%20sesi%20demo%20e-Solat%20Kiosk%20di%20surau%20kami" target="_blank" class="w-full sm:w-auto px-8 py-4 rounded-xl font-extrabold text-base bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-xl shadow-amber-950/60 transition duration-200">
-              💬 Tempah Sesi Demo / Support (0111 8712388)
-            </a>
-            <a href="mailto:skywalker.co@proton.me" class="w-full sm:w-auto px-8 py-4 rounded-xl font-bold text-sm bg-slate-900 hover:bg-slate-800 text-white border border-slate-700 transition">
-              ✉️ Emel: skywalker.co@proton.me
-            </a>
-          </div>
-
-          <div class="mt-6 text-xs text-emerald-300/80">
-            Pejabat &amp; Pasukan Teknikal Bertempat di Ampang, Selangor.
-          </div>
-        </div>
-
+      <div class="footer-contact">
+        <h4>Hubungi</h4>
+        <a href="tel:+601118712388">0111 8712388</a>
+        <a href="mailto:skywalker.co@proton.me">skywalker.co@proton.me</a>
+        <p>Block A8-3A, Jalan Selaman,<br />68000 Ampang, Selangor.</p>
       </div>
     </div>
-  </section>
-
-  <!-- ==================== OFFICIAL LEGAL FOOTER ==================== -->
-  <footer class="bg-slate-950 border-t border-slate-800/80 pt-16 pb-12 text-slate-400 text-xs">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-slate-800/80">
-        
-        <!-- Col 1: Company Profile -->
-        <div class="md:col-span-2 space-y-4">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-900 p-1.5 border border-emerald-400/30 flex items-center justify-center">
-              <span class="text-amber-400 text-lg">🕌</span>
-            </div>
-            <div>
-              <span class="text-base font-extrabold text-white block">Skywalker Consortium</span>
-              <span class="text-[11px] text-emerald-400 font-semibold block">Penyedia Sistem Automasi &amp; e-Solat Kiosk</span>
-            </div>
-          </div>
-          
-          <p class="text-slate-400 text-xs leading-relaxed max-w-md">
-            Penyedia sah perisian dan perkakasan sistem digital signage masjid komersial. Dikuasakan oleh perisian bebas tanggungan awan dan sistem Linux Debian kalis gangguan.
-          </p>
-
-          <div class="space-y-1 text-slate-300 text-xs">
-            <div><b>No. Pendaftaran SSM:</b> AS0463209-A (202303102311)</div>
-            <div><b>Alamat Perniagaan (Business Address):</b></div>
-            <div class="text-slate-400">Block A8-3A, Jalan Selaman, 68000 Ampang, Selangor</div>
-          </div>
-        </div>
-
-        <!-- Col 2: Quick Links -->
-        <div class="space-y-3">
-          <h4 class="text-sm font-bold text-white uppercase tracking-wider">Pautan Pantas</h4>
-          <ul class="space-y-2">
-            <li><a href="./manual/" class="text-amber-400 font-bold hover:underline transition">📖 Panduan Pengguna Rasmi</a></li>
-            <li><a href="#ciri-ciri" class="hover:text-emerald-400 transition">Ciri-Ciri Utama</a></li>
-            <li><a href="#perbandingan" class="hover:text-emerald-400 transition">Kelebihan Mini PC vs TV Box</a></li>
-            <li><a href="#spesifikasi" class="hover:text-emerald-400 transition">Spesifikasi Perkakasan</a></li>
-            <li><a href="#pakej" class="hover:text-emerald-400 transition">Pakej &amp; Sebut Harga</a></li>
-            <li><a href="./demo/" target="_blank" class="text-amber-300 font-bold hover:underline transition">📺 Demo Interaktif (Live Display)</a></li>
-            <li><a href="#faq" class="hover:text-emerald-400 transition">Soalan Lazim (FAQ)</a></li>
-          </ul>
-        </div>
-
-        <!-- Col 3: Support Contact -->
-        <div class="space-y-3">
-          <h4 class="text-sm font-bold text-white uppercase tracking-wider">Talian Khidmat Pelanggan</h4>
-          <div class="space-y-2 text-slate-300">
-            <div>
-              <span class="block text-[11px] text-slate-400">WhatsApp / Talian Terus:</span>
-              <a href="tel:+601118712388" class="text-emerald-400 font-bold hover:underline">0111 8712388</a>
-            </div>
-            <div>
-              <span class="block text-[11px] text-slate-400">Emel Rasmi:</span>
-              <a href="mailto:skywalker.co@proton.me" class="text-emerald-400 hover:underline">skywalker.co@proton.me</a>
-            </div>
-            <div>
-              <span class="block text-[11px] text-slate-400">Waktu Operasi Sokongan:</span>
-              <span class="text-slate-400">Isnin &ndash; Ahad (8:00 AM &ndash; 10:00 PM)</span>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Bottom Copyright Bar -->
-      <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-400 text-xs">
-        <div>
-          Hak Cipta Terpelihara &copy; 2026 <b>Skywalker Consortium</b> (SSM: AS0463209-A).
-        </div>
-        <div class="flex items-center gap-4 text-[11px]">
-          <span>Dibangunkan khas untuk Masjid &amp; Surau Malaysia</span>
-          <span>&bull;</span>
-          <span>Takwim e-Solat JAKIM</span>
-        </div>
-      </div>
-
+    <div class="container footer-bottom">
+      <span>&copy; <span id="year">2026</span> Skywalker Consortium. Hak cipta terpelihara.</span>
+      <span>Dibangunkan untuk Masjid &amp; Surau Malaysia &bull; Takwim e-Solat JAKIM</span>
     </div>
   </footer>
 
-  <!-- ==================== PWA INSTALLER MODAL (MINIMALIST GATEWAY) ==================== -->
-  <div id="pwaInstallModal" class="fixed inset-0 z-[9999] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 transition-all duration-300" style="display: none;">
-    <div class="relative w-full max-w-md bg-gradient-to-b from-slate-900 via-emerald-950/95 to-slate-900 border-2 border-emerald-500/50 rounded-3xl p-6 sm:p-7 shadow-2xl text-center">
-      
-      <!-- Close Button -->
-      <button type="button" id="btnClosePwaModal" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-sm transition">
-        ✕
-      </button>
+  <a class="float-wa" href="https://wa.me/601118712388" target="_blank" rel="noopener" aria-label="WhatsApp Skywalker">
+    <svg class="ico"><use href="#i-whatsapp"/></svg>
+  </a>
 
-      <!-- App Icon -->
-      <div class="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-900 p-3.5 border-2 border-emerald-400/50 shadow-xl flex items-center justify-center">
-        <img src="./icons/icon-192.png" alt="e-Solat Admin Icon" class="w-full h-full object-contain rounded-xl">
-      </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-      <h3 class="text-xl font-black text-white tracking-tight">Pasang Aplikasi Admin e-Solat (PWA)</h3>
-      <p class="text-xs sm:text-sm text-emerald-200/90 mt-2 leading-relaxed">
-        Aplikasi ini membolehkan kawalan penuh tanpa wayar ke Kiosk TV Surau terus dari skrin utama telefon anda.
-      </p>
-
-      <!-- Primary Action: Install App -->
-      <div class="mt-6 space-y-3">
-        <button type="button" id="btnModalTriggerInstall" class="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-sm tracking-wide shadow-lg shadow-amber-950/50 hover:scale-[1.02] active:scale-95 transition flex items-center justify-center gap-2">
-          <span>📲</span>
-          <span>Pasang ke Skrin Utama / Install App</span>
-        </button>
-
-        <button type="button" id="btnModalOpenGateway" class="w-full py-2.5 px-4 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-emerald-300 font-bold text-xs border border-emerald-500/30 transition flex items-center justify-center gap-1.5">
-          <span>⚙️</span>
-          <span>Sambung Terus ke IP Surau ➔</span>
-        </button>
-      </div>
-
-      <!-- iOS / Android Step-by-Step Fallback Instructions -->
-      <div class="mt-6 pt-4 border-t border-slate-800/80 text-left text-xs text-slate-400 space-y-2.5">
-        <div class="flex items-start gap-2.5">
-          <span class="text-base">🍎</span>
-          <div>
-            <strong class="text-slate-200 block">Pengguna iPhone (Safari):</strong>
-            <span>Tekan ikon <b>Kongsi (Share ⎋)</b> di bawah pelayar, kemudian pilih <b>"Tambah ke Skrin Utama" (Add to Home Screen)</b>.</span>
-          </div>
-        </div>
-        <div class="flex items-start gap-2.5">
-          <span class="text-base">🤖</span>
-          <div>
-            <strong class="text-slate-200 block">Pengguna Android (Chrome):</strong>
-            <span>Tekan menu 3-titik <b>(⋮)</b> di atas kanan, kemudian pilih <b>"Pasang aplikasi" / "Add to Home screen"</b>.</span>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ==================== STANDALONE HOST CONNECTION GATEWAY MODAL ==================== -->
-  <div id="standaloneGatewayModal" class="fixed inset-0 z-[9999] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 transition-all duration-300" style="display: none;">
-    <div class="relative w-full max-w-md bg-gradient-to-b from-slate-900 via-emerald-950/95 to-slate-900 border-2 border-emerald-500/50 rounded-3xl p-6 sm:p-7 shadow-2xl text-center">
-      
-      <button type="button" id="btnCloseGatewayModal" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-sm transition">
-        ✕
-      </button>
-
-      <div class="w-16 h-16 mx-auto mb-3.5 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-800 p-3 border border-emerald-400 flex items-center justify-center text-3xl shadow-lg">
-        🕌
-      </div>
-
-      <h3 class="text-lg sm:text-xl font-black text-white">Sambung ke Kiosk TV Surau</h3>
-      <p class="text-xs text-emerald-200/80 mt-1">Pastikan telefon anda disambungkan ke Wi-Fi Surau yang sama.</p>
-
-      <form id="formGatewayConnect" class="mt-5 space-y-3.5 text-left">
-        <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1">Alamat IP Kiosk TV Surau:</label>
-          <div class="relative">
-            <input type="text" id="inputGatewayIp" placeholder="cth: 192.168.1.100 atau 192.168.0.5" required class="w-full bg-slate-950 border-2 border-slate-700 focus:border-emerald-400 rounded-xl px-3.5 py-2.5 text-sm font-mono text-emerald-300 placeholder-slate-600 outline-none transition">
-          </div>
-          <span class="text-[11px] text-slate-500 block mt-1">Port <code>:8080/admin/</code> akan ditambah secara automatik.</span>
-        </div>
-
-        <button type="submit" class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-sm shadow-lg shadow-emerald-950/50 hover:scale-[1.02] active:scale-95 transition flex items-center justify-center gap-2">
-          <span>🚀</span>
-          <span>Sambung ke Panel Admin TV</span>
-        </button>
-      </form>
-
-    </div>
-  </div>
-
-  <!-- Scripts -->
-  <script src="./js/main.js"></script>
-  <script>
-    // 1. Service Worker Registration with Auto-Update
-    if ('serviceWorker' in navigator) {
-      let isRefreshing = false;
-      navigator.serviceWorker.addEventListener('controllerchange', function() {
-        if (!isRefreshing) {
-          isRefreshing = true;
-          console.log('[PWA Gateway] New version activated, reloading...');
-          window.location.reload();
-        }
-      });
-
-      window.addEventListener('load', function() {
-        navigator.serviceWorker.register('./sw.js')
-          .then(function(reg) {
-            console.log('[PWA Gateway] Service worker registered:', reg.scope);
-
-            // Force check update on launch/reinstall
-            reg.update().catch(function() {});
-
-            if (reg.waiting) {
-              reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-            }
-
-            reg.addEventListener('updatefound', function() {
-              const newWorker = reg.installing;
-              if (newWorker) {
-                newWorker.addEventListener('statechange', function() {
-                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                    console.log('[PWA Gateway] New version ready, activating...');
-                    newWorker.postMessage({ type: 'SKIP_WAITING' });
-                  }
-                });
-              }
-            });
-          })
-          .catch(function(err) {
-            console.warn('[PWA Gateway] SW registration non-fatal error:', err);
-          });
-      });
-    }
-
-    // 2. Capture PWA Installation Prompt
-    let deferredInstallPrompt = null;
-    window.addEventListener('beforeinstallprompt', function(e) {
-      e.preventDefault();
-      deferredInstallPrompt = e;
-      console.log('[PWA Gateway] captured beforeinstallprompt event');
-    });
-
-    // 3. Modal Elements & Helpers
-    const pwaModal = document.getElementById('pwaInstallModal');
-    const gatewayModal = document.getElementById('standaloneGatewayModal');
-    const btnClosePwa = document.getElementById('btnClosePwaModal');
-    const btnCloseGateway = document.getElementById('btnCloseGatewayModal');
-    const btnModalInstall = document.getElementById('btnModalTriggerInstall');
-    const btnModalOpenGateway = document.getElementById('btnModalOpenGateway');
-    const formGateway = document.getElementById('formGatewayConnect');
-    const inputIp = document.getElementById('inputGatewayIp');
-
-    function openPwaInstallModal() {
-      if (deferredInstallPrompt) {
-        deferredInstallPrompt.prompt();
-        deferredInstallPrompt.userChoice.then(function(choiceResult) {
-          if (choiceResult.outcome === 'accepted') {
-            console.log('[PWA Gateway] User accepted install prompt');
-            deferredInstallPrompt = null;
-          } else {
-            pwaModal.style.display = 'flex';
-          }
-        });
-      } else {
-        pwaModal.style.display = 'flex';
-      }
-    }
-
-    function openGatewayModal() {
-      pwaModal.style.display = 'none';
-      gatewayModal.style.display = 'flex';
-      const lastIp = localStorage.getItem('last_surau_ip') || '';
-      if (lastIp && inputIp) {
-        inputIp.value = lastIp;
-      }
-      setTimeout(() => inputIp && inputIp.focus(), 200);
-    }
-
-    // 4. Wire All Trigger Buttons on Landing Page
-    document.querySelectorAll('.btn-trigger-pwa, #btnBukaAdminApp, #btnAdminAppMobile').forEach(function(btn) {
-      btn.addEventListener('click', function(e) {
-        e.preventDefault();
-        if (deferredInstallPrompt) {
-          deferredInstallPrompt.prompt();
-          deferredInstallPrompt.userChoice.then(function(choiceResult) {
-            if (choiceResult.outcome === 'accepted') {
-              deferredInstallPrompt = null;
-            } else {
-              window.location.href = 'https://sky12388.github.io/esolat/pwa/';
-            }
-          });
-        } else {
-          window.location.href = 'https://sky12388.github.io/esolat/pwa/';
-        }
-      });
-    });
-
-    if (btnClosePwa) {
-      btnClosePwa.addEventListener('click', function() {
-        pwaModal.style.display = 'none';
-      });
-    }
-
-    if (btnCloseGateway) {
-      btnCloseGateway.addEventListener('click', function() {
-        gatewayModal.style.display = 'none';
-      });
-    }
-
-    if (btnModalInstall) {
-      btnModalInstall.addEventListener('click', function() {
-        if (deferredInstallPrompt) {
-          deferredInstallPrompt.prompt();
-          deferredInstallPrompt.userChoice.then(function() {
-            deferredInstallPrompt = null;
-            pwaModal.style.display = 'none';
-          });
-        } else {
-          alert('Sila gunakan arahan di bawah: Pada Android tekan menu (⋮) > "Pasang aplikasi", atau pada iPhone tekan Kongsi (Share) > "Tambah ke Skrin Utama".');
-        }
-      });
-    }
-
-    if (btnModalOpenGateway) {
-      btnModalOpenGateway.addEventListener('click', function() {
-        openGatewayModal();
-      });
-    }
-
-    // 5. Host Connection Form Submit Handler
-    if (formGateway) {
-      formGateway.addEventListener('submit', function(e) {
-        e.preventDefault();
-        let rawIp = inputIp.value.trim();
-        if (!rawIp) return;
-
-        rawIp = rawIp.replace(/^https?:\/\//i, '').replace(/\/+$/, '');
-        localStorage.setItem('last_surau_ip', rawIp);
-
-        let targetUrl = rawIp;
-        if (!targetUrl.includes(':')) {
-          targetUrl = targetUrl + ':8080';
-        }
-        if (!targetUrl.includes('/admin')) {
-          targetUrl = targetUrl + '/admin/';
-        }
-        targetUrl = 'http://' + targetUrl;
-
-        window.location.href = targetUrl;
-      });
-    }
-
-    // 6. Standalone Launch Flow (Post-Installation)
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true || window.location.search.includes('mode=standalone');
-    if (isStandalone) {
-      // In standalone mode, automatically show the clean host connection gateway
-      openGatewayModal();
-    }
-  </script>
+  <script src="./js/site.js"></script>
 </body>
 </html>

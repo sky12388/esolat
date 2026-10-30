@@ -1,57 +1,64 @@
 <!DOCTYPE html>
 <html lang="ms">
 <head>
-  <meta charset="UTF-8">
-  <script>
-    const path = window.location.pathname.toLowerCase();
-    if (path.includes('/pwa') || path.endsWith('/pwa')) {
-      window.location.replace('https://sky12388.github.io/esolat/pwa/');
-    }
-  </script>
-  <meta http-equiv="refresh" content="3; url=https://sky12388.github.io/esolat/">
-  <title>404 — Laman Tidak Ditemui | e-Solat</title>
-  <style>
-    body {
-      background: #0b1120;
-      color: #ffffff;
-      font-family: system-ui, -apple-system, sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      margin: 0;
-      text-align: center;
-      padding: 1rem;
-    }
-    .card {
-      background: #0f172a;
-      border: 1px solid rgba(52, 211, 153, 0.3);
-      border-radius: 16px;
-      padding: 2rem;
-      max-width: 480px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    }
-    h1 { color: #34d399; font-size: 1.4rem; margin-top: 0.5rem; }
-    p { color: #94a3b8; line-height: 1.5; font-size: 0.95rem; }
-    code { background: #022c22; color: #6ee7b7; padding: 0.2rem 0.4rem; border-radius: 6px; font-family: monospace; }
-    a {
-      display: inline-block;
-      margin-top: 1rem;
-      background: #059669;
-      color: #ffffff;
-      text-decoration: none;
-      font-weight: bold;
-      padding: 0.6rem 1.2rem;
-      border-radius: 10px;
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Halaman tidak dijumpai — e-Solat v5</title>
+  <meta name="robots" content="noindex" />
+  <meta name="theme-color" content="#020617" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/site.css" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23020617'/%3E%3Cpath d='M32 10c-6 6-9 12-9 17a9 9 0 0 0 18 0c0-5-3-11-9-17Z' fill='%23fbbf24'/%3E%3Cpath d='M17 36h30v16H17z' fill='%2310b981'/%3E%3Cpath d='M27 52V43a5 5 0 0 1 10 0v9' fill='%23020617'/%3E%3C/svg%3E" />
 </head>
 <body>
-  <div class="card">
-    <div style="font-size: 3rem;">🕌</div>
-    <h1>404 — Laman Tidak Ditemui</h1>
-    <p>Panel Pengurusan Admin e-Solat beroperasi secara 100% Tempatan (LAN). Sila sambungkan telefon anda ke Wi-Fi surau dan layari <code>http://[IP_SURAU]:8080/admin/</code>.</p>
-    <a href="https://sky12388.github.io/esolat/">Kembali ke Laman Utama</a>
-  </div>
+  <div class="ambient" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="./" aria-label="e-Solat v5 — laman utama">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 100 100">
+            <path d="M50 8c-9 9-14 19-14 27a14 14 0 0 0 28 0c0-8-5-18-14-27Z" fill="#fbbf24"/>
+            <path d="M22 42h56v42H22z" fill="#10b981"/>
+            <path d="M40 84V64a10 10 0 0 1 20 0v20" fill="#04121f"/>
+            <path d="M17 42h66" stroke="#fbbf24" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span class="brand-text"><strong>e-Solat</strong><span>v5 &bull; Skywalker</span></span>
+      </a>
+      <div class="nav-actions">
+        <a class="btn btn-primary btn-sm" href="./">Kembali ke laman utama</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" style="padding: 110px 0 120px;">
+      <div class="hero-grid-lines" aria-hidden="true"></div>
+      <div class="container" style="text-align: center; max-width: 720px;">
+        <span class="badge badge-amber"><span class="pulse-dot"></span> RALAT 404</span>
+        <h1 style="margin-top: 22px;">Halaman ini<br /><span class="grad">tidak dijumpai.</span></h1>
+        <p class="lead" style="margin-inline: auto;">
+          Pautan mungkin sudah dipindahkan semasa naik taraf laman ke e-Solat v5.
+          Gunakan pautan di bawah untuk meneruskan.
+        </p>
+        <div class="hero-actions" style="justify-content: center;">
+          <a class="btn btn-primary" href="./">Laman utama</a>
+          <a class="btn btn-glass" href="./v5/?mode=v1">Demo UX V</a>
+          <a class="btn btn-glass" href="./v5/?mode=v3">Demo UX H</a>
+          <a class="btn btn-glass" href="./manual/">Panduan AJK</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" style="padding-top: 34px;">
+    <div class="container footer-bottom" style="margin-top: 0;">
+      <span>&copy; 2026 Skywalker Consortium. Hak cipta terpelihara.</span>
+      <span>e-Solat v5 &bull; Takwim rasmi JAKIM</span>
+    </div>
+  </footer>
 </body>
 </html>

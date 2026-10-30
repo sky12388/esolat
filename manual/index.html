@@ -1,1043 +1,260 @@
 <!DOCTYPE html>
 <html lang="ms">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Panduan Pengguna — Skywalker E-Solat Manager</title>
-  <link rel="stylesheet" href="../css/admin.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after {
-      box-sizing: border-box;
-    }
-    html, body {
-      overflow-x: hidden;
-      max-width: 100vw;
-      margin: 0;
-      padding: 0;
-    }
-    h1, h2, h3, h4, h5, h6, p, li, span, a, b, strong, i, em, code {
-      overflow-wrap: break-word !important;
-      word-wrap: break-word !important;
-      word-break: normal !important;
-    }
-    .manual-page {
-      max-width: 880px;
-      margin: 0 auto;
-      padding: 1.5rem 1rem 4rem;
-      color: var(--text-main, #f8fafc);
-      width: 100%;
-      box-sizing: border-box;
-      overflow-x: hidden;
-    }
-    .manual-header {
-      background: linear-gradient(135deg, rgba(6, 78, 59, 0.95), rgba(15, 23, 42, 0.98));
-      border: 1px solid rgba(16, 185, 129, 0.35);
-      border-radius: 18px;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-      width: 100%;
-      box-sizing: border-box;
-    }
-    .manual-top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-    .btn-back {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 1rem;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 8px;
-      color: #f8fafc;
-      text-decoration: none;
-      font-size: 0.85rem;
-      font-weight: 600;
-      transition: all 0.2s;
-    }
-    .btn-back:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
-    .vendor-badge {
-      display: inline-block;
-      font-size: 0.75rem;
-      padding: 0.25rem 0.65rem;
-      border-radius: 20px;
-      background: rgba(16, 185, 129, 0.2);
-      border: 1px solid rgba(16, 185, 129, 0.4);
-      color: #6ee7b7;
-      font-weight: 600;
-    }
-    .manual-title {
-      font-size: 1.65rem;
-      font-weight: 800;
-      color: #fff;
-      line-height: 1.3;
-      overflow-wrap: break-word;
-    }
-    .manual-subtitle {
-      font-size: 0.92rem;
-      color: #cbd5e1;
-      margin-top: 0.4rem;
-      line-height: 1.5;
-    }
-    .toc-card {
-      background: var(--card-bg, #0f172a);
-      border: 1px solid var(--card-border, rgba(255, 255, 255, 0.1));
-      border-radius: 14px;
-      padding: 1.25rem;
-      margin-bottom: 1.5rem;
-      width: 100%;
-      box-sizing: border-box;
-    }
-    .toc-title {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--accent-light, #fbbf24);
-      margin-bottom: 0.75rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .toc-list {
-      list-style: none;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 0.5rem;
-      padding: 0;
-      margin: 0;
-    }
-    .toc-list li a {
-      display: block;
-      padding: 0.55rem 0.85rem;
-      background: rgba(15, 23, 42, 0.6);
-      border-radius: 8px;
-      color: #e2e8f0;
-      text-decoration: none;
-      font-size: 0.88rem;
-      font-weight: 500;
-      transition: all 0.2s;
-      border-left: 3px solid transparent;
-      overflow-wrap: break-word;
-    }
-    .toc-list li a:hover {
-      background: rgba(5, 150, 105, 0.25);
-      border-left-color: #34d399;
-      color: #fff;
-      transform: translateX(3px);
-    }
-    .search-input-box {
-      margin-bottom: 1.5rem;
-      width: 100%;
-      box-sizing: border-box;
-    }
-    .search-input-box input {
-      width: 100%;
-      padding: 0.85rem 1.2rem;
-      background: rgba(30, 41, 59, 0.85);
-      border: 1px solid var(--card-border, rgba(255, 255, 255, 0.15));
-      border-radius: 12px;
-      color: #fff;
-      font-size: 0.95rem;
-      box-sizing: border-box;
-    }
-    .search-input-box input:focus {
-      outline: none;
-      border-color: #34d399;
-      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
-    }
-    .manual-section {
-      background: var(--card-bg, #0f172a);
-      border: 1px solid var(--card-border, rgba(255, 255, 255, 0.1));
-      border-radius: 16px;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-      scroll-margin-top: 20px;
-      width: 100%;
-      max-width: 100%;
-      box-sizing: border-box;
-      overflow-x: hidden;
-    }
-    .manual-section h2 {
-      font-size: 1.28rem;
-      font-weight: 700;
-      color: #34d399;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      padding-bottom: 0.6rem;
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      overflow-wrap: break-word;
-      word-break: break-word;
-    }
-    .manual-section h3 {
-      font-size: 1.08rem;
-      font-weight: 700;
-      color: var(--accent-light, #fbbf24);
-      margin: 1.25rem 0 0.5rem;
-      overflow-wrap: break-word;
-    }
-    .manual-section p {
-      font-size: 0.92rem;
-      line-height: 1.65;
-      color: #cbd5e1;
-      margin-bottom: 0.85rem;
-      overflow-wrap: break-word;
-    }
-    .manual-section ul, .manual-section ol {
-      margin: 0.5rem 0 1rem 0;
-      padding-left: 1.5rem;
-      padding-right: 0.5rem;
-      font-size: 0.92rem;
-      color: #cbd5e1;
-      line-height: 1.65;
-      box-sizing: border-box;
-      max-width: 100%;
-    }
-    .manual-section li {
-      margin-bottom: 0.4rem;
-      overflow-wrap: break-word;
-      word-wrap: break-word;
-      max-width: 100%;
-    }
-    .code-box {
-      background: #021a14;
-      border: 1px solid rgba(16, 185, 129, 0.35);
-      border-radius: 10px;
-      padding: 0.85rem 1.1rem;
-      font-family: 'Space Grotesk', monospace;
-      font-size: 0.92rem;
-      color: #34d399;
-      margin: 0.75rem 0;
-      overflow-x: auto;
-      max-width: 100%;
-      box-sizing: border-box;
-    }
-    .note-box {
-      background: rgba(217, 119, 6, 0.15);
-      border-left: 4px solid #f59e0b;
-      padding: 0.85rem 1rem;
-      border-radius: 0 8px 8px 0;
-      margin: 1rem 0;
-      font-size: 0.88rem;
-      color: #fde68a;
-      line-height: 1.55;
-      overflow-wrap: break-word;
-      box-sizing: border-box;
-    }
-    .success-box {
-      background: rgba(5, 150, 105, 0.15);
-      border-left: 4px solid #10b981;
-      padding: 0.85rem 1rem;
-      border-radius: 0 8px 8px 0;
-      margin: 1rem 0;
-      font-size: 0.88rem;
-      color: #a7f3d0;
-      line-height: 1.55;
-      overflow-wrap: break-word;
-      box-sizing: border-box;
-    }
-    .feature-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1rem;
-      margin: 1rem 0;
-      width: 100%;
-      box-sizing: border-box;
-    }
-    .feature-card {
-      background: rgba(15, 23, 42, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
-      padding: 1rem;
-      width: 100%;
-      box-sizing: border-box;
-    }
-    .feature-card h4 {
-      color: #38bdf8;
-      margin-bottom: 0.4rem;
-      font-size: 0.95rem;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      overflow-wrap: break-word;
-    }
-    .feature-card p {
-      font-size: 0.85rem;
-      color: #94a3b8;
-      margin-bottom: 0;
-      overflow-wrap: break-word;
-    }
-    .company-card {
-      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.9));
-      border: 2px solid rgba(16, 185, 129, 0.4);
-      border-radius: 18px;
-      padding: 1.5rem;
-      margin-top: 2rem;
-      width: 100%;
-      max-width: 100%;
-      box-sizing: border-box;
-      overflow-x: hidden;
-    }
-    .company-header {
-      text-align: center;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      margin-bottom: 1.25rem;
-    }
-    .company-header h3 {
-      font-size: 1.35rem;
-      font-weight: 800;
-      color: #fff;
-      overflow-wrap: break-word;
-    }
-    .company-header .ssm {
-      color: #34d399;
-      font-size: 0.85rem;
-      font-weight: 600;
-      margin-top: 0.25rem;
-      overflow-wrap: break-word;
-    }
-    .contact-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 1rem;
-      width: 100%;
-      box-sizing: border-box;
-    }
-    .contact-card-item {
-      background: rgba(15, 23, 42, 0.7);
-      padding: 1rem;
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      width: 100%;
-      box-sizing: border-box;
-    }
-    .contact-card-item .c-label {
-      font-size: 0.75rem;
-      color: #94a3b8;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      font-weight: 600;
-      overflow-wrap: break-word;
-    }
-    .contact-card-item .c-val {
-      font-size: 0.95rem;
-      color: #f1f5f9;
-      margin-top: 0.35rem;
-      line-height: 1.4;
-      font-weight: 500;
-      overflow-wrap: break-word;
-    }
-    .contact-card-item a {
-      color: #38bdf8;
-      text-decoration: none;
-      overflow-wrap: break-word;
-    }
-    .contact-actions {
-      display: flex;
-      gap: 0.5rem;
-      margin-top: 0.75rem;
-      flex-wrap: wrap;
-    }
-    .contact-actions a {
-      flex: 1;
-      min-width: 120px;
-      text-align: center;
-      padding: 0.5rem 0.75rem;
-      border-radius: 8px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      text-decoration: none;
-      box-sizing: border-box;
-    }
-    .btn-wa {
-      background: #059669;
-      color: #fff !important;
-    }
-    .btn-call {
-      background: rgba(255, 255, 255, 0.1);
-      color: #fff !important;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    .kbd-badge {
-      display: inline-block;
-      padding: 0.15rem 0.45rem;
-      font-size: 0.78rem;
-      font-family: inherit;
-      font-weight: 700;
-      color: #f8fafc;
-      background: #1e293b;
-      border: 1px solid #475569;
-      border-bottom-width: 2px;
-      border-radius: 6px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.3);
-    }
-    .update-method-card {
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 14px;
-      padding: 1.25rem;
-      margin-top: 1rem;
-      width: 100%;
-      max-width: 100%;
-      box-sizing: border-box;
-      overflow-x: hidden;
-    }
-    .update-method-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      padding-bottom: 0.6rem;
-      margin-bottom: 0.85rem;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-    .update-method-title {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: #fbbf24;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      overflow-wrap: break-word;
-    }
-    .update-badge {
-      font-size: 0.72rem;
-      font-weight: 700;
-      padding: 0.2rem 0.6rem;
-      border-radius: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .badge-easy {
-      background: rgba(16, 185, 129, 0.2);
-      border: 1px solid rgba(16, 185, 129, 0.5);
-      color: #34d399;
-    }
-    .badge-fast {
-      background: rgba(245, 158, 11, 0.2);
-      border: 1px solid rgba(245, 158, 11, 0.5);
-      color: #fbbf24;
-    }
-    .code-snippet-box {
-      position: relative;
-      background: #021a14;
-      border: 1px solid rgba(16, 185, 129, 0.35);
-      border-radius: 10px;
-      padding: 0.85rem 1rem;
-      margin: 0.75rem 0;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-      width: 100%;
-      max-width: 100%;
-      box-sizing: border-box;
-    }
-    .code-snippet-text {
-      font-family: 'Space Grotesk', monospace;
-      font-size: 0.88rem;
-      color: #34d399;
-      word-break: break-all;
-      overflow-wrap: break-word;
-      flex: 1;
-      min-width: 200px;
-    }
-    .btn-copy {
-      padding: 0.45rem 0.9rem;
-      background: #059669;
-      border: 1px solid #34d399;
-      border-radius: 8px;
-      color: #ffffff;
-      font-size: 0.82rem;
-      font-weight: 700;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
-    .btn-copy:hover {
-      background: #10b981;
-      transform: translateY(-1px);
-    }
-
-    /* ==================== RESPONSIVE VIEWPORT STYLING ==================== */
-    .container, .card, .section, .manual-content {
-      max-width: 100% !important;
-      width: 100% !important;
-      box-sizing: border-box !important;
-      overflow-x: hidden !important;
-    }
-
-    @media (max-width: 768px) {
-      .manual-page {
-        padding: 1rem 0.75rem 3rem !important;
-      }
-      .manual-header {
-        padding: 1rem !important;
-        border-radius: 14px !important;
-      }
-      .manual-title {
-        font-size: 1.25rem !important;
-        line-height: 1.35 !important;
-      }
-      .manual-section, .company-card {
-        padding: 1rem !important;
-        border-radius: 14px !important;
-      }
-      h2, .section-title, .manual-section h2 {
-        font-size: 1.15rem !important;
-        line-height: 1.4 !important;
-        word-break: break-word !important;
-      }
-      h3, .manual-section h3 {
-        font-size: 0.98rem !important;
-        line-height: 1.4 !important;
-      }
-      ol, ul, .manual-section ol, .manual-section ul {
-        margin-left: 0 !important;
-        padding-left: 1.25rem !important;
-        padding-right: 0.25rem !important;
-      }
-      li, .manual-section li {
-        font-size: 0.92rem !important;
-        line-height: 1.5 !important;
-        margin-bottom: 0.45rem !important;
-      }
-      .toc-card {
-        padding: 1rem !important;
-      }
-      .toc-list {
-        grid-template-columns: 1fr !important;
-        gap: 0.4rem !important;
-      }
-      .update-method-card {
-        padding: 0.85rem !important;
-      }
-      .code-box, .code-snippet-box {
-        padding: 0.75rem !important;
-        font-size: 0.82rem !important;
-        overflow-x: auto !important;
-      }
-      .feature-grid, .contact-grid {
-        grid-template-columns: 1fr !important;
-      }
-      .manual-top-bar {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .btn-back {
-        justify-content: center;
-      }
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panduan Pengguna — e-Solat v5</title>
+  <meta name="description" content="Panduan pengguna dan operasi e-Solat v5 untuk AJK masjid dan surau: paparan UX V/UX H, panel pentadbir, keselamatan, servis systemd dan pemasangan .deb." />
+  <meta name="theme-color" content="#020617" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=JetBrains+Mono:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/site.css" />
+  <link rel="stylesheet" href="./manual.css" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23020617'/%3E%3Cpath d='M32 10c-6 6-9 12-9 17a9 9 0 0 0 18 0c0-5-3-11-9-17Z' fill='%23fbbf24'/%3E%3Cpath d='M17 36h30v16H17z' fill='%2310b981'/%3E%3Cpath d='M27 52V43a5 5 0 0 1 10 0v9' fill='%23020617'/%3E%3C/svg%3E" />
 </head>
-<body>
+<body class="manual-page">
+  <header class="doc-header">
+    <div class="container doc-header-inner">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 100 100">
+            <path d="M50 8c-9 9-14 19-14 27a14 14 0 0 0 28 0c0-8-5-18-14-27Z" fill="#fbbf24"/>
+            <path d="M22 42h56v42H22z" fill="#10b981"/>
+            <path d="M40 84V64a10 10 0 0 1 20 0v20" fill="#04121f"/>
+            <path d="M17 42h66" stroke="#fbbf24" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span class="brand-text"><strong>e-Solat</strong><span>v5 &bull; Panduan Pengguna</span></span>
+      </a>
+      <div class="doc-header-actions">
+        <a class="btn btn-ghost btn-sm" href="../index.html">&larr; Laman Utama</a>
+        <a class="btn btn-primary btn-sm" href="https://wa.me/601118712388?text=Assalamualaikum%2C%20saya%20ingin%20mendapatkan%20pemasang%20e-Solat%20v5." target="_blank" rel="noopener">Dapatkan Pemasang</a>
+      </div>
+    </div>
+  </header>
 
-  <div class="manual-page">
+  <div class="container doc-layout">
+    <aside class="doc-toc" aria-label="Kandungan panduan">
+      <div class="toc-title">KANDUNGAN</div>
+      <nav>
+        <a href="#pengenalan">1. Pengenalan</a>
+        <a href="#paparan">2. Paparan &amp; UX V/UX H</a>
+        <a href="#waktu-solat">3. Waktu solat &amp; takwim</a>
+        <a href="#admin">4. Panel pentadbir</a>
+        <a href="#keselamatan">5. Keselamatan</a>
+        <a href="#pintasan">6. Kekunci pintas</a>
+        <a href="#servis">7. Servis 24/7</a>
+        <a href="#pemasangan">8. Pemasangan .deb</a>
+        <a href="#sambungan">9. Sambungan kiosk</a>
+        <a href="#masalah">10. Penyelesaian masalah</a>
+      </nav>
+      <div class="toc-card">
+        <strong>Perlu bantuan?</strong>
+        <span>0111 8712388</span>
+        <a href="https://wa.me/601118712388" target="_blank" rel="noopener">WhatsApp sokongan &rarr;</a>
+      </div>
+    </aside>
 
-    <!-- Top Navigation & Header -->
-    <header class="manual-header">
-      <div class="manual-top-bar">
-        <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
-          <a href="../" class="btn-back">
-            <span>🏠</span> Laman Utama
-          </a>
-        </div>
-        <div style="display:flex; gap:0.5rem; align-items:center;">
-          <span class="vendor-badge">Skywalker Consortium</span>
+    <article class="doc-content">
+      <div class="doc-intro">
+        <span class="badge badge-amber"><span class="pulse-dot"></span> VERSI 5.0.0</span>
+        <h1>Panduan Pengguna &amp; Operasi</h1>
+        <p>Rujukan lengkap untuk Jawatankuasa Surau &amp; Masjid — imam, bilal, setiausaha dan siak. Merangkumi paparan kiosk, panel pentadbir, keselamatan, servis systemd dan pemasangan pakej Debian.</p>
+        <div class="doc-meta">
+          <span>Kemas kini: 30 Oktober 2026</span>
+          <span>Debian 12/13 &bull; Ubuntu LTS</span>
+          <span>Seni bina amd64</span>
         </div>
       </div>
-      <h1 class="manual-title">📖 Panduan Pengguna Sistem e-Solat Signage Surau</h1>
-      <p class="manual-subtitle">
-        Manual rasmi untuk kegunaan Jawatankuasa Masjid &amp; Surau (Imam, Bilal, Setiausaha, Bendahari &amp; Siak).
-      </p>
-    </header>
 
-    <!-- Search Input -->
-    <div class="search-input-box">
-      <input type="text" id="manualSearch" placeholder="🔍 Cari fungsi... (cth: Kemas Kini, Update, WebRTC, QR, Kamera, Azan, Iqamah, Password, Poster, GPS)">
-    </div>
-
-    <!-- Table of Contents -->
-    <nav class="toc-card">
-      <div class="toc-title">📑 Daftar Kandungan</div>
-      <ul class="toc-list">
-        <li><a href="#sec1">1. Pengenalan Ringkas</a></li>
-        <li><a href="#sec2">2. Bagaimana Paparan TV Berfungsi</a></li>
-        <li><a href="#sec3">3. Cara Buka Panel di Telefon Pintar</a></li>
-        <li><a href="#sec4">4. Log Masuk &amp; Keselamatan Rangkaian</a></li>
-        <li><a href="#sec5">5. Panduan Menu Utama &amp; Tema Visual</a></li>
-        <li><a href="#sec6">6. Panduan Menu Takwim &amp; GPS Telefon</a></li>
-        <li><a href="#sec7">7. Panduan Menu Audio &amp; Azan MP3</a></li>
-        <li><a href="#sec8">8. Panduan Menu Poster &amp; Slaid Kuliah</a></li>
-        <li><a href="#sec9">9. Panduan Media &amp; Mod Skrin TV (Makkah Live)</a></li>
-        <li><a href="#sec10">10. 📹 Siaran Pantas Kamera Telefon (WebRTC QR)</a></li>
-        <li><a href="#sec11">11. 👓 Kemudahan Aksesibiliti Warga Emas</a></li>
-        <li><a href="#sec12">12. Panduan Pengaktifan Lesen</a></li>
-        <li><a href="#sec13">13. Soalan Lazim (FAQ) &amp; Bantuan</a></li>
-        <li><a href="#sec14">14. Maklumat Rasmi Pembekal</a></li>
-        <li><a href="#sec-update">15. 🔄 Panduan Kemas Kini Perisian e-Solat</a></li>
-      </ul>
-    </nav>
-
-    <!-- Content Sections -->
-    <article id="manualContent">
-
-      <!-- Section 1 -->
-      <section id="sec1" class="manual-section">
-        <h2>1. 🌟 Pengenalan Ringkas</h2>
-        <p>
-          Sistem e-Solat Signage Surau adalah sistem paparan waktu solat dan hebahan pintar digital yang dipaparkan pada skrin TV di dewan solat. Sistem ini beroperasi secara automatik 24 jam sehari, 7 hari seminggu tanpa henti.
-        </p>
-        <p>
-          Semua pengurusan surau—seperti menyelaraskan zon solat JAKIM, menetapkan masa kiraan Iqamah, memuat naik poster kuliah, menyiarkan ceramah secara langsung dari telefon pintar, dan menyunting teks pengumuman bergerak—boleh dilakukan terus <b>menggunakan telefon pintar anda</b> tanpa perlu memasang sebarang aplikasi tambahan!
-        </p>
-        <div class="success-box">
-          <b>✓ Zero Install:</b> Tiada aplikasi pihak ketiga diperlukan. Panel kawalan dan penstriman kamera beroperasi terus melalui pelayar web Chrome atau Safari telefon pintar anda.
+      <section id="pengenalan">
+        <h2><span>01</span> Pengenalan &amp; seni bina</h2>
+        <p><strong>e-Solat v5</strong> ialah perisian papan digital pintar (<em>digital signage &amp; kiosk</em>) 24/7 yang direka untuk masjid dan surau. Sistem menyatukan jadual waktu solat rasmi JAKIM, takwim Islam setahun, jam flip-flap 3D, pengumuman berputar, poster ceramah serta pusat kawalan pentadbir.</p>
+        <div class="doc-grid-2">
+          <div class="doc-box"><h3>Frontend</h3><p>React 18, Vite, TypeScript, Lucide Icons, CSS3 3D transform dan pecutan perkakasan.</p></div>
+          <div class="doc-box"><h3>Backend</h3><p>Node.js Express (<code>deploy/server.cjs</code>) menyajikan fail statik, API JAKIM dan penyegerakan setempat.</p></div>
+          <div class="doc-box"><h3>Sasaran OS</h3><p>Debian GNU/Linux 13 (Trixie) / Ubuntu LTS, seni bina amd64.</p></div>
+          <div class="doc-box"><h3>Pelayar kiosk</h3><p>Chromium kiosk dengan GPU rasterization, watchdog tanpa henti dan autostart selepas boot.</p></div>
         </div>
+        <div class="callout"><strong>Nota:</strong> Semua data konfigurasi disimpan setempat pada peranti kiosk. Tiada akaun awan dan tiada yuran langganan.</div>
       </section>
 
-      <!-- Section 2 -->
-      <section id="sec2" class="manual-section">
-        <h2>2. 📺 Bagaimana Paparan TV Berfungsi</h2>
-        <p>Apabila komputer dan TV surau dihidupkan, paparan TV akan memaparkan secara serentak:</p>
-        <ul>
-          <li><b>Nama Surau &amp; Alamat IP Rangkaian</b>: Dipaparkan kemas di bahagian atas skrin TV bagi memudahkan AJK mengetahui alamat untuk mengawal sistem.</li>
-          <li><b>Jam Digital Masa Nyata</b>: Tepat mengikut saat beserta tarikh Masihi dan tarikh Hijriah.</li>
-          <li><b>Jadual Waktu Solat Rasmi</b>: 7 waktu (Imsak, Subuh, Syuruk, Zohor, Asar, Maghrib, Isyak). Waktu aktif diserlahkan secara dinamik.</li>
-          <li><b>Kiraan Undur ke Waktu Solat Seterusnya</b>: Digit masa besar (cth: <code>- 00:14:22</code> menuju Zohor).</li>
-          <li><b>Strim Langsung Makkah 24/7 &amp; Putaran Slaid</b>: Video Kaabah Makkah secara langsung atau putaran poster kuliah mingguan, hadis harian, dan nombor akaun tabung surau.</li>
-          <li><b>Teks Hebahan Bergerak (Running Ticker)</b>: Makluman jemaah di bahagian bawah skrin.</li>
-        </ul>
+      <section id="paparan">
+        <h2><span>02</span> Paparan &amp; dua personaliti</h2>
+        <p>v5 membawa dua susun atur penuh yang boleh ditukar serta-merta tanpa memuat semula halaman. Dalam kod dan URL, susun atur ini juga dikenali sebagai <code>v1</code> dan <code>v3</code>.</p>
 
-        <h3>Kitaran Automatik Semasa Waktu Solat:</h3>
-        <ol>
-          <li><b>3 Minit Sebelum Masuk Waktu (Pra-Azan)</b>: Nada chime lembut berbunyi dan peringatan solat dipaparkan.</li>
-          <li><b>Waktu Masuk (Azan)</b>: Paparan kaligrafi <i>Allahu Akbar</i> skrin penuh berserta alunan Azan MP3 automatik (atau beep notifikasi untuk Bilal bertugas).</li>
-          <li><b>Selepas Azan</b>: Paparan Doa Selepas Azan beserta terjemahan selama 1 minit.</li>
-          <li><b>Kiraan Undur Iqamah</b>: Paparan digit kiraan undur besar (cth: 10 minit) sehingga solat berjemaah bermula.</li>
-          <li><b>Fasa Solat (Mod Senyap)</b>: Skrin mengingatkan jemaah merapatkan saf dan mematikan telefon bimbit, kemudian skrin dimalapkan agar tenang semasa solat.</li>
+        <div class="doc-grid-2">
+          <div class="doc-box emerald">
+            <span class="tag tag-emerald">UX V &bull; v1</span>
+            <h3>Vertical</h3>
+            <p>Jam HTC flip 3D dan kad takwim di pentas kiri; bar sisi waktu solat menegak di kanan. Sesuai untuk paparan klasik yang tenang.</p>
+          </div>
+          <div class="doc-box amber">
+            <span class="tag tag-amber">UX H &bull; v3</span>
+            <h3>Horizontal</h3>
+            <p>Pentas carousel untuk jam, poster dan mutiara hikmah; reben waktu solat mendatar di bawah. Sesuai untuk TV 16:9 di ruang utama.</p>
+          </div>
+        </div>
+
+        <h3>Mod bergilir (Mixed)</h3>
+        <p>Pilih <strong>MIXED</strong> untuk membiarkan kiosk bergilir automatik antara UX V dan UX H setiap 25 saat (boleh ditala). URL parameter dibersihkan secara pintar supaya peralihan kekal responsif.</p>
+
+        <h3>Bar header kiosk</h3>
+        <ul class="doc-list">
+          <li><strong>Nama surau</strong> dipaparkan di tengah skrin dengan tipografi besar.</li>
+          <li><strong>Kad tarikh 3D</strong> berputar antara tarikh Masihi dan Hijri setiap 7 saat.</li>
+          <li><strong>Pemilih mod</strong> (<code>UX V</code>, <code>UX H</code>, <code>MIXED</code>) terletak di sebelah kod zon JAKIM.</li>
+        </ul>
+      </section>
+
+      <section id="waktu-solat">
+        <h2><span>03</span> Waktu solat, takwim &amp; pengumuman</h2>
+        <ul class="doc-list">
+          <li><strong>6 waktu solat</strong> dipaparkan seimbang: SUBUH, SYURUK, ZOHOR, ASAR, MAGHRIB dan ISYAK.</li>
+          <li><strong>IMSak</strong> disembunyikan secara automatik di luar bulan Ramadhan.</li>
+          <li><strong>Detik undur</strong> menunjukkan baki jam, minit dan saat untuk waktu seterusnya; status <code>SEKARANG</code> hanya muncul apabila masuk waktu.</li>
+          <li><strong>Takwim Islam</strong> memaparkan peristiwa terdekat (Awal Rejab, Israk Mikraj, Ramadhan, Nuzul Quran, Aidilfitri, Arafah, Aidiladha, Awal Muharram, Maulidur Rasul) bersama baki hari.</li>
+          <li><strong>Ticker</strong> memaparkan pengumuman berjalan pada 20% kelegapan supaya wallpaper masjid kekal kelihatan.</li>
+        </ul>
+        <div class="callout"><strong>Penyegerakan:</strong> Waktu solat diambil dari portal rasmi JAKIM untuk zon yang dipilih. Jika internet terputus, jadual terakhir dan enjin falak solar setempat mengekalkan ketepatan.</div>
+      </section>
+
+      <section id="admin">
+        <h2><span>04</span> Panel pentadbir</h2>
+        <p>Panel pentadbir dibuka melalui butang <strong>Admin</strong> di sudut kanan bawah, atau dengan melayari <code>/?admin=1</code> / <code>/admin</code>. Semua akses memerlukan log masuk.</p>
+        <p>Panel mempunyai empat suite:</p>
+        <div class="doc-table-wrap">
+          <table class="doc-table">
+            <thead><tr><th>Suite</th><th>Fungsi</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Studio Kanvas &amp; Visual</strong></td><td>Nama surau, lokasi, zon, mod UX, tema, wallpaper dan susun atur kad.</td></tr>
+              <tr><td><strong>Operasi Solat &amp; Audio</strong></td><td>Offsets waktu, kiraan iqamah, trek azan, beep, chime dan ujian pembesar suara.</td></tr>
+              <tr><td><strong>Media, Kamera &amp; Poster</strong></td><td>Poster kuliah, tabung QR, mutiara hikmah, kamera telefon/HDMI/RTSP.</td></tr>
+              <tr><td><strong>Keselamatan &amp; Rollback</strong></td><td>Pengguna, kata laluan, audit log dan pemulihan konfigurasi.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>Penyegerakan serta-merta</h3>
+        <p>Perubahan yang disimpan disiarkan kepada paparan TV melalui <code>BroadcastChannel</code> setempat. Buka panel pada telefon yang bersambung ke Wi-Fi surau, dan paparan TV akan berubah tanpa muat semula.</p>
+        <div class="callout"><strong>Demo:</strong> Cuba panel pada <a href="../v5/?admin=1" target="_blank" rel="noopener">Demo Admin v5</a> menggunakan akaun demo <code>developer</code> / <code>12388</code>.</div>
+      </section>
+
+      <section id="keselamatan">
+        <h2><span>05</span> Keselamatan &amp; akaun</h2>
+        <p>Butang admin menggunakan kelegapan rendah (15%) supaya tidak mengganggu jemaah, dan menjadi jelas sepenuhnya apabila tetikus didekatkan. Semua akses disekat oleh dialog log masuk keselamatan.</p>
+        <div class="doc-table-wrap">
+          <table class="doc-table">
+            <thead><tr><th>Akaun</th><th>Peranan</th><th>Kata laluan asal</th></tr></thead>
+            <tbody>
+              <tr><td><code>developer</code></td><td>Pembangun &amp; pengurusan sistem</td><td><code>12388</code></td></tr>
+              <tr><td><code>pengerusi</code></td><td>Pentadbir utama masjid/surau</td><td><code>1234</code></td></tr>
+              <tr><td><code>imam1</code>, <code>bilal1</code>, <code>ajk_media</code></td><td>Petugas dan AJK</td><td><code>1234</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout warn"><strong>Penting:</strong> Tukar kata laluan lalai sejurus selepas pemasangan melalui Suite Keselamatan. Setiap perubahan direkodkan dalam audit log.</div>
+      </section>
+
+      <section id="pintasan">
+        <h2><span>06</span> Kekunci pintas papan kekunci</h2>
+        <div class="doc-table-wrap">
+          <table class="doc-table">
+            <thead><tr><th>Kekunci</th><th>Fungsi</th></tr></thead>
+            <tbody>
+              <tr><td><kbd>V</kbd> / <kbd>1</kbd></td><td>Tukar serta-merta ke <strong>UX V</strong> (v1 — sidebar menegak)</td></tr>
+              <tr><td><kbd>H</kbd> / <kbd>3</kbd></td><td>Tukar serta-merta ke <strong>UX H</strong> (v3 — reben mendatar)</td></tr>
+              <tr><td><kbd>M</kbd></td><td>Aktifkan <strong>Mixed Mode</strong> (bergilir v1 &hArr; v3 setiap 25 saat)</td></tr>
+              <tr><td><kbd>A</kbd></td><td>Buka dialog log masuk Pusat Kawalan Pentadbir</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Kekunci pintas diabaikan apabila fokus berada di dalam medan teks, supaya tidak mengganggu pengeditan.</p>
+      </section>
+
+      <section id="servis">
+        <h2><span>07</span> Servis &amp; operasi 24/7</h2>
+        <p>Perkhidmatan backend didaftarkan sebagai <code>esurau-v5.service</code> dan dimulakan secara automatik selepas boot.</p>
+        <pre><code># Semak status servis
+sudo systemctl status esurau-v5.service
+
+# Mulakan semula backend
+sudo systemctl restart esurau-v5.service
+
+# Lihat log langsung
+journalctl -u esurau-v5.service -f</code></pre>
+        <h3>Memuat semula paparan TV</h3>
+        <p>Watchdog kiosk memantau proses Chromium sepanjang masa. Untuk memuat semula paparan:</p>
+        <pre><code>pkill -f chromium</code></pre>
+        <p>Watchdog akan melancarkan semula Chromium kiosk dalam masa kira-kira 2 saat.</p>
+      </section>
+
+      <section id="pemasangan">
+        <h2><span>08</span> Pemasangan pakej Debian</h2>
+        <p>Pemasang rasmi <strong>tidak diedarkan secara terbuka</strong>. Ia diberikan kepada surau selepas pembelian disahkan, bersama arahan pengaktifan lesen. Simpan fail pemasang di lokasi selamat untuk pemasangan semula.</p>
+        <div class="callout warn"><strong>Lesen:</strong> Setiap lesen dikunci kepada Machine ID peranti. Pemasang yang diterima tidak boleh digunakan untuk peranti lain tanpa pengaktifan baharu daripada Skywalker.</div>
+        <pre><code>sudo dpkg -i esurau-v5_5.0.0_amd64.deb
+sudo apt-get install -f -y</code></pre>
+        <p>Pemasang akan:</p>
+        <ol class="doc-list numbered">
+          <li>Memasang fail aplikasi ke <code>/opt/esurau/</code>.</li>
+          <li>Mendaftar dan mengaktifkan servis <code>esurau-v5.service</code> (Node.js, port 8080).</li>
+          <li>Mengkonfigurasi autostart sesi kiosk Chromium tanpa kursor dan tanpa screensaver.</li>
         </ol>
+        <h3>Membina dari kod sumber</h3>
+        <pre><code>./deploy/build-deb.sh</code></pre>
+        <div class="callout"><strong>Keperluan:</strong> Debian 12/13 atau Ubuntu LTS. Perisian v5 tidak berjalan pada Windows atau Android TV box. Untuk pembinaan dari sumber, kebenaran bertulis diperlukan daripada Skywalker Consortium.</div>
       </section>
 
-      <!-- Section 3 -->
-      <section id="sec3" class="manual-section">
-        <h2>3. 📱 Cara Membuka Panel Kawalan di Telefon Pintar</h2>
-        <p>Anda boleh menguruskan sistem menggunakan mana-mana telefon pintar (Android atau iPhone) yang berada di surau:</p>
-        <ol>
-          <li><b>Sambung ke Wi-Fi Surau</b>: Pastikan Wi-Fi telefon anda disambungkan ke rangkaian Wi-Fi yang sama dengan komputer TV surau.</li>
-          <li><b>Lihat Alamat IP di TV</b>: Perhatikan alamat IP yang tertera di bawah nama &amp; alamat surau pada skrin TV Kiosk (contoh: <code>192.168.1.104</code>).</li>
-          <li><b>Buka Pelayar Web</b>: Buka aplikasi <b>Google Chrome</b> (Android) atau <b>Safari</b> (iPhone).</li>
-          <li><b>Masukkan Alamat IP Surau</b>: Taip alamat IP komputer surau diikuti <code>:8080/admin</code>:</li>
-        </ol>
-        <div class="code-box">http://&lt;IP_KOMPUTER_SURAU&gt;:8080/admin<br>Contoh: http://192.168.1.104:8080/admin</div>
-        <div class="note-box">
-          💡 <b>Tip Penting (Pasang Ikon di Skrin Telefon):</b> Pada Chrome tekan butang menu ⋮ &gt; <i>"Add to Home screen"</i> (atau pada Safari tekan ikon Share &gt; <i>"Add to Home Screen"</i>). Panel admin akan dipasang seperti aplikasi rasmi dengan ikon e-Solat di skrin telefon anda!
+      <section id="sambungan">
+        <h2><span>09</span> Sambungan kiosk</h2>
+        <div class="doc-table-wrap">
+          <table class="doc-table">
+            <thead><tr><th>Perkara</th><th>Nilai</th></tr></thead>
+            <tbody>
+              <tr><td>Hos NetBird</td><td><code>surau-darul-taqwa.netbird.cloud</code> (10.6.250.119)</td></tr>
+              <tr><td>IP LAN</td><td><code>192.168.1.104</code></td></tr>
+              <tr><td>Pengguna sistem</td><td><code>ajk</code></td></tr>
+              <tr><td>Paparan kiosk</td><td><code>http://127.0.0.1:8080/</code></td></tr>
+              <tr><td>Panel pentadbir</td><td><code>http://192.168.1.104:8080/?admin=1</code></td></tr>
+            </tbody>
+          </table>
         </div>
+        <p>Gunakan IP yang sama pada telefon AJK yang bersambung ke Wi-Fi surau untuk membuka panel pentadbir mudah alih.</p>
       </section>
 
-      <!-- Section 4 -->
-      <section id="sec4" class="manual-section">
-        <h2>4. 🔐 Log Masuk &amp; Keselamatan Rangkaian</h2>
-        <h3>Log Masuk Kali Pertama:</h3>
-        <ul>
-          <li><b>Nama Pengguna:</b> <code>admin</code></li>
-          <li><b>Kata Laluan Lalai:</b> <code>admin@surau</code></li>
-        </ul>
-        <h3>Tukar Kata Laluan (Wajib Pada Kali Pertama):</h3>
-        <p>
-          Demi keselamatan surau daripada digodam, sistem mewajibkan penukaran kata laluan pada kali pertama login:
-        </p>
-        <ol>
-          <li>Kotak amaran kuning akan terpapar secara automatik.</li>
-          <li>Masukkan kata laluan baharu surau (minimum 6 aksara).</li>
-          <li>Taip semula di kotak sahkan kata laluan, kemudian tekan <b>Simpan Kata Laluan Baharu</b>.</li>
-          <li>Sila catat kata laluan baharu ini dan kongsikan kepada AJK surau yang diamanahkan sahaja.</li>
-        </ol>
+      <section id="masalah">
+        <h2><span>10</span> Penyelesaian masalah</h2>
+        <details class="doc-faq" open>
+          <summary>Skrin TV hitam selepas boot</summary>
+          <p>Semak servis backend dengan <code>systemctl status esurau-v5.service</code>. Jika servis aktif tetapi Chromium tidak muncul, jalankan <code>pkill -f chromium</code> dan tunggu watchdog memulakan semula.</p>
+        </details>
+        <details class="doc-faq">
+          <summary>Waktu solat tidak berubah</summary>
+          <p>Pastikan zon JAKIM betul di Suite Operasi Solat. Sistem akan mencuba API JAKIM secara langsung, kemudian proxy setempat. Jika kedua-duanya gagal, jadual terakhir dan enjin falak solar setempat digunakan.</p>
+        </details>
+        <details class="doc-faq">
+          <summary>Azan tidak berbunyi</summary>
+          <p>Semak volum sistem, trek azan yang dipilih dan tetapan <code>azanAudioEnabled</code>. Gunakan butang ujian audio dalam Suite Operasi Solat. Pelayar kiosk memerlukan interaksi pengguna sekali sebelum audio dibenarkan.</p>
+        </details>
+        <details class="doc-faq">
+          <summary>Panel admin tidak boleh dibuka dari telefon</summary>
+          <p>Pastikan telefon berada pada Wi-Fi yang sama, gunakan IP kiosk yang betul dan port <code>8080</code>. Semak firewall setempat jika sambungan masih gagal.</p>
+        </details>
       </section>
 
-      <!-- Section 5 -->
-      <section id="sec5" class="manual-section">
-        <h2>5. 📊 Panduan Menu Utama &amp; Tema Visual</h2>
-        <p>Menu ini memaparkan status masa nyata dan menyediakan butang kawalan pantas:</p>
-        <ul>
-          <li><b>Ujian Output Pembesar Suara:</b> Tekan butang <i>Uji Azan (MP3)</i>, <i>Uji Azan Subuh</i>, atau <i>Uji Nada Bilal</i> untuk memastikan audio disambungkan ke amplifier PA System surau.</li>
-          <li><b>Simulasi Paparan TV (30 Saat):</b> Tekan butang simulasi (cth: <i>Paparan Azan</i> atau <i>Kiraan Iqamah</i>) untuk menguji rupa skrin dewan solat tanpa menunggu waktu solat tiba.</li>
-          <li><b>Muat Semula TV Kiosk:</b> Tekan ikon 🔄 di bahagian atas skrin untuk memuat semula paparan skrin TV secara serta-merta dari jauh.</li>
-          <li><b>Pilihan Tema Visual:</b> Tukar skema warna skrin TV (Emerald Green, Royal Amber, Deep Midnight, atau Classic Gold) mengikut kesesuaian seni bina surau anda.</li>
-        </ul>
-      </section>
-
-      <!-- Section 6 -->
-      <section id="sec6" class="manual-section">
-        <h2>6. 📍 Panduan Menu Takwim &amp; GPS Telefon</h2>
-        <p>Sistem ini menyegerakkan jadual waktu solat terus daripada takwim rasmi JAKIM dan menyimpannya secara luar talian (*offline*):</p>
-        <h3>Kesan Zon Melalui GPS Telefon:</h3>
-        <ol>
-          <li>Buka tab <b>Takwim</b>.</li>
-          <li>Tekan butang biru <b>📍 Kesan Zon Melalui GPS Telefon</b>.</li>
-          <li>Benarkan akses lokasi pada telefon anda apabila diminta.</li>
-          <li>Sistem akan mengira koordinat GPS anda dan memadankan zon JAKIM terdekat (cth: <code>SGR01 - Gombak, Petaling, Shah Alam</code>).</li>
-          <li>Tekan <b>OK</b> untuk menyimpan dan memuat turun jadual solat setahun penuh.</li>
-        </ol>
-        <h3>Pelarasan Minit Waktu Solat (Offset):</h3>
-        <p>
-          Sekiranya jawatankuasa ingin menambah atau menolak minit tertentu bagi setiap waktu solat mengikut ketetapan mufti tempatan, anda boleh memasukkan nilai offset (cth: <code>+2</code> minit bagi Subuh).
-        </p>
-      </section>
-
-      <!-- Section 7 -->
-      <section id="sec7" class="manual-section">
-        <h2>7. 🕌 Panduan Menu Audio &amp; Azan MP3</h2>
-        <p>Anda mempunyai kawalan penuh terhadap fail audio azan yang dilaungkan di dewan solat:</p>
-        <ul>
-          <li><b>Pilihan Azan Standard &amp; Subuh:</b> Pilih alunan Azan Makkah, Madinah, Mesir, Aqsa, atau fail khas Subuh yang mempunyai lafaz <i>As-Salatu Khairum Minan Naum</i>.</li>
-          <li><b>Muat Naik Azan Tempatan:</b> Anda boleh memuat naik rakaman azan merdu oleh Ustaz atau Bilal tempatan surau dalam format MP3/WAV.</li>
-          <li><b>Mod Azan Setiap Waktu:</b>
-            <ul>
-              <li><i>Auto MP3</i>: Memainkan alunan azan penuh secara automatik.</li>
-              <li><i>Beep Notifikasi</i>: Mengeluarkan nada dering panggilan ringkas untuk Bilal bertugas melaungkan azan secara langsung.</li>
-              <li><i>Senyap</i>: Hanya paparan visual di TV tanpa bunyi.</li>
-            </ul>
-          </li>
-          <li><b>Tempoh Kiraan Iqamah:</b> Tetapkan minit kiraan undur Iqamah bagi setiap waktu (cth: Subuh 15 minit, Maghrib 10 minit).</li>
-        </ul>
-      </section>
-
-      <!-- Section 8 -->
-      <section id="sec8" class="manual-section">
-        <h2>8. 🖼️ Panduan Menu Poster &amp; Slaid Kuliah</h2>
-        <p>Muat naik hebahan surau seperti poster kuliah, peringatan jemaah, atau maklumat kempen sumbangan:</p>
-        <ol>
-          <li>Buka tab <b>Poster</b>.</li>
-          <li>Masukkan tajuk hebahan (cth: <i>Kuliah Maghrib Ustaz Fauzi</i>).</li>
-          <li>Pilih fail imej (JPG/PNG) atau video (MP4) daripada galeri telefon anda.</li>
-          <li>Tetapkan tempoh tayangan (lalai: 12 saat) dan nombor susunan turutan.</li>
-          <li>Tekan <b>Muat Naik Slaid</b>. Slaid akan mula berputar di TV dewan solat secara automatik!</li>
-        </ol>
-        <div class="note-box">
-          📐 <b>Nisbah Skrin Ideal:</b> Skrin TV menggunakan nisbah standard <b>16:9</b> (1920x1080). Untuk hasil terbaik, sediakan poster kuliah dalam format melintang (landscape).
-        </div>
-      </section>
-
-      <!-- Section 9 -->
-      <section id="sec9" class="manual-section">
-        <h2>9. 📺 Panduan Media &amp; Mod Skrin TV (Makkah Live)</h2>
-        <p>Kawal susun atur visual di skrin TV mengikut keperluan aktiviti surau:</p>
-        <ul>
-          <li><b>Strim Makkah &amp; Madinah Live 24/7:</b> Menyiarkan Kaabah Makkah (Holy Stream) secara langsung di ruang pentas media.</li>
-          <li><b>TV Al-Hijrah / Berita RTM Live:</b> Siaran berita dan rancangan Islamik langsung rasmi.</li>
-          <li><b>Mod Skrin Penuh Media (Full Width):</b> Suis satu sentuhan untuk meluaskan video ke sepenuh pentas TV semasa ceramah atau kuliah berlangsung.</li>
-          <li><b>Mod Picture-in-Picture (PiP):</b> Menayangkan video kuliah dengan tetingkap jam dan waktu solat terapung di sudut skrin.</li>
-          <li><b>Tabung Infaq DuitNow QR:</b> Masukkan nama bank, nombor akaun, dan nama pemegang akaun tabung pembangunan surau untuk dipaparkan di widget sisi TV.</li>
-        </ul>
-      </section>
-
-      <!-- Section 10: WebRTC Phone Camera Live Streaming -->
-      <section id="sec10" class="manual-section">
-        <h2>10. 📹 Siaran Pantas Kamera Telefon (WebRTC Scan-to-Stream)</h2>
-        <p>
-          Ciri terkini membolehkan AJK surau menyiarkan video ceramah terus daripada kamera telefon pintar ke skrin TV dewan solat <b>tanpa memasang sebarang aplikasi pihak ketiga (seperti IP Webcam)</b>!
-        </p>
-
-        <div class="feature-grid">
-          <div class="feature-card">
-            <h4>📲 1. Buka Tab Kamera</h4>
-            <p>Di panel Admin telefon anda, buka tab <b>Kamera</b> dan lihat kad <i>"Siaran Pantas Telefon (Imbas Kod QR)"</i>.</p>
-          </div>
-          <div class="feature-card">
-            <h4>📷 2. Imbas Kod QR</h4>
-            <p>Imbas Kod QR yang dipaparkan atau tekan pautan <code>/streamer?room=kuliah</code> pada telefon yang ingin dijadikan kamera.</p>
-          </div>
-          <div class="feature-card">
-            <h4>🔴 3. Mula Siaran</h4>
-            <p>Tekan butang <b>"Benarkan Kamera"</b>, kemudian tekan <b>"Mula Siaran ke TV"</b>. Video muncul serta-merta di TV Kiosk dewan solat!</p>
-          </div>
-        </div>
-
-        <h3>Kawalan Semasa Siaran:</h3>
-        <ul>
-          <li><b>Tukar Kamera Depan / Belakang (🔄):</b> Tekan butang pusing kamera untuk menukar lensa sudut luas atau lensa hadapan.</li>
-          <li><b>Bisu Mikrofon (🎙️ / 🔇):</b> Bisu atau aktifkan audio mikrofon telefon mengikut keperluan.</li>
-          <li><b>Perlindungan Terputus (10s Failover Guard):</b> Sekiranya telefon terputus bateri atau ditutup, TV Kiosk akan secara automatik kembali ke paparan takwim biasa / Makkah Live selepas 10 saat tanpa paparan ralat skrin hitam.</li>
-        </ul>
-
-        <div class="note-box" style="border-left-color: #38bdf8; background: rgba(14, 165, 233, 0.1);">
-          <b>🎙️ Tips Kualiti Audio Jelas Tanpa Gema Dewan:</b>
-          <p style="margin-top:0.3rem;">Untuk suara penceramah yang sangat jelas bertaraf studio tanpa gema:</p>
-          <ul style="margin-top:0.3rem; padding-left:1.2rem;">
-            <li>Gunakan mikrofon klip tanpa wayar (Wireless Lavalier Mic Type-C/Lightning) pada jubah ustaz.</li>
-            <li>Atau sambungkan kabel audio dari port <code>REC OUT / AUX OUT</code> Amplifier PA Surau terus ke port audio telefon/komputer.</li>
-          </ul>
-        </div>
-      </section>
-
-      <!-- Section 11: Senior Accessibility -->
-      <section id="sec11" class="manual-section">
-        <h2>11. 👓 Kemudahan Aksesibiliti &amp; Antaramuka Mesra Warga Emas</h2>
-        <p>
-          Panel pentadbir e-Solat direka khas agar mesra warga emas dan mudah digunakan oleh barisan AJK surau veteran:
-        </p>
-        <ul>
-          <li><b>Bar Navigasi Bawah 100% Penuh:</b> 9 tab utama disusun merentasi seluruh lebar skrin telefon tanpa sebarang ruang kosong di tepi.</li>
-          <li><b>Tipografi Kuning Kontras Tinggi:</b> Label menu menggunakan warna Kuning Amber (<code>#fbbf24</code>) dan Kuning Emas Padu (<code>#fef08a</code>) yang sangat jelas dan terang walaupun pada penglihatan yang kurang tajam.</li>
-          <li><b>Teks Bersaiz Besar &amp; Tebal (Bold):</b> Saiz fon yang dinaiktaraf kepada saiz lebih besar (15px–16px) dengan ketebalan 700 (Bold) memudahkan bacaan tanpa cermin mata.</li>
-          <li><b>Zon Sentuhan Luas (Easy-Touch Targets):</b> Butang bersaiz minimum 72px–80px menghalang kesilapan salah tekan pada skrin sentuh telefon pintar.</li>
-        </ul>
-      </section>
-
-      <!-- Section 12: License Activation -->
-      <section id="sec12" class="manual-section">
-        <h2>12. 🔑 Panduan Pengaktifan Lesen</h2>
-        <p>Setiap pemasangan perisian dilindungi oleh pengesahan perkakasan (*Machine ID*):</p>
-        <ol>
-          <li>Buka tab <b>Lesen</b> di telefon anda.</li>
-          <li>Tekan butang <b>📋 Salin Machine ID</b> (cth: <code>SURAU-XXXX-XXXX-XXXX</code>).</li>
-          <li>Hubungi pihak sokongan teknikal <b>Skywalker Consortium (+6011-1871 2388)</b> dan berikan Machine ID tersebut.</li>
-          <li>Pihak kami akan memberikan <b>Activation PIN 16-aksara</b> rasmi.</li>
-          <li>Masukkan PIN tersebut di ruangan yang disediakan dan tekan butang <b>⚡ Sahkan &amp; Aktifkan Lesen</b>. Sistem akan dibuka serta-merta!</li>
-        </ol>
-      </section>
-
-      <!-- Section 13: FAQ -->
-      <section id="sec13" class="manual-section">
-        <h2>13. ❓ Soalan Lazim (FAQ) &amp; Penyelesaian Masalah</h2>
-        
-        <h3>S1: Di mana saya boleh melihat Alamat IP Komputer Surau?</h3>
-        <p><b>Jawapan:</b> Alamat IP tempatan (cth: <code>192.168.1.104</code>) kini dipaparkan secara automatik di bawah nama &amp; alamat surau pada bahagian atas skrin TV Kiosk dewan solat.</p>
-
-        <h3>S2: Mengapa skrin TV memaparkan kotak merah "Tempoh Percubaan Tamat"?</h3>
-        <p><b>Jawapan:</b> Tempoh percubaan 7 hari telah berakhir. Sila hubungi pihak Skywalker Consortium untuk mendapatkan PIN pengaktifan lesen kekal bagi surau anda.</p>
-
-        <h3>S3: Tiada bunyi azan keluar dari pembesar suara surau?</h3>
-        <p><b>Jawapan:</b></p>
-        <ul>
-          <li>Pastikan kabel audio 3.5mm dari komputer disambungkan ke port Audio In / Aux amplifier PA System surau.</li>
-          <li>Periksa volume amplifier surau dibuka pada tahap yang sesuai.</li>
-          <li>Buka tab <b>Utama</b> di telefon dan tekan butang <i>Uji Azan (MP3)</i>.</li>
-          <li>Periksa tab <b>Audio</b> untuk memastikan mod waktu berkenaan bukan pada tetapan <i>Senyap</i>.</li>
-        </ul>
-
-        <h3>S4: Adakah sistem berfungsi jika tiada internet atau elektrik terputus?</h3>
-        <p><b>Jawapan:</b></p>
-        <ul>
-          <li><b>Luar Talian (Offline):</b> Sistem menyimpan takwim JAKIM secara setempat dalam pangkalan data SQLite dan mempunyai enjin falak solar dalaman. Tiada sambungan internet diperlukan sepanjang masa.</li>
-          <li><b>Elektrik Terputus:</b> Komputer telah dikonfigurasikan dengan <i>Power-On After Power Failure</i>. Ia akan menyala dan melancarkan paparan secara automatik sebaik elektrik kembali normal. Jam tetap tepat kerana bateri RTC dalaman komputer.</li>
-        </ul>
-      </section>
-
-      <!-- Section 14: Company Details -->
-      <section id="sec14" class="company-card">
-        <div class="company-header">
-          <h3>🏢 Skywalker Consortium</h3>
-          <div class="ssm">No. Pendaftaran SSM: AS0463209-A (202303102311)</div>
-          <p style="font-size:0.85rem; color:#cbd5e1; margin-top:0.4rem;">
-            Penyedia Rasmi Sistem e-Solat Digital Signage &amp; Automasi Surau / Masjid Malaysia
-          </p>
-        </div>
-
-        <div class="contact-grid">
-          <div class="contact-card-item">
-            <div class="c-label">📍 Alamat Perniagaan (Business Address)</div>
-            <div class="c-val">Block A8-3A, Jalan Selaman, 68000 Ampang, Selangor</div>
-          </div>
-
-          <div class="contact-card-item">
-            <div class="c-label">📞 Talian Khidmat Pelanggan / WhatsApp</div>
-            <div class="c-val">
-              <a href="tel:+601118712388">+6011-1871 2388</a>
-            </div>
-            <div class="contact-actions">
-              <a href="https://wa.me/601118712388" target="_blank" class="btn-wa">💬 WhatsApp Rasmi</a>
-              <a href="tel:+601118712388" class="btn-call">📞 Panggilan</a>
-            </div>
-          </div>
-
-          <div class="contact-card-item">
-            <div class="c-label">✉️ Emel Rasmi</div>
-            <div class="c-val">
-              <a href="mailto:skywalker.co@proton.me">skywalker.co@proton.me</a>
-            </div>
-          </div>
-          <div class="contact-card-item">
-            <div class="c-label">🌐 Laman Web Rasmi</div>
-            <div class="c-val">
-              <a href="https://sky12388.github.io/esolat/" target="_blank">https://sky12388.github.io/esolat/</a>
-            </div>
-          </div>
-        </div>
-
-        <div style="text-align:center; margin-top:1.5rem; font-size:0.75rem; color:#94a3b8; border-top:1px solid rgba(255,255,255,0.08); padding-top:1rem;">
-          Hak Cipta Terpelihara &copy; 2026 <b>Skywalker Consortium</b> (AS0463209-A). Semua hak terpelihara.
-        </div>
-      </section>
-
-      <!-- Section 15: Software Update Guide -->
-      <section id="sec-update" class="manual-section">
-        <h2>15. 🔄 Panduan Kemas Kini Perisian e-Solat</h2>
-        <p>
-          Kemas kini perisian membolehkan sistem e-Solat surau anda menerima ciri-ciri baharu, peningkatan kestabilan operasi autonomi 24/7, serta tampalan sekuriti terkini daripada pihak Skywalker Consortium.
-        </p>
-
-        <div class="success-box">
-          <b>✓ Selamat &amp; Tanpa Kehilangan Data (In-Place Upgrade):</b> Proses kemas kini tidak akan memadamkan tetapan nama masjid/surau, zon solat JAKIM, muat naik poster, audio azan, atau pangkalan data rekod surau anda di <code>/var/lib/esolat/</code>.
-        </div>
-
-        <!-- PILIHAN 1: Melalui Pelayar Web -->
-        <div class="update-method-card">
-          <div class="update-method-header">
-            <div class="update-method-title">
-              <span>🌐 Pilihan 1: Melalui Pelayar Web</span>
-            </div>
-            <span class="update-badge badge-easy">Paling Mudah (UI)</span>
-          </div>
-          
-          <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 0.75rem;">
-            Kaedah visual menggunakan pelayar web Chromium terus pada komputer surau.
-          </p>
-
-          <ol style="margin-left: 1.25rem;">
-            <li>
-              <b>Langkah 1:</b> Tekan pintasan papan kekunci <kbd class="kbd-badge">Ctrl</kbd> + <kbd class="kbd-badge">Alt</kbd> + <kbd class="kbd-badge">➡️</kbd> untuk beralih dari mod paparan skrin Kiosk ke paparan desktop komputer (Desktop MATE).
-            </li>
-            <li>
-              <b>Langkah 2:</b> Buka pelayar web <b>Chromium</b> dan layari laman web rasmi: <a href="https://sky12388.github.io/esolat/" target="_blank" style="color:#38bdf8; font-weight:700; text-decoration:underline;">https://sky12388.github.io/esolat/</a>
-            </li>
-            <li>
-              <b>Langkah 3:</b> Klik butang kuning keemasan <b>"Download eSolat (Percubaan 7 Hari)"</b> untuk memuat turun pakej pemasang <code>.deb</code> versi terkini.
-            </li>
-            <li>
-              <b>Langkah 4:</b> Buka folder <i>Downloads</i> pada komputer, kemudian klik dua kali pada fail pakej <code>.deb</code> yang telah dimuat turun untuk memulakan pemasangan (*Package Installer*).
-            </li>
-            <li>
-              <b>Langkah 5:</b> Masukkan kata laluan <code style="color:#fbbf24; font-weight:700; background:#1e293b; padding:2px 8px; border-radius:4px;">8888</code> sekiranya diminta oleh sistem bagi tujuan pengesahan keselamatan kebenaran pentadbir (*keyring/authentication*).
-            </li>
-          </ol>
-        </div>
-
-        <!-- PILIHAN 2: Melalui Terminal -->
-        <div class="update-method-card">
-          <div class="update-method-header">
-            <div class="update-method-title">
-              <span>⚡ Pilihan 2: Melalui Terminal</span>
-            </div>
-            <span class="update-badge badge-fast">Paling Pantas (1 Minit)</span>
-          </div>
-
-          <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 0.75rem;">
-            Kaedah pantas satu baris arahan (*single-line command*) untuk memuat turun dan memasang kemas kini secara automatik.
-          </p>
-
-          <ol style="margin-left: 1.25rem;">
-            <li>
-              <b>Langkah 1:</b> Buka aplikasi Terminal melalui menu (*Applications ➔ System Tools ➔ MATE Terminal*) atau tekan pintasan papan kekunci <kbd class="kbd-badge">Ctrl</kbd> + <kbd class="kbd-badge">Alt</kbd> + <kbd class="kbd-badge">T</kbd>.
-            </li>
-            <li>
-              <b>Langkah 2:</b> Salin arahan satu baris berikut:
-              <div class="code-snippet-box">
-                <span class="code-snippet-text">curl -sSL https://sky12388.github.io/esolat/downloads/skywalker.esolat.deb -o /tmp/esolat.deb &amp;&amp; sudo dpkg -i /tmp/esolat.deb</span>
-                <button type="button" class="btn-copy" onclick="copyUpdateCommand(this)">
-                  <span>📋</span> Salin Kod
-                </button>
-              </div>
-            </li>
-            <li>
-              <b>Langkah 3:</b> Klik kanan tetikus di dalam tetingkap Terminal, pilih <b>Paste</b> (atau tekan <kbd class="kbd-badge">Ctrl</kbd> + <kbd class="kbd-badge">Shift</kbd> + <kbd class="kbd-badge">V</kbd>), kemudian tekan <b>Enter</b>.
-            </li>
-            <li>
-              <b>Langkah 4:</b> Masukkan kata laluan <code style="color:#fbbf24; font-weight:700; background:#1e293b; padding:2px 8px; border-radius:4px;">8888</code> apabila diminta.
-              <div class="note-box" style="margin: 0.5rem 0 0.75rem;">
-                <b>💡 Nota Keselamatan:</b> Semasa menaip kata laluan di Terminal Linux, aksara memang tidak akan dipaparkan pada skrin (tiada bintang/titik). Teruskan menaip <code>8888</code> dan terus tekan <b>Enter</b>.
-              </div>
-            </li>
-            <li>
-              <b>Langkah 5:</b> Pemasang akan mengemas kini semua servis secara autonomi. Mulakan semula komputer (*reboot*) sekiranya perlu dengan menaip arahan:
-              <div class="code-box" style="margin: 0.4rem 0;">sudo reboot</div>
-            </li>
-          </ol>
-        </div>
-      </section>
-
+      <div class="doc-footer-nav">
+        <a class="btn btn-glass btn-sm" href="../index.html">&larr; Kembali ke laman utama</a>
+        <a class="btn btn-primary btn-sm" href="../v5/?mode=v1" target="_blank" rel="noopener">Buka demo kiosk &rarr;</a>
+      </div>
     </article>
-
   </div>
 
-  <script>
-    // Live Search Filter across manual sections
-    document.getElementById('manualSearch').addEventListener('input', function(e) {
-      const query = e.target.value.toLowerCase().trim();
-      const sections = document.querySelectorAll('.manual-section');
-      
-      sections.forEach(sec => {
-        if (!query) {
-          sec.style.display = 'block';
-          return;
-        }
-        const text = sec.textContent.toLowerCase();
-        if (text.includes(query)) {
-          sec.style.display = 'block';
-        } else {
-          sec.style.display = 'none';
-        }
-      });
-    });
-
-    // Copy Command to Clipboard with Visual Feedback
-    function copyUpdateCommand(btn) {
-      const cmd = "curl -sSL https://sky12388.github.io/esolat/downloads/skywalker.esolat.deb -o /tmp/esolat.deb && sudo dpkg -i /tmp/esolat.deb";
-      if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(cmd).then(() => {
-          showCopied(btn);
-        }).catch(() => {
-          fallbackCopy(cmd, btn);
-        });
-      } else {
-        fallbackCopy(cmd, btn);
-      }
-    }
-
-    function showCopied(btn) {
-      const orig = btn.innerHTML;
-      btn.innerHTML = "<span>✓</span> Disalin!";
-      btn.style.background = "#047857";
-      setTimeout(() => {
-        btn.innerHTML = orig;
-        btn.style.background = "#059669";
-      }, 2000);
-    }
-
-    function fallbackCopy(text, btn) {
-      const textarea = document.createElement("textarea");
-      textarea.value = text;
-      textarea.style.position = "fixed";
-      textarea.style.opacity = "0";
-      document.body.appendChild(textarea);
-      textarea.focus();
-      textarea.select();
-      try {
-        document.execCommand("copy");
-        showCopied(btn);
-      } catch (err) {
-        console.error("Gagal menyalin kod:", err);
-      }
-      document.body.removeChild(textarea);
-    }
-  </script>
+  <footer class="doc-footer">
+    <div class="container doc-footer-inner">
+      <span>&copy; 2026 Skywalker Consortium &bull; SSM AS0463209-A</span>
+      <span>e-Solat v5 &bull; Takwim rasmi JAKIM</span>
+    </div>
+  </footer>
 </body>
 </html>
